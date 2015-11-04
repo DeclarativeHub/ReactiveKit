@@ -382,6 +382,28 @@ public extension TaskType {
       return map(transform).concat()
     }
   }
+  
+  @warn_unused_result
+  public func flatMapError<T: TaskType where T.Value == Value>(recover: Error -> T) -> Task<T.Value, T.Error> {
+    return create { sink in
+      let serialDisposable = SerialDisposable(otherDisposable: nil)
+      
+      serialDisposable.otherDisposable = self.observe(on: ImmediateExecutionContext) { taskEvent in
+        switch taskEvent {
+        case .Next(let value):
+          sink.next(value)
+        case .Success:
+          sink.success()
+        case .Failure(let error):
+          serialDisposable.otherDisposable = recover(error).observe(on: ImmediateExecutionContext) { event in
+            sink.sink(event)
+          }
+        }
+      }
+      
+      return serialDisposable
+    }
+  }
 }
 
 @warn_unused_result
