@@ -8,36 +8,36 @@
 
 /* Begin PBXBuildFile section */
 		ECF536B01BE8F4C000015674 /* rKit.h in Headers */ = {isa = PBXBuildFile; fileRef = ECF536AF1BE8F4C000015674 /* rKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		ECF536B71BE8F4C000015674 /* rKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ECF536AC1BE8F4C000015674 /* rKit.framework */; settings = {ASSET_TAGS = (); }; };
+		ECF536B71BE8F4C000015674 /* rKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ECF536AC1BE8F4C000015674 /* rKit.framework */; };
 		ECF536BC1BE8F4C000015674 /* rKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536BB1BE8F4C000015674 /* rKitTests.swift */; };
-		ECF536E91BE8F50F00015674 /* BlockDisposable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536C71BE8F50F00015674 /* BlockDisposable.swift */; settings = {ASSET_TAGS = (); }; };
-		ECF536EA1BE8F50F00015674 /* CompositeDisposable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536C81BE8F50F00015674 /* CompositeDisposable.swift */; settings = {ASSET_TAGS = (); }; };
-		ECF536EB1BE8F50F00015674 /* Disposable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536C91BE8F50F00015674 /* Disposable.swift */; settings = {ASSET_TAGS = (); }; };
-		ECF536EC1BE8F50F00015674 /* DisposeBag.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536CA1BE8F50F00015674 /* DisposeBag.swift */; settings = {ASSET_TAGS = (); }; };
-		ECF536ED1BE8F50F00015674 /* SerialDisposable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536CB1BE8F50F00015674 /* SerialDisposable.swift */; settings = {ASSET_TAGS = (); }; };
-		ECF536EE1BE8F50F00015674 /* SimpleDisposable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536CC1BE8F50F00015674 /* SimpleDisposable.swift */; settings = {ASSET_TAGS = (); }; };
-		ECF536EF1BE8F50F00015674 /* Lock.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536CE1BE8F50F00015674 /* Lock.swift */; settings = {ASSET_TAGS = (); }; };
-		ECF536F01BE8F50F00015674 /* Reference.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536CF1BE8F50F00015674 /* Reference.swift */; settings = {ASSET_TAGS = (); }; };
-		ECF536F11BE8F50F00015674 /* StreamBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536D01BE8F50F00015674 /* StreamBuffer.swift */; settings = {ASSET_TAGS = (); }; };
-		ECF536F21BE8F50F00015674 /* Observable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536D21BE8F50F00015674 /* Observable.swift */; settings = {ASSET_TAGS = (); }; };
-		ECF536F31BE8F50F00015674 /* ObservableCollection+Array.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536D41BE8F50F00015674 /* ObservableCollection+Array.swift */; settings = {ASSET_TAGS = (); }; };
-		ECF536F41BE8F50F00015674 /* ObservableCollection+Dictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536D51BE8F50F00015674 /* ObservableCollection+Dictionary.swift */; settings = {ASSET_TAGS = (); }; };
-		ECF536F51BE8F50F00015674 /* ObservableCollection+Set.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536D61BE8F50F00015674 /* ObservableCollection+Set.swift */; settings = {ASSET_TAGS = (); }; };
-		ECF536F61BE8F50F00015674 /* ObservableCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536D71BE8F50F00015674 /* ObservableCollection.swift */; settings = {ASSET_TAGS = (); }; };
-		ECF536F71BE8F50F00015674 /* ObservableCollectionEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536D81BE8F50F00015674 /* ObservableCollectionEvent.swift */; settings = {ASSET_TAGS = (); }; };
-		ECF536F81BE8F50F00015674 /* Bindable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536DA1BE8F50F00015674 /* Bindable.swift */; settings = {ASSET_TAGS = (); }; };
-		ECF536F91BE8F50F00015674 /* ExecutionContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536DB1BE8F50F00015674 /* ExecutionContext.swift */; settings = {ASSET_TAGS = (); }; };
-		ECF536FA1BE8F50F00015674 /* OptionalType.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536DC1BE8F50F00015674 /* OptionalType.swift */; settings = {ASSET_TAGS = (); }; };
-		ECF536FB1BE8F50F00015674 /* Queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536DD1BE8F50F00015674 /* Queue.swift */; settings = {ASSET_TAGS = (); }; };
-		ECF536FC1BE8F50F00015674 /* TokenizedCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536DE1BE8F50F00015674 /* TokenizedCollection.swift */; settings = {ASSET_TAGS = (); }; };
-		ECF536FD1BE8F50F00015674 /* ActiveStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536E01BE8F50F00015674 /* ActiveStream.swift */; settings = {ASSET_TAGS = (); }; };
-		ECF536FE1BE8F50F00015674 /* Stream.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536E11BE8F50F00015674 /* Stream.swift */; settings = {ASSET_TAGS = (); }; };
-		ECF536FF1BE8F50F00015674 /* StreamType.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536E21BE8F50F00015674 /* StreamType.swift */; settings = {ASSET_TAGS = (); }; };
-		ECF537001BE8F50F00015674 /* NoError.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536E41BE8F50F00015674 /* NoError.swift */; settings = {ASSET_TAGS = (); }; };
-		ECF537011BE8F50F00015674 /* Stream+Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536E51BE8F50F00015674 /* Stream+Task.swift */; settings = {ASSET_TAGS = (); }; };
-		ECF537021BE8F50F00015674 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536E61BE8F50F00015674 /* Task.swift */; settings = {ASSET_TAGS = (); }; };
-		ECF537031BE8F50F00015674 /* TaskEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536E71BE8F50F00015674 /* TaskEvent.swift */; settings = {ASSET_TAGS = (); }; };
-		ECF537041BE8F50F00015674 /* TaskSink.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536E81BE8F50F00015674 /* TaskSink.swift */; settings = {ASSET_TAGS = (); }; };
+		ECF536E91BE8F50F00015674 /* BlockDisposable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536C71BE8F50F00015674 /* BlockDisposable.swift */; };
+		ECF536EA1BE8F50F00015674 /* CompositeDisposable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536C81BE8F50F00015674 /* CompositeDisposable.swift */; };
+		ECF536EB1BE8F50F00015674 /* Disposable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536C91BE8F50F00015674 /* Disposable.swift */; };
+		ECF536EC1BE8F50F00015674 /* DisposeBag.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536CA1BE8F50F00015674 /* DisposeBag.swift */; };
+		ECF536ED1BE8F50F00015674 /* SerialDisposable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536CB1BE8F50F00015674 /* SerialDisposable.swift */; };
+		ECF536EE1BE8F50F00015674 /* SimpleDisposable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536CC1BE8F50F00015674 /* SimpleDisposable.swift */; };
+		ECF536EF1BE8F50F00015674 /* Lock.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536CE1BE8F50F00015674 /* Lock.swift */; };
+		ECF536F01BE8F50F00015674 /* Reference.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536CF1BE8F50F00015674 /* Reference.swift */; };
+		ECF536F11BE8F50F00015674 /* StreamBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536D01BE8F50F00015674 /* StreamBuffer.swift */; };
+		ECF536F21BE8F50F00015674 /* Observable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536D21BE8F50F00015674 /* Observable.swift */; };
+		ECF536F31BE8F50F00015674 /* ObservableCollection+Array.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536D41BE8F50F00015674 /* ObservableCollection+Array.swift */; };
+		ECF536F41BE8F50F00015674 /* ObservableCollection+Dictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536D51BE8F50F00015674 /* ObservableCollection+Dictionary.swift */; };
+		ECF536F51BE8F50F00015674 /* ObservableCollection+Set.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536D61BE8F50F00015674 /* ObservableCollection+Set.swift */; };
+		ECF536F61BE8F50F00015674 /* ObservableCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536D71BE8F50F00015674 /* ObservableCollection.swift */; };
+		ECF536F71BE8F50F00015674 /* ObservableCollectionEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536D81BE8F50F00015674 /* ObservableCollectionEvent.swift */; };
+		ECF536F81BE8F50F00015674 /* Bindable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536DA1BE8F50F00015674 /* Bindable.swift */; };
+		ECF536F91BE8F50F00015674 /* ExecutionContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536DB1BE8F50F00015674 /* ExecutionContext.swift */; };
+		ECF536FA1BE8F50F00015674 /* OptionalType.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536DC1BE8F50F00015674 /* OptionalType.swift */; };
+		ECF536FB1BE8F50F00015674 /* Queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536DD1BE8F50F00015674 /* Queue.swift */; };
+		ECF536FC1BE8F50F00015674 /* TokenizedCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536DE1BE8F50F00015674 /* TokenizedCollection.swift */; };
+		ECF536FD1BE8F50F00015674 /* ActiveStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536E01BE8F50F00015674 /* ActiveStream.swift */; };
+		ECF536FE1BE8F50F00015674 /* Stream.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536E11BE8F50F00015674 /* Stream.swift */; };
+		ECF536FF1BE8F50F00015674 /* StreamType.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536E21BE8F50F00015674 /* StreamType.swift */; };
+		ECF537001BE8F50F00015674 /* NoError.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536E41BE8F50F00015674 /* NoError.swift */; };
+		ECF537011BE8F50F00015674 /* Stream+Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536E51BE8F50F00015674 /* Stream+Task.swift */; };
+		ECF537021BE8F50F00015674 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536E61BE8F50F00015674 /* Task.swift */; };
+		ECF537031BE8F50F00015674 /* TaskEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536E71BE8F50F00015674 /* TaskEvent.swift */; };
+		ECF537041BE8F50F00015674 /* TaskSink.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF536E81BE8F50F00015674 /* TaskSink.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -207,8 +207,8 @@
 		ECF536DF1BE8F50F00015674 /* Streams */ = {
 			isa = PBXGroup;
 			children = (
-				ECF536E01BE8F50F00015674 /* ActiveStream.swift */,
 				ECF536E11BE8F50F00015674 /* Stream.swift */,
+				ECF536E01BE8F50F00015674 /* ActiveStream.swift */,
 				ECF536E21BE8F50F00015674 /* StreamType.swift */,
 			);
 			path = Streams;
@@ -218,10 +218,10 @@
 			isa = PBXGroup;
 			children = (
 				ECF536E41BE8F50F00015674 /* NoError.swift */,
-				ECF536E51BE8F50F00015674 /* Stream+Task.swift */,
 				ECF536E61BE8F50F00015674 /* Task.swift */,
-				ECF536E71BE8F50F00015674 /* TaskEvent.swift */,
 				ECF536E81BE8F50F00015674 /* TaskSink.swift */,
+				ECF536E71BE8F50F00015674 /* TaskEvent.swift */,
+				ECF536E51BE8F50F00015674 /* Stream+Task.swift */,
 			);
 			path = Task;
 			sourceTree = "<group>";
@@ -543,6 +543,7 @@
 				ECF536C21BE8F4C000015674 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		ECF536C31BE8F4C000015674 /* Build configuration list for PBXNativeTarget "rKitTests" */ = {
 			isa = XCConfigurationList;
@@ -551,6 +552,7 @@
 				ECF536C51BE8F4C000015674 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

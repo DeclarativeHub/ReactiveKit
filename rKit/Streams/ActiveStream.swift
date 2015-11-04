@@ -1,9 +1,25 @@
 //
-//  SharedProducer.swift
-//  Streams
+//  The MIT License (MIT)
 //
-//  Created by Srdan Rasic on 18/10/15.
-//  Copyright © 2015 Srdan Rasic. All rights reserved.
+//  Copyright (c) 2015 Srdan Rasic (@srdanrasic)
+//
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+//
+//  The above copyright notice and this permission notice shall be included in
+//  all copies or substantial portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//  THE SOFTWARE.
 //
 
 public protocol ActiveStreamType: StreamType {
@@ -17,9 +33,8 @@ public class ActiveStream<Event>: ActiveStreamType {
   
   private typealias Token = Int64
   
-  private var observers: [Token:Sink] = [:]
-  private var nextToken: Token = 0
-  private let lock = RecursiveLock(name: "com.swift-bond.Bond.EventProducer")
+  private var observers = TokenizedCollection<Sink>()
+  private let lock = RecursiveLock(name: "com.rkit.rkit.ActiveStream")
   
   private var isDispatchInProgress: Bool = false
   private let deinitDisposable = CompositeDisposable()
@@ -88,7 +103,7 @@ public class ActiveStream<Event>: ActiveStreamType {
     
     lock.lock()
     isDispatchInProgress = true
-    for (_, send) in observers {
+    observers.forEach { send in
       send(event)
     }
     isDispatchInProgress = false
@@ -96,16 +111,7 @@ public class ActiveStream<Event>: ActiveStreamType {
   }
   
   private func registerObserver(observer: Sink) -> DisposableType {
-    lock.lock()
-    let token = nextToken
-    nextToken = nextToken + 1
-    lock.unlock()
-    
-    observers[token] = observer
-    
-    return BlockDisposable { [weak self] in
-      self?.observers.removeValueForKey(token)
-    }
+    return observers.insert(observer)
   }
   
   deinit {
