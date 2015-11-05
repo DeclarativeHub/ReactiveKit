@@ -91,9 +91,10 @@ extension StreamType {
         shouldDispatch = false
         
         queue.after(seconds) {
+          let event = latestEvent!
           latestEvent = nil
           shouldDispatch = true
-          sink(latestEvent)
+          sink(event)
         }
       }
     }
