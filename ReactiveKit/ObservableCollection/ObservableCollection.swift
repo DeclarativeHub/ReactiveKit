@@ -25,6 +25,7 @@
 public protocol ObservableCollectionType: CollectionType, StreamType {
   typealias Collection: CollectionType
   typealias Index = Collection.Index
+  typealias Element = Collection.Generator.Element
   
   var collection: Collection { get }
   mutating func dispatch(event: ObservableCollectionEvent<Collection>)

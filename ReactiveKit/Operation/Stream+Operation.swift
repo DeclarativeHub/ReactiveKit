@@ -22,10 +22,10 @@
 //  THE SOFTWARE.
 //
 
-public extension StreamType where Event: TaskType {
+public extension StreamType where Event: OperationType {
   
   @warn_unused_result
-  public func merge() -> Task<Event.Value, Event.Error> {
+  public func merge() -> Operation<Event.Value, Event.Error> {
     return create { sink in
       let compositeDisposable = CompositeDisposable()
       
@@ -44,7 +44,7 @@ public extension StreamType where Event: TaskType {
   }
   
   @warn_unused_result
-  public func switchToLatest() -> Task<Event.Value, Event.Error>  {
+  public func switchToLatest() -> Operation<Event.Value, Event.Error>  {
     return create { sink in
       let serialDisposable = SerialDisposable(otherDisposable: nil)
       let compositeDisposable = CompositeDisposable([serialDisposable])
@@ -70,7 +70,7 @@ public extension StreamType where Event: TaskType {
   }
   
   @warn_unused_result
-  public func concat() -> Task<Event.Value, Event.Error>  {
+  public func concat() -> Operation<Event.Value, Event.Error>  {
     return create { sink in
       let serialDisposable = SerialDisposable(otherDisposable: nil)
       let compositeDisposable = CompositeDisposable([serialDisposable])
@@ -79,8 +79,8 @@ public extension StreamType where Event: TaskType {
       
       var taskQueue: [Event] = []
       
-      var startNextTask: (() -> ())! = nil
-      startNextTask = {
+      var startNextOperation: (() -> ())! = nil
+      startNextOperation = {
         innerCompleted = false
         let task = taskQueue.removeAtIndex(0)
         
@@ -92,7 +92,7 @@ public extension StreamType where Event: TaskType {
           case .Success:
             innerCompleted = true
             if taskQueue.count > 0 {
-              startNextTask()
+              startNextOperation()
             }
           case .Next(let value):
             sink.next(value)
@@ -103,7 +103,7 @@ public extension StreamType where Event: TaskType {
       let addToQueue = { (task: Event) -> () in
         taskQueue.append(task)
         if innerCompleted {
-          startNextTask()
+          startNextOperation()
         }
       }
       
@@ -119,7 +119,7 @@ public extension StreamType where Event: TaskType {
 public extension StreamType {
   
   @warn_unused_result
-  public func flatMap<T: TaskType>(strategy: TaskFlatMapStrategy, transform: Event -> T) -> Task<T.Value, T.Error> {
+  public func flatMap<T: OperationType>(strategy: OperationFlatMapStrategy, transform: Event -> T) -> Operation<T.Value, T.Error> {
     switch strategy {
     case .Latest:
       return map(transform).switchToLatest()

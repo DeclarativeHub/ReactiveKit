@@ -22,20 +22,20 @@
 //  THE SOFTWARE.
 //
 
-public protocol TaskEventType {
+public protocol OperationEventType {
   typealias Value
   typealias Error: ErrorType
   
-  var _unbox: TaskEvent<Value, Error> { get }
+  var _unbox: OperationEvent<Value, Error> { get }
 }
 
-public enum TaskEvent<Value, Error: ErrorType>: TaskEventType {
+public enum OperationEvent<Value, Error: ErrorType>: OperationEventType {
   
   case Next(Value)
   case Failure(Error)
   case Success
   
-  public var _unbox: TaskEvent<Value, Error> {
+  public var _unbox: OperationEvent<Value, Error> {
     return self
   }
   
@@ -46,7 +46,7 @@ public enum TaskEvent<Value, Error: ErrorType>: TaskEventType {
     }
   }
   
-  public func map<U>(transform: Value -> U) -> TaskEvent<U, Error> {
+  public func map<U>(transform: Value -> U) -> OperationEvent<U, Error> {
     switch self {
     case .Next(let event):
       return .Next(transform(event))
@@ -57,7 +57,7 @@ public enum TaskEvent<Value, Error: ErrorType>: TaskEventType {
     }
   }
   
-  public func mapError<F>(transform: Error -> F) -> TaskEvent<Value, F> {
+  public func mapError<F>(transform: Error -> F) -> OperationEvent<Value, F> {
     switch self {
     case .Next(let event):
       return .Next(event)

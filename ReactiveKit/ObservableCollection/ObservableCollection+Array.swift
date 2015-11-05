@@ -22,7 +22,7 @@
 //  THE SOFTWARE.
 //
 
-public extension ObservableCollectionType where Collection == Array<Generator.Element> {
+extension ObservableCollectionType where Collection == Array<Element> {
   
   public mutating func append(x: Collection.Generator.Element) {
     var new = collection

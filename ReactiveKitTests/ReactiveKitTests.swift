@@ -1,15 +1,15 @@
 //
-//  rKitTests.swift
-//  rKitTests
+//  ReactiveKitTests.swift
+//  ReactiveKitTests
 //
-//  Created by Srdan Rasic on 03/11/15.
+//  Created by Srdan Rasic on 05/11/15.
 //  Copyright © 2015 Srdan Rasic. All rights reserved.
 //
 
 import XCTest
-@testable import rKit
+@testable import ReactiveKit
 
-class rKitTests: XCTestCase {
+class ReactiveKitTests: XCTestCase {
     
     override func setUp() {
         super.setUp()

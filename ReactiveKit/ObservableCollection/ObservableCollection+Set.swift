@@ -22,7 +22,7 @@
 //  THE SOFTWARE.
 //
 
-extension ObservableCollectionType where Generator.Element: Hashable, Collection == Set<Generator.Element> {
+extension ObservableCollectionType where Element: Hashable, Collection == Set<Element> {
   
   public func contains(member: Collection.Generator.Element) -> Bool {
     return collection.contains(member)

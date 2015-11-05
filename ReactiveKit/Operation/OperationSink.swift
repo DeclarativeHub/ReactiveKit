@@ -22,14 +22,18 @@
 //  THE SOFTWARE.
 //
 
-#import <UIKit/UIKit.h>
-
-//! Project version number for rKit.
-FOUNDATION_EXPORT double rKitVersionNumber;
-
-//! Project version string for rKit.
-FOUNDATION_EXPORT const unsigned char rKitVersionString[];
-
-// In this header, you should import all the public headers of your framework using statements like #import <rKit/PublicHeader.h>
-
-
+public struct OperationSink<Value, Error: ErrorType> {
+  public let sink: OperationEvent<Value, Error> -> ()
+  
+  public func next(event: Value) {
+    sink(.Next(event))
+  }
+  
+  public func success() {
+    sink(.Success)
+  }
+  
+  public func failure(error: Error) {
+    sink(.Failure(error))
+  }
+}

@@ -1,10 +1,10 @@
-# rKit - A Swift Reactive Programming Kit
+# ReactiveKit
 
-__rKit__ is a collection of Swift frameworks for reactive and functional reactive programming.
+__ReactiveKit__ is a collection of Swift frameworks for reactive and functional reactive programming.
 
-* [rKit](https://github.com/ReactiveKit/rKit) - A core framework that provides cold Stream and hot ActiveStream types and their derivatives -  Tasks, Observable and ObservableCollection types.
-* [rFoundation](https://github.com/ReactiveKit/rFoundation) - Foundation framework extensions like type-safe KVO.
-* [rUIKit](https://github.com/ReactiveKit/rUIKit) - UIKit extensions (bindings).
+* [ReactiveKit](https://github.com/ReactiveKit/ReactiveKit) - A core framework that provides cold Stream and hot ActiveStream types and their derivatives -  Operation, Observable and ObservableCollection types.
+* [ReactiveFoundation](https://github.com/ReactiveKit/ReactiveFoundation) - Foundation framework extensions like type-safe KVO.
+* [ReactiveUIKit](https://github.com/ReactiveKit/ReactiveUIKit) - UIKit extensions (bindings).
 
 ## Observable
 
@@ -22,12 +22,12 @@ name.value = "Jim Kirk" // prints: Jim Kirk
 name.bindTo(nameLabel.rText)
 ```
 
-## Task
+## Operation
 
-`Task` type is used to represents asynchronous work that can fail.
+`Operation` type is used to represents asynchronous work that can fail.
 
 ```swift
-func fetchImage() -> Task<UIImage, NSError> {
+func fetchImage() -> Operation<UIImage, NSError> {
 
   return create { sink in
     ...
@@ -46,7 +46,7 @@ fetchImage().bindTo(imageView.rImage)
 
 ```
 
-Each call to task's `observe` method performs separate work. To share results of a single call, use a `shareNext` method.
+Each call to operations's `observe` method performs separate work. To share results of a single call, use a `shareNext` method.
 
 ```swift
 let image = fetchImage().shareNext(on: Queue.Main.context)
@@ -57,10 +57,10 @@ image.bindTo(imageView2)
 
 ## Streams
 
-Both Task and Observable are streams that conform to `StreamType` protocol. Streams can be transformed, for example:
+Both Operation and Observable are streams that conform to `StreamType` protocol. Streams can be transformed, for example:
 
 ```swift
-func fetchAndBlurImage() -> Task<UIImage, NSError> {
+func fetchAndBlurImage() -> Operation<UIImage, NSError> {
   return fetchImage().map { $0.applyBlur() }
 }
 

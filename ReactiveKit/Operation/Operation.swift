@@ -22,27 +22,27 @@
 //  THE SOFTWARE.
 //
 
-public protocol TaskType: StreamType {
+public protocol OperationType: StreamType {
   typealias Value
   typealias Error: ErrorType
 
-  func lift<U, F: ErrorType>(transform: Stream<TaskEvent<Value, Error>> -> Stream<TaskEvent<U, F>>) -> Task<U, F>
-  func observe(on context: ExecutionContext, sink: TaskEvent<Value, Error> -> ()) -> DisposableType
+  func lift<U, F: ErrorType>(transform: Stream<OperationEvent<Value, Error>> -> Stream<OperationEvent<U, F>>) -> Operation<U, F>
+  func observe(on context: ExecutionContext, sink: OperationEvent<Value, Error> -> ()) -> DisposableType
 }
 
-public struct Task<Value, Error: ErrorType>: TaskType {
+public struct Operation<Value, Error: ErrorType>: OperationType {
   
-  private let stream: Stream<TaskEvent<Value, Error>>
+  private let stream: Stream<OperationEvent<Value, Error>>
   
-  public init(stream: Stream<TaskEvent<Value, Error>>) {
+  public init(stream: Stream<OperationEvent<Value, Error>>) {
     self.stream = stream
   }
   
-  public init(producer: (TaskSink<Value, Error> -> DisposableType?)) {
+  public init(producer: (OperationSink<Value, Error> -> DisposableType?)) {
     stream = Stream  { sink in
       var completed: Bool = false
       
-      return producer(TaskSink { event in
+      return producer(OperationSink { event in
         if !completed {
           sink(event)
         }
@@ -52,11 +52,11 @@ public struct Task<Value, Error: ErrorType>: TaskType {
     }
   }
   
-  public func observe(on context: ExecutionContext, sink: TaskEvent<Value, Error> -> ()) -> DisposableType {
+  public func observe(on context: ExecutionContext, sink: OperationEvent<Value, Error> -> ()) -> DisposableType {
     return stream.observe(on: context, sink: sink)
   }
   
-  public static func succeeded(with value: Value) -> Task<Value, Error> {
+  public static func succeeded(with value: Value) -> Operation<Value, Error> {
     return create { sink in
       sink.next(value)
       sink.success()
@@ -64,26 +64,26 @@ public struct Task<Value, Error: ErrorType>: TaskType {
     }
   }
   
-  public static func failed(with error: Error) -> Task<Value, Error> {
+  public static func failed(with error: Error) -> Operation<Value, Error> {
     return create { sink in
       sink.failure(error)
       return nil
     }
   }
   
-  public func lift<U, F: ErrorType>(transform: Stream<TaskEvent<Value, Error>> -> Stream<TaskEvent<U, F>>) -> Task<U, F> {
-    return Task<U, F>(stream: transform(self.stream))
+  public func lift<U, F: ErrorType>(transform: Stream<OperationEvent<Value, Error>> -> Stream<OperationEvent<U, F>>) -> Operation<U, F> {
+    return Operation<U, F>(stream: transform(self.stream))
   }
 }
 
 
-public func create<Value, Error: ErrorType>(producer producer: TaskSink<Value, Error> -> DisposableType?) -> Task<Value, Error> {
-  return Task<Value, Error> { sink in
+public func create<Value, Error: ErrorType>(producer producer: OperationSink<Value, Error> -> DisposableType?) -> Operation<Value, Error> {
+  return Operation<Value, Error> { sink in
     return producer(sink)
   }
 }
 
-public extension TaskType {
+public extension OperationType {
   
   public func observeNext(on context: ExecutionContext, sink: Value -> ()) -> DisposableType {
     return self.observe(on: context) { event in
@@ -113,48 +113,48 @@ public extension TaskType {
   }
   
   @warn_unused_result
-  public func map<U>(transform: Value -> U) -> Task<U, Error> {
+  public func map<U>(transform: Value -> U) -> Operation<U, Error> {
     return lift { $0.map { $0.map(transform) } }
   }
   
   @warn_unused_result
-  public func mapError<F>(transform: Error -> F) -> Task<Value, F> {
+  public func mapError<F>(transform: Error -> F) -> Operation<Value, F> {
     return lift { $0.map { $0.mapError(transform) } }
   }
   
   @warn_unused_result
-  public func filter(include: Value -> Bool) -> Task<Value, Error> {
+  public func filter(include: Value -> Bool) -> Operation<Value, Error> {
     return lift { $0.filter { $0.filter(include) } }
   }
   
   @warn_unused_result
-  public func switchTo(context: ExecutionContext) -> Task<Value, Error> {
+  public func switchTo(context: ExecutionContext) -> Operation<Value, Error> {
     return lift { $0.switchTo(context) }
   }
   
   @warn_unused_result
-  public func throttle(seconds: Double, on queue: Queue) -> Task<Value, Error> {
+  public func throttle(seconds: Double, on queue: Queue) -> Operation<Value, Error> {
     return lift { $0.throttle(seconds, on: queue) }
   }
   
   @warn_unused_result
-  public func skip(count: Int) -> Task<Value, Error> {
+  public func skip(count: Int) -> Operation<Value, Error> {
     return lift { $0.skip(count) }
   }
 
   @warn_unused_result
-  public func startWith(event: Value) -> Task<Value, Error> {
+  public func startWith(event: Value) -> Operation<Value, Error> {
     return lift { $0.startWith(.Next(event)) }
   }
   
   @warn_unused_result
-  public func combineLatestWith<S: TaskType where S.Error == Error>(other: S) -> Task<(Value, S.Value), Error> {
+  public func combineLatestWith<S: OperationType where S.Error == Error>(other: S) -> Operation<(Value, S.Value), Error> {
     return create { sink in
       var latestSelfValue: Value! = nil
       var latestOtherValue: S.Value! = nil
       
-      var latestSelfEvent: TaskEvent<Value, Error>! = nil
-      var latestOtherEvent: TaskEvent<S.Value, S.Error>! = nil
+      var latestSelfEvent: OperationEvent<Value, Error>! = nil
+      var latestOtherEvent: OperationEvent<S.Value, S.Error>! = nil
       
       let dispatchNextIfPossible = { () -> () in
         if let latestSelfValue = latestSelfValue, latestOtherValue = latestOtherValue {
@@ -207,27 +207,27 @@ public extension TaskType {
 
 }
 
-public extension TaskType where Value: OptionalType {
+public extension OperationType where Value: OptionalType {
   
   @warn_unused_result
-  public func ignoreNil() -> Task<Value.Wrapped?, Error> {
+  public func ignoreNil() -> Operation<Value.Wrapped?, Error> {
     return lift { $0.filter { $0.filter { $0._unbox != nil } }.map { $0.map { $0._unbox! } } }
   }
 }
 
-public extension TaskType where Value: TaskType, Value.Error == Error {
+public extension OperationType where Value: OperationType, Value.Error == Error {
   
   @warn_unused_result
-  public func merge() -> Task<Value.Value, Value.Error> {
+  public func merge() -> Operation<Value.Value, Value.Error> {
     return create { sink in
       
-      var numberOfTasks = 0
+      var numberOfOperations = 0
       var outerCompleted = false
       let compositeDisposable = CompositeDisposable()
       
-      let decrementNumberOfTasks = { () -> () in
-        numberOfTasks -= 1
-        if numberOfTasks == 0 && outerCompleted {
+      let decrementNumberOfOperations = { () -> () in
+        numberOfOperations -= 1
+        if numberOfOperations == 0 && outerCompleted {
           sink.success()
         }
       }
@@ -239,19 +239,19 @@ public extension TaskType where Value: TaskType, Value.Error == Error {
           return sink.failure(error)
         case .Success:
           outerCompleted = true
-          if numberOfTasks > 0 {
-            decrementNumberOfTasks()
+          if numberOfOperations > 0 {
+            decrementNumberOfOperations()
           } else {
             sink.success()
           }
         case .Next(let task):
-          numberOfTasks += 1
+          numberOfOperations += 1
           compositeDisposable += task.observe(on: ImmediateExecutionContext) { event in
             switch event {
             case .Next, .Failure:
               sink.sink(event)
             case .Success:
-              decrementNumberOfTasks()
+              decrementNumberOfOperations()
             }
           }
         }
@@ -261,7 +261,7 @@ public extension TaskType where Value: TaskType, Value.Error == Error {
   }
   
   @warn_unused_result
-  public func switchToLatest() -> Task<Value.Value, Value.Error>  {
+  public func switchToLatest() -> Operation<Value.Value, Value.Error>  {
     return create { sink in
       let serialDisposable = SerialDisposable(otherDisposable: nil)
       let compositeDisposable = CompositeDisposable([serialDisposable])
@@ -279,9 +279,9 @@ public extension TaskType where Value: TaskType, Value.Error == Error {
           if innerCompleted {
             sink.success()
           }
-        case .Next(let innerTask):
+        case .Next(let innerOperation):
           serialDisposable.otherDisposable?.dispose()
-          serialDisposable.otherDisposable = innerTask.observe(on: ImmediateExecutionContext) { event in
+          serialDisposable.otherDisposable = innerOperation.observe(on: ImmediateExecutionContext) { event in
             
             switch event {
             case .Failure(let error):
@@ -303,7 +303,7 @@ public extension TaskType where Value: TaskType, Value.Error == Error {
   }
   
   @warn_unused_result
-  public func concat() -> Task<Value.Value, Value.Error>  {
+  public func concat() -> Operation<Value.Value, Value.Error>  {
     return create { sink in
       let serialDisposable = SerialDisposable(otherDisposable: nil)
       let compositeDisposable = CompositeDisposable([serialDisposable])
@@ -313,8 +313,8 @@ public extension TaskType where Value: TaskType, Value.Error == Error {
       
       var taskQueue: [Value] = []
       
-      var startNextTask: (() -> ())! = nil
-      startNextTask = {
+      var startNextOperation: (() -> ())! = nil
+      startNextOperation = {
         innerCompleted = false
         let task = taskQueue.removeAtIndex(0)
         
@@ -326,7 +326,7 @@ public extension TaskType where Value: TaskType, Value.Error == Error {
           case .Success:
             innerCompleted = true
             if taskQueue.count > 0 {
-              startNextTask()
+              startNextOperation()
             } else if outerCompleted {
               sink.success()
             }
@@ -339,7 +339,7 @@ public extension TaskType where Value: TaskType, Value.Error == Error {
       let addToQueue = { (task: Value) -> () in
         taskQueue.append(task)
         if innerCompleted {
-          startNextTask()
+          startNextOperation()
         }
       }
 
@@ -353,8 +353,8 @@ public extension TaskType where Value: TaskType, Value.Error == Error {
           if innerCompleted {
             sink.success()
           }
-        case .Next(let innerTask):
-          addToQueue(innerTask)
+        case .Next(let innerOperation):
+          addToQueue(innerOperation)
         }
       }
       
@@ -363,16 +363,16 @@ public extension TaskType where Value: TaskType, Value.Error == Error {
   }
 }
 
-public enum TaskFlatMapStrategy {
+public enum OperationFlatMapStrategy {
   case Latest
   case Merge
   case Concat
 }
 
-public extension TaskType {
+public extension OperationType {
   
   @warn_unused_result
-  public func flatMap<T: TaskType where T.Error == Error>(strategy: TaskFlatMapStrategy, transform: Value -> T) -> Task<T.Value, T.Error> {
+  public func flatMap<T: OperationType where T.Error == Error>(strategy: OperationFlatMapStrategy, transform: Value -> T) -> Operation<T.Value, T.Error> {
     switch strategy {
     case .Latest:
       return map(transform).switchToLatest()
@@ -384,7 +384,7 @@ public extension TaskType {
   }
   
   @warn_unused_result
-  public func flatMapError<T: TaskType where T.Value == Value>(recover: Error -> T) -> Task<T.Value, T.Error> {
+  public func flatMapError<T: OperationType where T.Value == Value>(recover: Error -> T) -> Operation<T.Value, T.Error> {
     return create { sink in
       let serialDisposable = SerialDisposable(otherDisposable: nil)
       
@@ -407,65 +407,65 @@ public extension TaskType {
 }
 
 @warn_unused_result
-public func combineLatest<A: TaskType, B: TaskType where A.Error == B.Error>(a: A, _ b: B) -> Task<(A.Value, B.Value), A.Error> {
+public func combineLatest<A: OperationType, B: OperationType where A.Error == B.Error>(a: A, _ b: B) -> Operation<(A.Value, B.Value), A.Error> {
   return a.combineLatestWith(b)
 }
 
 @warn_unused_result
-public func combineLatest<A: TaskType, B: TaskType, C: TaskType where A.Error == B.Error, A.Error == C.Error>(a: A, _ b: B, _ c: C) -> Task<(A.Value, B.Value, C.Value), A.Error> {
+public func combineLatest<A: OperationType, B: OperationType, C: OperationType where A.Error == B.Error, A.Error == C.Error>(a: A, _ b: B, _ c: C) -> Operation<(A.Value, B.Value, C.Value), A.Error> {
   return combineLatest(a, b).combineLatestWith(c).map { ($0.0, $0.1, $1) }
 }
 
 @warn_unused_result
-public func combineLatest<A: TaskType, B: TaskType, C: TaskType, D: TaskType where A.Error == B.Error, A.Error == C.Error, A.Error == D.Error>(a: A, _ b: B, _ c: C, _ d: D) -> Task<(A.Value, B.Value, C.Value, D.Value), A.Error> {
+public func combineLatest<A: OperationType, B: OperationType, C: OperationType, D: OperationType where A.Error == B.Error, A.Error == C.Error, A.Error == D.Error>(a: A, _ b: B, _ c: C, _ d: D) -> Operation<(A.Value, B.Value, C.Value, D.Value), A.Error> {
   return combineLatest(a, b, c).combineLatestWith(d).map { ($0.0, $0.1, $0.2, $1) }
 }
 
 @warn_unused_result
-public func combineLatest<A: TaskType, B: TaskType, C: TaskType, D: TaskType, E: TaskType where A.Error == B.Error, A.Error == C.Error, A.Error == D.Error, A.Error == E.Error>
-  (a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> Task<(A.Value, B.Value, C.Value, D.Value, E.Value), A.Error>
+public func combineLatest<A: OperationType, B: OperationType, C: OperationType, D: OperationType, E: OperationType where A.Error == B.Error, A.Error == C.Error, A.Error == D.Error, A.Error == E.Error>
+  (a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> Operation<(A.Value, B.Value, C.Value, D.Value, E.Value), A.Error>
 {
   return combineLatest(a, b, c, d).combineLatestWith(e).map { ($0.0, $0.1, $0.2, $0.3, $1) }
 }
 
 @warn_unused_result
-public func combineLatest<A: TaskType, B: TaskType, C: TaskType, D: TaskType, E: TaskType, F: TaskType where A.Error == B.Error, A.Error == C.Error, A.Error == D.Error, A.Error == E.Error, A.Error == F.Error>
-  ( a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> Task<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value), A.Error>
+public func combineLatest<A: OperationType, B: OperationType, C: OperationType, D: OperationType, E: OperationType, F: OperationType where A.Error == B.Error, A.Error == C.Error, A.Error == D.Error, A.Error == E.Error, A.Error == F.Error>
+  ( a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> Operation<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value), A.Error>
 {
   return combineLatest(a, b, c, d, e).combineLatestWith(f).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $1) }
 }
 
 @warn_unused_result
-public func combineLatest<A: TaskType, B: TaskType, C: TaskType, D: TaskType, E: TaskType, F: TaskType, G: TaskType where A.Error == B.Error, A.Error == C.Error, A.Error == D.Error, A.Error == E.Error, A.Error == F.Error, A.Error == G.Error>
-  ( a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G) -> Task<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value), A.Error>
+public func combineLatest<A: OperationType, B: OperationType, C: OperationType, D: OperationType, E: OperationType, F: OperationType, G: OperationType where A.Error == B.Error, A.Error == C.Error, A.Error == D.Error, A.Error == E.Error, A.Error == F.Error, A.Error == G.Error>
+  ( a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G) -> Operation<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value), A.Error>
 {
   return combineLatest(a, b, c, d, e, f).combineLatestWith(g).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $0.5, $1) }
 }
 
 @warn_unused_result
-public func combineLatest<A: TaskType, B: TaskType, C: TaskType, D: TaskType, E: TaskType, F: TaskType, G: TaskType, H: TaskType where A.Error == B.Error, A.Error == C.Error, A.Error == D.Error, A.Error == E.Error, A.Error == F.Error, A.Error == G.Error, A.Error == H.Error>
-  ( a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H) -> Task<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value), A.Error>
+public func combineLatest<A: OperationType, B: OperationType, C: OperationType, D: OperationType, E: OperationType, F: OperationType, G: OperationType, H: OperationType where A.Error == B.Error, A.Error == C.Error, A.Error == D.Error, A.Error == E.Error, A.Error == F.Error, A.Error == G.Error, A.Error == H.Error>
+  ( a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H) -> Operation<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value), A.Error>
 {
   return combineLatest(a, b, c, d, e, f, g).combineLatestWith(h).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $0.5, $0.6, $1) }
 }
 
 @warn_unused_result
-public func combineLatest<A: TaskType, B: TaskType, C: TaskType, D: TaskType, E: TaskType, F: TaskType, G: TaskType, H: TaskType, I: TaskType where A.Error == B.Error, A.Error == C.Error, A.Error == D.Error, A.Error == E.Error, A.Error == F.Error, A.Error == G.Error, A.Error == H.Error, A.Error == I.Error>
-  ( a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I) -> Task<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value), A.Error>
+public func combineLatest<A: OperationType, B: OperationType, C: OperationType, D: OperationType, E: OperationType, F: OperationType, G: OperationType, H: OperationType, I: OperationType where A.Error == B.Error, A.Error == C.Error, A.Error == D.Error, A.Error == E.Error, A.Error == F.Error, A.Error == G.Error, A.Error == H.Error, A.Error == I.Error>
+  ( a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I) -> Operation<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value), A.Error>
 {
   return combineLatest(a, b, c, d, e, f, g, h).combineLatestWith(i).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $0.5, $0.6, $0.7, $1) }
 }
 
 @warn_unused_result
-public func combineLatest<A: TaskType, B: TaskType, C: TaskType, D: TaskType, E: TaskType, F: TaskType, G: TaskType, H: TaskType, I: TaskType, J: TaskType where A.Error == B.Error, A.Error == C.Error, A.Error == D.Error, A.Error == E.Error, A.Error == F.Error, A.Error == G.Error, A.Error == H.Error, A.Error == I.Error, A.Error == J.Error>
-  ( a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J) -> Task<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value), A.Error>
+public func combineLatest<A: OperationType, B: OperationType, C: OperationType, D: OperationType, E: OperationType, F: OperationType, G: OperationType, H: OperationType, I: OperationType, J: OperationType where A.Error == B.Error, A.Error == C.Error, A.Error == D.Error, A.Error == E.Error, A.Error == F.Error, A.Error == G.Error, A.Error == H.Error, A.Error == I.Error, A.Error == J.Error>
+  ( a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J) -> Operation<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value), A.Error>
 {
   return combineLatest(a, b, c, d, e, f, g, h, i).combineLatestWith(j).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $0.5, $0.6, $0.7, $0.8, $1) }
 }
 
 @warn_unused_result
-public func combineLatest<A: TaskType, B: TaskType, C: TaskType, D: TaskType, E: TaskType, F: TaskType, G: TaskType, H: TaskType, I: TaskType, J: TaskType, K: TaskType where A.Error == B.Error, A.Error == C.Error, A.Error == D.Error, A.Error == E.Error, A.Error == F.Error, A.Error == G.Error, A.Error == H.Error, A.Error == I.Error, A.Error == J.Error, A.Error == K.Error>
-  ( a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J, _ k: K) -> Task<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value, K.Value), A.Error>
+public func combineLatest<A: OperationType, B: OperationType, C: OperationType, D: OperationType, E: OperationType, F: OperationType, G: OperationType, H: OperationType, I: OperationType, J: OperationType, K: OperationType where A.Error == B.Error, A.Error == C.Error, A.Error == D.Error, A.Error == E.Error, A.Error == F.Error, A.Error == G.Error, A.Error == H.Error, A.Error == I.Error, A.Error == J.Error, A.Error == K.Error>
+  ( a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J, _ k: K) -> Operation<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value, K.Value), A.Error>
 {
   return combineLatest(a, b, c, d, e, f, g, h, i, j).combineLatestWith(k).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $0.5, $0.6, $0.7, $0.8, $0.9, $1) }
 }
