@@ -85,9 +85,9 @@ names.append("John") // prints: [2]
 ### Carthage
 
 ```
-github "ReactiveKit/rKit" 
-github "ReactiveKit/rUIKit"
-github "ReactiveKit/rFoundation"
+github "ReactiveKit/ReactiveKit" 
+github "ReactiveKit/ReactiveUIKit"
+github "ReactiveKit/ReactiveFoundation"
 ```
 
 
