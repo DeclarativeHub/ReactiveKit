@@ -81,3 +81,24 @@ extension StreamType {
     return disposable
   }
 }
+
+extension OperationType {
+  
+  public func bindNextTo<B: BindableType where B.Event == Value>(bindable: B, context: ExecutionContext = Queue.Main.context) -> DisposableType {
+    let disposable = SerialDisposable(otherDisposable: nil)
+    let sink = bindable.sink(disposable)
+    disposable.otherDisposable = observeNext(on: context) { value in
+      sink(value)
+    }
+    return disposable
+  }
+  
+  public func bindNextTo<B: BindableType where B.Event == Value?>(bindable: B, context: ExecutionContext = Queue.Main.context) -> DisposableType {
+    let disposable = SerialDisposable(otherDisposable: nil)
+    let sink = bindable.sink(disposable)
+    disposable.otherDisposable = observeNext(on: context) { value in
+      sink(value)
+    }
+    return disposable
+  }
+}
