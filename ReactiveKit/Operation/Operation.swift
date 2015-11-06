@@ -34,10 +34,6 @@ public struct Operation<Value, Error: ErrorType>: OperationType {
   
   private let stream: Stream<OperationEvent<Value, Error>>
   
-  public init(stream: Stream<OperationEvent<Value, Error>>) {
-    self.stream = stream
-  }
-  
   public init(producer: (OperationSink<Value, Error> -> DisposableType?)) {
     stream = Stream  { sink in
       var completed: Bool = false
@@ -45,9 +41,8 @@ public struct Operation<Value, Error: ErrorType>: OperationType {
       return producer(OperationSink { event in
         if !completed {
           sink(event)
+          completed = event._unbox.isTerminal
         }
-        
-        completed = event._unbox.isTerminal
       })
     }
   }
@@ -72,7 +67,9 @@ public struct Operation<Value, Error: ErrorType>: OperationType {
   }
   
   public func lift<U, F: ErrorType>(transform: Stream<OperationEvent<Value, Error>> -> Stream<OperationEvent<U, F>>) -> Operation<U, F> {
-    return Operation<U, F>(stream: transform(self.stream))
+    return create { sink in
+      return transform(self.stream).observe(on: ImmediateExecutionContext, sink: sink.sink)
+    }
   }
 }
 
@@ -221,13 +218,12 @@ public extension OperationType where Value: OperationType, Value.Error == Error 
   public func merge() -> Operation<Value.Value, Value.Error> {
     return create { sink in
       
-      var numberOfOperations = 0
-      var outerCompleted = false
+      var numberOfOperations = 1
       let compositeDisposable = CompositeDisposable()
       
       let decrementNumberOfOperations = { () -> () in
         numberOfOperations -= 1
-        if numberOfOperations == 0 && outerCompleted {
+        if numberOfOperations == 0 {
           sink.success()
         }
       }
@@ -238,12 +234,7 @@ public extension OperationType where Value: OperationType, Value.Error == Error 
         case .Failure(let error):
           return sink.failure(error)
         case .Success:
-          outerCompleted = true
-          if numberOfOperations > 0 {
-            decrementNumberOfOperations()
-          } else {
-            sink.success()
-          }
+          decrementNumberOfOperations()
         case .Next(let task):
           numberOfOperations += 1
           compositeDisposable += task.observe(on: ImmediateExecutionContext) { event in
@@ -280,6 +271,7 @@ public extension OperationType where Value: OperationType, Value.Error == Error 
             sink.success()
           }
         case .Next(let innerOperation):
+          innerCompleted = false
           serialDisposable.otherDisposable?.dispose()
           serialDisposable.otherDisposable = innerOperation.observe(on: ImmediateExecutionContext) { event in
             

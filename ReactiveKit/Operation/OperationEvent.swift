@@ -81,3 +81,16 @@ public enum OperationEvent<Value, Error: ErrorType>: OperationEventType {
     }
   }
 }
+
+public func == <V: Equatable, E: ErrorType where E: Equatable>(left: OperationEvent<V, E>, right: OperationEvent<V, E>) -> Bool {
+  switch (left, right) {
+  case (.Next(let valueL), .Next(let valueR)):
+    return valueL == valueR
+  case (.Failure(let errorL), .Failure(let errorR)):
+    return errorL == errorR
+  case (.Success, .Success):
+    return true
+  default:
+    return false
+  }
+}

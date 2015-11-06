@@ -16,19 +16,16 @@ class StreamSpec: QuickSpec {
     
     describe("a stream") {
       var stream: Stream<Int>!
-      let simpleDisposable = SimpleDisposable()
+      var simpleDisposable: SimpleDisposable!
       
       beforeEach {
         stream = create { sink in
           sink(1)
           sink(2)
           sink(3)
+          simpleDisposable = SimpleDisposable()
           return simpleDisposable
         }
-      }
-      
-      it("gets undisposed disposable") {
-        expect(simpleDisposable.isDisposed).to(beFalse())
       }
       
       context("when observed") {
