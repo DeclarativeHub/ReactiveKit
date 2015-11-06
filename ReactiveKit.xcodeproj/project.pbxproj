@@ -174,6 +174,7 @@
 
 /* Begin PBXFileReference section */
 		EC835BE11BEC923400463098 /* OperationSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OperationSpec.swift; sourceTree = "<group>"; };
+		EC835C001BECB0FB00463098 /* ReactiveKitPlayground.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = ReactiveKitPlayground.playground; sourceTree = SOURCE_ROOT; };
 		ECB7A5851BEB91EB0034053A /* Nimble.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Nimble.xcodeproj; path = Carthage/Checkouts/Nimble/Nimble.xcodeproj; sourceTree = SOURCE_ROOT; };
 		ECB7A59A1BEB91F30034053A /* Quick.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Quick.xcodeproj; path = Carthage/Checkouts/Quick/Quick.xcodeproj; sourceTree = SOURCE_ROOT; };
 		ECBCCDD01BEB6B9A00723476 /* ReactiveKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -233,6 +234,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		EC835BF21BECB0D500463098 /* Playgrounds */ = {
+			isa = PBXGroup;
+			children = (
+				EC835C001BECB0FB00463098 /* ReactiveKitPlayground.playground */,
+			);
+			name = Playgrounds;
+			path = ReactiveKitTests;
+			sourceTree = "<group>";
+		};
 		ECB7A5841BEB91DA0034053A /* Dependencies */ = {
 			isa = PBXGroup;
 			children = (
@@ -276,6 +286,7 @@
 			children = (
 				ECBCCDD21BEB6B9A00723476 /* ReactiveKit */,
 				ECBCCDDE1BEB6B9B00723476 /* ReactiveKitTests */,
+				EC835BF21BECB0D500463098 /* Playgrounds */,
 				ECBCCDD11BEB6B9A00723476 /* Products */,
 			);
 			sourceTree = "<group>";

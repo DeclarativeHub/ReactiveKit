@@ -82,6 +82,23 @@ public func create<Value, Error: ErrorType>(producer producer: OperationSink<Val
 
 public extension OperationType {
   
+  public func on(next next: (Value -> ())? = nil, success: (() -> ())? = nil, failure: (Error -> ())? = nil, context: ExecutionContext = ImmediateExecutionContext) -> Operation<Value, Error> {
+    return create { sink in
+      return self.observe(on: context) { event in
+        switch event {
+        case .Next(let value):
+          next?(value)
+        case .Failure(let error):
+          failure?(error)
+        case .Success:
+          success?()
+        }
+        
+        sink.sink(event)
+      }
+    }
+  }
+  
   public func observeNext(on context: ExecutionContext, sink: Value -> ()) -> DisposableType {
     return self.observe(on: context) { event in
       switch event {
