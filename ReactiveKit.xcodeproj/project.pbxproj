@@ -94,6 +94,8 @@
 		16C33B831BEFBAC800A0DBE0 /* ReactiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		16C33B841BEFBAC900A0DBE0 /* ReactiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		16C33B851BEFBAC900A0DBE0 /* ReactiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		16F0B8761BEFC3850071847A /* Quick.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16F0B8751BEFC3850071847A /* Quick.framework */; };
+		16F0B8781BEFC3890071847A /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16F0B8771BEFC3890071847A /* Nimble.framework */; };
 		EC835BE21BEC923400463098 /* OperationSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC835BE11BEC923400463098 /* OperationSpec.swift */; };
 		ECBCCDD41BEB6B9A00723476 /* ReactiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		ECBCCDDB1BEB6B9B00723476 /* ReactiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ECBCCDD01BEB6B9A00723476 /* ReactiveKit.framework */; };
@@ -142,6 +144,8 @@
 		16C33AF91BEFB72500A0DBE0 /* ReactiveKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		16C33B161BEFB9CB00A0DBE0 /* ReactiveKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		16C33B241BEFBA0100A0DBE0 /* ReactiveKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		16F0B8751BEFC3850071847A /* Quick.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quick.framework; path = "../Carthage/Checkouts/Quick/build/Debug-iphoneos/Quick.framework"; sourceTree = "<group>"; };
+		16F0B8771BEFC3890071847A /* Nimble.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Nimble.framework; path = "../Carthage/Checkouts/Nimble/build/Debug-iphoneos/Nimble.framework"; sourceTree = "<group>"; };
 		EC835BE11BEC923400463098 /* OperationSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OperationSpec.swift; sourceTree = "<group>"; };
 		EC835C001BECB0FB00463098 /* ReactiveKitPlayground.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = ReactiveKitPlayground.playground; sourceTree = SOURCE_ROOT; };
 		ECBCCDD01BEB6B9A00723476 /* ReactiveKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -213,6 +217,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				16F0B8781BEFC3890071847A /* Nimble.framework in Frameworks */,
+				16F0B8761BEFC3850071847A /* Quick.framework in Frameworks */,
 				ECBCCDDB1BEB6B9B00723476 /* ReactiveKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -220,6 +226,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		16F0B8791BEFC3A10071847A /* Dependencies */ = {
+			isa = PBXGroup;
+			children = (
+				16F0B8771BEFC3890071847A /* Nimble.framework */,
+				16F0B8751BEFC3850071847A /* Quick.framework */,
+			);
+			name = Dependencies;
+			sourceTree = "<group>";
+		};
 		EC835BF21BECB0D500463098 /* Playgrounds */ = {
 			isa = PBXGroup;
 			children = (
@@ -272,6 +287,7 @@
 			children = (
 				ECBCCDDF1BEB6B9B00723476 /* StreamSpec.swift */,
 				EC835BE11BEC923400463098 /* OperationSpec.swift */,
+				16F0B8791BEFC3A10071847A /* Dependencies */,
 				ECBCCDE11BEB6B9B00723476 /* Info.plist */,
 			);
 			path = ReactiveKitTests;
@@ -522,10 +538,10 @@
 			projectRoot = "";
 			targets = (
 				ECBCCDCF1BEB6B9A00723476 /* ReactiveKit-iOS */,
-				ECBCCDD91BEB6B9B00723476 /* ReactiveKit-iOSTests */,
 				16C33AF81BEFB72500A0DBE0 /* ReactiveKit-tvOS */,
 				16C33B151BEFB9CB00A0DBE0 /* ReactiveKit-watchOS */,
 				16C33B231BEFBA0100A0DBE0 /* ReactiveKit-OSX */,
+				ECBCCDD91BEB6B9B00723476 /* ReactiveKit-iOSTests */,
 			);
 		};
 /* End PBXProject section */
