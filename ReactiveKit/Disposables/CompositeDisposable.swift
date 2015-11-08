@@ -27,7 +27,7 @@ public final class CompositeDisposable: DisposableType {
   
   public private(set) var isDisposed: Bool = false
   private var disposables: [DisposableType] = []
-  private let lock = RecursiveLock(name: "com.rkit.rkit.CompositeDisposable")
+  private let lock = RecursiveLock(name: "com.ReactiveKit.ReactiveKit.CompositeDisposable")
   
   public convenience init() {
     self.init([])

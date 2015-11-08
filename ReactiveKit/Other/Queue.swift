@@ -36,7 +36,7 @@ public struct Queue {
   
   public private(set) var queue: dispatch_queue_t
   
-  public init(queue: dispatch_queue_t = dispatch_queue_create("com.rkit.rkit.Queue", DISPATCH_QUEUE_SERIAL)) {
+  public init(queue: dispatch_queue_t = dispatch_queue_create("com.ReactiveKit.ReactiveKit.Queue", DISPATCH_QUEUE_SERIAL)) {
     self.queue = queue
   }
   

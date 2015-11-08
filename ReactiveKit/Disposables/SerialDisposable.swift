@@ -26,7 +26,7 @@
 public final class SerialDisposable: DisposableType {
   
   public private(set) var isDisposed: Bool = false
-  private let lock = RecursiveLock(name: "com.rkit.rkit.SerialDisposable")
+  private let lock = RecursiveLock(name: "com.ReactiveKit.ReactiveKit.SerialDisposable")
   
   /// Will dispose other disposable immediately if self is already disposed.
   public var otherDisposable: DisposableType? {

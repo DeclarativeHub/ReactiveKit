@@ -34,7 +34,7 @@ public class ActiveStream<Event>: ActiveStreamType {
   private typealias Token = Int64
   
   private var observers = TokenizedCollection<Sink>()
-  private let lock = RecursiveLock(name: "com.rkit.rkit.ActiveStream")
+  private let lock = RecursiveLock(name: "com.ReactiveKit.ReactiveKit.ActiveStream")
   
   private var isDispatchInProgress: Bool = false
   private let deinitDisposable = CompositeDisposable()

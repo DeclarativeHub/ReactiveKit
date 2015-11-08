@@ -30,7 +30,7 @@ public final class BlockDisposable: DisposableType {
   }
   
   private var handler: (() -> ())?
-  private let lock = RecursiveLock(name: "com.rkit.rkit.BlockDisposable")
+  private let lock = RecursiveLock(name: "com.ReactiveKit.ReactiveKit.BlockDisposable")
   
   public init(_ handler: () -> ()) {
     self.handler = handler

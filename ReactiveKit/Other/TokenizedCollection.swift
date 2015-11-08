@@ -27,7 +27,7 @@ public class TokenizedCollection<T> {
   
   private var storage: [Token:T] = [:]
   private var nextToken: Token = 0
-  private let lock = RecursiveLock(name: "com.rkit.rkit.TokenizedCollection")
+  private let lock = RecursiveLock(name: "com.ReactiveKit.ReactiveKit.TokenizedCollection")
   
   public var count: Int {
     return storage.count
