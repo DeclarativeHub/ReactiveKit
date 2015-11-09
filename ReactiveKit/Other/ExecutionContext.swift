@@ -21,6 +21,8 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 //
+//  Thank you Thomas Visser! https://github.com/Thomvis/BrightFutures/
+//
 
 public typealias ExecutionContext = (() -> Void) -> Void
 

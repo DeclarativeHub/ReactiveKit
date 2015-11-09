@@ -132,17 +132,15 @@ public extension OperationType {
   }
   
   @warn_unused_result
-  public func tryMap<U>(transform: Value throws -> U) -> Operation<U, Error> {
+  public func tryMap<U>(transform: Value -> Result<U, Error>) -> Operation<U, Error> {
     return lift { $0.map { operationEvent in
         switch operationEvent {
         case .Next(let value):
-          do {
-            let mappedValue = try transform(value)
-            return .Next(mappedValue)
-          } catch let error as Error {
+          switch transform(value) {
+          case let .Success(value):
+            return .Next(value)
+          case let .Failure(error):
             return .Failure(error)
-          } catch {
-            fatalError("Method tryMap() has to throw error type of \(Error.self)")
           }
         case .Failure(let error):
           return .Failure(error)

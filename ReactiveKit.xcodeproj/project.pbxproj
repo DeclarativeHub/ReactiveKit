@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1648A99F1BF12CE9007A185C /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1648A99E1BF12CE9007A185C /* Result.swift */; };
 		16C33B2D1BEFBA2D00A0DBE0 /* StreamType.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCE061BEB6BBE00723476 /* StreamType.swift */; };
 		16C33B2E1BEFBA2D00A0DBE0 /* Stream.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCE051BEB6BBE00723476 /* Stream.swift */; };
 		16C33B2F1BEFBA2D00A0DBE0 /* ActiveStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCE041BEB6BBE00723476 /* ActiveStream.swift */; };
@@ -141,6 +142,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1648A99E1BF12CE9007A185C /* Result.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Result.swift; sourceTree = "<group>"; };
 		16C33AF91BEFB72500A0DBE0 /* ReactiveKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		16C33B161BEFB9CB00A0DBE0 /* ReactiveKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		16C33B241BEFBA0100A0DBE0 /* ReactiveKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -341,10 +343,11 @@
 			children = (
 				ECBCCE2A1BEB6BE100723476 /* NoError.swift */,
 				ECBCCDFE1BEB6BBE00723476 /* Bindable.swift */,
-				ECBCCDFF1BEB6BBE00723476 /* ExecutionContext.swift */,
 				ECBCCE001BEB6BBE00723476 /* OptionalType.swift */,
 				ECBCCE011BEB6BBE00723476 /* Queue.swift */,
+				ECBCCDFF1BEB6BBE00723476 /* ExecutionContext.swift */,
 				ECBCCE021BEB6BBE00723476 /* TokenizedCollection.swift */,
+				1648A99E1BF12CE9007A185C /* Result.swift */,
 			);
 			path = Other;
 			sourceTree = "<group>";
@@ -718,6 +721,7 @@
 				ECBCCE1C1BEB6BBE00723476 /* Bindable.swift in Sources */,
 				ECBCCE161BEB6BBE00723476 /* Observable.swift in Sources */,
 				ECBCCE171BEB6BBE00723476 /* ObservableCollection+Array.swift in Sources */,
+				1648A99F1BF12CE9007A185C /* Result.swift in Sources */,
 				ECBCCE121BEB6BBE00723476 /* SimpleDisposable.swift in Sources */,
 				ECBCCE1E1BEB6BBE00723476 /* OptionalType.swift in Sources */,
 				ECBCCE0E1BEB6BBE00723476 /* CompositeDisposable.swift in Sources */,

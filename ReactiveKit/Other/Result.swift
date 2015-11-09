@@ -21,6 +21,29 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 //
+//  Thank you Rob Rix! https://github.com/antitypical/Result
+//
 
-public enum NoError: ErrorType {
+/// An enum representing either a failure with an explanatory error, or a success with a result value.
+public enum Result<T, Error: ErrorType>: CustomStringConvertible {
+  
+  case Success(T)
+  case Failure(Error)
+  
+  public init(value: T) {
+    self = .Success(value)
+  }
+  
+  public init(error: Error) {
+    self = .Failure(error)
+  }
+  
+  public var description: String {
+    switch self {
+    case let .Success(value):
+      return ".Success(\(value))"
+    case let .Failure(error):
+      return ".Failure(\(error))"
+    }
+  }
 }
