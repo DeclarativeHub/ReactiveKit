@@ -98,6 +98,9 @@
 		16F0B8761BEFC3850071847A /* Quick.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16F0B8751BEFC3850071847A /* Quick.framework */; };
 		16F0B8781BEFC3890071847A /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16F0B8771BEFC3890071847A /* Nimble.framework */; };
 		EC835BE21BEC923400463098 /* OperationSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC835BE11BEC923400463098 /* OperationSpec.swift */; };
+		EC9549B31BF1EFA2000FC2BF /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1648A99E1BF12CE9007A185C /* Result.swift */; };
+		EC9549B41BF1EFA3000FC2BF /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1648A99E1BF12CE9007A185C /* Result.swift */; };
+		EC9549B51BF1EFA4000FC2BF /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1648A99E1BF12CE9007A185C /* Result.swift */; };
 		ECBCCDD41BEB6B9A00723476 /* ReactiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		ECBCCDDB1BEB6B9B00723476 /* ReactiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ECBCCDD01BEB6B9A00723476 /* ReactiveKit.framework */; };
 		ECBCCDE01BEB6B9B00723476 /* StreamSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCDDF1BEB6B9B00723476 /* StreamSpec.swift */; };
@@ -616,6 +619,7 @@
 				16C33B481BEFBA2D00A0DBE0 /* TokenizedCollection.swift in Sources */,
 				16C33B3F1BEFBA2D00A0DBE0 /* SimpleDisposable.swift in Sources */,
 				16C33B301BEFBA2D00A0DBE0 /* Operation.swift in Sources */,
+				EC9549B51BF1EFA4000FC2BF /* Result.swift in Sources */,
 				16C33B351BEFBA2D00A0DBE0 /* ObservableCollection+Array.swift in Sources */,
 				16C33B461BEFBA2D00A0DBE0 /* OptionalType.swift in Sources */,
 				16C33B3A1BEFBA2D00A0DBE0 /* BlockDisposable.swift in Sources */,
@@ -651,6 +655,7 @@
 				16C33B641BEFBA2D00A0DBE0 /* TokenizedCollection.swift in Sources */,
 				16C33B5B1BEFBA2D00A0DBE0 /* SimpleDisposable.swift in Sources */,
 				16C33B4C1BEFBA2D00A0DBE0 /* Operation.swift in Sources */,
+				EC9549B41BF1EFA3000FC2BF /* Result.swift in Sources */,
 				16C33B511BEFBA2D00A0DBE0 /* ObservableCollection+Array.swift in Sources */,
 				16C33B621BEFBA2D00A0DBE0 /* OptionalType.swift in Sources */,
 				16C33B561BEFBA2D00A0DBE0 /* BlockDisposable.swift in Sources */,
@@ -686,6 +691,7 @@
 				16C33B801BEFBA2E00A0DBE0 /* TokenizedCollection.swift in Sources */,
 				16C33B771BEFBA2E00A0DBE0 /* SimpleDisposable.swift in Sources */,
 				16C33B681BEFBA2E00A0DBE0 /* Operation.swift in Sources */,
+				EC9549B31BF1EFA2000FC2BF /* Result.swift in Sources */,
 				16C33B6D1BEFBA2E00A0DBE0 /* ObservableCollection+Array.swift in Sources */,
 				16C33B7E1BEFBA2E00A0DBE0 /* OptionalType.swift in Sources */,
 				16C33B721BEFBA2E00A0DBE0 /* BlockDisposable.swift in Sources */,
@@ -840,7 +846,6 @@
 				INFOPLIST_FILE = ReactiveKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				PRODUCT_BUNDLE_IDENTIFIER = ReactiveKit.ReactiveKit;
 				PRODUCT_NAME = ReactiveKit;
 				SDKROOT = macosx;
@@ -861,7 +866,6 @@
 				INFOPLIST_FILE = ReactiveKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				PRODUCT_BUNDLE_IDENTIFIER = ReactiveKit.ReactiveKit;
 				PRODUCT_NAME = ReactiveKit;
 				SDKROOT = macosx;
@@ -907,6 +911,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -949,6 +954,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
