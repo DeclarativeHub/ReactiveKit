@@ -120,7 +120,7 @@ public extension OperationType {
   }
   
   @warn_unused_result
-  public func shareNext(limit: Int = Int.max, context: ExecutionContext = Queue.Main.context) -> ActiveStream<Value> {
+  public func shareNext(limit: Int = Int.max, context: ExecutionContext = Queue.main.context) -> ActiveStream<Value> {
     return create(limit) { sink in
       return self.observeNext(on: context, sink: sink)
     }
@@ -182,8 +182,39 @@ public extension OperationType {
   }
   
   @warn_unused_result
+  public func retry(var count: Int) -> Operation<Value, Error> {
+    return create { sink in
+      let serialDisposable = SerialDisposable(otherDisposable: nil)
+      
+      var attempt: (() -> Void)!
+      
+      attempt = {
+        serialDisposable.otherDisposable?.dispose()
+        serialDisposable.otherDisposable = self.observe(on: ImmediateExecutionContext) { event in
+          switch event {
+          case .Failure(let error):
+            if count > 0 {
+              count--
+              attempt()
+            } else {
+              sink.failure(error)
+            }
+          default:
+            sink.sink(event._unbox)
+          }
+        }
+      }
+      
+      attempt()
+      return serialDisposable
+    }
+  }
+  
+  @warn_unused_result
   public func combineLatestWith<S: OperationType where S.Error == Error>(other: S) -> Operation<(Value, S.Value), Error> {
     return create { sink in
+      let queue = Queue(name: "com.ReactiveKit.ReactiveKit.Operation.CombineLatestWith")
+      
       var latestSelfValue: Value! = nil
       var latestOtherValue: S.Value! = nil
       
@@ -221,8 +252,10 @@ public extension OperationType {
         if case .Failure(let error) = event {
           sink.failure(error)
         } else {
-          latestSelfEvent = event
-          onBoth()
+          queue.sync {
+            latestSelfEvent = event
+            onBoth()
+          }
         }
       }
       
@@ -230,8 +263,10 @@ public extension OperationType {
         if case .Failure(let error) = event {
           sink.failure(error)
         } else {
-          latestOtherEvent = event
-          onBoth()
+          queue.sync {
+            latestOtherEvent = event
+            onBoth()
+          }
         }
       }
       
@@ -239,6 +274,65 @@ public extension OperationType {
     }
   }
 
+  @warn_unused_result
+  public func zipWith<S: OperationType where S.Error == Error>(other: S) -> Operation<(Value, S.Value), Error> {
+    return create { sink in
+      let queue = Queue(name: "com.ReactiveKit.ReactiveKit.ZipWith")
+      
+      var selfBuffer = Array<Value>()
+      var selfCompleted = false
+      var otherBuffer = Array<S.Value>()
+      var otherCompleted = false
+      
+      let dispatchIfPossible = {
+        while selfBuffer.count > 0 && otherBuffer.count > 0 {
+          sink.next((selfBuffer[0], otherBuffer[0]))
+          selfBuffer.removeAtIndex(0)
+          otherBuffer.removeAtIndex(0)
+        }
+        
+        if (selfCompleted && selfBuffer.isEmpty) || (otherCompleted && otherBuffer.isEmpty) {
+          sink.success()
+        }
+      }
+      
+      let selfDisposable = self.observe(on: ImmediateExecutionContext) { event in
+        switch event {
+        case .Failure(let error):
+          sink.failure(error)
+        case .Success:
+          queue.sync {
+            selfCompleted = true
+            dispatchIfPossible()
+          }
+        case .Next(let value):
+          queue.sync {
+            selfBuffer.append(value)
+            dispatchIfPossible()
+          }
+        }
+      }
+      
+      let otherDisposable = other.observe(on: ImmediateExecutionContext) { event in
+        switch event {
+        case .Failure(let error):
+          sink.failure(error)
+        case .Success:
+          queue.sync {
+            otherCompleted = true
+            dispatchIfPossible()
+          }
+        case .Next(let value):
+          queue.sync {
+            otherBuffer.append(value)
+            dispatchIfPossible()
+          }
+        }
+      }
+      
+      return CompositeDisposable([selfDisposable, otherDisposable])
+    }
+  }
 }
 
 public extension OperationType where Value: OptionalType {
@@ -254,14 +348,17 @@ public extension OperationType where Value: OperationType, Value.Error == Error 
   @warn_unused_result
   public func merge() -> Operation<Value.Value, Value.Error> {
     return create { sink in
+      let queue = Queue(name: "com.ReactiveKit.ReactiveKit.Operation.Merge")
       
       var numberOfOperations = 1
       let compositeDisposable = CompositeDisposable()
       
       let decrementNumberOfOperations = { () -> () in
-        numberOfOperations -= 1
-        if numberOfOperations == 0 {
-          sink.success()
+        queue.sync {
+          numberOfOperations -= 1
+          if numberOfOperations == 0 {
+            sink.success()
+          }
         }
       }
       
@@ -273,7 +370,9 @@ public extension OperationType where Value: OperationType, Value.Error == Error 
         case .Success:
           decrementNumberOfOperations()
         case .Next(let task):
-          numberOfOperations += 1
+          queue.sync {
+            numberOfOperations += 1
+          }
           compositeDisposable += task.observe(on: ImmediateExecutionContext) { event in
             switch event {
             case .Next, .Failure:
@@ -334,6 +433,8 @@ public extension OperationType where Value: OperationType, Value.Error == Error 
   @warn_unused_result
   public func concat() -> Operation<Value.Value, Value.Error>  {
     return create { sink in
+      let queue = Queue(name: "com.ReactiveKit.ReactiveKit.Operation.Concat")
+      
       let serialDisposable = SerialDisposable(otherDisposable: nil)
       let compositeDisposable = CompositeDisposable([serialDisposable])
       
@@ -345,7 +446,10 @@ public extension OperationType where Value: OperationType, Value.Error == Error 
       var startNextOperation: (() -> ())! = nil
       startNextOperation = {
         innerCompleted = false
-        let task = taskQueue.removeAtIndex(0)
+
+        let task: Value = queue.sync {
+          return taskQueue.removeAtIndex(0)
+        }
         
         serialDisposable.otherDisposable?.dispose()
         serialDisposable.otherDisposable = task.observe(on: ImmediateExecutionContext) { event in
@@ -366,7 +470,10 @@ public extension OperationType where Value: OperationType, Value.Error == Error 
       }
       
       let addToQueue = { (task: Value) -> () in
-        taskQueue.append(task)
+        queue.sync {
+          taskQueue.append(task)
+        }
+        
         if innerCompleted {
           startNextOperation()
         }
@@ -441,13 +548,28 @@ public func combineLatest<A: OperationType, B: OperationType where A.Error == B.
 }
 
 @warn_unused_result
+public func zip<A: OperationType, B: OperationType where A.Error == B.Error>(a: A, _ b: B) -> Operation<(A.Value, B.Value), A.Error> {
+  return a.zipWith(b)
+}
+
+@warn_unused_result
 public func combineLatest<A: OperationType, B: OperationType, C: OperationType where A.Error == B.Error, A.Error == C.Error>(a: A, _ b: B, _ c: C) -> Operation<(A.Value, B.Value, C.Value), A.Error> {
   return combineLatest(a, b).combineLatestWith(c).map { ($0.0, $0.1, $1) }
 }
 
 @warn_unused_result
+public func zip<A: OperationType, B: OperationType, C: OperationType where A.Error == B.Error, A.Error == C.Error>(a: A, _ b: B, _ c: C) -> Operation<(A.Value, B.Value, C.Value), A.Error> {
+  return zip(a, b).zipWith(c).map { ($0.0, $0.1, $1) }
+}
+
+@warn_unused_result
 public func combineLatest<A: OperationType, B: OperationType, C: OperationType, D: OperationType where A.Error == B.Error, A.Error == C.Error, A.Error == D.Error>(a: A, _ b: B, _ c: C, _ d: D) -> Operation<(A.Value, B.Value, C.Value, D.Value), A.Error> {
   return combineLatest(a, b, c).combineLatestWith(d).map { ($0.0, $0.1, $0.2, $1) }
+}
+
+@warn_unused_result
+public func zip<A: OperationType, B: OperationType, C: OperationType, D: OperationType where A.Error == B.Error, A.Error == C.Error, A.Error == D.Error>(a: A, _ b: B, _ c: C, _ d: D) -> Operation<(A.Value, B.Value, C.Value, D.Value), A.Error> {
+  return zip(a, b, c).zipWith(d).map { ($0.0, $0.1, $0.2, $1) }
 }
 
 @warn_unused_result
@@ -458,10 +580,24 @@ public func combineLatest<A: OperationType, B: OperationType, C: OperationType, 
 }
 
 @warn_unused_result
+public func zip<A: OperationType, B: OperationType, C: OperationType, D: OperationType, E: OperationType where A.Error == B.Error, A.Error == C.Error, A.Error == D.Error, A.Error == E.Error>
+  (a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> Operation<(A.Value, B.Value, C.Value, D.Value, E.Value), A.Error>
+{
+  return zip(a, b, c, d).zipWith(e).map { ($0.0, $0.1, $0.2, $0.3, $1) }
+}
+
+@warn_unused_result
 public func combineLatest<A: OperationType, B: OperationType, C: OperationType, D: OperationType, E: OperationType, F: OperationType where A.Error == B.Error, A.Error == C.Error, A.Error == D.Error, A.Error == E.Error, A.Error == F.Error>
   ( a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> Operation<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value), A.Error>
 {
   return combineLatest(a, b, c, d, e).combineLatestWith(f).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $1) }
+}
+
+@warn_unused_result
+public func zip<A: OperationType, B: OperationType, C: OperationType, D: OperationType, E: OperationType, F: OperationType where A.Error == B.Error, A.Error == C.Error, A.Error == D.Error, A.Error == E.Error, A.Error == F.Error>
+  ( a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> Operation<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value), A.Error>
+{
+  return zip(a, b, c, d, e).zipWith(f).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $1) }
 }
 
 @warn_unused_result
@@ -472,10 +608,24 @@ public func combineLatest<A: OperationType, B: OperationType, C: OperationType, 
 }
 
 @warn_unused_result
+public func zip<A: OperationType, B: OperationType, C: OperationType, D: OperationType, E: OperationType, F: OperationType, G: OperationType where A.Error == B.Error, A.Error == C.Error, A.Error == D.Error, A.Error == E.Error, A.Error == F.Error, A.Error == G.Error>
+  ( a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G) -> Operation<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value), A.Error>
+{
+  return zip(a, b, c, d, e, f).zipWith(g).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $0.5, $1) }
+}
+
+@warn_unused_result
 public func combineLatest<A: OperationType, B: OperationType, C: OperationType, D: OperationType, E: OperationType, F: OperationType, G: OperationType, H: OperationType where A.Error == B.Error, A.Error == C.Error, A.Error == D.Error, A.Error == E.Error, A.Error == F.Error, A.Error == G.Error, A.Error == H.Error>
   ( a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H) -> Operation<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value), A.Error>
 {
   return combineLatest(a, b, c, d, e, f, g).combineLatestWith(h).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $0.5, $0.6, $1) }
+}
+
+@warn_unused_result
+public func zip<A: OperationType, B: OperationType, C: OperationType, D: OperationType, E: OperationType, F: OperationType, G: OperationType, H: OperationType where A.Error == B.Error, A.Error == C.Error, A.Error == D.Error, A.Error == E.Error, A.Error == F.Error, A.Error == G.Error, A.Error == H.Error>
+  ( a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H) -> Operation<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value), A.Error>
+{
+  return zip(a, b, c, d, e, f, g).zipWith(h).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $0.5, $0.6, $1) }
 }
 
 @warn_unused_result
@@ -486,6 +636,13 @@ public func combineLatest<A: OperationType, B: OperationType, C: OperationType, 
 }
 
 @warn_unused_result
+public func zip<A: OperationType, B: OperationType, C: OperationType, D: OperationType, E: OperationType, F: OperationType, G: OperationType, H: OperationType, I: OperationType where A.Error == B.Error, A.Error == C.Error, A.Error == D.Error, A.Error == E.Error, A.Error == F.Error, A.Error == G.Error, A.Error == H.Error, A.Error == I.Error>
+  ( a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I) -> Operation<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value), A.Error>
+{
+  return zip(a, b, c, d, e, f, g, h).zipWith(i).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $0.5, $0.6, $0.7, $1) }
+}
+
+@warn_unused_result
 public func combineLatest<A: OperationType, B: OperationType, C: OperationType, D: OperationType, E: OperationType, F: OperationType, G: OperationType, H: OperationType, I: OperationType, J: OperationType where A.Error == B.Error, A.Error == C.Error, A.Error == D.Error, A.Error == E.Error, A.Error == F.Error, A.Error == G.Error, A.Error == H.Error, A.Error == I.Error, A.Error == J.Error>
   ( a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J) -> Operation<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value), A.Error>
 {
@@ -493,8 +650,22 @@ public func combineLatest<A: OperationType, B: OperationType, C: OperationType, 
 }
 
 @warn_unused_result
+public func zip<A: OperationType, B: OperationType, C: OperationType, D: OperationType, E: OperationType, F: OperationType, G: OperationType, H: OperationType, I: OperationType, J: OperationType where A.Error == B.Error, A.Error == C.Error, A.Error == D.Error, A.Error == E.Error, A.Error == F.Error, A.Error == G.Error, A.Error == H.Error, A.Error == I.Error, A.Error == J.Error>
+  ( a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J) -> Operation<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value), A.Error>
+{
+  return zip(a, b, c, d, e, f, g, h, i).zipWith(j).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $0.5, $0.6, $0.7, $0.8, $1) }
+}
+
+@warn_unused_result
 public func combineLatest<A: OperationType, B: OperationType, C: OperationType, D: OperationType, E: OperationType, F: OperationType, G: OperationType, H: OperationType, I: OperationType, J: OperationType, K: OperationType where A.Error == B.Error, A.Error == C.Error, A.Error == D.Error, A.Error == E.Error, A.Error == F.Error, A.Error == G.Error, A.Error == H.Error, A.Error == I.Error, A.Error == J.Error, A.Error == K.Error>
   ( a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J, _ k: K) -> Operation<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value, K.Value), A.Error>
 {
   return combineLatest(a, b, c, d, e, f, g, h, i, j).combineLatestWith(k).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $0.5, $0.6, $0.7, $0.8, $0.9, $1) }
+}
+
+@warn_unused_result
+public func zip<A: OperationType, B: OperationType, C: OperationType, D: OperationType, E: OperationType, F: OperationType, G: OperationType, H: OperationType, I: OperationType, J: OperationType, K: OperationType where A.Error == B.Error, A.Error == C.Error, A.Error == D.Error, A.Error == E.Error, A.Error == F.Error, A.Error == G.Error, A.Error == H.Error, A.Error == I.Error, A.Error == J.Error, A.Error == K.Error>
+  ( a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J, _ k: K) -> Operation<(A.Value, B.Value, C.Value, D.Value, E.Value, F.Value, G.Value, H.Value, I.Value, J.Value, K.Value), A.Error>
+{
+  return zip(a, b, c, d, e, f, g, h, i, j).zipWith(k).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $0.5, $0.6, $0.7, $0.8, $0.9, $1) }
 }

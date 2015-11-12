@@ -83,6 +83,51 @@ class OperationSpec: QuickSpec {
           }
         }
       }
+      
+      context("zipWith") {
+        var observedEvents: [(Int, Int)] = []
+        var disposable: DisposableType!
+        let otherSimpleDisposable = SimpleDisposable()
+        
+        beforeEach {
+          let otherOperation: Operation<Int, TestError> = create { sink in
+            sink.next(10)
+            sink.next(20)
+            sink.next(30)
+            sink.next(40)
+            sink.success()
+            return otherSimpleDisposable
+          }
+          
+          disposable = operation.zipWith(otherOperation).observeNext(on: ImmediateExecutionContext) {
+            observedEvents.append($0)
+          }
+        }
+        
+        it("does zip") {
+          expect(observedEvents[0].0) == 1
+          expect(observedEvents[0].1) == 10
+          expect(observedEvents[1].0) == 2
+          expect(observedEvents[1].1) == 20
+          expect(observedEvents[2].0) == 3
+          expect(observedEvents[2].1) == 30
+          expect(observedEvents.count) == 3
+        }
+        
+        describe("can be disposed") {
+          beforeEach {
+            disposable.dispose()
+          }
+          
+          it("is disposed") {
+            expect(simpleDisposable.isDisposed).to(beTrue())
+          }
+          
+          it("other is disposed") {
+            expect(otherSimpleDisposable.isDisposed).to(beTrue())
+          }
+        }
+      }
     }
     
     describe("merge") {

@@ -22,45 +22,24 @@
 //  THE SOFTWARE.
 //
 
-import Dispatch
-import Foundation
-
-public struct Queue {
+public struct MutableObservable<Value>: ObservableType {
   
-  public typealias TimeInterval = NSTimeInterval
+  private var observable: Observable<Value>
   
-  public static let main = Queue(queue: dispatch_get_main_queue());
-  public static let global = Queue(queue: dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0))
-  public static let background = Queue(queue: dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0))
-  
-  public private(set) var queue: dispatch_queue_t
-  
-  public init(queue: dispatch_queue_t = dispatch_queue_create("com.ReactiveKit.ReactiveKit.Queue", DISPATCH_QUEUE_SERIAL)) {
-    self.queue = queue
-  }
-  
-  public init(name: String) {
-    self.queue = dispatch_queue_create(name, DISPATCH_QUEUE_SERIAL)
-  }
-  
-  public func after(interval: NSTimeInterval, block: () -> ()) {
-    let dispatchTime = dispatch_time(DISPATCH_TIME_NOW, Int64(interval * NSTimeInterval(NSEC_PER_SEC)))
-    dispatch_after(dispatchTime, queue, block)
-  }
-  
-  public func async(block: () -> ()) {
-    dispatch_async(queue, block)
-  }
-  
-  public func sync(block: () -> ()) {
-    dispatch_sync(queue, block)
-  }
-  
-  public func sync<T>(block: () -> T) -> T {
-    var res: T! = nil
-    sync {
-      res = block()
+  public var value: Value {
+    get {
+      return observable.value
     }
-    return res
+    set {
+      observable.value = newValue
+    }
+  }
+  
+  public init(_ value: Value) {
+    observable = Observable(value)
+  }
+
+  public func observe(on context: ExecutionContext, sink: Value -> ()) -> DisposableType {
+    return observable.observe(on: context, sink: sink)
   }
 }

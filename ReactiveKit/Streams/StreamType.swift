@@ -30,7 +30,7 @@ public protocol StreamType {
 extension StreamType {
   
   @warn_unused_result
-  public func share(limit: Int = Int.max, context: ExecutionContext = Queue.Main.context) -> ActiveStream<Event> {
+  public func share(limit: Int = Int.max, context: ExecutionContext = Queue.main.context) -> ActiveStream<Event> {
     return create(limit) { sink in
       return self.observe(on: context, sink: sink)
     }
@@ -126,29 +126,68 @@ extension StreamType {
   @warn_unused_result
   public func combineLatestWith<S: StreamType>(other: S) -> Stream<(Event, S.Event)> {
     return create { sink in
+      let queue = Queue(name: "com.ReactiveKit.ReactiveKit.CombineLatestWith")
+      
       var selfEvent: Event! = nil
       var otherEvent: S.Event! = nil
       
-      let onBothNext = { () -> () in
+      let dispatchIfPossible = { () -> () in
         if let myEvent = selfEvent, let itsEvent = otherEvent {
           sink((myEvent, itsEvent))
         }
       }
       
       let selfDisposable = self.observe(on: ImmediateExecutionContext) { event in
-        selfEvent = event
-        onBothNext()
+        queue.sync {
+          selfEvent = event
+          dispatchIfPossible()
+        }
       }
       
       let otherDisposable = other.observe(on: ImmediateExecutionContext) { event in
-        otherEvent = event
-        onBothNext()
+        queue.sync {
+          otherEvent = event
+          dispatchIfPossible()
+        }
       }
       
       return CompositeDisposable([selfDisposable, otherDisposable])
     }
   }
   
+  @warn_unused_result
+  public func zipWith<S: StreamType>(other: S) -> Stream<(Event, S.Event)> {
+    return create { sink in
+      let queue = Queue(name: "com.ReactiveKit.ReactiveKit.ZipWith")
+
+      var selfBuffer = Array<Event>()
+      var otherBuffer = Array<S.Event>()
+      
+      let dispatchIfPossible = {
+        while selfBuffer.count > 0 && otherBuffer.count > 0 {
+          sink(selfBuffer[0], otherBuffer[0])
+          selfBuffer.removeAtIndex(0)
+          otherBuffer.removeAtIndex(0)
+        }
+      }
+      
+      let selfDisposable = self.observe(on: ImmediateExecutionContext) { event in
+        queue.sync {
+          selfBuffer.append(event)
+          dispatchIfPossible()
+        }
+      }
+      
+      let otherDisposable = other.observe(on: ImmediateExecutionContext) { event in
+        queue.sync {
+          otherBuffer.append(event)
+          dispatchIfPossible()
+        }
+      }
+      
+      return CompositeDisposable([selfDisposable, otherDisposable])
+    }
+  }
 }
 
 extension StreamType where Event: OptionalType {
@@ -259,13 +298,28 @@ public func combineLatest<A: StreamType, B: StreamType>(a: A, _ b: B) -> Stream<
 }
 
 @warn_unused_result
+public func zip<A: StreamType, B: StreamType>(a: A, _ b: B) -> Stream<(A.Event, B.Event)> {
+  return a.zipWith(b)
+}
+
+@warn_unused_result
 public func combineLatest<A: StreamType, B: StreamType, C: StreamType>(a: A, _ b: B, _ c: C) -> Stream<(A.Event, B.Event, C.Event)> {
   return combineLatest(a, b).combineLatestWith(c).map { ($0.0, $0.1, $1) }
 }
 
 @warn_unused_result
+public func zip<A: StreamType, B: StreamType, C: StreamType>(a: A, _ b: B, _ c: C) -> Stream<(A.Event, B.Event, C.Event)> {
+  return zip(a, b).zipWith(c).map { ($0.0, $0.1, $1) }
+}
+
+@warn_unused_result
 public func combineLatest<A: StreamType, B: StreamType, C: StreamType, D: StreamType>(a: A, _ b: B, _ c: C, _ d: D) -> Stream<(A.Event, B.Event, C.Event, D.Event)> {
   return combineLatest(a, b, c).combineLatestWith(d).map { ($0.0, $0.1, $0.2, $1) }
+}
+
+@warn_unused_result
+public func zip<A: StreamType, B: StreamType, C: StreamType, D: StreamType>(a: A, _ b: B, _ c: C, _ d: D) -> Stream<(A.Event, B.Event, C.Event, D.Event)> {
+  return zip(a, b, c).zipWith(d).map { ($0.0, $0.1, $0.2, $1) }
 }
 
 @warn_unused_result
@@ -276,10 +330,25 @@ public func combineLatest<A: StreamType, B: StreamType, C: StreamType, D: Stream
 }
 
 @warn_unused_result
+public func zip<A: StreamType, B: StreamType, C: StreamType, D: StreamType, E: StreamType>
+  (a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> Stream<(A.Event, B.Event, C.Event, D.Event, E.Event)>
+{
+  return zip(a, b, c, d).zipWith(e).map { ($0.0, $0.1, $0.2, $0.3, $1) }
+}
+
+
+@warn_unused_result
 public func combineLatest<A: StreamType, B: StreamType, C: StreamType, D: StreamType, E: StreamType, F: StreamType>
   ( a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> Stream<(A.Event, B.Event, C.Event, D.Event, E.Event, F.Event)>
 {
   return combineLatest(a, b, c, d, e).combineLatestWith(f).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $1) }
+}
+
+@warn_unused_result
+public func zip<A: StreamType, B: StreamType, C: StreamType, D: StreamType, E: StreamType, F: StreamType>
+  ( a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> Stream<(A.Event, B.Event, C.Event, D.Event, E.Event, F.Event)>
+{
+  return zip(a, b, c, d, e).zipWith(f).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $1) }
 }
 
 @warn_unused_result
@@ -290,10 +359,24 @@ public func combineLatest<A: StreamType, B: StreamType, C: StreamType, D: Stream
 }
 
 @warn_unused_result
+public func zip<A: StreamType, B: StreamType, C: StreamType, D: StreamType, E: StreamType, F: StreamType, G: StreamType>
+  ( a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G) -> Stream<(A.Event, B.Event, C.Event, D.Event, E.Event, F.Event, G.Event)>
+{
+  return zip(a, b, c, d, e, f).zipWith(g).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $0.5, $1) }
+}
+
+@warn_unused_result
 public func combineLatest<A: StreamType, B: StreamType, C: StreamType, D: StreamType, E: StreamType, F: StreamType, G: StreamType, H: StreamType>
   ( a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H) -> Stream<(A.Event, B.Event, C.Event, D.Event, E.Event, F.Event, G.Event, H.Event)>
 {
   return combineLatest(a, b, c, d, e, f, g).combineLatestWith(h).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $0.5, $0.6, $1) }
+}
+
+@warn_unused_result
+public func zip<A: StreamType, B: StreamType, C: StreamType, D: StreamType, E: StreamType, F: StreamType, G: StreamType, H: StreamType>
+  ( a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H) -> Stream<(A.Event, B.Event, C.Event, D.Event, E.Event, F.Event, G.Event, H.Event)>
+{
+  return zip(a, b, c, d, e, f, g).zipWith(h).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $0.5, $0.6, $1) }
 }
 
 @warn_unused_result
@@ -304,6 +387,13 @@ public func combineLatest<A: StreamType, B: StreamType, C: StreamType, D: Stream
 }
 
 @warn_unused_result
+public func zip<A: StreamType, B: StreamType, C: StreamType, D: StreamType, E: StreamType, F: StreamType, G: StreamType, H: StreamType, I: StreamType>
+  ( a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I) -> Stream<(A.Event, B.Event, C.Event, D.Event, E.Event, F.Event, G.Event, H.Event, I.Event)>
+{
+  return zip(a, b, c, d, e, f, g, h).zipWith(i).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $0.5, $0.6, $0.7, $1) }
+}
+
+@warn_unused_result
 public func combineLatest<A: StreamType, B: StreamType, C: StreamType, D: StreamType, E: StreamType, F: StreamType, G: StreamType, H: StreamType, I: StreamType, J: StreamType>
   ( a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J) -> Stream<(A.Event, B.Event, C.Event, D.Event, E.Event, F.Event, G.Event, H.Event, I.Event, J.Event)>
 {
@@ -311,8 +401,23 @@ public func combineLatest<A: StreamType, B: StreamType, C: StreamType, D: Stream
 }
 
 @warn_unused_result
+public func zip<A: StreamType, B: StreamType, C: StreamType, D: StreamType, E: StreamType, F: StreamType, G: StreamType, H: StreamType, I: StreamType, J: StreamType>
+  ( a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J) -> Stream<(A.Event, B.Event, C.Event, D.Event, E.Event, F.Event, G.Event, H.Event, I.Event, J.Event)>
+{
+  return zip(a, b, c, d, e, f, g, h, i).zipWith(j).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $0.5, $0.6, $0.7, $0.8, $1) }
+}
+
+@warn_unused_result
 public func combineLatest<A: StreamType, B: StreamType, C: StreamType, D: StreamType, E: StreamType, F: StreamType, G: StreamType, H: StreamType, I: StreamType, J: StreamType, K: StreamType>
   ( a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J, _ k: K) -> Stream<(A.Event, B.Event, C.Event, D.Event, E.Event, F.Event, G.Event, H.Event, I.Event, J.Event, K.Event)>
 {
   return combineLatest(a, b, c, d, e, f, g, h, i, j).combineLatestWith(k).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $0.5, $0.6, $0.7, $0.8, $0.9, $1) }
+}
+
+
+@warn_unused_result
+public func zip<A: StreamType, B: StreamType, C: StreamType, D: StreamType, E: StreamType, F: StreamType, G: StreamType, H: StreamType, I: StreamType, J: StreamType, K: StreamType>
+  ( a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F, _ g: G, _ h: H, _ i: I, _ j: J, _ k: K) -> Stream<(A.Event, B.Event, C.Event, D.Event, E.Event, F.Event, G.Event, H.Event, I.Event, J.Event, K.Event)>
+{
+  return zip(a, b, c, d, e, f, g, h, i, j).zipWith(k).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $0.5, $0.6, $0.7, $0.8, $0.9, $1) }
 }

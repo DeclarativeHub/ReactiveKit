@@ -97,6 +97,14 @@
 		16C33B851BEFBAC900A0DBE0 /* ReactiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		16F0B8761BEFC3850071847A /* Quick.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16F0B8751BEFC3850071847A /* Quick.framework */; };
 		16F0B8781BEFC3890071847A /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16F0B8771BEFC3890071847A /* Nimble.framework */; };
+		EC0DF29A1BF48FF400DFF3E6 /* MutableObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0DF2991BF48FF400DFF3E6 /* MutableObservable.swift */; };
+		EC0DF29B1BF48FF400DFF3E6 /* MutableObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0DF2991BF48FF400DFF3E6 /* MutableObservable.swift */; };
+		EC0DF29C1BF48FF400DFF3E6 /* MutableObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0DF2991BF48FF400DFF3E6 /* MutableObservable.swift */; };
+		EC0DF29D1BF48FF400DFF3E6 /* MutableObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0DF2991BF48FF400DFF3E6 /* MutableObservable.swift */; };
+		EC0DF29F1BF4909C00DFF3E6 /* MutableObservableCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0DF29E1BF4909C00DFF3E6 /* MutableObservableCollection.swift */; };
+		EC0DF2A01BF4909C00DFF3E6 /* MutableObservableCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0DF29E1BF4909C00DFF3E6 /* MutableObservableCollection.swift */; };
+		EC0DF2A11BF4909C00DFF3E6 /* MutableObservableCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0DF29E1BF4909C00DFF3E6 /* MutableObservableCollection.swift */; };
+		EC0DF2A21BF4909C00DFF3E6 /* MutableObservableCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0DF29E1BF4909C00DFF3E6 /* MutableObservableCollection.swift */; };
 		EC835BE21BEC923400463098 /* OperationSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC835BE11BEC923400463098 /* OperationSpec.swift */; };
 		EC9549B31BF1EFA2000FC2BF /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1648A99E1BF12CE9007A185C /* Result.swift */; };
 		EC9549B41BF1EFA3000FC2BF /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1648A99E1BF12CE9007A185C /* Result.swift */; };
@@ -146,11 +154,15 @@
 
 /* Begin PBXFileReference section */
 		1648A99E1BF12CE9007A185C /* Result.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Result.swift; sourceTree = "<group>"; };
+		1671707E1BF4F62A001786CE /* ReactiveKit.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReactiveKit.podspec; sourceTree = SOURCE_ROOT; };
+		1671707F1BF4F64E001786CE /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
 		16C33AF91BEFB72500A0DBE0 /* ReactiveKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		16C33B161BEFB9CB00A0DBE0 /* ReactiveKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		16C33B241BEFBA0100A0DBE0 /* ReactiveKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		16F0B8751BEFC3850071847A /* Quick.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quick.framework; path = "../Carthage/Checkouts/Quick/build/Debug-iphoneos/Quick.framework"; sourceTree = "<group>"; };
 		16F0B8771BEFC3890071847A /* Nimble.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Nimble.framework; path = "../Carthage/Checkouts/Nimble/build/Debug-iphoneos/Nimble.framework"; sourceTree = "<group>"; };
+		EC0DF2991BF48FF400DFF3E6 /* MutableObservable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MutableObservable.swift; sourceTree = "<group>"; };
+		EC0DF29E1BF4909C00DFF3E6 /* MutableObservableCollection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MutableObservableCollection.swift; sourceTree = "<group>"; };
 		EC835BE11BEC923400463098 /* OperationSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OperationSpec.swift; sourceTree = "<group>"; };
 		EC835C001BECB0FB00463098 /* ReactiveKitPlayground.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = ReactiveKitPlayground.playground; sourceTree = SOURCE_ROOT; };
 		ECBCCDD01BEB6B9A00723476 /* ReactiveKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -252,6 +264,8 @@
 		ECBCCDC61BEB6B9A00723476 = {
 			isa = PBXGroup;
 			children = (
+				1671707F1BF4F64E001786CE /* README.md */,
+				1671707E1BF4F62A001786CE /* ReactiveKit.podspec */,
 				ECBCCDD21BEB6B9A00723476 /* ReactiveKit */,
 				EC835BF21BECB0D500463098 /* Playgrounds */,
 				ECBCCDDE1BEB6B9B00723476 /* ReactiveKitTests */,
@@ -325,6 +339,7 @@
 			isa = PBXGroup;
 			children = (
 				ECBCCDF61BEB6BBE00723476 /* Observable.swift */,
+				EC0DF2991BF48FF400DFF3E6 /* MutableObservable.swift */,
 			);
 			path = Observable;
 			sourceTree = "<group>";
@@ -337,6 +352,7 @@
 				ECBCCDFA1BEB6BBE00723476 /* ObservableCollection+Set.swift */,
 				ECBCCDFB1BEB6BBE00723476 /* ObservableCollection.swift */,
 				ECBCCDFC1BEB6BBE00723476 /* ObservableCollectionEvent.swift */,
+				EC0DF29E1BF4909C00DFF3E6 /* MutableObservableCollection.swift */,
 			);
 			path = ObservableCollection;
 			sourceTree = "<group>";
@@ -369,8 +385,8 @@
 			isa = PBXGroup;
 			children = (
 				ECBCCE2C1BEB6BE100723476 /* Operation.swift */,
-				ECBCCE2D1BEB6BE100723476 /* OperationEvent.swift */,
 				ECBCCE2E1BEB6BE100723476 /* OperationSink.swift */,
+				ECBCCE2D1BEB6BE100723476 /* OperationEvent.swift */,
 				ECBCCE2B1BEB6BE100723476 /* Stream+Operation.swift */,
 			);
 			path = Operation;
@@ -602,6 +618,7 @@
 				16C33B341BEFBA2D00A0DBE0 /* Observable.swift in Sources */,
 				16C33B331BEFBA2D00A0DBE0 /* Stream+Operation.swift in Sources */,
 				16C33B421BEFBA2D00A0DBE0 /* StreamBuffer.swift in Sources */,
+				EC0DF29B1BF48FF400DFF3E6 /* MutableObservable.swift in Sources */,
 				16C33B431BEFBA2D00A0DBE0 /* NoError.swift in Sources */,
 				16C33B321BEFBA2D00A0DBE0 /* OperationSink.swift in Sources */,
 				16C33B401BEFBA2D00A0DBE0 /* Lock.swift in Sources */,
@@ -619,6 +636,7 @@
 				16C33B481BEFBA2D00A0DBE0 /* TokenizedCollection.swift in Sources */,
 				16C33B3F1BEFBA2D00A0DBE0 /* SimpleDisposable.swift in Sources */,
 				16C33B301BEFBA2D00A0DBE0 /* Operation.swift in Sources */,
+				EC0DF2A01BF4909C00DFF3E6 /* MutableObservableCollection.swift in Sources */,
 				EC9549B51BF1EFA4000FC2BF /* Result.swift in Sources */,
 				16C33B351BEFBA2D00A0DBE0 /* ObservableCollection+Array.swift in Sources */,
 				16C33B461BEFBA2D00A0DBE0 /* OptionalType.swift in Sources */,
@@ -638,6 +656,7 @@
 				16C33B501BEFBA2D00A0DBE0 /* Observable.swift in Sources */,
 				16C33B4F1BEFBA2D00A0DBE0 /* Stream+Operation.swift in Sources */,
 				16C33B5E1BEFBA2D00A0DBE0 /* StreamBuffer.swift in Sources */,
+				EC0DF29C1BF48FF400DFF3E6 /* MutableObservable.swift in Sources */,
 				16C33B5F1BEFBA2D00A0DBE0 /* NoError.swift in Sources */,
 				16C33B4E1BEFBA2D00A0DBE0 /* OperationSink.swift in Sources */,
 				16C33B5C1BEFBA2D00A0DBE0 /* Lock.swift in Sources */,
@@ -655,6 +674,7 @@
 				16C33B641BEFBA2D00A0DBE0 /* TokenizedCollection.swift in Sources */,
 				16C33B5B1BEFBA2D00A0DBE0 /* SimpleDisposable.swift in Sources */,
 				16C33B4C1BEFBA2D00A0DBE0 /* Operation.swift in Sources */,
+				EC0DF2A11BF4909C00DFF3E6 /* MutableObservableCollection.swift in Sources */,
 				EC9549B41BF1EFA3000FC2BF /* Result.swift in Sources */,
 				16C33B511BEFBA2D00A0DBE0 /* ObservableCollection+Array.swift in Sources */,
 				16C33B621BEFBA2D00A0DBE0 /* OptionalType.swift in Sources */,
@@ -674,6 +694,7 @@
 				16C33B6C1BEFBA2E00A0DBE0 /* Observable.swift in Sources */,
 				16C33B6B1BEFBA2E00A0DBE0 /* Stream+Operation.swift in Sources */,
 				16C33B7A1BEFBA2E00A0DBE0 /* StreamBuffer.swift in Sources */,
+				EC0DF29D1BF48FF400DFF3E6 /* MutableObservable.swift in Sources */,
 				16C33B7B1BEFBA2E00A0DBE0 /* NoError.swift in Sources */,
 				16C33B6A1BEFBA2E00A0DBE0 /* OperationSink.swift in Sources */,
 				16C33B781BEFBA2E00A0DBE0 /* Lock.swift in Sources */,
@@ -691,6 +712,7 @@
 				16C33B801BEFBA2E00A0DBE0 /* TokenizedCollection.swift in Sources */,
 				16C33B771BEFBA2E00A0DBE0 /* SimpleDisposable.swift in Sources */,
 				16C33B681BEFBA2E00A0DBE0 /* Operation.swift in Sources */,
+				EC0DF2A21BF4909C00DFF3E6 /* MutableObservableCollection.swift in Sources */,
 				EC9549B31BF1EFA2000FC2BF /* Result.swift in Sources */,
 				16C33B6D1BEFBA2E00A0DBE0 /* ObservableCollection+Array.swift in Sources */,
 				16C33B7E1BEFBA2E00A0DBE0 /* OptionalType.swift in Sources */,
@@ -710,6 +732,7 @@
 				ECBCCE211BEB6BBE00723476 /* ActiveStream.swift in Sources */,
 				ECBCCE101BEB6BBE00723476 /* DisposeBag.swift in Sources */,
 				ECBCCE1F1BEB6BBE00723476 /* Queue.swift in Sources */,
+				EC0DF29A1BF48FF400DFF3E6 /* MutableObservable.swift in Sources */,
 				ECBCCE181BEB6BBE00723476 /* ObservableCollection+Dictionary.swift in Sources */,
 				ECBCCE311BEB6BE100723476 /* Operation.swift in Sources */,
 				ECBCCE331BEB6BE100723476 /* OperationSink.swift in Sources */,
@@ -727,6 +750,7 @@
 				ECBCCE1C1BEB6BBE00723476 /* Bindable.swift in Sources */,
 				ECBCCE161BEB6BBE00723476 /* Observable.swift in Sources */,
 				ECBCCE171BEB6BBE00723476 /* ObservableCollection+Array.swift in Sources */,
+				EC0DF29F1BF4909C00DFF3E6 /* MutableObservableCollection.swift in Sources */,
 				1648A99F1BF12CE9007A185C /* Result.swift in Sources */,
 				ECBCCE121BEB6BBE00723476 /* SimpleDisposable.swift in Sources */,
 				ECBCCE1E1BEB6BBE00723476 /* OptionalType.swift in Sources */,

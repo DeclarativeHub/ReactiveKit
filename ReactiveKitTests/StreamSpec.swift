@@ -164,7 +164,7 @@ class StreamSpec: QuickSpec {
         var disposable: DisposableType!
         
         beforeEach {
-          disposable = stream.throttle(0.1, on: Queue.Main).observe(on: ImmediateExecutionContext) {
+          disposable = stream.throttle(0.1, on: Queue.main).observe(on: ImmediateExecutionContext) {
             observedEvents.append($0)
           }
         }
@@ -257,6 +257,50 @@ class StreamSpec: QuickSpec {
           expect(observedEvents[0].1) == 10
           expect(observedEvents[1].0) == 3
           expect(observedEvents[1].1) == 20
+        }
+        
+        describe("can be disposed") {
+          beforeEach {
+            disposable.dispose()
+          }
+          
+          it("is disposed") {
+            expect(simpleDisposable.isDisposed).to(beTrue())
+          }
+          
+          it("other is disposed") {
+            expect(otherSimpleDisposable.isDisposed).to(beTrue())
+          }
+        }
+      }
+      
+      context("when zipWith") {
+        var observedEvents: [(Int, Int)] = []
+        var disposable: DisposableType!
+        let otherSimpleDisposable = SimpleDisposable()
+        
+        beforeEach {
+          let otherStream: Stream<Int> = create { sink in
+            sink(10)
+            sink(20)
+            sink(30)
+            sink(40)
+            return otherSimpleDisposable
+          }
+          
+          disposable = stream.zipWith(otherStream).observe(on: ImmediateExecutionContext) {
+            observedEvents.append($0)
+          }
+        }
+        
+        it("does zip") {
+          expect(observedEvents[0].0) == 1
+          expect(observedEvents[0].1) == 10
+          expect(observedEvents[1].0) == 2
+          expect(observedEvents[1].1) == 20
+          expect(observedEvents[2].0) == 3
+          expect(observedEvents[2].1) == 30
+          expect(observedEvents.count) == 3
         }
         
         describe("can be disposed") {

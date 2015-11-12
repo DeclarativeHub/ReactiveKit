@@ -22,9 +22,10 @@
 //  THE SOFTWARE.
 //
 
-infix operator <~ { associativity left precedence 160 }
-
-public protocol ObservableType: StreamType {}
+public protocol ObservableType: StreamType {
+  typealias Value
+  var value: Value { get set }
+}
 
 public class Observable<Value>: ActiveStream<Value>, ObservableType {
   
@@ -33,7 +34,7 @@ public class Observable<Value>: ActiveStream<Value>, ObservableType {
       return try! lastEvent()
     }
     set {
-      dispatch(newValue)
+      capturedSink?(value)
     }
   }
     
@@ -53,10 +54,6 @@ public class Observable<Value>: ActiveStream<Value>, ObservableType {
     super.init(limit: 1, producer: { sink in
       return producer(sink)
     })
-  }
-  
-  public func dispatch(value: Value) {
-    capturedSink?(value)
   }
 }
 
@@ -86,9 +83,5 @@ public extension Observable {
       }
     }
   }
-}
-
-public func <~ <T>(left: Observable<T>, right: T) {
-  return left.value = right
 }
 
