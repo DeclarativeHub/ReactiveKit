@@ -22,6 +22,8 @@
 //  THE SOFTWARE.
 //
 
+import Foundation
+
 public protocol StreamType {
   typealias Event
   func observe(on context: ExecutionContext, sink: Event -> ()) -> DisposableType
@@ -81,6 +83,37 @@ extension StreamType {
   public func throttle(seconds: Double, on queue: Queue) -> Stream<Event> {
     return create { sink in
       
+      var timerInFlight: Bool = false
+      var latestEvent: Event! = nil
+      var latestEventDate: NSDate! = nil
+      
+      return self.observe(on: ImmediateExecutionContext) { event in
+        latestEvent = event
+        latestEventDate = NSDate()
+        
+        guard timerInFlight == false else { return }
+        
+        var tryDispatch: (() -> Void)!
+        tryDispatch = {
+          if latestEventDate.dateByAddingTimeInterval(seconds).compare(NSDate()) == NSComparisonResult.OrderedAscending {
+            sink(latestEvent)
+          } else {
+            timerInFlight = true
+            queue.after(seconds) {
+              timerInFlight = false
+              tryDispatch()
+            }
+          }
+        }
+        tryDispatch()
+      }
+    }
+  }
+  
+  @warn_unused_result
+  public func sample(interval: Double, on queue: Queue) -> Stream<Event> {
+    return create { sink in
+      
       var shouldDispatch: Bool = true
       var latestEvent: Event! = nil
       
@@ -90,7 +123,7 @@ extension StreamType {
         
         shouldDispatch = false
         
-        queue.after(seconds) {
+        queue.after(interval) {
           let event = latestEvent!
           latestEvent = nil
           shouldDispatch = true
