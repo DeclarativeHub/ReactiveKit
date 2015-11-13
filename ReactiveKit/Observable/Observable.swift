@@ -34,7 +34,7 @@ public class Observable<Value>: ActiveStream<Value>, ObservableType {
       return try! lastEvent()
     }
     set {
-      capturedSink?(value)
+      capturedSink?(newValue)
     }
   }
     
