@@ -56,8 +56,13 @@ public extension ObservableCollectionEvent {
 public extension ObservableCollectionEventType where Collection.Index == Int {
   
   /// O(n)
-  public func map<U>(transform: Collection.Generator.Element -> U) -> ObservableCollectionEvent<Array<U>> {
+  public func map<U>(transform: Collection.Generator.Element -> U) -> ObservableCollectionEvent<[U]> {
     return ObservableCollectionEvent(collection: collection.map(transform), inserts: inserts, deletes: deletes, updates: updates)
+  }
+  
+  /// O(1)
+  public func lazyMap<U>(transform: Collection.Generator.Element -> U) -> ObservableCollectionEvent<LazyMapCollection<Collection, U>> {
+    return ObservableCollectionEvent(collection: collection.lazy.map(transform), inserts: inserts, deletes: deletes, updates: updates)
   }
 }
 

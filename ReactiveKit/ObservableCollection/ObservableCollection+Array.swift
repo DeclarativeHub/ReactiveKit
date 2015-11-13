@@ -42,12 +42,6 @@ extension ObservableCollectionType where Collection == Array<Element> {
     dispatch(ObservableCollectionEvent(collection: new, inserts: Array(index..<index+newElements.count), deletes: [], updates: []))
   }
   
-  public mutating func replace(withElements: [Collection.Generator.Element]) {
-    let deletes = Array(0..<collection.count)
-    let inserts = Array(0..<withElements.count)
-    dispatch(ObservableCollectionEvent(collection: withElements, inserts: inserts, deletes: deletes, updates: []))
-  }
-  
   public mutating func removeAtIndex(index: Int) -> Collection.Generator.Element {
     var new = collection
     let element = new.removeAtIndex(index)

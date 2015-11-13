@@ -108,6 +108,12 @@ public func create<C: CollectionType>(producer: (ObservableCollectionEvent<C> ->
 
 public extension ObservableCollectionType {
   
+  public mutating func replace(newCollection: Collection) {
+    let deletes = Array(collection.indices)
+    let inserts = Array(newCollection.indices)
+    dispatch(ObservableCollectionEvent(collection: newCollection, inserts: inserts, deletes: deletes, updates: []))
+  }
+  
   @warn_unused_result
   public func zipPrevious() -> Observable<(ObservableCollectionEvent<Collection>?, ObservableCollectionEvent<Collection>)> {
     return create { sink in
@@ -128,6 +134,16 @@ public extension ObservableCollectionType where Collection.Index == Int {
     return create { sink in
       return self.observe(on: ImmediateExecutionContext) { event in
         sink(event.map(transform))
+      }
+    }
+  }
+  
+  /// Each event costs O(1)
+  @warn_unused_result
+  public func lazyMap<U>(transform: Collection.Generator.Element -> U) -> ObservableCollection<LazyMapCollection<Collection, U>> {
+    return create { sink in
+      return self.observe(on: ImmediateExecutionContext) { event in
+        sink(event.lazyMap(transform))
       }
     }
   }
