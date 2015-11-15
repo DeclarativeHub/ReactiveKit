@@ -58,6 +58,13 @@ public class ActiveStream<Event>: ActiveStreamType {
     self.selfReference = tmpSelfReference
   }
   
+  public init(limit: Int = 0) {
+    self.buffer = StreamBuffer(limit: limit)
+    let tmpSelfReference = Reference(self)
+    tmpSelfReference.release()
+    self.selfReference = tmpSelfReference
+  }
+  
   public func observe(sink: Sink) -> DisposableType {
     return observe(on: ImmediateExecutionContext, sink: sink)
   }
@@ -89,7 +96,7 @@ public class ActiveStream<Event>: ActiveStreamType {
     return try buffer.last()
   }
   
-  internal func next(event: Event) {
+  public func next(event: Event) {
     buffer.next(event)
     dispatchNext(event)
   }
