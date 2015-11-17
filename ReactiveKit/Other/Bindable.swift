@@ -25,16 +25,16 @@
 public protocol BindableType {
   typealias Event
   
-  /// Returns a sink that can be used to dispatch events to the receiver.
+  /// Returns an observer that can be used to dispatch events to the receiver.
   /// Can accept a disposable that will be disposed on receiver's deinit.
-  func sink(disconnectDisposable: DisposableType?) -> (Event -> ())
+  func observer(disconnectDisposable: DisposableType?) -> (Event -> ())
 }
 
 extension ActiveStream: BindableType {
   
-  /// Creates a new sink that can be used to update the receiver.
+  /// Creates a new observer that can be used to update the receiver.
   /// Optionally accepts a disposable that will be disposed on receiver's deinit.
-  public func sink(disconnectDisposable: DisposableType?) -> Event -> () {
+  public func observer(disconnectDisposable: DisposableType?) -> Event -> () {
     
     if let disconnectDisposable = disconnectDisposable {
       registerDisposable(disconnectDisposable)
@@ -48,35 +48,35 @@ extension ActiveStream: BindableType {
 
 extension StreamType {
   
-  /// Establishes a one-way binding between the source and the bindable's sink
+  /// Establishes a one-way binding between the source and the bindable's observer
   /// and returns a disposable that can cancel observing.
-  public func bindTo<B: BindableType where B.Event == Event>(bindable: B, context: ExecutionContext = Queue.main.context) -> DisposableType {
+  public func bindTo<B: BindableType where B.Event == Event>(bindable: B, context: ExecutionContext = ImmediateOnMainExecutionContext) -> DisposableType {
     let disposable = SerialDisposable(otherDisposable: nil)
-    let sink = bindable.sink(disposable)
+    let observer = bindable.observer(disposable)
     disposable.otherDisposable = observe(on: context) { value in
-      sink(value)
+      observer(value)
     }
     return disposable
   }
   
-  /// Establishes a one-way binding between the source and the bindable's sink
+  /// Establishes a one-way binding between the source and the bindable's observer
   /// and returns a disposable that can cancel observing.
-  public func bindTo<B: BindableType where B.Event == Event?>(bindable: B, context: ExecutionContext = Queue.main.context) -> DisposableType {
+  public func bindTo<B: BindableType where B.Event == Event?>(bindable: B, context: ExecutionContext = ImmediateOnMainExecutionContext) -> DisposableType {
     let disposable = SerialDisposable(otherDisposable: nil)
-    let sink = bindable.sink(disposable)
+    let observer = bindable.observer(disposable)
     disposable.otherDisposable = observe(on: context) { value in
-      sink(value)
+      observer(value)
     }
     return disposable
   }
   
-  /// Establishes a one-way binding between the source and the bindable's sink
+  /// Establishes a one-way binding between the source and the bindable's observer
   /// and returns a disposable that can cancel observing.
-  public func bindTo<S: StreamType where S: BindableType, S.Event == Event>(bindable: S, context: ExecutionContext = Queue.main.context) -> DisposableType {
+  public func bindTo<S: StreamType where S: BindableType, S.Event == Event>(bindable: S, context: ExecutionContext = ImmediateOnMainExecutionContext) -> DisposableType {
     let disposable = SerialDisposable(otherDisposable: nil)
-    let sink = bindable.sink(disposable)
+    let observer = bindable.observer(disposable)
     disposable.otherDisposable = observe(on: context) { value in
-      sink(value)
+      observer(value)
     }
     return disposable
   }
@@ -84,20 +84,20 @@ extension StreamType {
 
 extension OperationType {
   
-  public func bindNextTo<B: BindableType where B.Event == Value>(bindable: B, context: ExecutionContext = Queue.main.context) -> DisposableType {
+  public func bindNextTo<B: BindableType where B.Event == Value>(bindable: B, context: ExecutionContext = ImmediateOnMainExecutionContext) -> DisposableType {
     let disposable = SerialDisposable(otherDisposable: nil)
-    let sink = bindable.sink(disposable)
+    let observer = bindable.observer(disposable)
     disposable.otherDisposable = observeNext(on: context) { value in
-      sink(value)
+      observer(value)
     }
     return disposable
   }
   
-  public func bindNextTo<B: BindableType where B.Event == Value?>(bindable: B, context: ExecutionContext = Queue.main.context) -> DisposableType {
+  public func bindNextTo<B: BindableType where B.Event == Value?>(bindable: B, context: ExecutionContext = ImmediateOnMainExecutionContext) -> DisposableType {
     let disposable = SerialDisposable(otherDisposable: nil)
-    let sink = bindable.sink(disposable)
+    let observer = bindable.observer(disposable)
     disposable.otherDisposable = observeNext(on: context) { value in
-      sink(value)
+      observer(value)
     }
     return disposable
   }

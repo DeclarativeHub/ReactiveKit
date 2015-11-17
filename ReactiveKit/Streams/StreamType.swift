@@ -26,15 +26,15 @@ import Foundation
 
 public protocol StreamType {
   typealias Event
-  func observe(on context: ExecutionContext, sink: Event -> ()) -> DisposableType
+  func observe(on context: ExecutionContext, observer: Event -> ()) -> DisposableType
 }
 
 extension StreamType {
   
   @warn_unused_result
   public func share(limit: Int = Int.max, context: ExecutionContext = Queue.main.context) -> ActiveStream<Event> {
-    return create(limit) { sink in
-      return self.observe(on: context, sink: sink)
+    return create(limit) { observer in
+      return self.observe(on: context, observer: observer)
     }
   }
 }
@@ -43,19 +43,19 @@ extension StreamType {
   
   @warn_unused_result
   public func map<U>(transform: Event -> U) -> Stream<U> {
-    return create { sink in
+    return create { observer in
       return self.observe(on: ImmediateExecutionContext) { event in
-        sink(transform(event))
+        observer(transform(event))
       }
     }
   }
   
   @warn_unused_result
   public func filter(include: Event -> Bool) -> Stream<Event> {
-    return create { sink in
+    return create { observer in
       return self.observe(on: ImmediateExecutionContext) { event in
         if include(event) {
-          sink(event)
+          observer(event)
         }
       }
     }
@@ -63,17 +63,17 @@ extension StreamType {
   
   @warn_unused_result
   public func switchTo(context: ExecutionContext) -> Stream<Event> {
-    return create { sink in
-      return self.observe(on: context, sink: sink)
+    return create { observer in
+      return self.observe(on: context, observer: observer)
     }
   }
   
   @warn_unused_result
   public func zipPrevious() -> Stream<(Event?, Event)> {
-    return create { sink in
+    return create { observer in
       var previous: Event? = nil
       return self.observe(on: ImmediateExecutionContext) { event in
-        sink(previous, event)
+        observer(previous, event)
         previous = event
       }
     }
@@ -81,7 +81,7 @@ extension StreamType {
   
   @warn_unused_result
   public func throttle(seconds: Double, on queue: Queue) -> Stream<Event> {
-    return create { sink in
+    return create { observer in
       
       var timerInFlight: Bool = false
       var latestEvent: Event! = nil
@@ -96,7 +96,7 @@ extension StreamType {
         var tryDispatch: (() -> Void)!
         tryDispatch = {
           if latestEventDate.dateByAddingTimeInterval(seconds).compare(NSDate()) == NSComparisonResult.OrderedAscending {
-            sink(latestEvent)
+            observer(latestEvent)
           } else {
             timerInFlight = true
             queue.after(seconds) {
@@ -112,7 +112,7 @@ extension StreamType {
   
   @warn_unused_result
   public func sample(interval: Double, on queue: Queue) -> Stream<Event> {
-    return create { sink in
+    return create { observer in
       
       var shouldDispatch: Bool = true
       var latestEvent: Event! = nil
@@ -127,7 +127,7 @@ extension StreamType {
           let event = latestEvent!
           latestEvent = nil
           shouldDispatch = true
-          sink(event)
+          observer(event)
         }
       }
     }
@@ -135,12 +135,12 @@ extension StreamType {
   
   @warn_unused_result
   public func skip(var count: Int) -> Stream<Event> {
-    return create { sink in
+    return create { observer in
       return self.observe(on: ImmediateExecutionContext) { event in
         if count > 0 {
           count--
         } else {
-          sink(event)
+          observer(event)
         }
       }
     }
@@ -148,17 +148,17 @@ extension StreamType {
   
   @warn_unused_result
   public func startWith(event: Event) -> Stream<Event> {
-    return create { sink in
-      sink(event)
+    return create { observer in
+      observer(event)
       return self.observe(on: ImmediateExecutionContext) { event in
-        sink(event)
+        observer(event)
       }
     }
   }
   
   @warn_unused_result
   public func combineLatestWith<S: StreamType>(other: S) -> Stream<(Event, S.Event)> {
-    return create { sink in
+    return create { observer in
       let queue = Queue(name: "com.ReactiveKit.ReactiveKit.CombineLatestWith")
       
       var selfEvent: Event! = nil
@@ -166,7 +166,7 @@ extension StreamType {
       
       let dispatchIfPossible = { () -> () in
         if let myEvent = selfEvent, let itsEvent = otherEvent {
-          sink((myEvent, itsEvent))
+          observer((myEvent, itsEvent))
         }
       }
       
@@ -190,7 +190,7 @@ extension StreamType {
   
   @warn_unused_result
   public func zipWith<S: StreamType>(other: S) -> Stream<(Event, S.Event)> {
-    return create { sink in
+    return create { observer in
       let queue = Queue(name: "com.ReactiveKit.ReactiveKit.ZipWith")
 
       var selfBuffer = Array<Event>()
@@ -198,7 +198,7 @@ extension StreamType {
       
       let dispatchIfPossible = {
         while selfBuffer.count > 0 && otherBuffer.count > 0 {
-          sink(selfBuffer[0], otherBuffer[0])
+          observer(selfBuffer[0], otherBuffer[0])
           selfBuffer.removeAtIndex(0)
           otherBuffer.removeAtIndex(0)
         }
@@ -227,10 +227,10 @@ extension StreamType where Event: OptionalType {
   
   @warn_unused_result
   public func ignoreNil() -> Stream<Event.Wrapped> {
-    return create { sink in
+    return create { observer in
       return self.observe(on: ImmediateExecutionContext) { event in
         if let event = event._unbox {
-          sink(event)
+          observer(event)
         }
       }
     }
@@ -241,11 +241,11 @@ extension StreamType where Event: Equatable {
   
   @warn_unused_result
   public func distinct() -> Stream<Event> {
-    return create { sink in
+    return create { observer in
       var lastEvent: Event? = nil
       return self.observe(on: ImmediateExecutionContext) { event in
         if lastEvent == nil || lastEvent! != event {
-          sink(event)
+          observer(event)
           lastEvent = event
         }
       }
@@ -257,17 +257,17 @@ public extension StreamType where Event: OptionalType, Event.Wrapped: Equatable 
   
   @warn_unused_result
   public func distinctOptional() -> Stream<Event.Wrapped?> {
-    return create { sink in
+    return create { observer in
       var lastEvent: Event.Wrapped? = nil
       return self.observe(on: ImmediateExecutionContext) { event in
         
         switch (lastEvent, event._unbox) {
         case (.None, .Some(let new)):
-          sink(new)
+          observer(new)
         case (.Some, .None):
-          sink(nil)
+          observer(nil)
         case (.Some(let old), .Some(let new)) where old != new:
-          sink(new)
+          observer(new)
         default:
           break
         }
@@ -282,10 +282,10 @@ public extension StreamType where Event: StreamType {
   
   @warn_unused_result
   public func merge() -> Stream<Event.Event> {
-    return create { sink in
+    return create { observer in
       let compositeDisposable = CompositeDisposable()
-      compositeDisposable += self.observe(on: ImmediateExecutionContext) { observer in
-        compositeDisposable += observer.observe(on: ImmediateExecutionContext, sink: sink)
+      compositeDisposable += self.observe(on: ImmediateExecutionContext) { innerObserver in
+        compositeDisposable += innerObserver.observe(on: ImmediateExecutionContext, observer: observer)
       }
       return compositeDisposable
     }
@@ -293,13 +293,13 @@ public extension StreamType where Event: StreamType {
   
   @warn_unused_result
   public func switchToLatest() -> Stream<Event.Event> {
-    return create { sink in
+    return create { observer in
       let serialDisposable = SerialDisposable(otherDisposable: nil)
       let compositeDisposable = CompositeDisposable([serialDisposable])
       
-      compositeDisposable += self.observe(on: ImmediateExecutionContext) { observer in
+      compositeDisposable += self.observe(on: ImmediateExecutionContext) { innerObserver in
         serialDisposable.otherDisposable?.dispose()
-        serialDisposable.otherDisposable = observer.observe(on: ImmediateExecutionContext, sink: sink)
+        serialDisposable.otherDisposable = innerObserver.observe(on: ImmediateExecutionContext, observer: observer)
       }
       
       return compositeDisposable

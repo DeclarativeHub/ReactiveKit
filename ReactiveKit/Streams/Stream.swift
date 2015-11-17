@@ -24,20 +24,20 @@
 
 public struct Stream<Event>: StreamType {
   
-  public typealias Sink = Event -> ()
+  public typealias Observer = Event -> ()
   
-  public let producer: Sink -> DisposableType?
+  public let producer: Observer -> DisposableType?
   
-  public init(producer: Sink -> DisposableType?) {
+  public init(producer: Observer -> DisposableType?) {
     self.producer = producer
   }
   
-  public func observe(on context: ExecutionContext, sink: Sink) -> DisposableType {
+  public func observe(on context: ExecutionContext, observer: Observer) -> DisposableType {
     let serialDisposable = SerialDisposable(otherDisposable: nil)
     serialDisposable.otherDisposable = producer { event in
       if !serialDisposable.isDisposed {
         context {
-          sink(event)
+          observer(event)
         }
       }
     }

@@ -19,10 +19,10 @@ class StreamSpec: QuickSpec {
       var simpleDisposable: SimpleDisposable!
       
       beforeEach {
-        stream = create { sink in
-          sink(1)
-          sink(2)
-          sink(3)
+        stream = create { observer in
+          observer(1)
+          observer(2)
+          observer(3)
           simpleDisposable = SimpleDisposable()
           return simpleDisposable
         }
@@ -241,9 +241,9 @@ class StreamSpec: QuickSpec {
         let otherSimpleDisposable = SimpleDisposable()
         
         beforeEach {
-          let otherStream: Stream<Int> = create { sink in
-            sink(10)
-            sink(20)
+          let otherStream: Stream<Int> = create { observer in
+            observer(10)
+            observer(20)
             return otherSimpleDisposable
           }
           
@@ -280,11 +280,11 @@ class StreamSpec: QuickSpec {
         let otherSimpleDisposable = SimpleDisposable()
         
         beforeEach {
-          let otherStream: Stream<Int> = create { sink in
-            sink(10)
-            sink(20)
-            sink(30)
-            sink(40)
+          let otherStream: Stream<Int> = create { observer in
+            observer(10)
+            observer(20)
+            observer(30)
+            observer(40)
             return otherSimpleDisposable
           }
           
@@ -325,8 +325,8 @@ class StreamSpec: QuickSpec {
         
         beforeEach {
           disposable = stream.flatMap(.Merge) { n in
-             Stream<Int> { sink in
-                sink(n * 2)
+             Stream<Int> { observer in
+                observer(n * 2)
                 return otherSimpleDisposables[n-1]
               }
             }.observe(on: ImmediateExecutionContext) {
@@ -362,8 +362,8 @@ class StreamSpec: QuickSpec {
         
         beforeEach {
           disposable = stream.flatMap(.Latest) { n in
-            Stream<Int> { sink in
-              sink(n * 2)
+            Stream<Int> { observer in
+              observer(n * 2)
               return otherSimpleDisposables[n-1]
             }
             }.observe(on: ImmediateExecutionContext) {

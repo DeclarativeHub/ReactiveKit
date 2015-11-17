@@ -30,6 +30,14 @@ public let ImmediateExecutionContext: ExecutionContext = { task in
   task()
 }
 
+public let ImmediateOnMainExecutionContext: ExecutionContext = { task in
+  if NSThread.isMainThread() {
+    task()
+  } else {
+    Queue.main.async(task)
+  }
+}
+
 public extension Queue {
   public var context: ExecutionContext {
     return self.async

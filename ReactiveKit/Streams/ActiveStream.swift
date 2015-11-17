@@ -27,13 +27,13 @@ public protocol ActiveStreamType: StreamType {
 }
 
 public class ActiveStream<Event>: ActiveStreamType {
-  public typealias Sink = Event -> ()
+  public typealias Observer = Event -> ()
   
   public var buffer: StreamBuffer<Event>
   
   private typealias Token = Int64
   
-  private var observers = TokenizedCollection<Sink>()
+  private var observers = TokenizedCollection<Observer>()
   private let lock = RecursiveLock(name: "com.ReactiveKit.ReactiveKit.ActiveStream")
   
   private var isDispatchInProgress: Bool = false
@@ -41,7 +41,7 @@ public class ActiveStream<Event>: ActiveStreamType {
   
   private weak var selfReference: Reference<ActiveStream<Event>>? = nil
   
-  public required init(limit: Int = 0, @noescape producer: Sink -> DisposableType?) {
+  public required init(limit: Int = 0, @noescape producer: Observer -> DisposableType?) {
     self.buffer = StreamBuffer(limit: limit)
     
     let tmpSelfReference = Reference(self)
@@ -65,14 +65,14 @@ public class ActiveStream<Event>: ActiveStreamType {
     self.selfReference = tmpSelfReference
   }
   
-  public func observe(sink: Sink) -> DisposableType {
-    return observe(on: ImmediateExecutionContext, sink: sink)
+  public func observe(observer: Observer) -> DisposableType {
+    return observe(on: ImmediateExecutionContext, observer: observer)
   }
   
-  public func observe(on context: ExecutionContext, sink: Sink) -> DisposableType {
+  public func observe(on context: ExecutionContext, observer: Observer) -> DisposableType {
     selfReference?.retain()
     
-    let observer = { e in context { sink(e) } }
+    let observer = { e in context { observer(e) } }
     
     let disposable = registerObserver(observer)
     buffer.replay(observer)
@@ -117,7 +117,7 @@ public class ActiveStream<Event>: ActiveStreamType {
     lock.unlock()
   }
   
-  private func registerObserver(observer: Sink) -> DisposableType {
+  private func registerObserver(observer: Observer) -> DisposableType {
     return observers.insert(observer)
   }
   

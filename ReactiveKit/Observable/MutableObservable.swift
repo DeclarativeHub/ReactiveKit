@@ -39,7 +39,7 @@ public struct MutableObservable<Value>: ObservableType {
     observable = Observable(value)
   }
 
-  public func observe(on context: ExecutionContext, sink: Value -> ()) -> DisposableType {
-    return observable.observe(on: context, sink: sink)
+  public func observe(on context: ExecutionContext, observer: Value -> ()) -> DisposableType {
+    return observable.observe(on: context, observer: observer)
   }
 }

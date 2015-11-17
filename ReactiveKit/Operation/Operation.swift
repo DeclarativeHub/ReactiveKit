@@ -27,93 +27,96 @@ public protocol OperationType: StreamType {
   typealias Error: ErrorType
 
   func lift<U, F: ErrorType>(transform: Stream<OperationEvent<Value, Error>> -> Stream<OperationEvent<U, F>>) -> Operation<U, F>
-  func observe(on context: ExecutionContext, sink: OperationEvent<Value, Error> -> ()) -> DisposableType
+  func observe(on context: ExecutionContext, observer: OperationEvent<Value, Error> -> ()) -> DisposableType
 }
 
 public struct Operation<Value, Error: ErrorType>: OperationType {
   
   private let stream: Stream<OperationEvent<Value, Error>>
   
-  public init(producer: (OperationSink<Value, Error> -> DisposableType?)) {
-    stream = Stream  { sink in
+  public init(producer: (OperationObserver<Value, Error> -> DisposableType?)) {
+    stream = Stream  { observer in
       var completed: Bool = false
       
-      return producer(OperationSink { event in
+      return producer(OperationObserver { event in
         if !completed {
-          sink(event)
+          observer(event)
           completed = event._unbox.isTerminal
         }
       })
     }
   }
   
-  public func observe(on context: ExecutionContext, sink: OperationEvent<Value, Error> -> ()) -> DisposableType {
-    return stream.observe(on: context, sink: sink)
+  public func observe(on context: ExecutionContext, observer: OperationEvent<Value, Error> -> ()) -> DisposableType {
+    return stream.observe(on: context, observer: observer)
   }
   
   public static func succeeded(with value: Value) -> Operation<Value, Error> {
-    return create { sink in
-      sink.next(value)
-      sink.success()
+    return create { observer in
+      observer.next(value)
+      observer.success()
       return nil
     }
   }
   
   public static func failed(with error: Error) -> Operation<Value, Error> {
-    return create { sink in
-      sink.failure(error)
+    return create { observer in
+      observer.failure(error)
       return nil
     }
   }
   
   public func lift<U, F: ErrorType>(transform: Stream<OperationEvent<Value, Error>> -> Stream<OperationEvent<U, F>>) -> Operation<U, F> {
-    return create { sink in
-      return transform(self.stream).observe(on: ImmediateExecutionContext, sink: sink.sink)
+    return create { observer in
+      return transform(self.stream).observe(on: ImmediateExecutionContext, observer: observer.observer)
     }
   }
 }
 
 
-public func create<Value, Error: ErrorType>(producer producer: OperationSink<Value, Error> -> DisposableType?) -> Operation<Value, Error> {
-  return Operation<Value, Error> { sink in
-    return producer(sink)
+public func create<Value, Error: ErrorType>(producer producer: OperationObserver<Value, Error> -> DisposableType?) -> Operation<Value, Error> {
+  return Operation<Value, Error> { observer in
+    return producer(observer)
   }
 }
 
 public extension OperationType {
   
-  public func on(next next: (Value -> ())? = nil, success: (() -> ())? = nil, failure: (Error -> ())? = nil, context: ExecutionContext = ImmediateExecutionContext) -> Operation<Value, Error> {
-    return create { sink in
+  public func on(next next: (Value -> ())? = nil, success: (() -> ())? = nil, failure: (Error -> ())? = nil, start: (() -> Void)? = nil, completed: (() -> Void)? = nil, context: ExecutionContext = ImmediateExecutionContext) -> Operation<Value, Error> {
+    return create { observer in
+      start?()
       return self.observe(on: context) { event in
         switch event {
         case .Next(let value):
           next?(value)
         case .Failure(let error):
           failure?(error)
+          completed?()
         case .Success:
           success?()
+          completed?()
         }
         
-        sink.sink(event)
+        observer.observer(event)
       }
     }
   }
   
-  public func observeNext(on context: ExecutionContext, sink: Value -> ()) -> DisposableType {
+  public func observeNext(on context: ExecutionContext, observer: Value -> ()) -> DisposableType {
     return self.observe(on: context) { event in
       switch event {
       case .Next(let event):
-        sink(event)
+        observer(event)
       default: break
       }
     }
   }
   
-  public func observeError(on context: ExecutionContext, sink: Error -> ()) -> DisposableType {
+  public func observeError(on context: ExecutionContext, observer: Error -> ()) -> DisposableType {
     return self.observe(on: context) { event in
       switch event {
       case .Failure(let error):
-        sink(error)
+        observer(error)
       default: break
       }
     }
@@ -121,8 +124,8 @@ public extension OperationType {
   
   @warn_unused_result
   public func shareNext(limit: Int = Int.max, context: ExecutionContext = Queue.main.context) -> ActiveStream<Value> {
-    return create(limit) { sink in
-      return self.observeNext(on: context, sink: sink)
+    return create(limit) { observer in
+      return self.observeNext(on: context, observer: observer)
     }
   }
   
@@ -183,7 +186,7 @@ public extension OperationType {
   
   @warn_unused_result
   public func retry(var count: Int) -> Operation<Value, Error> {
-    return create { sink in
+    return create { observer in
       let serialDisposable = SerialDisposable(otherDisposable: nil)
       
       var attempt: (() -> Void)!
@@ -197,10 +200,10 @@ public extension OperationType {
               count--
               attempt()
             } else {
-              sink.failure(error)
+              observer.failure(error)
             }
           default:
-            sink.sink(event._unbox)
+            observer.observer(event._unbox)
           }
         }
       }
@@ -212,7 +215,7 @@ public extension OperationType {
   
   @warn_unused_result
   public func combineLatestWith<S: OperationType where S.Error == Error>(other: S) -> Operation<(Value, S.Value), Error> {
-    return create { sink in
+    return create { observer in
       let queue = Queue(name: "com.ReactiveKit.ReactiveKit.Operation.CombineLatestWith")
       
       var latestSelfValue: Value! = nil
@@ -223,7 +226,7 @@ public extension OperationType {
       
       let dispatchNextIfPossible = { () -> () in
         if let latestSelfValue = latestSelfValue, latestOtherValue = latestOtherValue {
-          sink.next(latestSelfValue, latestOtherValue)
+          observer.next(latestSelfValue, latestOtherValue)
         }
       }
       
@@ -231,7 +234,7 @@ public extension OperationType {
         if let latestSelfEvent = latestSelfEvent, let latestOtherEvent = latestOtherEvent {
           switch (latestSelfEvent, latestOtherEvent) {
           case (.Success, .Success):
-            sink.success()
+            observer.success()
           case (.Next(let selfValue), .Next(let otherValue)):
             latestSelfValue = selfValue
             latestOtherValue = otherValue
@@ -250,7 +253,7 @@ public extension OperationType {
       
       let selfDisposable = self.observe(on: ImmediateExecutionContext) { event in
         if case .Failure(let error) = event {
-          sink.failure(error)
+          observer.failure(error)
         } else {
           queue.sync {
             latestSelfEvent = event
@@ -261,7 +264,7 @@ public extension OperationType {
       
       let otherDisposable = other.observe(on: ImmediateExecutionContext) { event in
         if case .Failure(let error) = event {
-          sink.failure(error)
+          observer.failure(error)
         } else {
           queue.sync {
             latestOtherEvent = event
@@ -276,7 +279,7 @@ public extension OperationType {
 
   @warn_unused_result
   public func zipWith<S: OperationType where S.Error == Error>(other: S) -> Operation<(Value, S.Value), Error> {
-    return create { sink in
+    return create { observer in
       let queue = Queue(name: "com.ReactiveKit.ReactiveKit.ZipWith")
       
       var selfBuffer = Array<Value>()
@@ -286,20 +289,20 @@ public extension OperationType {
       
       let dispatchIfPossible = {
         while selfBuffer.count > 0 && otherBuffer.count > 0 {
-          sink.next((selfBuffer[0], otherBuffer[0]))
+          observer.next((selfBuffer[0], otherBuffer[0]))
           selfBuffer.removeAtIndex(0)
           otherBuffer.removeAtIndex(0)
         }
         
         if (selfCompleted && selfBuffer.isEmpty) || (otherCompleted && otherBuffer.isEmpty) {
-          sink.success()
+          observer.success()
         }
       }
       
       let selfDisposable = self.observe(on: ImmediateExecutionContext) { event in
         switch event {
         case .Failure(let error):
-          sink.failure(error)
+          observer.failure(error)
         case .Success:
           queue.sync {
             selfCompleted = true
@@ -316,7 +319,7 @@ public extension OperationType {
       let otherDisposable = other.observe(on: ImmediateExecutionContext) { event in
         switch event {
         case .Failure(let error):
-          sink.failure(error)
+          observer.failure(error)
         case .Success:
           queue.sync {
             otherCompleted = true
@@ -347,7 +350,7 @@ public extension OperationType where Value: OperationType, Value.Error == Error 
   
   @warn_unused_result
   public func merge() -> Operation<Value.Value, Value.Error> {
-    return create { sink in
+    return create { observer in
       let queue = Queue(name: "com.ReactiveKit.ReactiveKit.Operation.Merge")
       
       var numberOfOperations = 1
@@ -357,7 +360,7 @@ public extension OperationType where Value: OperationType, Value.Error == Error 
         queue.sync {
           numberOfOperations -= 1
           if numberOfOperations == 0 {
-            sink.success()
+            observer.success()
           }
         }
       }
@@ -366,7 +369,7 @@ public extension OperationType where Value: OperationType, Value.Error == Error 
         
         switch taskEvent {
         case .Failure(let error):
-          return sink.failure(error)
+          return observer.failure(error)
         case .Success:
           decrementNumberOfOperations()
         case .Next(let task):
@@ -376,7 +379,7 @@ public extension OperationType where Value: OperationType, Value.Error == Error 
           compositeDisposable += task.observe(on: ImmediateExecutionContext) { event in
             switch event {
             case .Next, .Failure:
-              sink.sink(event)
+              observer.observer(event)
             case .Success:
               decrementNumberOfOperations()
             }
@@ -389,7 +392,7 @@ public extension OperationType where Value: OperationType, Value.Error == Error 
   
   @warn_unused_result
   public func switchToLatest() -> Operation<Value.Value, Value.Error>  {
-    return create { sink in
+    return create { observer in
       let serialDisposable = SerialDisposable(otherDisposable: nil)
       let compositeDisposable = CompositeDisposable([serialDisposable])
       
@@ -400,11 +403,11 @@ public extension OperationType where Value: OperationType, Value.Error == Error 
         
         switch taskEvent {
         case .Failure(let error):
-          sink.failure(error)
+          observer.failure(error)
         case .Success:
           outerCompleted = true
           if innerCompleted {
-            sink.success()
+            observer.success()
           }
         case .Next(let innerOperation):
           innerCompleted = false
@@ -413,14 +416,14 @@ public extension OperationType where Value: OperationType, Value.Error == Error 
             
             switch event {
             case .Failure(let error):
-              sink.failure(error)
+              observer.failure(error)
             case .Success:
               innerCompleted = true
               if outerCompleted {
-                sink.success()
+                observer.success()
               }
             case .Next(let value):
-              sink.next(value)
+              observer.next(value)
             }
           }
         }
@@ -432,7 +435,7 @@ public extension OperationType where Value: OperationType, Value.Error == Error 
   
   @warn_unused_result
   public func concat() -> Operation<Value.Value, Value.Error>  {
-    return create { sink in
+    return create { observer in
       let queue = Queue(name: "com.ReactiveKit.ReactiveKit.Operation.Concat")
       
       let serialDisposable = SerialDisposable(otherDisposable: nil)
@@ -455,16 +458,16 @@ public extension OperationType where Value: OperationType, Value.Error == Error 
         serialDisposable.otherDisposable = task.observe(on: ImmediateExecutionContext) { event in
           switch event {
           case .Failure(let error):
-            sink.failure(error)
+            observer.failure(error)
           case .Success:
             innerCompleted = true
             if taskQueue.count > 0 {
               startNextOperation()
             } else if outerCompleted {
-              sink.success()
+              observer.success()
             }
           case .Next(let value):
-            sink.next(value)
+            observer.next(value)
           }
         }
       }
@@ -483,11 +486,11 @@ public extension OperationType where Value: OperationType, Value.Error == Error 
         
         switch taskEvent {
         case .Failure(let error):
-          sink.failure(error)
+          observer.failure(error)
         case .Success:
           outerCompleted = true
           if innerCompleted {
-            sink.success()
+            observer.success()
           }
         case .Next(let innerOperation):
           addToQueue(innerOperation)
@@ -521,18 +524,18 @@ public extension OperationType {
   
   @warn_unused_result
   public func flatMapError<T: OperationType where T.Value == Value>(recover: Error -> T) -> Operation<T.Value, T.Error> {
-    return create { sink in
+    return create { observer in
       let serialDisposable = SerialDisposable(otherDisposable: nil)
       
       serialDisposable.otherDisposable = self.observe(on: ImmediateExecutionContext) { taskEvent in
         switch taskEvent {
         case .Next(let value):
-          sink.next(value)
+          observer.next(value)
         case .Success:
-          sink.success()
+          observer.success()
         case .Failure(let error):
           serialDisposable.otherDisposable = recover(error).observe(on: ImmediateExecutionContext) { event in
-            sink.sink(event)
+            observer.observer(event)
           }
         }
       }

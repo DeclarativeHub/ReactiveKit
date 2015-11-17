@@ -26,14 +26,14 @@ public extension StreamType where Event: OperationType {
   
   @warn_unused_result
   public func merge() -> Operation<Event.Value, Event.Error> {
-    return create { sink in
+    return create { observer in
       let compositeDisposable = CompositeDisposable()
       
       compositeDisposable += self.observe(on: ImmediateExecutionContext) { task in
         compositeDisposable += task.observe(on: ImmediateExecutionContext) { event in
           switch event {
           case .Next, .Failure:
-            sink.sink(event)
+            observer.observer(event)
           case .Success:
             break
           }
@@ -45,7 +45,7 @@ public extension StreamType where Event: OperationType {
   
   @warn_unused_result
   public func switchToLatest() -> Operation<Event.Value, Event.Error>  {
-    return create { sink in
+    return create { observer in
       let serialDisposable = SerialDisposable(otherDisposable: nil)
       let compositeDisposable = CompositeDisposable([serialDisposable])
       
@@ -56,11 +56,11 @@ public extension StreamType where Event: OperationType {
           
           switch event {
           case .Failure(let error):
-            sink.failure(error)
+            observer.failure(error)
           case .Success:
             break
           case .Next(let value):
-            sink.next(value)
+            observer.next(value)
           }
         }
       }
@@ -71,7 +71,7 @@ public extension StreamType where Event: OperationType {
   
   @warn_unused_result
   public func concat() -> Operation<Event.Value, Event.Error>  {
-    return create { sink in
+    return create { observer in
       let serialDisposable = SerialDisposable(otherDisposable: nil)
       let compositeDisposable = CompositeDisposable([serialDisposable])
       
@@ -88,14 +88,14 @@ public extension StreamType where Event: OperationType {
         serialDisposable.otherDisposable = task.observe(on: ImmediateExecutionContext) { event in
           switch event {
           case .Failure(let error):
-            sink.failure(error)
+            observer.failure(error)
           case .Success:
             innerCompleted = true
             if taskQueue.count > 0 {
               startNextOperation()
             }
           case .Next(let value):
-            sink.next(value)
+            observer.next(value)
           }
         }
       }

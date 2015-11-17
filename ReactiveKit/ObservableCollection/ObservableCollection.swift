@@ -30,7 +30,7 @@ public protocol ObservableCollectionType: CollectionType, StreamType {
   var collection: Collection { get }
   mutating func dispatch(event: ObservableCollectionEvent<Collection>)
   
-  func observe(on context: ExecutionContext, sink: ObservableCollectionEvent<Collection> -> ()) -> DisposableType
+  func observe(on context: ExecutionContext, observer: ObservableCollectionEvent<Collection> -> ()) -> DisposableType
 }
 
 public class ObservableCollection<Collection: CollectionType>: ActiveStream<ObservableCollectionEvent<Collection>>, ObservableCollectionType {
@@ -44,28 +44,28 @@ public class ObservableCollection<Collection: CollectionType>: ActiveStream<Obse
     }
   }
   
-  private var capturedSink: (ObservableCollectionEvent<Collection> -> ())? = nil
+  private var capturedObserver: (ObservableCollectionEvent<Collection> -> ())? = nil
   
   public convenience init(_ collection: Collection) {
-    var capturedSink: (ObservableCollectionEvent<Collection> -> ())!
+    var capturedObserver: (ObservableCollectionEvent<Collection> -> ())!
     
-    self.init() { sink in
-      capturedSink = sink
-      sink(ObservableCollectionEvent.initial(collection))
+    self.init() { observer in
+      capturedObserver = observer
+      observer(ObservableCollectionEvent.initial(collection))
       return nil
     }
     
-    self.capturedSink = capturedSink
+    self.capturedObserver = capturedObserver
   }
   
   public init(@noescape producer: (ObservableCollectionEvent<Collection> -> ()) -> DisposableType?) {
-    super.init(limit: 1, producer: { sink in
-      return producer(sink)
+    super.init(limit: 1, producer: { observer in
+      return producer(observer)
     })
   }
   
   public func dispatch(event: ObservableCollectionEvent<Collection>) {
-    capturedSink?(event)
+    capturedObserver?(event)
   }
   
   // MARK: CollectionType conformance
@@ -116,10 +116,10 @@ public extension ObservableCollectionType {
   
   @warn_unused_result
   public func zipPrevious() -> Observable<(ObservableCollectionEvent<Collection>?, ObservableCollectionEvent<Collection>)> {
-    return create { sink in
+    return create { observer in
       var previous: ObservableCollectionEvent<Collection>? = nil
       return self.observe(on: ImmediateExecutionContext) { event in
-        sink(previous, event)
+        observer(previous, event)
         previous = event
       }
     }
@@ -131,9 +131,9 @@ public extension ObservableCollectionType where Collection.Index == Int {
   /// Each event costs O(n)
   @warn_unused_result
   public func map<U>(transform: Collection.Generator.Element -> U) -> ObservableCollection<Array<U>> {
-    return create { sink in
+    return create { observer in
       return self.observe(on: ImmediateExecutionContext) { event in
-        sink(event.map(transform))
+        observer(event.map(transform))
       }
     }
   }
@@ -141,9 +141,9 @@ public extension ObservableCollectionType where Collection.Index == Int {
   /// Each event costs O(1)
   @warn_unused_result
   public func lazyMap<U>(transform: Collection.Generator.Element -> U) -> ObservableCollection<LazyMapCollection<Collection, U>> {
-    return create { sink in
+    return create { observer in
       return self.observe(on: ImmediateExecutionContext) { event in
-        sink(event.lazyMap(transform))
+        observer(event.lazyMap(transform))
       }
     }
   }
@@ -154,9 +154,9 @@ public extension ObservableCollectionType where Collection.Index == Int {
   /// Each event costs O(n)
   @warn_unused_result
   public func filter(include: Collection.Generator.Element -> Bool) -> ObservableCollection<Array<Collection.Generator.Element>> {
-    return create { sink in
+    return create { observer in
       return self.observe(on: ImmediateExecutionContext) { event in
-        sink(event.filter(include))
+        observer(event.filter(include))
       }
     }
   }
@@ -167,9 +167,9 @@ public extension ObservableCollectionType where Collection.Index: Hashable {
   /// Each event costs O(n*logn)
   @warn_unused_result
   public func sort(isOrderedBefore: (Collection.Generator.Element, Collection.Generator.Element) -> Bool) -> ObservableCollection<Array<Collection.Generator.Element>> {
-    return create { sink in
+    return create { observer in
       return self.observe(on: ImmediateExecutionContext) { event in
-        sink(event.sort(isOrderedBefore))
+        observer(event.sort(isOrderedBefore))
       }
     }
   }
@@ -180,9 +180,9 @@ public extension ObservableCollectionType where Collection.Index: Equatable {
   /// Each event costs O(n^2)
   @warn_unused_result
   public func sort(isOrderedBefore: (Collection.Generator.Element, Collection.Generator.Element) -> Bool) -> ObservableCollection<Array<Collection.Generator.Element>> {
-    return create { sink in
+    return create { observer in
       return self.observe(on: ImmediateExecutionContext) { event in
-        sink(event.sort(isOrderedBefore))
+        observer(event.sort(isOrderedBefore))
       }
     }
   }

@@ -22,18 +22,18 @@
 //  THE SOFTWARE.
 //
 
-public struct OperationSink<Value, Error: ErrorType> {
-  public let sink: OperationEvent<Value, Error> -> ()
+public struct OperationObserver<Value, Error: ErrorType> {
+  public let observer: OperationEvent<Value, Error> -> ()
   
   public func next(event: Value) {
-    sink(.Next(event))
+    observer(.Next(event))
   }
   
   public func success() {
-    sink(.Success)
+    observer(.Success)
   }
   
   public func failure(error: Error) {
-    sink(.Failure(error))
+    observer(.Failure(error))
   }
 }

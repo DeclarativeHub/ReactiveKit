@@ -40,8 +40,8 @@ public struct MutableObservableCollection<Collection: CollectionType>: Observabl
     observableCollection.dispatch(event)
   }
   
-  public func observe(on context: ExecutionContext, sink: ObservableCollectionEvent<Collection> -> ()) -> DisposableType {
-    return observableCollection.observe(on: context, sink: sink)
+  public func observe(on context: ExecutionContext, observer: ObservableCollectionEvent<Collection> -> ()) -> DisposableType {
+    return observableCollection.observe(on: context, observer: observer)
   }
   
   // MARK: CollectionType conformance

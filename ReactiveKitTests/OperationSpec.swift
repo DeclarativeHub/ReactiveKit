@@ -24,11 +24,11 @@ class OperationSpec: QuickSpec {
       var simpleDisposable: SimpleDisposable!
       
       beforeEach {
-        operation = create { sink in
-          sink.next(1)
-          sink.next(2)
-          sink.next(3)
-          sink.success()
+        operation = create { observer in
+          observer.next(1)
+          observer.next(2)
+          observer.next(3)
+          observer.success()
           simpleDisposable = SimpleDisposable()
           return simpleDisposable
         }
@@ -90,12 +90,12 @@ class OperationSpec: QuickSpec {
         let otherSimpleDisposable = SimpleDisposable()
         
         beforeEach {
-          let otherOperation: Operation<Int, TestError> = create { sink in
-            sink.next(10)
-            sink.next(20)
-            sink.next(30)
-            sink.next(40)
-            sink.success()
+          let otherOperation: Operation<Int, TestError> = create { observer in
+            observer.next(10)
+            observer.next(20)
+            observer.next(30)
+            observer.next(40)
+            observer.success()
             return otherSimpleDisposable
           }
           
@@ -159,9 +159,9 @@ class OperationSpec: QuickSpec {
         innerProducer1 = ActiveStream<OperationEvent<Int, TestError>>(limit: 0, producer: { s in innerDisposable1 })
         innerProducer2 = ActiveStream<OperationEvent<Int, TestError>>(limit: 0, producer: { s in innerDisposable2 })
         
-        operation = create { sink in
+        operation = create { observer in
           outerProducer.observe(on: ImmediateExecutionContext) { e in
-            sink.sink(e)
+            observer.observer(e)
           }
           return outerDisposable
         }
@@ -169,16 +169,16 @@ class OperationSpec: QuickSpec {
         disposable = operation
           .flatMap(.Merge) { (v: Int) -> Operation<Int, TestError> in
             if v == 1 {
-              return create { sink in
+              return create { observer in
                 innerProducer1.observe(on: ImmediateExecutionContext) { e in
-                  sink.sink(e)
+                  observer.observer(e)
                 }
                 return innerDisposable1
               }
             } else {
-              return create { sink in
+              return create { observer in
                 innerProducer2.observe(on: ImmediateExecutionContext) { e in
-                  sink.sink(e)
+                  observer.observer(e)
                 }
                 return innerDisposable2
               }
@@ -328,9 +328,9 @@ class OperationSpec: QuickSpec {
         innerProducer1 = ActiveStream<OperationEvent<Int, TestError>>(limit: 0, producer: { s in innerDisposable1 })
         innerProducer2 = ActiveStream<OperationEvent<Int, TestError>>(limit: 0, producer: { s in innerDisposable2 })
         
-        operation = create { sink in
+        operation = create { observer in
           outerProducer.observe(on: ImmediateExecutionContext) { e in
-            sink.sink(e)
+            observer.observer(e)
           }
           return outerDisposable
         }
@@ -338,16 +338,16 @@ class OperationSpec: QuickSpec {
         disposable = operation
           .flatMap(.Latest) { (v: Int) -> Operation<Int, TestError> in
             if v == 1 {
-              return create { sink in
+              return create { observer in
                 innerProducer1.observe(on: ImmediateExecutionContext) { e in
-                  sink.sink(e)
+                  observer.observer(e)
                 }
                 return innerDisposable1
               }
             } else {
-              return create { sink in
+              return create { observer in
                 innerProducer2.observe(on: ImmediateExecutionContext) { e in
-                  sink.sink(e)
+                  observer.observer(e)
                 }
                 return innerDisposable2
               }
@@ -498,9 +498,9 @@ class OperationSpec: QuickSpec {
         innerProducer1 = ActiveStream<OperationEvent<Int, TestError>>(limit: 10, producer: { s in innerDisposable1 })
         innerProducer2 = ActiveStream<OperationEvent<Int, TestError>>(limit: 10, producer: { s in innerDisposable2 })
         
-        operation = create { sink in
+        operation = create { observer in
           outerProducer.observe(on: ImmediateExecutionContext) { e in
-            sink.sink(e)
+            observer.observer(e)
           }
           return outerDisposable
         }
@@ -508,16 +508,16 @@ class OperationSpec: QuickSpec {
         disposable = operation
           .flatMap(.Concat) { (v: Int) -> Operation<Int, TestError> in
             if v == 1 {
-              return create { sink in
+              return create { observer in
                 innerProducer1.observe(on: ImmediateExecutionContext) { e in
-                  sink.sink(e)
+                  observer.observer(e)
                 }
                 return innerDisposable1
               }
             } else {
-              return create { sink in
+              return create { observer in
                 innerProducer2.observe(on: ImmediateExecutionContext) { e in
-                  sink.sink(e)
+                  observer.observer(e)
                 }
                 return innerDisposable2
               }

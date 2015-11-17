@@ -34,25 +34,25 @@ public class Observable<Value>: ActiveStream<Value>, ObservableType {
       return try! lastEvent()
     }
     set {
-      capturedSink?(newValue)
+      capturedObserver?(newValue)
     }
   }
     
-  private var capturedSink: (Value -> ())? = nil
+  private var capturedObserver: (Value -> ())? = nil
   
   public init(_ value: Value) {
-    var capturedSink: (Value -> ())!
-    super.init(limit: 1, producer: { sink in
-      capturedSink = sink
-      sink(value)
+    var capturedObserver: (Value -> ())!
+    super.init(limit: 1, producer: { observer in
+      capturedObserver = observer
+      observer(value)
       return nil
     })
-    self.capturedSink = capturedSink
+    self.capturedObserver = capturedObserver
   }
   
   public init(@noescape producer: (Value -> ()) -> DisposableType?) {
-    super.init(limit: 1, producer: { sink in
-      return producer(sink)
+    super.init(limit: 1, producer: { observer in
+      return producer(observer)
     })
   }
 }
@@ -66,19 +66,19 @@ public extension Observable {
   
   @warn_unused_result
   public func map<U>(transform: Value -> U) -> Observable<U> {
-    return create { sink in
+    return create { observer in
       return self.observe(on: ImmediateExecutionContext) { event in
-        sink(transform(event))
+        observer(transform(event))
       }
     }
   }
   
   @warn_unused_result
   public func zipPrevious() -> Observable<(Value?, Value)> {
-    return create { sink in
+    return create { observer in
       var previous: Value? = nil
       return self.observe(on: ImmediateExecutionContext) { event in
-        sink(previous, event)
+        observer(previous, event)
         previous = event
       }
     }
