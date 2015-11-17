@@ -87,26 +87,29 @@ extension StreamType {
       var latestEvent: Event! = nil
       var latestEventDate: NSDate! = nil
       
-      return self.observe(on: ImmediateExecutionContext) { event in
+      var tryDispatch: (() -> Void)?
+      tryDispatch = {
+        if latestEventDate.dateByAddingTimeInterval(seconds).compare(NSDate()) == NSComparisonResult.OrderedAscending {
+          observer(latestEvent)
+        } else {
+          timerInFlight = true
+          queue.after(seconds) {
+            timerInFlight = false
+            tryDispatch?()
+          }
+        }
+      }
+      
+      let blockDisposable = BlockDisposable { tryDispatch = nil }
+      let compositeDisposable = CompositeDisposable([blockDisposable])
+      compositeDisposable += self.observe(on: ImmediateExecutionContext) { event in
         latestEvent = event
         latestEventDate = NSDate()
         
         guard timerInFlight == false else { return }
-        
-        var tryDispatch: (() -> Void)!
-        tryDispatch = {
-          if latestEventDate.dateByAddingTimeInterval(seconds).compare(NSDate()) == NSComparisonResult.OrderedAscending {
-            observer(latestEvent)
-          } else {
-            timerInFlight = true
-            queue.after(seconds) {
-              timerInFlight = false
-              tryDispatch()
-            }
-          }
-        }
-        tryDispatch()
+        tryDispatch?()
       }
+      return compositeDisposable
     }
   }
   
