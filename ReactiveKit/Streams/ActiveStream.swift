@@ -66,10 +66,10 @@ public class ActiveStream<Event>: ActiveStreamType {
   }
   
   public func observe(observer: Observer) -> DisposableType {
-    return observe(on: ImmediateExecutionContext, observer: observer)
+    return observe(on: ImmediateOnMainExecutionContext, observer: observer)
   }
   
-  public func observe(on context: ExecutionContext, observer: Observer) -> DisposableType {
+  public func observe(on context: ExecutionContext = ImmediateOnMainExecutionContext, observer: Observer) -> DisposableType {
     selfReference?.retain()
     
     let observer = { e in context { observer(e) } }

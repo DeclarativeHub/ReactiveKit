@@ -172,7 +172,7 @@ Operation can send any number of `.Next` events followed by one terminating even
 Creating the operation doesn't do any work by itself. To start producing results, operation has to be started. Operation will be automatically started when you register an observer to it.
 
 ```swift
-fetchImage(url: ...).observe(on: Queue.main.contex) { event in
+fetchImage(url: ...).observe { event in
   switch event {
     case .Next(let image):
   	  print("Operation produced an image \(image).")
@@ -184,7 +184,7 @@ fetchImage(url: ...).observe(on: Queue.main.contex) { event in
 }
 ```
 
-> When you register the observer to the operation you must explicitly provide execution context onto which events will be dispatched. This differs from observing observables where the main queue context is set as the default one because it encourages us to think about threads (queues) and forces us to explicitly define where do we want to perform the side effects.
+> Observers registered with `observe` method will be by default invoked on the main thread (queue). You can change default behaviour by passing another [execution context](#threading) to the `observe` method.
 
 The observer you register with the operation is actually the one that will be passed to the closure that was provided in operation constructor (the one that does the actual work) - just wrapped into a struct that simplifies sending result. You see how the operation is just a light wrapper around a closure, but that abstraction enables powerful paradigm.
 
@@ -193,7 +193,7 @@ The observer you register with the operation is actually the one that will be pa
 When you're interested in just results of the operation and you don't care when it completes or if it fails, you can use `*Next` family of methods. To observe results of the operation, you would use `observeNext`.
 
 ```swift
-fetchImage(url: ...).observeNext(on: Queue.main.contex) { image in
+fetchImage(url: ...).observeNext { image in
   imageView.image = image
 }
 ```
@@ -212,7 +212,7 @@ fetchImage(url: ...).bindNextTo(imageView)
 Whenever the observer is registered, the operation starts all over again. To share results of a single operation run, use `shareNext` method.
 
 ```swift
-let image = fetchImage(url: ...).shareNext(on: Queue.main.context)
+let image = fetchImage(url: ...).shareNext
 image.bindTo(imageView1)
 image.bindTo(imageView2)
 ```
@@ -250,7 +250,7 @@ authenticate(username: ..., password: ...)
   .flatMap(.Latest) { token in
     return fetchCurrentUser(token)
   }
-  .observeNext(on: Queue.main.context) { user in
+  .observeNext { user in
     print("Authenticated as \(user.fullname).")
   }
 ```

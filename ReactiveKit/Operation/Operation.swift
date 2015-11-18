@@ -46,7 +46,11 @@ public struct Operation<Value, Error: ErrorType>: OperationType {
       })
     }
   }
-  
+
+  public func observe(observer: OperationEvent<Value, Error> -> ()) -> DisposableType {
+    return observe(on: ImmediateOnMainExecutionContext, observer: observer)
+  }
+
   public func observe(on context: ExecutionContext, observer: OperationEvent<Value, Error> -> ()) -> DisposableType {
     return stream.observe(on: context, observer: observer)
   }
@@ -102,7 +106,7 @@ public extension OperationType {
     }
   }
   
-  public func observeNext(on context: ExecutionContext, observer: Value -> ()) -> DisposableType {
+  public func observeNext(on context: ExecutionContext = ImmediateOnMainExecutionContext, observer: Value -> ()) -> DisposableType {
     return self.observe(on: context) { event in
       switch event {
       case .Next(let event):
@@ -112,7 +116,7 @@ public extension OperationType {
     }
   }
   
-  public func observeError(on context: ExecutionContext, observer: Error -> ()) -> DisposableType {
+  public func observeError(on context: ExecutionContext = ImmediateOnMainExecutionContext, observer: Error -> ()) -> DisposableType {
     return self.observe(on: context) { event in
       switch event {
       case .Failure(let error):
@@ -123,7 +127,7 @@ public extension OperationType {
   }
   
   @warn_unused_result
-  public func shareNext(limit: Int = Int.max, context: ExecutionContext = Queue.main.context) -> ActiveStream<Value> {
+  public func shareNext(limit: Int = Int.max, context: ExecutionContext = ImmediateOnMainExecutionContext) -> ActiveStream<Value> {
     return create(limit) { observer in
       return self.observeNext(on: context, observer: observer)
     }

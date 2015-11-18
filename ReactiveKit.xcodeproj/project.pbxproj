@@ -196,7 +196,7 @@
 		ECBCCE061BEB6BBE00723476 /* StreamType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamType.swift; sourceTree = "<group>"; };
 		ECBCCE2A1BEB6BE100723476 /* NoError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NoError.swift; path = ../Operation/NoError.swift; sourceTree = "<group>"; };
 		ECBCCE2B1BEB6BE100723476 /* Stream+Operation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Stream+Operation.swift"; sourceTree = "<group>"; };
-		ECBCCE2C1BEB6BE100723476 /* Operation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Operation.swift; sourceTree = "<group>"; };
+		ECBCCE2C1BEB6BE100723476 /* Operation.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = Operation.swift; sourceTree = "<group>"; tabWidth = 2; };
 		ECBCCE2D1BEB6BE100723476 /* OperationEvent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OperationEvent.swift; sourceTree = "<group>"; };
 		ECBCCE2E1BEB6BE100723476 /* OperationSink.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OperationSink.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
