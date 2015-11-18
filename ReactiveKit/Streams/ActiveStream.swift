@@ -64,11 +64,7 @@ public class ActiveStream<Event>: ActiveStreamType {
     tmpSelfReference.release()
     self.selfReference = tmpSelfReference
   }
-  
-  public func observe(observer: Observer) -> DisposableType {
-    return observe(on: ImmediateOnMainExecutionContext, observer: observer)
-  }
-  
+
   public func observe(on context: ExecutionContext = ImmediateOnMainExecutionContext, observer: Observer) -> DisposableType {
     selfReference?.retain()
     

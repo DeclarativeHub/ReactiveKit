@@ -46,12 +46,8 @@ public struct Operation<Value, Error: ErrorType>: OperationType {
       })
     }
   }
-
-  public func observe(observer: OperationEvent<Value, Error> -> ()) -> DisposableType {
-    return observe(on: ImmediateOnMainExecutionContext, observer: observer)
-  }
-
-  public func observe(on context: ExecutionContext, observer: OperationEvent<Value, Error> -> ()) -> DisposableType {
+  
+  public func observe(on context: ExecutionContext = ImmediateOnMainExecutionContext, observer: OperationEvent<Value, Error> -> ()) -> DisposableType {
     return stream.observe(on: context, observer: observer)
   }
   
