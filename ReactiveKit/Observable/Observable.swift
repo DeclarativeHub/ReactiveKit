@@ -61,27 +61,3 @@ public class Observable<Value>: ActiveStream<Value>, ObservableType {
 public func create<Value>(producer: (Value -> ()) -> DisposableType?) -> Observable<Value> {
   return Observable(producer: producer)
 }
-
-public extension Observable {
-  
-  @warn_unused_result
-  public func map<U>(transform: Value -> U) -> Observable<U> {
-    return create { observer in
-      return self.observe(on: ImmediateExecutionContext) { event in
-        observer(transform(event))
-      }
-    }
-  }
-  
-  @warn_unused_result
-  public func zipPrevious() -> Observable<(Value?, Value)> {
-    return create { observer in
-      var previous: Value? = nil
-      return self.observe(on: ImmediateExecutionContext) { event in
-        observer(previous, event)
-        previous = event
-      }
-    }
-  }
-}
-
