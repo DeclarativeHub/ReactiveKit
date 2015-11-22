@@ -63,7 +63,7 @@ extension ObservableCollectionType where Collection == Array<Element> {
   
   public subscript(index: Collection.Index) -> Collection.Generator.Element {
     get {
-      return self[index]
+      return collection[index]
     }
     set {
       var new = collection
