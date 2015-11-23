@@ -59,12 +59,12 @@ extension ObservableCollectionType where Index: DictionaryIndexType, Collection 
     var new = collection
     if let index = new.indexForKey(key) {
       let oldValue = new.updateValue(value, forKey: key)
-      dispatch(ObservableCollectionEvent(collection: new, inserts: [], deletes: [], updates: [index]))
+      next(ObservableCollectionEvent(collection: new, inserts: [], deletes: [], updates: [index]))
       return oldValue
     } else {
       new.updateValue(value, forKey: key)
       let index = new.indexForKey(key)!
-      dispatch(ObservableCollectionEvent(collection: new, inserts: [index], deletes: [], updates: []))
+      next(ObservableCollectionEvent(collection: new, inserts: [index], deletes: [], updates: []))
       return nil
     }
   }
@@ -73,7 +73,7 @@ extension ObservableCollectionType where Index: DictionaryIndexType, Collection 
     if let index = collection.indexForKey(key) {
       var new = collection
       let oldValue = new.removeValueForKey(key)
-      dispatch(ObservableCollectionEvent(collection: new, inserts: [], deletes: [index], updates: []))
+      next(ObservableCollectionEvent(collection: new, inserts: [], deletes: [index], updates: []))
       return oldValue
     } else {
       return nil

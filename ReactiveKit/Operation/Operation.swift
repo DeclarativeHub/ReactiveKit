@@ -27,7 +27,7 @@ public protocol OperationType: StreamType {
   typealias Error: ErrorType
 
   func lift<U, F: ErrorType>(transform: Stream<OperationEvent<Value, Error>> -> Stream<OperationEvent<U, F>>) -> Operation<U, F>
-  func observe(on context: ExecutionContext, observer: OperationEvent<Value, Error> -> ()) -> DisposableType
+  func observe(on context: ExecutionContext?, observer: OperationEvent<Value, Error> -> ()) -> DisposableType
 }
 
 public struct Operation<Value, Error: ErrorType>: OperationType {
@@ -47,7 +47,7 @@ public struct Operation<Value, Error: ErrorType>: OperationType {
     }
   }
   
-  public func observe(on context: ExecutionContext = ImmediateOnMainExecutionContext, observer: OperationEvent<Value, Error> -> ()) -> DisposableType {
+  public func observe(on context: ExecutionContext? = ImmediateOnMainExecutionContext, observer: OperationEvent<Value, Error> -> ()) -> DisposableType {
     return stream.observe(on: context, observer: observer)
   }
   
@@ -68,7 +68,7 @@ public struct Operation<Value, Error: ErrorType>: OperationType {
   
   public func lift<U, F: ErrorType>(transform: Stream<OperationEvent<Value, Error>> -> Stream<OperationEvent<U, F>>) -> Operation<U, F> {
     return create { observer in
-      return transform(self.stream).observe(on: ImmediateExecutionContext, observer: observer.observer)
+      return transform(self.stream).observe(on: nil, observer: observer.observer)
     }
   }
 }
@@ -82,7 +82,7 @@ public func create<Value, Error: ErrorType>(producer producer: OperationObserver
 
 public extension OperationType {
   
-  public func on(next next: (Value -> ())? = nil, success: (() -> ())? = nil, failure: (Error -> ())? = nil, start: (() -> Void)? = nil, completed: (() -> Void)? = nil, context: ExecutionContext = ImmediateExecutionContext) -> Operation<Value, Error> {
+  public func on(next next: (Value -> ())? = nil, success: (() -> ())? = nil, failure: (Error -> ())? = nil, start: (() -> Void)? = nil, completed: (() -> Void)? = nil, context: ExecutionContext? = ImmediateOnMainExecutionContext) -> Operation<Value, Error> {
     return create { observer in
       start?()
       return self.observe(on: context) { event in
@@ -123,12 +123,12 @@ public extension OperationType {
   }
   
   @warn_unused_result
-  public func shareNext(limit: Int = Int.max, context: ExecutionContext = ImmediateOnMainExecutionContext) -> ActiveStream<Value> {
-    return create(limit) { observer in
+  public func shareNext(limit: Int = Int.max, context: ExecutionContext = ImmediateOnMainExecutionContext) -> ObservableBuffer<Value> {
+    return ObservableBuffer(limit: limit) { observer in
       return self.observeNext(on: context, observer: observer)
     }
   }
-  
+
   @warn_unused_result
   public func map<U>(transform: Value -> U) -> Operation<U, Error> {
     return lift { $0.map { $0.map(transform) } }
@@ -193,7 +193,7 @@ public extension OperationType {
       
       attempt = {
         serialDisposable.otherDisposable?.dispose()
-        serialDisposable.otherDisposable = self.observe(on: ImmediateExecutionContext) { event in
+        serialDisposable.otherDisposable = self.observe(on: nil) { event in
           switch event {
           case .Failure(let error):
             if count > 0 {
@@ -251,7 +251,7 @@ public extension OperationType {
         }
       }
       
-      let selfDisposable = self.observe(on: ImmediateExecutionContext) { event in
+      let selfDisposable = self.observe(on: nil) { event in
         if case .Failure(let error) = event {
           observer.failure(error)
         } else {
@@ -262,7 +262,7 @@ public extension OperationType {
         }
       }
       
-      let otherDisposable = other.observe(on: ImmediateExecutionContext) { event in
+      let otherDisposable = other.observe(on: nil) { event in
         if case .Failure(let error) = event {
           observer.failure(error)
         } else {
@@ -299,7 +299,7 @@ public extension OperationType {
         }
       }
       
-      let selfDisposable = self.observe(on: ImmediateExecutionContext) { event in
+      let selfDisposable = self.observe(on: nil) { event in
         switch event {
         case .Failure(let error):
           observer.failure(error)
@@ -316,7 +316,7 @@ public extension OperationType {
         }
       }
       
-      let otherDisposable = other.observe(on: ImmediateExecutionContext) { event in
+      let otherDisposable = other.observe(on: nil) { event in
         switch event {
         case .Failure(let error):
           observer.failure(error)
@@ -365,7 +365,7 @@ public extension OperationType where Value: OperationType, Value.Error == Error 
         }
       }
       
-      compositeDisposable += self.observe(on: ImmediateExecutionContext) { taskEvent in
+      compositeDisposable += self.observe(on: nil) { taskEvent in
         
         switch taskEvent {
         case .Failure(let error):
@@ -376,7 +376,7 @@ public extension OperationType where Value: OperationType, Value.Error == Error 
           queue.sync {
             numberOfOperations += 1
           }
-          compositeDisposable += task.observe(on: ImmediateExecutionContext) { event in
+          compositeDisposable += task.observe(on: nil) { event in
             switch event {
             case .Next, .Failure:
               observer.observer(event)
@@ -399,7 +399,7 @@ public extension OperationType where Value: OperationType, Value.Error == Error 
       var outerCompleted: Bool = false
       var innerCompleted: Bool = false
       
-      compositeDisposable += self.observe(on: ImmediateExecutionContext) { taskEvent in
+      compositeDisposable += self.observe(on: nil) { taskEvent in
         
         switch taskEvent {
         case .Failure(let error):
@@ -412,7 +412,7 @@ public extension OperationType where Value: OperationType, Value.Error == Error 
         case .Next(let innerOperation):
           innerCompleted = false
           serialDisposable.otherDisposable?.dispose()
-          serialDisposable.otherDisposable = innerOperation.observe(on: ImmediateExecutionContext) { event in
+          serialDisposable.otherDisposable = innerOperation.observe(on: nil) { event in
             
             switch event {
             case .Failure(let error):
@@ -455,7 +455,7 @@ public extension OperationType where Value: OperationType, Value.Error == Error 
         }
         
         serialDisposable.otherDisposable?.dispose()
-        serialDisposable.otherDisposable = task.observe(on: ImmediateExecutionContext) { event in
+        serialDisposable.otherDisposable = task.observe(on: nil) { event in
           switch event {
           case .Failure(let error):
             observer.failure(error)
@@ -482,7 +482,7 @@ public extension OperationType where Value: OperationType, Value.Error == Error 
         }
       }
 
-      compositeDisposable += self.observe(on: ImmediateExecutionContext) { taskEvent in
+      compositeDisposable += self.observe(on: nil) { taskEvent in
         
         switch taskEvent {
         case .Failure(let error):
@@ -527,14 +527,14 @@ public extension OperationType {
     return create { observer in
       let serialDisposable = SerialDisposable(otherDisposable: nil)
       
-      serialDisposable.otherDisposable = self.observe(on: ImmediateExecutionContext) { taskEvent in
+      serialDisposable.otherDisposable = self.observe(on: nil) { taskEvent in
         switch taskEvent {
         case .Next(let value):
           observer.next(value)
         case .Success:
           observer.success()
         case .Failure(let error):
-          serialDisposable.otherDisposable = recover(error).observe(on: ImmediateExecutionContext) { event in
+          serialDisposable.otherDisposable = recover(error).observe(on: nil) { event in
             observer.observer(event)
           }
         }

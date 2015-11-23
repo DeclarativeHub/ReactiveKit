@@ -32,11 +32,19 @@ public struct Stream<Event>: StreamType {
     self.producer = producer
   }
   
-  public func observe(on context: ExecutionContext, observer: Observer) -> DisposableType {
+  public func observe(on context: ExecutionContext? = ImmediateOnMainExecutionContext, observer: Observer) -> DisposableType {
     let serialDisposable = SerialDisposable(otherDisposable: nil)
-    serialDisposable.otherDisposable = producer { event in
-      if !serialDisposable.isDisposed {
-        context {
+    if let context = context {
+      serialDisposable.otherDisposable = producer { event in
+        if !serialDisposable.isDisposed {
+          context {
+            observer(event)
+          }
+        }
+      }
+    } else {
+      serialDisposable.otherDisposable = producer { event in
+        if !serialDisposable.isDisposed {
           observer(event)
         }
       }

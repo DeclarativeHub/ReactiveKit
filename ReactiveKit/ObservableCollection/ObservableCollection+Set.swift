@@ -43,9 +43,9 @@ extension ObservableCollectionType where Element: Hashable, Collection == Set<El
     new.insert(member)
     
     if let index = collection.indexOf(member) {
-      dispatch(ObservableCollectionEvent(collection: new, inserts: [], deletes: [], updates: [index]))
+      next(ObservableCollectionEvent(collection: new, inserts: [], deletes: [], updates: [index]))
     } else {
-      dispatch(ObservableCollectionEvent(collection: new, inserts: [new.indexOf(member)!], deletes: [], updates: []))
+      next(ObservableCollectionEvent(collection: new, inserts: [new.indexOf(member)!], deletes: [], updates: []))
     }
   }
   
@@ -54,7 +54,7 @@ extension ObservableCollectionType where Element: Hashable, Collection == Set<El
     
     if let index = collection.indexOf(member) {
       let old = new.removeAtIndex(index)
-      dispatch(ObservableCollectionEvent(collection: new, inserts: [], deletes: [index], updates: []))
+      next(ObservableCollectionEvent(collection: new, inserts: [], deletes: [index], updates: []))
       return old
     } else {
       return nil

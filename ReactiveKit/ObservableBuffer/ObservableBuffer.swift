@@ -22,37 +22,34 @@
 //  THE SOFTWARE.
 //
 
-public class StreamBuffer<Event> {
-  
-  public var array: [Event] = []
+public final class ObservableBuffer<Event>: ActiveStream<Event> {
+
+  public var buffer: [Event] = []
   public let limit: Int
-  
+
   public init(limit: Int = Int.max) {
     self.limit = limit
+    super.init()
   }
-  
-  public func next(event: Event) {
-    array.append(event)
-    if array.count > limit {
-      array = Array(array.suffixFrom(1))
-    }
-  }
-  
-  public func replay(observer: Event -> ()) {
-    for value in array {
-      observer(value)
-    }
-  }
-  
-  public func last() throws -> Event {
-    if array.count > 0 {
-      return array.last!
-    } else {
-      throw StreamBufferError.NoEvent
-    }
-  }
-}
 
-public enum StreamBufferError: ErrorType {
-  case NoEvent
+  public init(limit: Int = Int.max, @noescape producer: Observer -> DisposableType?) {
+    self.limit = limit
+    super.init(producer: producer)
+  }
+
+  public override func next(event: Event) {
+    buffer.append(event)
+    if buffer.count > limit {
+      buffer = Array(buffer.suffixFrom(1))
+    }
+    super.next(event)
+  }
+
+  public override func observe(on context: ExecutionContext? = ImmediateOnMainExecutionContext, observer: Observer) -> DisposableType {
+    let disposable = super.observe(on: context, observer: observer)
+    for event in buffer {
+      observer(event)
+    }
+    return disposable
+  }
 }

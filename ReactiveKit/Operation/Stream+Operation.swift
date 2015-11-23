@@ -29,8 +29,8 @@ public extension StreamType where Event: OperationType {
     return create { observer in
       let compositeDisposable = CompositeDisposable()
       
-      compositeDisposable += self.observe(on: ImmediateExecutionContext) { task in
-        compositeDisposable += task.observe(on: ImmediateExecutionContext) { event in
+      compositeDisposable += self.observe(on: nil) { task in
+        compositeDisposable += task.observe(on: nil) { event in
           switch event {
           case .Next, .Failure:
             observer.observer(event)
@@ -49,10 +49,10 @@ public extension StreamType where Event: OperationType {
       let serialDisposable = SerialDisposable(otherDisposable: nil)
       let compositeDisposable = CompositeDisposable([serialDisposable])
       
-      compositeDisposable += self.observe(on: ImmediateExecutionContext) { task in
+      compositeDisposable += self.observe(on: nil) { task in
         
         serialDisposable.otherDisposable?.dispose()
-        serialDisposable.otherDisposable = task.observe(on: ImmediateExecutionContext) { event in
+        serialDisposable.otherDisposable = task.observe(on: nil) { event in
           
           switch event {
           case .Failure(let error):
@@ -85,7 +85,7 @@ public extension StreamType where Event: OperationType {
         let task = taskQueue.removeAtIndex(0)
         
         serialDisposable.otherDisposable?.dispose()
-        serialDisposable.otherDisposable = task.observe(on: ImmediateExecutionContext) { event in
+        serialDisposable.otherDisposable = task.observe(on: nil) { event in
           switch event {
           case .Failure(let error):
             observer.failure(error)
@@ -107,7 +107,7 @@ public extension StreamType where Event: OperationType {
         }
       }
       
-      compositeDisposable += self.observe(on: ImmediateExecutionContext) { task in
+      compositeDisposable += self.observe(on: nil) { task in
         addToQueue(task)
       }
       

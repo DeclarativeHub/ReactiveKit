@@ -29,13 +29,11 @@
 		16C33B3F1BEFBA2D00A0DBE0 /* SimpleDisposable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCDF01BEB6BBE00723476 /* SimpleDisposable.swift */; };
 		16C33B401BEFBA2D00A0DBE0 /* Lock.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCDF21BEB6BBE00723476 /* Lock.swift */; };
 		16C33B411BEFBA2D00A0DBE0 /* Reference.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCDF31BEB6BBE00723476 /* Reference.swift */; };
-		16C33B421BEFBA2D00A0DBE0 /* StreamBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCDF41BEB6BBE00723476 /* StreamBuffer.swift */; };
 		16C33B431BEFBA2D00A0DBE0 /* NoError.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCE2A1BEB6BE100723476 /* NoError.swift */; };
 		16C33B441BEFBA2D00A0DBE0 /* Bindable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCDFE1BEB6BBE00723476 /* Bindable.swift */; };
 		16C33B451BEFBA2D00A0DBE0 /* ExecutionContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCDFF1BEB6BBE00723476 /* ExecutionContext.swift */; };
 		16C33B461BEFBA2D00A0DBE0 /* OptionalType.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCE001BEB6BBE00723476 /* OptionalType.swift */; };
 		16C33B471BEFBA2D00A0DBE0 /* Queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCE011BEB6BBE00723476 /* Queue.swift */; };
-		16C33B481BEFBA2D00A0DBE0 /* TokenizedCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCE021BEB6BBE00723476 /* TokenizedCollection.swift */; };
 		16C33B491BEFBA2D00A0DBE0 /* StreamType.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCE061BEB6BBE00723476 /* StreamType.swift */; };
 		16C33B4A1BEFBA2D00A0DBE0 /* Stream.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCE051BEB6BBE00723476 /* Stream.swift */; };
 		16C33B4B1BEFBA2D00A0DBE0 /* ActiveStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCE041BEB6BBE00723476 /* ActiveStream.swift */; };
@@ -57,13 +55,11 @@
 		16C33B5B1BEFBA2D00A0DBE0 /* SimpleDisposable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCDF01BEB6BBE00723476 /* SimpleDisposable.swift */; };
 		16C33B5C1BEFBA2D00A0DBE0 /* Lock.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCDF21BEB6BBE00723476 /* Lock.swift */; };
 		16C33B5D1BEFBA2D00A0DBE0 /* Reference.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCDF31BEB6BBE00723476 /* Reference.swift */; };
-		16C33B5E1BEFBA2D00A0DBE0 /* StreamBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCDF41BEB6BBE00723476 /* StreamBuffer.swift */; };
 		16C33B5F1BEFBA2D00A0DBE0 /* NoError.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCE2A1BEB6BE100723476 /* NoError.swift */; };
 		16C33B601BEFBA2D00A0DBE0 /* Bindable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCDFE1BEB6BBE00723476 /* Bindable.swift */; };
 		16C33B611BEFBA2D00A0DBE0 /* ExecutionContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCDFF1BEB6BBE00723476 /* ExecutionContext.swift */; };
 		16C33B621BEFBA2D00A0DBE0 /* OptionalType.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCE001BEB6BBE00723476 /* OptionalType.swift */; };
 		16C33B631BEFBA2D00A0DBE0 /* Queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCE011BEB6BBE00723476 /* Queue.swift */; };
-		16C33B641BEFBA2D00A0DBE0 /* TokenizedCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCE021BEB6BBE00723476 /* TokenizedCollection.swift */; };
 		16C33B651BEFBA2E00A0DBE0 /* StreamType.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCE061BEB6BBE00723476 /* StreamType.swift */; };
 		16C33B661BEFBA2E00A0DBE0 /* Stream.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCE051BEB6BBE00723476 /* Stream.swift */; };
 		16C33B671BEFBA2E00A0DBE0 /* ActiveStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCE041BEB6BBE00723476 /* ActiveStream.swift */; };
@@ -85,17 +81,14 @@
 		16C33B771BEFBA2E00A0DBE0 /* SimpleDisposable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCDF01BEB6BBE00723476 /* SimpleDisposable.swift */; };
 		16C33B781BEFBA2E00A0DBE0 /* Lock.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCDF21BEB6BBE00723476 /* Lock.swift */; };
 		16C33B791BEFBA2E00A0DBE0 /* Reference.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCDF31BEB6BBE00723476 /* Reference.swift */; };
-		16C33B7A1BEFBA2E00A0DBE0 /* StreamBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCDF41BEB6BBE00723476 /* StreamBuffer.swift */; };
 		16C33B7B1BEFBA2E00A0DBE0 /* NoError.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCE2A1BEB6BE100723476 /* NoError.swift */; };
 		16C33B7C1BEFBA2E00A0DBE0 /* Bindable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCDFE1BEB6BBE00723476 /* Bindable.swift */; };
 		16C33B7D1BEFBA2E00A0DBE0 /* ExecutionContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCDFF1BEB6BBE00723476 /* ExecutionContext.swift */; };
 		16C33B7E1BEFBA2E00A0DBE0 /* OptionalType.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCE001BEB6BBE00723476 /* OptionalType.swift */; };
 		16C33B7F1BEFBA2E00A0DBE0 /* Queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCE011BEB6BBE00723476 /* Queue.swift */; };
-		16C33B801BEFBA2E00A0DBE0 /* TokenizedCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCE021BEB6BBE00723476 /* TokenizedCollection.swift */; };
 		16C33B831BEFBAC800A0DBE0 /* ReactiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		16C33B841BEFBAC900A0DBE0 /* ReactiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		16C33B851BEFBAC900A0DBE0 /* ReactiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		16EABAD01C01AD82008B20BD /* ObservableCollectionSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16EABACF1C01AD82008B20BD /* ObservableCollectionSpec.swift */; };
 		16F0B8761BEFC3850071847A /* Quick.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16F0B8751BEFC3850071847A /* Quick.framework */; };
 		16F0B8781BEFC3890071847A /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16F0B8771BEFC3890071847A /* Nimble.framework */; };
 		EC0DF29A1BF48FF400DFF3E6 /* MutableObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0DF2991BF48FF400DFF3E6 /* MutableObservable.swift */; };
@@ -106,13 +99,19 @@
 		EC0DF2A01BF4909C00DFF3E6 /* MutableObservableCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0DF29E1BF4909C00DFF3E6 /* MutableObservableCollection.swift */; };
 		EC0DF2A11BF4909C00DFF3E6 /* MutableObservableCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0DF29E1BF4909C00DFF3E6 /* MutableObservableCollection.swift */; };
 		EC0DF2A21BF4909C00DFF3E6 /* MutableObservableCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0DF29E1BF4909C00DFF3E6 /* MutableObservableCollection.swift */; };
-		EC835BE21BEC923400463098 /* OperationSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC835BE11BEC923400463098 /* OperationSpec.swift */; };
+		EC2C7A0D1C02ED71006BFEE1 /* PerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2C7A0C1C02ED71006BFEE1 /* PerformanceTests.swift */; };
+		EC2C7A421C031030006BFEE1 /* ObservableBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2C7A411C031030006BFEE1 /* ObservableBuffer.swift */; };
+		EC2C7A431C031030006BFEE1 /* ObservableBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2C7A411C031030006BFEE1 /* ObservableBuffer.swift */; };
+		EC2C7A441C031030006BFEE1 /* ObservableBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2C7A411C031030006BFEE1 /* ObservableBuffer.swift */; };
+		EC2C7A451C031030006BFEE1 /* ObservableBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2C7A411C031030006BFEE1 /* ObservableBuffer.swift */; };
+		EC2C7A461C0314BC006BFEE1 /* StreamSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCDDF1BEB6B9B00723476 /* StreamSpec.swift */; };
+		EC2C7A471C0314BC006BFEE1 /* OperationSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC835BE11BEC923400463098 /* OperationSpec.swift */; };
+		EC2C7A481C0314BC006BFEE1 /* ObservableCollectionSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16EABACF1C01AD82008B20BD /* ObservableCollectionSpec.swift */; };
 		EC9549B31BF1EFA2000FC2BF /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1648A99E1BF12CE9007A185C /* Result.swift */; };
 		EC9549B41BF1EFA3000FC2BF /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1648A99E1BF12CE9007A185C /* Result.swift */; };
 		EC9549B51BF1EFA4000FC2BF /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1648A99E1BF12CE9007A185C /* Result.swift */; };
 		ECBCCDD41BEB6B9A00723476 /* ReactiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		ECBCCDDB1BEB6B9B00723476 /* ReactiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ECBCCDD01BEB6B9A00723476 /* ReactiveKit.framework */; };
-		ECBCCDE01BEB6B9B00723476 /* StreamSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCDDF1BEB6B9B00723476 /* StreamSpec.swift */; };
 		ECBCCE0D1BEB6BBE00723476 /* BlockDisposable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCDEB1BEB6BBE00723476 /* BlockDisposable.swift */; };
 		ECBCCE0E1BEB6BBE00723476 /* CompositeDisposable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCDEC1BEB6BBE00723476 /* CompositeDisposable.swift */; };
 		ECBCCE0F1BEB6BBE00723476 /* Disposable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCDED1BEB6BBE00723476 /* Disposable.swift */; };
@@ -121,7 +120,6 @@
 		ECBCCE121BEB6BBE00723476 /* SimpleDisposable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCDF01BEB6BBE00723476 /* SimpleDisposable.swift */; };
 		ECBCCE131BEB6BBE00723476 /* Lock.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCDF21BEB6BBE00723476 /* Lock.swift */; };
 		ECBCCE141BEB6BBE00723476 /* Reference.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCDF31BEB6BBE00723476 /* Reference.swift */; };
-		ECBCCE151BEB6BBE00723476 /* StreamBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCDF41BEB6BBE00723476 /* StreamBuffer.swift */; };
 		ECBCCE161BEB6BBE00723476 /* Observable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCDF61BEB6BBE00723476 /* Observable.swift */; };
 		ECBCCE171BEB6BBE00723476 /* ObservableCollection+Array.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCDF81BEB6BBE00723476 /* ObservableCollection+Array.swift */; };
 		ECBCCE181BEB6BBE00723476 /* ObservableCollection+Dictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCDF91BEB6BBE00723476 /* ObservableCollection+Dictionary.swift */; };
@@ -132,7 +130,6 @@
 		ECBCCE1D1BEB6BBE00723476 /* ExecutionContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCDFF1BEB6BBE00723476 /* ExecutionContext.swift */; };
 		ECBCCE1E1BEB6BBE00723476 /* OptionalType.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCE001BEB6BBE00723476 /* OptionalType.swift */; };
 		ECBCCE1F1BEB6BBE00723476 /* Queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCE011BEB6BBE00723476 /* Queue.swift */; };
-		ECBCCE201BEB6BBE00723476 /* TokenizedCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCE021BEB6BBE00723476 /* TokenizedCollection.swift */; };
 		ECBCCE211BEB6BBE00723476 /* ActiveStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCE041BEB6BBE00723476 /* ActiveStream.swift */; };
 		ECBCCE221BEB6BBE00723476 /* Stream.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCE051BEB6BBE00723476 /* Stream.swift */; };
 		ECBCCE231BEB6BBE00723476 /* StreamType.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCCE061BEB6BBE00723476 /* StreamType.swift */; };
@@ -165,6 +162,8 @@
 		16F0B8771BEFC3890071847A /* Nimble.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Nimble.framework; path = "../Carthage/Checkouts/Nimble/build/Debug-iphoneos/Nimble.framework"; sourceTree = "<group>"; };
 		EC0DF2991BF48FF400DFF3E6 /* MutableObservable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MutableObservable.swift; sourceTree = "<group>"; };
 		EC0DF29E1BF4909C00DFF3E6 /* MutableObservableCollection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MutableObservableCollection.swift; sourceTree = "<group>"; };
+		EC2C7A0C1C02ED71006BFEE1 /* PerformanceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PerformanceTests.swift; sourceTree = "<group>"; };
+		EC2C7A411C031030006BFEE1 /* ObservableBuffer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ObservableBuffer.swift; path = ReactiveKit/ObservableBuffer/ObservableBuffer.swift; sourceTree = SOURCE_ROOT; };
 		EC835BE11BEC923400463098 /* OperationSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OperationSpec.swift; sourceTree = "<group>"; };
 		EC835C001BECB0FB00463098 /* ReactiveKitPlayground.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = ReactiveKitPlayground.playground; sourceTree = SOURCE_ROOT; };
 		ECBCCDD01BEB6B9A00723476 /* ReactiveKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -181,7 +180,6 @@
 		ECBCCDF01BEB6BBE00723476 /* SimpleDisposable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SimpleDisposable.swift; sourceTree = "<group>"; };
 		ECBCCDF21BEB6BBE00723476 /* Lock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Lock.swift; sourceTree = "<group>"; };
 		ECBCCDF31BEB6BBE00723476 /* Reference.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reference.swift; sourceTree = "<group>"; };
-		ECBCCDF41BEB6BBE00723476 /* StreamBuffer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamBuffer.swift; sourceTree = "<group>"; };
 		ECBCCDF61BEB6BBE00723476 /* Observable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Observable.swift; sourceTree = "<group>"; };
 		ECBCCDF81BEB6BBE00723476 /* ObservableCollection+Array.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ObservableCollection+Array.swift"; sourceTree = "<group>"; };
 		ECBCCDF91BEB6BBE00723476 /* ObservableCollection+Dictionary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ObservableCollection+Dictionary.swift"; sourceTree = "<group>"; };
@@ -192,7 +190,6 @@
 		ECBCCDFF1BEB6BBE00723476 /* ExecutionContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExecutionContext.swift; sourceTree = "<group>"; };
 		ECBCCE001BEB6BBE00723476 /* OptionalType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OptionalType.swift; sourceTree = "<group>"; };
 		ECBCCE011BEB6BBE00723476 /* Queue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Queue.swift; sourceTree = "<group>"; };
-		ECBCCE021BEB6BBE00723476 /* TokenizedCollection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenizedCollection.swift; sourceTree = "<group>"; };
 		ECBCCE041BEB6BBE00723476 /* ActiveStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActiveStream.swift; sourceTree = "<group>"; };
 		ECBCCE051BEB6BBE00723476 /* Stream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Stream.swift; sourceTree = "<group>"; };
 		ECBCCE061BEB6BBE00723476 /* StreamType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamType.swift; sourceTree = "<group>"; };
@@ -254,6 +251,15 @@
 			name = Dependencies;
 			sourceTree = "<group>";
 		};
+		EC2C7A401C031006006BFEE1 /* ObservableBuffer */ = {
+			isa = PBXGroup;
+			children = (
+				EC2C7A411C031030006BFEE1 /* ObservableBuffer.swift */,
+			);
+			name = ObservableBuffer;
+			path = ObservableCollection;
+			sourceTree = "<group>";
+		};
 		EC835BF21BECB0D500463098 /* Playgrounds */ = {
 			isa = PBXGroup;
 			children = (
@@ -296,6 +302,7 @@
 				ECBCCE291BEB6BE100723476 /* Operation */,
 				ECBCCDF51BEB6BBE00723476 /* Observable */,
 				ECBCCDF71BEB6BBE00723476 /* ObservableCollection */,
+				EC2C7A401C031006006BFEE1 /* ObservableBuffer */,
 				ECBCCDEA1BEB6BBE00723476 /* Disposables */,
 				ECBCCDF11BEB6BBE00723476 /* Internals */,
 				ECBCCDFD1BEB6BBE00723476 /* Other */,
@@ -309,6 +316,7 @@
 				ECBCCDDF1BEB6B9B00723476 /* StreamSpec.swift */,
 				EC835BE11BEC923400463098 /* OperationSpec.swift */,
 				16EABACF1C01AD82008B20BD /* ObservableCollectionSpec.swift */,
+				EC2C7A0C1C02ED71006BFEE1 /* PerformanceTests.swift */,
 				16F0B8791BEFC3A10071847A /* Dependencies */,
 				ECBCCDE11BEB6B9B00723476 /* Info.plist */,
 			);
@@ -333,7 +341,6 @@
 			children = (
 				ECBCCDF21BEB6BBE00723476 /* Lock.swift */,
 				ECBCCDF31BEB6BBE00723476 /* Reference.swift */,
-				ECBCCDF41BEB6BBE00723476 /* StreamBuffer.swift */,
 			);
 			path = Internals;
 			sourceTree = "<group>";
@@ -368,7 +375,6 @@
 				ECBCCE001BEB6BBE00723476 /* OptionalType.swift */,
 				ECBCCE011BEB6BBE00723476 /* Queue.swift */,
 				ECBCCDFF1BEB6BBE00723476 /* ExecutionContext.swift */,
-				ECBCCE021BEB6BBE00723476 /* TokenizedCollection.swift */,
 				1648A99E1BF12CE9007A185C /* Result.swift */,
 			);
 			path = Other;
@@ -620,7 +626,6 @@
 				16C33B361BEFBA2D00A0DBE0 /* ObservableCollection+Dictionary.swift in Sources */,
 				16C33B341BEFBA2D00A0DBE0 /* Observable.swift in Sources */,
 				16C33B331BEFBA2D00A0DBE0 /* Stream+Operation.swift in Sources */,
-				16C33B421BEFBA2D00A0DBE0 /* StreamBuffer.swift in Sources */,
 				EC0DF29B1BF48FF400DFF3E6 /* MutableObservable.swift in Sources */,
 				16C33B431BEFBA2D00A0DBE0 /* NoError.swift in Sources */,
 				16C33B321BEFBA2D00A0DBE0 /* OperationSink.swift in Sources */,
@@ -630,13 +635,13 @@
 				16C33B391BEFBA2D00A0DBE0 /* ObservableCollectionEvent.swift in Sources */,
 				16C33B411BEFBA2D00A0DBE0 /* Reference.swift in Sources */,
 				16C33B2D1BEFBA2D00A0DBE0 /* StreamType.swift in Sources */,
+				EC2C7A431C031030006BFEE1 /* ObservableBuffer.swift in Sources */,
 				16C33B381BEFBA2D00A0DBE0 /* ObservableCollection.swift in Sources */,
 				16C33B471BEFBA2D00A0DBE0 /* Queue.swift in Sources */,
 				16C33B2E1BEFBA2D00A0DBE0 /* Stream.swift in Sources */,
 				16C33B3E1BEFBA2D00A0DBE0 /* SerialDisposable.swift in Sources */,
 				16C33B371BEFBA2D00A0DBE0 /* ObservableCollection+Set.swift in Sources */,
 				16C33B311BEFBA2D00A0DBE0 /* OperationEvent.swift in Sources */,
-				16C33B481BEFBA2D00A0DBE0 /* TokenizedCollection.swift in Sources */,
 				16C33B3F1BEFBA2D00A0DBE0 /* SimpleDisposable.swift in Sources */,
 				16C33B301BEFBA2D00A0DBE0 /* Operation.swift in Sources */,
 				EC0DF2A01BF4909C00DFF3E6 /* MutableObservableCollection.swift in Sources */,
@@ -658,7 +663,6 @@
 				16C33B521BEFBA2D00A0DBE0 /* ObservableCollection+Dictionary.swift in Sources */,
 				16C33B501BEFBA2D00A0DBE0 /* Observable.swift in Sources */,
 				16C33B4F1BEFBA2D00A0DBE0 /* Stream+Operation.swift in Sources */,
-				16C33B5E1BEFBA2D00A0DBE0 /* StreamBuffer.swift in Sources */,
 				EC0DF29C1BF48FF400DFF3E6 /* MutableObservable.swift in Sources */,
 				16C33B5F1BEFBA2D00A0DBE0 /* NoError.swift in Sources */,
 				16C33B4E1BEFBA2D00A0DBE0 /* OperationSink.swift in Sources */,
@@ -668,13 +672,13 @@
 				16C33B551BEFBA2D00A0DBE0 /* ObservableCollectionEvent.swift in Sources */,
 				16C33B5D1BEFBA2D00A0DBE0 /* Reference.swift in Sources */,
 				16C33B491BEFBA2D00A0DBE0 /* StreamType.swift in Sources */,
+				EC2C7A441C031030006BFEE1 /* ObservableBuffer.swift in Sources */,
 				16C33B541BEFBA2D00A0DBE0 /* ObservableCollection.swift in Sources */,
 				16C33B631BEFBA2D00A0DBE0 /* Queue.swift in Sources */,
 				16C33B4A1BEFBA2D00A0DBE0 /* Stream.swift in Sources */,
 				16C33B5A1BEFBA2D00A0DBE0 /* SerialDisposable.swift in Sources */,
 				16C33B531BEFBA2D00A0DBE0 /* ObservableCollection+Set.swift in Sources */,
 				16C33B4D1BEFBA2D00A0DBE0 /* OperationEvent.swift in Sources */,
-				16C33B641BEFBA2D00A0DBE0 /* TokenizedCollection.swift in Sources */,
 				16C33B5B1BEFBA2D00A0DBE0 /* SimpleDisposable.swift in Sources */,
 				16C33B4C1BEFBA2D00A0DBE0 /* Operation.swift in Sources */,
 				EC0DF2A11BF4909C00DFF3E6 /* MutableObservableCollection.swift in Sources */,
@@ -696,7 +700,6 @@
 				16C33B6E1BEFBA2E00A0DBE0 /* ObservableCollection+Dictionary.swift in Sources */,
 				16C33B6C1BEFBA2E00A0DBE0 /* Observable.swift in Sources */,
 				16C33B6B1BEFBA2E00A0DBE0 /* Stream+Operation.swift in Sources */,
-				16C33B7A1BEFBA2E00A0DBE0 /* StreamBuffer.swift in Sources */,
 				EC0DF29D1BF48FF400DFF3E6 /* MutableObservable.swift in Sources */,
 				16C33B7B1BEFBA2E00A0DBE0 /* NoError.swift in Sources */,
 				16C33B6A1BEFBA2E00A0DBE0 /* OperationSink.swift in Sources */,
@@ -706,13 +709,13 @@
 				16C33B711BEFBA2E00A0DBE0 /* ObservableCollectionEvent.swift in Sources */,
 				16C33B791BEFBA2E00A0DBE0 /* Reference.swift in Sources */,
 				16C33B651BEFBA2E00A0DBE0 /* StreamType.swift in Sources */,
+				EC2C7A451C031030006BFEE1 /* ObservableBuffer.swift in Sources */,
 				16C33B701BEFBA2E00A0DBE0 /* ObservableCollection.swift in Sources */,
 				16C33B7F1BEFBA2E00A0DBE0 /* Queue.swift in Sources */,
 				16C33B661BEFBA2E00A0DBE0 /* Stream.swift in Sources */,
 				16C33B761BEFBA2E00A0DBE0 /* SerialDisposable.swift in Sources */,
 				16C33B6F1BEFBA2E00A0DBE0 /* ObservableCollection+Set.swift in Sources */,
 				16C33B691BEFBA2E00A0DBE0 /* OperationEvent.swift in Sources */,
-				16C33B801BEFBA2E00A0DBE0 /* TokenizedCollection.swift in Sources */,
 				16C33B771BEFBA2E00A0DBE0 /* SimpleDisposable.swift in Sources */,
 				16C33B681BEFBA2E00A0DBE0 /* Operation.swift in Sources */,
 				EC0DF2A21BF4909C00DFF3E6 /* MutableObservableCollection.swift in Sources */,
@@ -729,9 +732,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				ECBCCE1B1BEB6BBE00723476 /* ObservableCollectionEvent.swift in Sources */,
-				ECBCCE201BEB6BBE00723476 /* TokenizedCollection.swift in Sources */,
 				ECBCCE301BEB6BE100723476 /* Stream+Operation.swift in Sources */,
-				ECBCCE151BEB6BBE00723476 /* StreamBuffer.swift in Sources */,
 				ECBCCE211BEB6BBE00723476 /* ActiveStream.swift in Sources */,
 				ECBCCE101BEB6BBE00723476 /* DisposeBag.swift in Sources */,
 				ECBCCE1F1BEB6BBE00723476 /* Queue.swift in Sources */,
@@ -744,6 +745,7 @@
 				ECBCCE231BEB6BBE00723476 /* StreamType.swift in Sources */,
 				ECBCCE141BEB6BBE00723476 /* Reference.swift in Sources */,
 				ECBCCE0D1BEB6BBE00723476 /* BlockDisposable.swift in Sources */,
+				EC2C7A421C031030006BFEE1 /* ObservableBuffer.swift in Sources */,
 				ECBCCE221BEB6BBE00723476 /* Stream.swift in Sources */,
 				ECBCCE0F1BEB6BBE00723476 /* Disposable.swift in Sources */,
 				ECBCCE131BEB6BBE00723476 /* Lock.swift in Sources */,
@@ -766,9 +768,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				16EABAD01C01AD82008B20BD /* ObservableCollectionSpec.swift in Sources */,
-				EC835BE21BEC923400463098 /* OperationSpec.swift in Sources */,
-				ECBCCDE01BEB6B9B00723476 /* StreamSpec.swift in Sources */,
+				EC2C7A461C0314BC006BFEE1 /* StreamSpec.swift in Sources */,
+				EC2C7A481C0314BC006BFEE1 /* ObservableCollectionSpec.swift in Sources */,
+				EC2C7A471C0314BC006BFEE1 /* OperationSpec.swift in Sources */,
+				EC2C7A0D1C02ED71006BFEE1 /* PerformanceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

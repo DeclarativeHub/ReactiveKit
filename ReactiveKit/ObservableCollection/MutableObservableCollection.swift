@@ -36,11 +36,11 @@ public struct MutableObservableCollection<Collection: CollectionType>: Observabl
     observableCollection = ObservableCollection(collection)
   }
   
-  public mutating func dispatch(event: ObservableCollectionEvent<Collection>) {
-    observableCollection.dispatch(event)
+  public mutating func next(event: ObservableCollectionEvent<Collection>) {
+    observableCollection.next(event)
   }
   
-  public func observe(on context: ExecutionContext, observer: ObservableCollectionEvent<Collection> -> ()) -> DisposableType {
+  public func observe(on context: ExecutionContext? = ImmediateOnMainExecutionContext, observer: ObservableCollectionEvent<Collection> -> ()) -> DisposableType {
     return observableCollection.observe(on: context, observer: observer)
   }
   

@@ -155,9 +155,9 @@ class OperationSpec: QuickSpec {
         innerDisposable1 = SimpleDisposable()
         innerDisposable2 = SimpleDisposable()
         
-        outerProducer = ActiveStream<OperationEvent<Int, TestError>>(limit: 0, producer: { s in outerDisposable })
-        innerProducer1 = ActiveStream<OperationEvent<Int, TestError>>(limit: 0, producer: { s in innerDisposable1 })
-        innerProducer2 = ActiveStream<OperationEvent<Int, TestError>>(limit: 0, producer: { s in innerDisposable2 })
+        outerProducer = ActiveStream<OperationEvent<Int, TestError>>(producer: { s in outerDisposable })
+        innerProducer1 = ActiveStream<OperationEvent<Int, TestError>>(producer: { s in innerDisposable1 })
+        innerProducer2 = ActiveStream<OperationEvent<Int, TestError>>(producer: { s in innerDisposable2 })
         
         operation = create { observer in
           outerProducer.observe(on: ImmediateExecutionContext) { e in
@@ -324,9 +324,9 @@ class OperationSpec: QuickSpec {
         innerDisposable1 = SimpleDisposable()
         innerDisposable2 = SimpleDisposable()
         
-        outerProducer = ActiveStream<OperationEvent<Int, TestError>>(limit: 0, producer: { s in outerDisposable })
-        innerProducer1 = ActiveStream<OperationEvent<Int, TestError>>(limit: 0, producer: { s in innerDisposable1 })
-        innerProducer2 = ActiveStream<OperationEvent<Int, TestError>>(limit: 0, producer: { s in innerDisposable2 })
+        outerProducer = ActiveStream<OperationEvent<Int, TestError>>(producer: { s in outerDisposable })
+        innerProducer1 = ActiveStream<OperationEvent<Int, TestError>>(producer: { s in innerDisposable1 })
+        innerProducer2 = ActiveStream<OperationEvent<Int, TestError>>(producer: { s in innerDisposable2 })
         
         operation = create { observer in
           outerProducer.observe(on: ImmediateExecutionContext) { e in
@@ -474,9 +474,9 @@ class OperationSpec: QuickSpec {
       var innerDisposable1: SimpleDisposable!
       var innerDisposable2: SimpleDisposable!
       
-      var outerProducer: ActiveStream<OperationEvent<Int, TestError>>!
-      var innerProducer1: ActiveStream<OperationEvent<Int, TestError>>!
-      var innerProducer2: ActiveStream<OperationEvent<Int, TestError>>!
+      var outerProducer: ObservableBuffer<OperationEvent<Int, TestError>>!
+      var innerProducer1: ObservableBuffer<OperationEvent<Int, TestError>>!
+      var innerProducer2: ObservableBuffer<OperationEvent<Int, TestError>>!
       
       var operation: Operation<Int, TestError>!
       
@@ -494,9 +494,9 @@ class OperationSpec: QuickSpec {
         innerDisposable1 = SimpleDisposable()
         innerDisposable2 = SimpleDisposable()
         
-        outerProducer = ActiveStream<OperationEvent<Int, TestError>>(limit: 10, producer: { s in outerDisposable })
-        innerProducer1 = ActiveStream<OperationEvent<Int, TestError>>(limit: 10, producer: { s in innerDisposable1 })
-        innerProducer2 = ActiveStream<OperationEvent<Int, TestError>>(limit: 10, producer: { s in innerDisposable2 })
+        outerProducer = ObservableBuffer<OperationEvent<Int, TestError>>(limit: 10, producer: { s in outerDisposable })
+        innerProducer1 = ObservableBuffer<OperationEvent<Int, TestError>>(limit: 10, producer: { s in innerDisposable1 })
+        innerProducer2 = ObservableBuffer<OperationEvent<Int, TestError>>(limit: 10, producer: { s in innerDisposable2 })
         
         operation = create { observer in
           outerProducer.observe(on: ImmediateExecutionContext) { e in

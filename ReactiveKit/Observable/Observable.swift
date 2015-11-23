@@ -27,37 +27,22 @@ public protocol ObservableType: StreamType {
   var value: Value { get set }
 }
 
-public class Observable<Value>: ActiveStream<Value>, ObservableType {
+public final class Observable<Value>: ActiveStream<Value>, ObservableType {
   
   public var value: Value {
-    get {
-      return try! lastEvent()
-    }
-    set {
-      capturedObserver?(newValue)
+    didSet {
+      next(value)
     }
   }
-    
-  private var capturedObserver: (Value -> ())? = nil
-  
-  public init(_ value: Value) {
-    var capturedObserver: (Value -> ())!
-    super.init(limit: 1, producer: { observer in
-      capturedObserver = observer
-      observer(value)
-      return nil
-    })
-    self.capturedObserver = capturedObserver
-  }
-  
-  public init(@noescape producer: (Value -> ()) -> DisposableType?) {
-    super.init(limit: 1, producer: { observer in
-      return producer(observer)
-    })
-  }
-}
 
-@warn_unused_result
-public func create<Value>(producer: (Value -> ()) -> DisposableType?) -> Observable<Value> {
-  return Observable(producer: producer)
+  public init(_ value: Value) {
+    self.value = value
+    super.init()
+  }
+
+  public override func observe(on context: ExecutionContext? = ImmediateOnMainExecutionContext, observer: Observer) -> DisposableType {
+    let disposable = super.observe(on: context, observer: observer)
+    observer(value)
+    return disposable
+  }
 }

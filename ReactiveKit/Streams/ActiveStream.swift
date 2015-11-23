@@ -22,18 +22,19 @@
 //  THE SOFTWARE.
 //
 
-public protocol ActiveStreamType: StreamType {
-  var buffer: StreamBuffer<Event> { get }
-}
-
-public class ActiveStream<Event>: ActiveStreamType {
+public class ActiveStream<Event>: StreamType {
   public typealias Observer = Event -> ()
-  
-  public var buffer: StreamBuffer<Event>
-  
+
   private typealias Token = Int64
+
+  private var nextToken: Token = 0
+  public var observers: ContiguousArray<Observer> = []
+  private var observerStorage: [Token: Observer] = [:] {
+    didSet {
+      observers = ContiguousArray(observerStorage.values)
+    }
+  }
   
-  private var observers = TokenizedCollection<Observer>()
   private let lock = RecursiveLock(name: "com.ReactiveKit.ReactiveKit.ActiveStream")
   
   private var isDispatchInProgress: Bool = false
@@ -41,9 +42,7 @@ public class ActiveStream<Event>: ActiveStreamType {
   
   private weak var selfReference: Reference<ActiveStream<Event>>? = nil
   
-  public required init(limit: Int = 0, @noescape producer: Observer -> DisposableType?) {
-    self.buffer = StreamBuffer(limit: limit)
-    
+  public init(@noescape producer: Observer -> DisposableType?) {
     let tmpSelfReference = Reference(self)
     tmpSelfReference.release()
     
@@ -58,21 +57,22 @@ public class ActiveStream<Event>: ActiveStreamType {
     self.selfReference = tmpSelfReference
   }
   
-  public init(limit: Int = 0) {
-    self.buffer = StreamBuffer(limit: limit)
+  public init() {
     let tmpSelfReference = Reference(self)
     tmpSelfReference.release()
     self.selfReference = tmpSelfReference
   }
 
-  public func observe(on context: ExecutionContext = ImmediateOnMainExecutionContext, observer: Observer) -> DisposableType {
+  public func observe(on context: ExecutionContext? = ImmediateOnMainExecutionContext, observer: Observer) -> DisposableType {
     selfReference?.retain()
-    
-    let observer = { e in context { observer(e) } }
-    
-    let disposable = registerObserver(observer)
-    buffer.replay(observer)
-    
+
+    var contextedObserver = observer
+    if let context = context {
+      contextedObserver = { e in context { observer(e) } }
+    }
+
+    let disposable = registerObserver(contextedObserver)
+
     let cleanupDisposable = BlockDisposable { [weak self] in
       disposable.dispose()
       
@@ -87,34 +87,33 @@ public class ActiveStream<Event>: ActiveStreamType {
     return cleanupDisposable
   }
   
-  
-  public func lastEvent() throws -> Event {
-    return try buffer.last()
-  }
-  
   public func next(event: Event) {
-    buffer.next(event)
-    dispatchNext(event)
-  }
-  
-  internal func registerDisposable(disposable: DisposableType) {
-    deinitDisposable.addDisposable(disposable)
-  }
-  
-  private func dispatchNext(event: Event) {
     guard !isDispatchInProgress else { return }
     
     lock.lock()
     isDispatchInProgress = true
-    observers.forEach { send in
-      send(event)
+    for observer in observers {
+      observer(event)
     }
     isDispatchInProgress = false
     lock.unlock()
   }
-  
+
+  internal func registerDisposable(disposable: DisposableType) {
+    deinitDisposable.addDisposable(disposable)
+  }
+
   private func registerObserver(observer: Observer) -> DisposableType {
-    return observers.insert(observer)
+    lock.lock()
+    let token = nextToken
+    nextToken = nextToken + 1
+    lock.unlock()
+
+    observerStorage[token] = observer
+
+    return BlockDisposable { [weak self] in
+      self?.observerStorage.removeValueForKey(token)
+    }
   }
   
   deinit {
@@ -123,8 +122,6 @@ public class ActiveStream<Event>: ActiveStreamType {
 }
 
 @warn_unused_result
-public func create<Event>(limit: Int = Int.max, producer: (Event -> ()) -> DisposableType?) -> ActiveStream<Event> {
-  return ActiveStream<Event>(limit: limit, producer: producer)
+public func create<Event>(producer: (Event -> ()) -> DisposableType?) -> ActiveStream<Event> {
+  return ActiveStream<Event>(producer: producer)
 }
-
-
