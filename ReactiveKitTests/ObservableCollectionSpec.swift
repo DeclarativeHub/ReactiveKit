@@ -107,6 +107,16 @@ class ObservableCollectionSpec: QuickSpec {
             expect(observedEvents[1]).to(equal(ObservableCollectionEvent(collection: [1, 20, 3], inserts: [], deletes: [], updates: [1])))
           }
         }
+
+        describe("replace-diff") {
+          beforeEach {
+            observableCollection.replace([0, 1, 3, 4], performDiff: true)
+          }
+
+          it("sends right events") {
+            expect(observedEvents[1]).to(equal(ObservableCollectionEvent(collection: [0, 1, 3, 4], inserts: [0, 3], deletes: [1], updates: [])))
+          }
+        }
       }
     }
 

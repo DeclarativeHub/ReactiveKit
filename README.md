@@ -140,6 +140,29 @@ The resulting `sortedOptions` is of type `ObservableCollection<[(String, String)
 
 > Same threading rules apply for observable collection bindings as for observable bindings. You can safely modify the collection from a background thread and be confident that the UI updates occur on the main thread. 
 
+### Array diff
+
+When you need to replace an array with another array, but need an event to contains fine-grained changes (for example to update table/collection view with nice animations), you can use method `replace:performDiff:`. For example, if you have
+
+```swift
+let numbers: ObservableCollection([1, 2, 3])
+```
+
+and you do
+
+```swift
+numbers.replace([0, 1, 3, 4], performDiff: true)
+```
+
+then the observed event will contain:
+
+```swift
+Assert(event.collection == [0, 1, 3, 4])
+Assert(event.inserts == [0, 3])
+Assert(event.deletes == [1])
+```
+
+If that array was bound to a table or a collection view, the view would automatically animate only the changes from the *merge*. Helpful, isn't it.
 
 ## Operation
 
@@ -217,7 +240,7 @@ image.bindTo(imageView1)
 image.bindTo(imageView2)
 ```
 
-> Method `shareNext` buffers results of the operation using `ActiveStream` type. To learn more about that, continue reading.
+> Method `shareNext` buffers results of the operation using `ObservableBuffer` type. To learn more about that, continue reading.
 
 ### Transformations
 

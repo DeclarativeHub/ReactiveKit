@@ -31,13 +31,17 @@ public final class Observable<Value>: ActiveStream<Value>, ObservableType {
   
   public var value: Value {
     didSet {
-      next(value)
+      super.next(value)
     }
   }
 
   public init(_ value: Value) {
     self.value = value
     super.init()
+  }
+
+  public override func next(event: Value) {
+    self.value = event
   }
 
   public override func observe(on context: ExecutionContext? = ImmediateOnMainExecutionContext, observer: Observer) -> DisposableType {
