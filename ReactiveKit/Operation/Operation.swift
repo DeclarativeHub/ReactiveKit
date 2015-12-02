@@ -102,7 +102,7 @@ public extension OperationType {
     }
   }
   
-  public func observeNext(on context: ExecutionContext = ImmediateOnMainExecutionContext, observer: Value -> ()) -> DisposableType {
+  public func observeNext(on context: ExecutionContext? = ImmediateOnMainExecutionContext, observer: Value -> ()) -> DisposableType {
     return self.observe(on: context) { event in
       switch event {
       case .Next(let event):
@@ -112,7 +112,7 @@ public extension OperationType {
     }
   }
   
-  public func observeError(on context: ExecutionContext = ImmediateOnMainExecutionContext, observer: Error -> ()) -> DisposableType {
+  public func observeError(on context: ExecutionContext? = ImmediateOnMainExecutionContext, observer: Error -> ()) -> DisposableType {
     return self.observe(on: context) { event in
       switch event {
       case .Failure(let error):
@@ -123,7 +123,7 @@ public extension OperationType {
   }
   
   @warn_unused_result
-  public func shareNext(limit: Int = Int.max, context: ExecutionContext = ImmediateOnMainExecutionContext) -> ObservableBuffer<Value> {
+  public func shareNext(limit: Int = Int.max, context: ExecutionContext? = nil) -> ObservableBuffer<Value> {
     return ObservableBuffer(limit: limit) { observer in
       return self.observeNext(on: context, observer: observer)
     }
