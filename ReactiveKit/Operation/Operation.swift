@@ -189,8 +189,8 @@ public extension OperationType {
     return create { observer in
       let serialDisposable = SerialDisposable(otherDisposable: nil)
       
-      var attempt: (() -> Void)!
-      
+      var attempt: (() -> Void)?
+
       attempt = {
         serialDisposable.otherDisposable?.dispose()
         serialDisposable.otherDisposable = self.observe(on: nil) { event in
@@ -198,7 +198,7 @@ public extension OperationType {
           case .Failure(let error):
             if count > 0 {
               count--
-              attempt()
+              attempt?()
             } else {
               observer.failure(error)
             }
@@ -208,8 +208,11 @@ public extension OperationType {
         }
       }
       
-      attempt()
-      return serialDisposable
+      attempt?()
+      return BlockDisposable {
+        serialDisposable.dispose()
+        attempt = nil
+      }
     }
   }
   
