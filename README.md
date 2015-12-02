@@ -52,7 +52,7 @@ Actually, because it's only natural to bind text to a label, as simple as:
 name.bindTo(nameLabel)
 ```
 
-> Method `bindTo` internally uses `observe` so it will update the target object on the main thread (queue) by default. That means that you can update the observable from a background thread without worrying how your UI will be updated - it will always happen on the main thread. You can change default behaviour by passing another exection context to the `bindTo` method.
+> Observables provided by ReactiveUIKit will update the target object on the main thread (queue) by default. That means that you can update the observable from a background thread without worrying how your UI will be updated - it will always happen on the main thread. You can change default behaviour by passing another exection context to the `bindTo` method.
 
 
 ## Observable Collections
@@ -235,7 +235,7 @@ fetchImage(url: ...).bindNextTo(imageView)
 Whenever the observer is registered, the operation starts all over again. To share results of a single operation run, use `shareNext` method.
 
 ```swift
-let image = fetchImage(url: ...).shareNext
+let image = fetchImage(url: ...).shareNext()
 image.bindTo(imageView1)
 image.bindTo(imageView2)
 ```
@@ -363,7 +363,7 @@ public enum OperationEvent<Value, Error: ErrorType> {
 
 ReactiveKit uses simple concept of execution contexts inspired by [BrightFutures](https://github.com/Thomvis/BrightFutures) to handle threading.
 
-When you want to receive events on the same thread on which they were generated, just pass `ImmediateExecutionContext`. When you want to receive them on a specific dispatch queue, just use `context` extension of dispatch queue wrapper type `Queue`, for example: `Queue.main.context`. 
+When you want to receive events on the same thread on which they were generated, just pass `nil` for the execution context parameter. When you want to receive them on a specific dispatch queue, just use `context` extension of dispatch queue wrapper type `Queue`, for example: `Queue.main.context`.
 
 ## Why another FRP framework?
 
