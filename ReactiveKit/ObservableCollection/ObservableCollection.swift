@@ -35,7 +35,19 @@ public protocol ObservableCollectionType: CollectionType, StreamType {
 
 public final class ObservableCollection<Collection: CollectionType>: ActiveStream<ObservableCollectionEvent<Collection>>, ObservableCollectionType {
 
-  private var collectionEvent: ObservableCollectionEvent<Collection>! = nil
+  public typealias WillSetBlockType = (value: Collection, newValue: Collection) -> ()
+  private var willSetBlock : WillSetBlockType?
+  public typealias DidSetBlockType = (oldValue: Collection, value: Collection) -> ()
+  private var didSetBlock : DidSetBlockType?
+
+  private var collectionEvent: ObservableCollectionEvent<Collection>! = nil {
+    willSet {
+      willSetBlock?(value: collection, newValue:newValue.collection)
+    }
+    didSet {
+      didSetBlock?(oldValue: oldValue.collection, value: collection)
+    }
+  }
 
   public var collection: Collection {
     return collectionEvent.collection
@@ -59,6 +71,16 @@ public final class ObservableCollection<Collection: CollectionType>: ActiveStrea
     let disposable = super.observe(on: context, observer: observer)
     observer(collectionEvent)
     return disposable
+  }
+
+  public func willSet(willSetBlock: WillSetBlockType?) -> ObservableCollection<Collection> {
+    self.willSetBlock = willSetBlock
+    return self
+  }
+    
+  public func didSet(didSetBlock: DidSetBlockType?) -> ObservableCollection<Collection> {
+    self.didSetBlock = didSetBlock
+    return self
   }
   
   // MARK: CollectionType conformance

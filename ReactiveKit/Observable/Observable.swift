@@ -28,9 +28,17 @@ public protocol ObservableType: StreamType {
 }
 
 public final class Observable<Value>: ActiveStream<Value>, ObservableType {
+  public typealias WillSetBlockType = (value: Value, newValue: Value) -> ()
+  private var willSetBlock : WillSetBlockType?
+  public typealias DidSetBlockType = (oldValue: Value, value: Value) -> ()
+  private var didSetBlock : DidSetBlockType?
   
   public var value: Value {
+    willSet {
+      willSetBlock?(value: value, newValue:newValue)
+    }
     didSet {
+      didSetBlock?(oldValue: oldValue, value:value)
       super.next(value)
     }
   }
@@ -49,4 +57,15 @@ public final class Observable<Value>: ActiveStream<Value>, ObservableType {
     observer(value)
     return disposable
   }
+
+  public func willSet(willSetBlock: WillSetBlockType?) -> Observable<Value> {
+    self.willSetBlock = willSetBlock
+    return self
+  }
+
+  public func didSet(didSetBlock: DidSetBlockType?) -> Observable<Value> {
+    self.didSetBlock = didSetBlock
+    return self
+  }
+
 }
