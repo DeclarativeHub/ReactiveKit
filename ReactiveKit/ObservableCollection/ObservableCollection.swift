@@ -35,14 +35,14 @@ public protocol ObservableCollectionType: CollectionType, StreamType {
 
 public final class ObservableCollection<Collection: CollectionType>: ActiveStream<ObservableCollectionEvent<Collection>>, ObservableCollectionType {
 
-  private var collectionEvent: ObservableCollectionEvent<Collection>! = nil
+  private var _collection: Collection! = nil
 
   public var collection: Collection {
-    return collectionEvent.collection
+    return _collection
   }
 
   public init(_ collection: Collection) {
-    collectionEvent = ObservableCollectionEvent.initial(collection)
+    _collection = collection
     super.init()
   }
   
@@ -51,13 +51,13 @@ public final class ObservableCollection<Collection: CollectionType>: ActiveStrea
   }
 
   public override func next(event: ObservableCollectionEvent<Collection>) {
-    collectionEvent = event
+    _collection = event.collection
     super.next(event)
   }
 
   public override func observe(on context: ExecutionContext? = ImmediateOnMainExecutionContext, observer: Observer) -> DisposableType {
     let disposable = super.observe(on: context, observer: observer)
-    observer(collectionEvent)
+    observer(ObservableCollectionEvent.initial(collection))
     return disposable
   }
   
