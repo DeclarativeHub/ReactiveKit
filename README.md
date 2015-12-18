@@ -1,4 +1,4 @@
-# ReactiveKit
+![](Assets/logo.png)
 
 __ReactiveKit__ is a collection of Swift frameworks for reactive and functional reactive programming.
 
