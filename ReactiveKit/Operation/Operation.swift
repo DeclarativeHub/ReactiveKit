@@ -215,7 +215,129 @@ public extension OperationType {
       }
     }
   }
-  
+
+  @warn_unused_result
+  public func take(count: Int) -> Operation<Value, Error> {
+    return create { observer in
+
+      if count <= 0 {
+        observer.success()
+        return nil
+      }
+
+      var taken = 0
+
+      let serialDisposable = SerialDisposable(otherDisposable: nil)
+      serialDisposable.otherDisposable = self.observe(on: nil) { event in
+
+        switch event {
+        case .Next(let value):
+          if taken < count {
+            taken += 1
+            observer.next(value)
+          }
+          if taken == count {
+            observer.success()
+            serialDisposable.otherDisposable?.dispose()
+          }
+        default:
+          observer.observer(event)
+        }
+      }
+
+      return serialDisposable
+    }
+  }
+
+  @warn_unused_result
+  public func first() -> Operation<Value, Error> {
+    return take(1)
+  }
+
+  @warn_unused_result
+  public func takeLast(count: Int = 1) -> Operation<Value, Error> {
+    return create { observer in
+
+      var values: [Value] = []
+      values.reserveCapacity(count)
+
+      return self.observe(on: nil) { event in
+
+        switch event {
+        case .Next(let value):
+          while values.count + 1 > count {
+            values.removeFirst()
+          }
+          values.append(value)
+        case .Success:
+          values.forEach(observer.next)
+          observer.success()
+        default:
+          observer.observer(event)
+        }
+      }
+    }
+  }
+
+  @warn_unused_result
+  public func last() -> Operation<Value, Error> {
+    return takeLast(1)
+  }
+
+  @warn_unused_result
+  public func pausable<S: StreamType where S.Event == Bool>(by: S) -> Operation<Value, Error> {
+    return create { observer in
+
+      var allowed: Bool = true
+
+      let compositeDisposable = CompositeDisposable()
+      compositeDisposable += by.observe(on: nil) { value in
+        allowed = value
+      }
+
+      compositeDisposable += self.observe(on: nil) { event in
+        switch event {
+        case .Next(let value):
+          if allowed {
+            observer.next(value)
+          }
+        default:
+          observer.observer(event)
+        }
+      }
+
+      return compositeDisposable
+    }
+  }
+
+  @warn_unused_result
+  public func scan<U>(initial: U, _ combine: (U, Value) -> U) -> Operation<U, Error> {
+    return create { observer in
+
+      var scanned = initial
+
+      return self.observe(on: nil) { event in
+        observer.observer(event.map { value in
+          scanned = combine(scanned, value)
+          return scanned
+        })
+      }
+    }
+  }
+
+  @warn_unused_result
+  public func reduce<U>(initial: U, _ combine: (U, Value) -> U) -> Operation<U, Error> {
+    return Operation<U, Error> { observer in
+      observer.next(initial)
+      return self.scan(initial, combine).observe(on: nil, observer: observer.observer)
+    }.takeLast()
+  }
+
+  @warn_unused_result
+  public func collect() -> Operation<[Value], Error> {
+    return reduce([], { memo, new in memo + [new] })
+  }
+
   @warn_unused_result
   public func combineLatestWith<S: OperationType where S.Error == Error>(other: S) -> Operation<(Value, S.Value), Error> {
     return create { observer in

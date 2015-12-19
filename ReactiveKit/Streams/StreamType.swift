@@ -148,6 +148,27 @@ extension StreamType {
       }
     }
   }
+
+  @warn_unused_result
+  public func pausable<S: StreamType where S.Event == Bool>(by: S) -> Stream<Event> {
+    return create { observer in
+
+      var allowed: Bool = false
+
+      let compositeDisposable = CompositeDisposable()
+      compositeDisposable += by.observe(on: nil) { value in
+        allowed = value
+      }
+
+      compositeDisposable += self.observe(on: nil) { event in
+        if allowed {
+          observer(event)
+        }
+      }
+
+      return compositeDisposable
+    }
+  }
   
   @warn_unused_result
   public func startWith(event: Event) -> Stream<Event> {
