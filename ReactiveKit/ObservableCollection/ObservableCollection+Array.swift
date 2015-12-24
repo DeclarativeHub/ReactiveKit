@@ -44,6 +44,16 @@ extension ObservableCollectionType where Collection == Array<Element> {
     new.insertContentsOf(newElements, at: index)
     next(ObservableCollectionEvent(collection: new, inserts: Array(index..<index+newElements.count), deletes: [], updates: []))
   }
+  
+  /// Move the element at index `i` to index `toIndex`.
+  public mutating func moveItemAtIndex(fromIndex: Int, toIndex: Int) {
+    let item = collection[fromIndex]
+    var new = collection
+    new.removeAtIndex(fromIndex)
+    new.insert(item, atIndex: toIndex)
+    let updates = Array(min(fromIndex, toIndex)...max(fromIndex, toIndex))
+    next(ObservableCollectionEvent(collection: new, inserts: [], deletes: [], updates: updates))
+  }
 
   /// Remove and return the element at index i.
   public mutating func removeAtIndex(index: Int) -> Collection.Generator.Element {
