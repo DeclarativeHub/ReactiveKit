@@ -28,9 +28,9 @@ public protocol ObservableType: StreamType {
 }
 
 public final class Observable<Value>: ActiveStream<Value>, ObservableType {
-  
+
   private var _value: Value
-  
+
   public var value: Value {
     get {
       return _value
@@ -40,24 +40,23 @@ public final class Observable<Value>: ActiveStream<Value>, ObservableType {
       super.next(newValue)
     }
   }
-  
+
   public init(_ value: Value) {
-    self._value = value
+    _value = value
     super.init()
   }
-  
+
   public override func next(event: Value) {
-    self.value = event
+    value = event
   }
-  
+
   public override func observe(on context: ExecutionContext? = ImmediateOnMainExecutionContext, observer: Observer) -> DisposableType {
     let disposable = super.observe(on: context, observer: observer)
     observer(value)
     return disposable
   }
-  
+
   public func silentUpdate(value: Value) {
-    self._value = value
+    _value = value
   }
-  
 }

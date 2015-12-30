@@ -36,7 +36,7 @@ public struct MutableObservableCollection<Collection: CollectionType>: Observabl
     observableCollection = ObservableCollection(collection)
   }
   
-  public mutating func next(event: ObservableCollectionEvent<Collection>) {
+  public func next(event: ObservableCollectionEvent<Collection>) {
     observableCollection.next(event)
   }
   

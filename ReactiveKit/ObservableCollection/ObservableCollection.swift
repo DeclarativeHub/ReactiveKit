@@ -28,7 +28,7 @@ public protocol ObservableCollectionType: CollectionType, StreamType {
   typealias Element = Collection.Generator.Element
   
   var collection: Collection { get }
-  mutating func next(event: ObservableCollectionEvent<Collection>)
+  func next(event: ObservableCollectionEvent<Collection>)
   
   func observe(on context: ExecutionContext?, observer: ObservableCollectionEvent<Collection> -> ()) -> DisposableType
 }
@@ -60,7 +60,22 @@ public final class ObservableCollection<Collection: CollectionType>: ActiveStrea
     observer(ObservableCollectionEvent.initial(collection))
     return disposable
   }
-  
+
+  /** 
+   Allows updating the observable collection without generation of the events.
+
+   ```
+   array.silentUpdate { array in
+     array.append(5)
+   }
+   ```
+  */
+  public func silentUpdate(@noescape perform: ObservableCollection<Collection> -> Void) {
+    let collection = ObservableCollection(self.collection)
+    perform(collection)
+    _collection = collection.collection
+  }
+
   // MARK: CollectionType conformance
   
   public func generate() -> Collection.Generator {
@@ -101,7 +116,7 @@ public func create<C: CollectionType>(producer: (ObservableCollectionEvent<C> ->
 
 public extension ObservableCollectionType {
   
-  public mutating func replace(newCollection: Collection) {
+  public func replace(newCollection: Collection) {
     let deletes = Array(collection.indices)
     let inserts = Array(newCollection.indices)
     next(ObservableCollectionEvent(collection: newCollection, inserts: inserts, deletes: deletes, updates: []))

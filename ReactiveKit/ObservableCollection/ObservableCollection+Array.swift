@@ -25,21 +25,21 @@
 extension ObservableCollectionType where Collection == Array<Element> {
 
   /// Append `newElement` to the array.
-  public mutating func append(newElement: Collection.Generator.Element) {
+  public func append(newElement: Collection.Generator.Element) {
     var new = collection
     new.append(newElement)
     next(ObservableCollectionEvent(collection: new, inserts: [collection.count], deletes: [], updates: []))
   }
 
   /// Insert `newElement` at index `i`.
-  public mutating func insert(newElement: Collection.Generator.Element, atIndex: Int)  {
+  public func insert(newElement: Collection.Generator.Element, atIndex: Int)  {
     var new = collection
     new.insert(newElement, atIndex: atIndex)
     next(ObservableCollectionEvent(collection: new, inserts: [atIndex], deletes: [], updates: []))
   }
 
   /// Insert elements `newElements` at index `i`.
-  public mutating func insertContentsOf(newElements: [Collection.Generator.Element], at index: Collection.Index) {
+  public func insertContentsOf(newElements: [Collection.Generator.Element], at index: Collection.Index) {
     var new = collection
     new.insertContentsOf(newElements, at: index)
     next(ObservableCollectionEvent(collection: new, inserts: Array(index..<index+newElements.count), deletes: [], updates: []))
@@ -56,7 +56,7 @@ extension ObservableCollectionType where Collection == Array<Element> {
   }
 
   /// Remove and return the element at index i.
-  public mutating func removeAtIndex(index: Int) -> Collection.Generator.Element {
+  public func removeAtIndex(index: Int) -> Collection.Generator.Element {
     var new = collection
     let element = new.removeAtIndex(index)
     next(ObservableCollectionEvent(collection: new, inserts: [], deletes: [index], updates: []))
@@ -64,7 +64,7 @@ extension ObservableCollectionType where Collection == Array<Element> {
   }
 
   /// Remove an element from the end of the array in O(1).
-  public mutating func removeLast() -> Collection.Generator.Element {
+  public func removeLast() -> Collection.Generator.Element {
     var new = collection
     let element = new.removeLast()
     next(ObservableCollectionEvent(collection: new, inserts: [], deletes: [new.count], updates: []))
@@ -72,7 +72,7 @@ extension ObservableCollectionType where Collection == Array<Element> {
   }
 
   /// Remove all elements from the array.
-  public mutating func removeAll() {
+  public func removeAll() {
     let deletes = Array(0..<collection.count)
     next(ObservableCollectionEvent(collection: [], inserts: [], deletes: deletes, updates: []))
   }
@@ -101,7 +101,7 @@ extension ObservableCollectionType where Collection == Array<Element>, Element: 
   ///         `insertes` indices.
   ///
   /// - Complexity: O(1) if `performDiff == false`. Otherwise O(`collection.count * newCollection.count`).
-  public mutating func replace(newCollection: Collection, performDiff: Bool) {
+  public func replace(newCollection: Collection, performDiff: Bool) {
     if performDiff {
       var inserts: [Int] = []
       var deletes: [Int] = []
