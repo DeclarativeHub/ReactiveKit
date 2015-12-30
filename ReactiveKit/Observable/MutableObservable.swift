@@ -42,4 +42,8 @@ public struct MutableObservable<Value>: ObservableType {
   public func observe(on context: ExecutionContext? = ImmediateOnMainExecutionContext, observer: Value -> ()) -> DisposableType {
     return observable.observe(on: context, observer: observer)
   }
+  
+  public func silentUpdate(value: Value) {
+    observable.silentUpdate(value)
+  }
 }

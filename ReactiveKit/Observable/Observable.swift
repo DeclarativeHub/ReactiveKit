@@ -29,24 +29,35 @@ public protocol ObservableType: StreamType {
 
 public final class Observable<Value>: ActiveStream<Value>, ObservableType {
   
+  private var _value: Value
+  
   public var value: Value {
-    didSet {
-      super.next(value)
+    get {
+      return _value
+    }
+    set {
+      _value = newValue
+      super.next(newValue)
     }
   }
-
+  
   public init(_ value: Value) {
-    self.value = value
+    self._value = value
     super.init()
   }
-
+  
   public override func next(event: Value) {
     self.value = event
   }
-
+  
   public override func observe(on context: ExecutionContext? = ImmediateOnMainExecutionContext, observer: Observer) -> DisposableType {
     let disposable = super.observe(on: context, observer: observer)
     observer(value)
     return disposable
   }
+  
+  public func silentUpdate(value: Value) {
+    self._value = value
+  }
+  
 }
