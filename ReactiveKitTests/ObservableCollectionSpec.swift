@@ -66,6 +66,48 @@ class ObservableCollectionSpec: QuickSpec {
             expect(observedEvents[1]).to(equal(ObservableCollectionEvent(collection: [1, 10, 11, 2, 3], inserts: [1, 2], deletes: [], updates: [])))
           }
         }
+        
+        describe("moveItemAtIndex") {
+          describe("fromFirstToLast") {
+            beforeEach {
+              observableCollection.moveItemAtIndex(0, toIndex: 2)
+            }
+            
+            it("movesAndUpdatesAllIndexes") {
+              expect(observedEvents[1]).to(equal(ObservableCollectionEvent(collection: [2, 3, 1], inserts: [], deletes: [], updates: [0, 1, 2])))
+            }
+          }
+          
+          describe("fromFirstToSecond") {
+            beforeEach {
+              observableCollection.moveItemAtIndex(0, toIndex: 1)
+            }
+            
+            it("movesAndUpdatesAffectedIndexes") {
+              expect(observedEvents[1]).to(equal(ObservableCollectionEvent(collection: [2, 1, 3], inserts: [], deletes: [], updates: [0, 1])))
+            }
+          }
+          
+          describe("fromLastToFirst") {
+            beforeEach {
+              observableCollection.moveItemAtIndex(2, toIndex: 0)
+            }
+            
+            it("movesAndUpdatesAllIndexes") {
+              expect(observedEvents[1]).to(equal(ObservableCollectionEvent(collection: [3, 1, 2], inserts: [], deletes: [], updates: [0, 1, 2])))
+            }
+          }
+          
+          describe("fromLastToSecond") {
+            beforeEach {
+              observableCollection.moveItemAtIndex(2, toIndex: 1)
+            }
+            
+            it("movesAndUpdatesAffectedIndexes") {
+              expect(observedEvents[1]).to(equal(ObservableCollectionEvent(collection: [1, 3, 2], inserts: [], deletes: [], updates: [1, 2])))
+            }
+          }
+        }
 
         describe("removeAtIndex") {
           beforeEach {

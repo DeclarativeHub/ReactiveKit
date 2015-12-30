@@ -42,6 +42,13 @@ public struct ObservableCollectionEvent<Collection: CollectionType>: ObservableC
   public static func initial(collection: Collection) -> ObservableCollectionEvent<Collection> {
     return ObservableCollectionEvent(collection: collection, inserts: [], deletes: [], updates: [])
   }
+
+  public init(collection: Collection, inserts: [Collection.Index], deletes: [Collection.Index], updates: [Collection.Index]) {
+    self.collection = collection
+    self.inserts = inserts
+    self.deletes = deletes
+    self.updates = updates
+  }
 }
 
 public extension ObservableCollectionEvent {

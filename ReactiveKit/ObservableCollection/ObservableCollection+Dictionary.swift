@@ -55,7 +55,7 @@ extension ObservableCollectionType where Index: DictionaryIndexType, Collection 
     }
   }
 
-  public mutating func updateValue(value: Index.Value, forKey key: Index.Key) -> Index.Value? {
+  public func updateValue(value: Index.Value, forKey key: Index.Key) -> Index.Value? {
     var new = collection
     if let index = new.indexForKey(key) {
       let oldValue = new.updateValue(value, forKey: key)
@@ -69,7 +69,7 @@ extension ObservableCollectionType where Index: DictionaryIndexType, Collection 
     }
   }
 
-  public mutating func removeValueForKey(key: Index.Key) -> Index.Value? {
+  public func removeValueForKey(key: Index.Key) -> Index.Value? {
     if let index = collection.indexForKey(key) {
       var new = collection
       let oldValue = new.removeValueForKey(key)

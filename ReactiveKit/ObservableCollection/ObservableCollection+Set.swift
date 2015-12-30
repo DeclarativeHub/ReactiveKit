@@ -38,7 +38,7 @@ extension ObservableCollectionType where Element: Hashable, Collection == Set<El
     }
   }
   
-  public mutating func insert(member: Collection.Generator.Element) {
+  public func insert(member: Collection.Generator.Element) {
     var new  = collection
     new.insert(member)
     
@@ -49,7 +49,7 @@ extension ObservableCollectionType where Element: Hashable, Collection == Set<El
     }
   }
   
-  public mutating func remove(member: Collection.Generator.Element) -> Collection.Generator.Element? {
+  public func remove(member: Collection.Generator.Element) -> Collection.Generator.Element? {
     var new = collection
     
     if let index = collection.indexOf(member) {
