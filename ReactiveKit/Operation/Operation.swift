@@ -201,9 +201,11 @@ public extension OperationType {
               attempt?()
             } else {
               observer.failure(error)
+              attempt = nil
             }
           default:
             observer.observer(event._unbox)
+            attempt = nil
           }
         }
       }
