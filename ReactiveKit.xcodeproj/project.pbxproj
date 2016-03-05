@@ -199,7 +199,7 @@
 		ECBCCE011BEB6BBE00723476 /* Queue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Queue.swift; sourceTree = "<group>"; };
 		ECBCCE041BEB6BBE00723476 /* ActiveStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActiveStream.swift; sourceTree = "<group>"; };
 		ECBCCE051BEB6BBE00723476 /* Stream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Stream.swift; sourceTree = "<group>"; };
-		ECBCCE061BEB6BBE00723476 /* StreamType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamType.swift; sourceTree = "<group>"; };
+		ECBCCE061BEB6BBE00723476 /* StreamType.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = StreamType.swift; sourceTree = "<group>"; tabWidth = 2; };
 		ECBCCE2A1BEB6BE100723476 /* NoError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NoError.swift; path = ../Operation/NoError.swift; sourceTree = "<group>"; };
 		ECBCCE2B1BEB6BE100723476 /* Stream+Operation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Stream+Operation.swift"; sourceTree = "<group>"; };
 		ECBCCE2C1BEB6BE100723476 /* Operation.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = Operation.swift; sourceTree = "<group>"; tabWidth = 2; };

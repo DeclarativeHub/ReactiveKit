@@ -137,6 +137,31 @@ extension StreamType {
   }
   
   @warn_unused_result
+  public func take(count:Int) -> Stream<Self.Event> {
+    return create { observer in
+      
+      var remainder = count
+      let outerDisposable = CompositeDisposable()
+      
+      let disposable = self.observe(on: nil, observer: { event in
+        if remainder > 0{
+          remainder--
+          
+          observer(event)
+        }
+        if remainder == 0{
+          outerDisposable.dispose()
+        }
+      })
+      
+      outerDisposable.addDisposable(disposable)
+      return outerDisposable
+    }
+  }
+  
+
+  
+  @warn_unused_result
   public func skip(var count: Int) -> Stream<Event> {
     return create { observer in
       return self.observe(on: nil) { event in
