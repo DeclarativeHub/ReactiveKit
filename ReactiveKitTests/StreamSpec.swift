@@ -184,6 +184,81 @@ class StreamSpec: QuickSpec {
           }
         }
       }
+        
+      context("when taking 0") {
+        var observedEvents: [Int] = []
+        var disposable: DisposableType!
+        
+        beforeEach {
+          disposable = stream.take(0).observe(on: ImmediateExecutionContext) {
+            observedEvents.append($0)
+          }
+        }
+        
+        it("does takes nothing") {
+          expect(observedEvents) == []
+        }
+        
+        describe("can be disposed") {
+          beforeEach {
+            disposable.dispose()
+          }
+          
+          it("is disposed") {
+            expect(simpleDisposable.isDisposed).to(beTrue())
+          }
+        }
+      }
+        
+      context("when taking 1") {
+        var observedEvents: [Int] = []
+        var disposable: DisposableType!
+        
+        beforeEach {
+          disposable = stream.take(1).observe(on: ImmediateExecutionContext) {
+            observedEvents.append($0)
+          }
+        }
+        
+        it("does take only 1") {
+          expect(observedEvents) == [1]
+        }
+        
+        describe("can be disposed") {
+          beforeEach {
+            disposable.dispose()
+          }
+          
+          it("is disposed") {
+            expect(simpleDisposable.isDisposed).to(beTrue())
+          }
+        }
+      }
+        
+      context("when taking 2") {
+        var observedEvents: [Int] = []
+        var disposable: DisposableType!
+        
+        beforeEach {
+          disposable = stream.take(2).observe(on: ImmediateExecutionContext) {
+            observedEvents.append($0)
+          }
+        }
+        
+        it("does takes 1 and 2") {
+          expect(observedEvents) == [1,2]
+        }
+        
+        describe("can be disposed") {
+          beforeEach {
+            disposable.dispose()
+          }
+          
+          it("is disposed") {
+            expect(simpleDisposable.isDisposed).to(beTrue())
+          }
+        }
+      }
       
       context("when skip by 1") {
         var observedEvents: [Int] = []
