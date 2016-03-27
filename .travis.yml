@@ -6,7 +6,7 @@ matrix:
 
 before_install:
   - bash install_carthage_pkg.sh 0.15.2
-- before_script:
+before_script:
   - carthage bootstrap --platform iOS
-- script:
+script:
   - xctool sdk iphonesimulator -workspace ReactiveKit.xcworkspace  -scheme ReactiveKit-iOS clean build test
