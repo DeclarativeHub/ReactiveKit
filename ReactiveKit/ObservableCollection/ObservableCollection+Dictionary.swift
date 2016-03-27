@@ -23,8 +23,8 @@
 //
 
 public protocol DictionaryIndexType {
-  typealias Key: Hashable
-  typealias Value
+  associatedtype Key: Hashable
+  associatedtype Value
   func successor() -> DictionaryIndex<Key, Value>
 }
 

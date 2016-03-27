@@ -58,23 +58,24 @@ extension Array where Element: Equatable {
 
     // Backtrack to find out the diff
     var backtrack: [DiffStep<Element>] = []
-    for var i = xLen, j = yLen; i > 0 || j > 0; {
-      if i == 0 {
-        j--
-        backtrack.append(.Insert(element: y[j], index: j))
-      } else if j == 0 {
-        i--
-        backtrack.append(.Delete(element: x[i], index: i))
-      } else if table[i][j] == table[i][j - 1] {
-        j--
-        backtrack.append(.Insert(element: y[j], index: j))
-      } else if table[i][j] == table[i - 1][j] {
-        i--
-        backtrack.append(.Delete(element: x[i], index: i))
-      } else {
-        i--
-        j--
-      }
+    var i = xLen, j = yLen
+    while i > 0 || j > 0 {
+        if i == 0 {
+            j -= 1
+            backtrack.append(.Insert(element: y[j], index: j))
+        } else if j == 0 {
+            i -= 1
+            backtrack.append(.Delete(element: x[i], index: i))
+        } else if table[i][j] == table[i][j - 1] {
+            j -= 1
+            backtrack.append(.Insert(element: y[j], index: j))
+        } else if table[i][j] == table[i - 1][j] {
+            i -= 1
+            backtrack.append(.Delete(element: x[i], index: i))
+        } else {
+            i -= 1
+            j -= 1
+        }
     }
 
     // Reverse the result

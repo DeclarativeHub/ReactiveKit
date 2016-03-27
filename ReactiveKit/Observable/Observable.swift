@@ -23,7 +23,7 @@
 //
 
 public protocol ObservableType: StreamType {
-  typealias Value
+  associatedtype Value
   var value: Value { get set }
 }
 

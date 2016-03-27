@@ -23,8 +23,8 @@
 //
 
 public protocol OperationEventType {
-  typealias Value
-  typealias Error: ErrorType
+  associatedtype Value
+  associatedtype Error: ErrorType
   
   var _unbox: OperationEvent<Value, Error> { get }
 }
