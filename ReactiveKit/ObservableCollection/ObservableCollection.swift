@@ -23,9 +23,9 @@
 //
 
 public protocol ObservableCollectionType: CollectionType, StreamType {
-  typealias Collection: CollectionType
-  typealias Index = Collection.Index
-  typealias Element = Collection.Generator.Element
+  associatedtype Collection: CollectionType
+  associatedtype Index = Collection.Index
+  associatedtype Element = Collection.Generator.Element
   
   var collection: Collection { get }
   func next(event: ObservableCollectionEvent<Collection>)

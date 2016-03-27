@@ -23,7 +23,7 @@
 //
 
 public protocol ObservableCollectionEventType {
-  typealias Collection: CollectionType
+  associatedtype Collection: CollectionType
   
   var collection: Collection { get }
   

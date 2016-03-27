@@ -23,7 +23,7 @@
 //
 
 public protocol BindableType {
-  typealias Event
+  associatedtype Event
   
   /// Returns an observer that can be used to dispatch events to the receiver.
   /// Can accept a disposable that will be disposed on receiver's deinit.

@@ -23,8 +23,8 @@
 //
 
 public protocol OperationType: StreamType {
-  typealias Value
-  typealias Error: ErrorType
+  associatedtype Value
+  associatedtype Error: ErrorType
 
   func lift<U, F: ErrorType>(transform: Stream<OperationEvent<Value, Error>> -> Stream<OperationEvent<U, F>>) -> Operation<U, F>
   func observe(on context: ExecutionContext?, observer: OperationEvent<Value, Error> -> ()) -> DisposableType
@@ -185,7 +185,8 @@ public extension OperationType {
   }
   
   @warn_unused_result
-  public func retry(var count: Int) -> Operation<Value, Error> {
+  public func retry(count: Int) -> Operation<Value, Error> {
+    var _count = count
     return create { observer in
       let serialDisposable = SerialDisposable(otherDisposable: nil)
       
@@ -196,8 +197,8 @@ public extension OperationType {
         serialDisposable.otherDisposable = self.observe(on: nil) { event in
           switch event {
           case .Failure(let error):
-            if count > 0 {
-              count--
+            if _count > 0 {
+              _count -= 1
               attempt?()
             } else {
               observer.failure(error)
