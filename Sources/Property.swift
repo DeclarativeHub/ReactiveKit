@@ -1,7 +1,7 @@
 //
 //  The MIT License (MIT)
 //
-//  Copyright (c) 2015 Srdan Rasic (@srdanrasic)
+//  Copyright (c) 2016 Srdan Rasic (@srdanrasic)
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -22,41 +22,51 @@
 //  THE SOFTWARE.
 //
 
-public protocol ObservableType: StreamType {
-  typealias Value
-  var value: Value { get set }
+/// Represents a state as a stream of events.
+public protocol PropertyType: StreamType {
+  var value: Element { get set }
 }
 
-public final class Observable<Value>: ActiveStream<Value>, ObservableType {
+/// Represents a state as a stream of events.
+public final class Property<T>: PropertyType {
 
-  private var _value: Value
+  private var _value: T
+  private let subject = PublishSubject<StreamEvent<T>>()
+  private let lock = RecursiveLock(name: "ReactiveKit.Property")
+  private let disposeBag = DisposeBag()
 
-  public var value: Value {
+  public var rawStream: RawStream<StreamEvent<T>> {
+    return subject.toRawStream().startWith(.Next(value))
+  }
+
+  /// Underlying value. Changing it emits `.Next` event with new value.
+  public var value: T {
     get {
+      lock.lock(); defer { lock.unlock() }
       return _value
     }
     set {
+      lock.lock(); defer { lock.unlock() }
       _value = newValue
-      super.next(newValue)
+      subject.next(newValue)
     }
   }
 
-  public init(_ value: Value) {
+  public init(_ value: T) {
     _value = value
-    super.init()
   }
 
-  public override func next(event: Value) {
-    value = event
+  deinit {
+    subject.completed()
   }
+}
 
-  public override func observe(on context: ExecutionContext? = ImmediateOnMainExecutionContext, observer: Observer) -> DisposableType {
-    let disposable = super.observe(on: context, observer: observer)
-    observer(value)
-    return disposable
-  }
-
-  public func silentUpdate(value: Value) {
-    _value = value
+extension Property: BindableType {
+  
+  /// Returns an observer that can be used to dispatch events to the receiver.
+  /// Can accept a disposable that will be disposed on receiver's deinit.
+  public func observer(disconnectDisposable: Disposable) -> StreamEvent<T> -> () {
+    disposeBag.addDisposable(disconnectDisposable)
+    return { [weak self] in self?.subject.on($0) }
   }
 }

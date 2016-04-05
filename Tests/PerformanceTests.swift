@@ -14,11 +14,11 @@ class PerformanceTests: XCTestCase {
   func test1() {
     measureBlock {
       var counter: Int = 0
-      let observable = Observable(0)
+      let observable = Property(0)
 
-      observable.observe(on: nil) { counter += $0 }
+      let _ = observable.observeNext { counter += $0 }
 
-      for i in 1..<10000 {
+      for i in 1..<1000 {
         observable.value = i
       }
     }
@@ -27,13 +27,13 @@ class PerformanceTests: XCTestCase {
   func test2() {
     measureBlock {
       var counter: Int = 0
-      let observable = Observable(0)
+      let observable = Property(0)
 
       for _ in 1..<30 {
-        observable.observe(on: nil) { counter += $0 }
+        let _ = observable.observeNext { counter += $0 }
       }
 
-      for i in 1..<10000 {
+      for i in 1..<1000 {
         observable.value = i
       }
     }
@@ -41,14 +41,14 @@ class PerformanceTests: XCTestCase {
 
   func test_measure_3() {
     measureBlock {
-      let observable = Observable(0)
+      let observable = Property(0)
       var counter : Int = 0
 
       for _ in 1..<30 {
-        observable.filter{ $0 % 2 == 0 }.observe(on: nil) { counter += $0 }
+        let _ = observable.filter{ $0 % 2 == 0 }.observeNext { counter += $0 }
       }
 
-      for i in 1..<10000 {
+      for i in 1..<1000 {
         observable.value = i
       }
     }

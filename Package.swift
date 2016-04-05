@@ -1,7 +1,7 @@
 //
 //  The MIT License (MIT)
 //
-//  Copyright (c) 2015 Srdan Rasic (@srdanrasic)
+//  Copyright (c) 2016 Srdan Rasic (@srdanrasic)
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -22,18 +22,8 @@
 //  THE SOFTWARE.
 //
 
-public struct OperationObserver<Value, Error: ErrorType> {
-  public let observer: OperationEvent<Value, Error> -> ()
-  
-  public func next(event: Value) {
-    observer(.Next(event))
-  }
-  
-  public func success() {
-    observer(.Success)
-  }
-  
-  public func failure(error: Error) {
-    observer(.Failure(error))
-  }
-}
+import PackageDescription
+
+let package = Package(
+  name: "ReactiveKit"
+)

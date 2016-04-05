@@ -3,86 +3,324 @@
 __ReactiveKit__ is a collection of Swift frameworks for reactive and functional reactive programming.
 
 * [ReactiveKit](https://github.com/ReactiveKit/ReactiveKit) - A Swift Reactive Programming Kit.
-* [ReactiveFoundation](https://github.com/ReactiveKit/ReactiveFoundation) - NSFoundation extensions like type-safe KVO.
 * [ReactiveUIKit](https://github.com/ReactiveKit/ReactiveUIKit) - UIKit extensions that enable bindings.
 
-## Observables
+## Reactive Programming
 
-Updating the UI or performing other actions when underlying data changes is such a tedious task. It would be great if it could be done in automatic and safe fashion. `Observable` tries to solve that problem. It wraps mutable state into an object which enables observation of that state. Whenever the state changes, an observer can be notified.
+Apps transform data. They take some data as input or generate data by themselves, transform that data into another data and output new data to the user. An app could take computer-friendly response from an API, transform it to a user-friendly text with a photo or video and render an article to the user. An app could take readings from the magnetometer, transform them into an orientation angle and render a nice needle to the user. There are many examples, but the pattern is obvious.
 
-To create the observable, just initialize it with the initial value.
+Basic premise of reactive programming is that the output should be derived from the input in such way that whenever the input changes, the output is changed too. Whenever new magnetometer readings are received, needle is updated. In addition to that, if the input is derived into the output using functional constructs like pure or higher-order functions one gets functional reactive programming.
+
+ReactiveKit is a framework that provides mechanisms for leveraging functional reactive paradigm. It's based on ReactiveX API, but with flavours of its own. Instead of one *Observable* type, ReactiveKit offers two types, *Operation* and *Stream*, that are same on all fronts except that the former **can** error-out and the latter **cannot**. ReactiveKit also provides weak binding mechanism as well as reactive collection types.
+
+## Stream
+
+Main type that ReactiveKit provides is `Stream`. It's used to represent a stream of events. Event can be anything from a button tap to a voice command.
+
+Stream event is defined by `StreamEvent` type and looks like this:
 
 ```swift
-let name = Observable("Jim")
-```
-
-> `nil` is valid value for observables that wrap optional type.
-
-Observables are useful only if they are being observed. To register an observer, use `observe` method. You pass it a closure that accepts one argument - latest value.
-
-```swift
-name.observe { value in
-  print("Hi \(value)!")
+public enum StreamEvent<T> {
+  case Next(T)
+  case Completed
 }
 ```
 
-> When you register the observer, it will be immediately invoked with the current value of the observable so that snippet will print "Hi Jim!".
+Valid streams produce zero or more `.Next` events and always complete with `.Completed` event. Each `.Next` event contains an associated element - the actual value or object produced by the stream.
 
-To change value of the observable afterwards, just set the `value` property.
+### Creating Streams
+
+There are many ways to create streams. Main one is by using the constructor that accepts a producer closure. The closure has one argument - an observer to which you send events. To send next element, use `next` method of the observer. When there are no more elements to be generated, send completion event using `completed` method. For example, to create a stream that produces first three positive integers do:
 
 ```swift
-name.value = "Jim Kirk" // Prints: Hi Jim Kirk!
+let counter = Stream<Int> { observer in
+
+  // send first three positive integers
+  observer.next(1)
+  observer.next(2)
+  observer.next(3)
+
+  // complete
+  observer.completed()
+
+  return NotDisposable
+}
 ```
 
-Setting the value invokes all registered observers automatically. That's why we call this reactive programming.
+> Producer closure expects you to return a disposable. More about disposables can be found [here](#cancellation).
 
-> Observers registered with `observe` method will be by default invoked on the main thread (queue). You can change default behaviour by passing another [execution context](#threading) to the `observe` method.
+This is just an example of how to manually create streams. In reality, when you need to convert sequence to a stream, you will use following constructor.
 
-Observables cannot fail and they are guaranteed to always have a value. That makes them safe to represent the data that UI displays. To facilitate that use, observables are made to be bindable. They can be bound to any type conforming to `BindableType` protocol - observables being part of that company themselves.
+```swift
+let counter = Stream.sequence([1, 2, 3])
+```
 
-ReactiveUIKit extends various UIKit objects with observable properties. That makes bindings as simple as
+To create a stream that produces an integer every second, do
+
+```swift
+let counter = Stream<Int>.interval(1, queue: Queue.main)
+```
+
+> Note that this constructor requires a queue on which the events will be produced.
+
+For more constructors, refer to the code reference.
+
+### Observing Streams
+
+Stream is only useful if it's being observed. To observe stream, use `observe` method:
+
+```swift
+counter.observe { event in
+  print(event)
+}
+```
+
+That will print following:
+
+```
+Next(1)
+Next(2)
+Next(3)
+Completed
+```
+
+Most of the time we are interested only in the elements that the stream produces. Elements are associated with `.Next` events and to observe just them you do:
+
+```swift
+counter.observeNext { element in
+  print(element)
+}
+```
+
+That will print:
+
+```
+1
+2
+3
+```
+
+> Observing the stream actually starts the production of events. In other words, that producer closure we passed in the constructor is called only when you register an observer. If you register more that one observer, producer closure will be called once for each of them.
+
+> Observers will be by default invoked on the thread (queue) on which the producer generates events. You can change that behaviour by passing another [execution context](#threading) using the `observeOn` method.
+
+### Transforming Streams
+
+Streams can be transformed into another streams. Methods that transform streams are often called _operators_. For example, to convert our stream of positive integers into a stream of positive even integers we can do
+
+```swift
+let evenCounter = counter.map { $0 * 2 }
+```
+
+or to convert it to a stream of integers divisible by three
+
+```swift
+let divisibleByThree = counter.filter { $0 % 3 == 0 }
+```
+
+or to convert each element to another stream that just triples that element and merge those new streams by concatenating them one after another 
+
+```swift
+let tripled = counter.flatMap(.Concat) { number in
+  return Stream.sequence(Array(count: 3, repeatedValue: number))
+}
+``` 
+
+and so on... There are many operators available. For more info on them, check out code reference.
+
+### Sharing Results
+
+Whenever the observer is registered, the stream producer is executed all over again. To share results of a single execution, use `shareReplay` method.
+
+```swift
+let sharedCounter = counter.shareReplay()
+```
+
+### <a name="cancellation"></a> Cancellation
+
+Observing the stream returns a disposable object. When the disposable object gets disposed, it will notify the producer to stop producing events and also disable further event dispatches.
+
+If you do
+
+```swift
+let disposable = aStream.observeNext(...)
+```
+
+and later need to cancel the stream, just call `dispose`.
+
+```swift
+disposable.dispose()
+```
+
+From that point on the stream will not send any more events and the underlying task will be cancelled.
+
+### Bindings
+
+Streams cannot fail and that makes them safe to represent the data that UI displays. To facilitate that use, streams are made to be bindable. They can be bound to any type conforming to `BindableType` protocol.
+
+ReactiveUIKit framework extends various UIKit objects with bindable properties. For example, given
+
+```swift
+let name: Stream<String> = ...
+```
+
+you can do
 
 ```swift
 name.bindTo(nameLabel.rText)
 ```
 
-Actually, because it's only natural to bind text to a label, as simple as:
+Actually, because it's only natural to bind text to a label, you can do:
 
 ```swift
 name.bindTo(nameLabel)
 ```
 
-> Observables provided by ReactiveUIKit will update the target object on the main thread (queue) by default. That means that you can update the observable from a background thread without worrying how your UI will be updated - it will always happen on the main thread. You can change default behaviour by passing another exection context to the `bindTo` method.
+> Bindable properties provided by ReactiveUIKit will update the target object on the main thread (queue) by default. That means that the stream can generate events on a background thread without you worrying how the UI will be updated - it will always happen on the main thread.
+
+Bindings will automatically dispose themselves (i.e. cancel source streams) when the binding target gets deallocated. For example, if we do 
+
+```swift
+blurredImage().bindTo(imageView)
+```
+
+then the image processing will be automatically cancelled if the image view gets deallocated. Isn't that cool!
+
+### Hot Streams
+
+If you need hot streams, i.e. streams that can generate events regardless of the observers, you can use `PushStream` type:
+
+```swift
+let numbers = PushStream<Int>()
+
+numbers.observerNext { num in
+  print(num)
+}
+
+numbers.next(1) // prints: 1
+numbers.next(2) // prints: 2
+...
+```
+
+## Operation
+
+Another important type provided by ReactiveKit is `Operation`. It's just like the `Stream`, but the one that can error-out. Operations are used to represents tasks that can fail like fetching a network resource, reading a file and similar. Operations error-out by sending failure event. Here is how `OperationEvent` type is defined:
+
+```swift
+public enum OperationEvent<T, E: ErrorType> {
+  case Next(T)
+  case Failure(E)
+  case Completed
+}
+```
+
+Valid operations produce zero or more `.Next` events and always terminate with either a `.Completed` event or a `.Failure` event.
+
+Operations can be created, transformed and observed like streams. Additionally, `Operation` provides few additional methods to handle errors.
+
+One way to try to recover from an error is to just retry the operation again. To do so, just do
+
+```swift
+let betterFetch = fetchImage(url: ...).retry(3)
+```
+
+and smile thinking about how many number of lines would that take in the imperative paradigm.
+
+Errors that cannot be handled with retry will happen eventually. To recover from those, you can use `flatMapError`. It's an operator that maps an error into another operation.
+
+```swift
+fetchCurrentUser(token)
+  .flatMapError { error in
+    return Operation.just(User.Anonymous)
+  }
+  .observeNext { user in
+    print("Authenticated as \(user.fullname).")
+  }
+```
+
+### Converting Operations to Streams
+
+Operations are not bindable so at one point you'll want to convert them to streams. Worst way to do so is to just ignore and log any error that happens:
+
+```swift
+let image = fetchImage(url: ...).toStream(logError: true)
+```
+
+Better way is to provide a default value in case of an error:
+
+```swift
+let image = fetchImage(url: ...).toStream(recoverWith: Assets.placeholderImage)
+```
+
+Most powerful way is to `flatMapError` into another stream:
+
+```swift
+let image = fetchImage(url: ...).flatMapError { error in
+  return Stream<UIImage> ...
+}
+```
+
+There is no best way. Errors suck.
+
+## Property
+
+Property wraps mutable state into an object that enables observation of that state. Whenever the state changes, an observer can be notified.
+
+To create the property, just initialize it with the initial value.
+
+```swift
+let name = Property("Jim")
+```
+
+> `nil` is valid value for properties that wrap optional type.
+
+Properties are streams just like streams of `Stream` type. They can be transformed into another streams, observed and bound in the same manner as streams can be.
+
+For example, you can register an observer with `observe` or `observeNext` methods.
+
+```swift
+name.observeNext { value in
+  print("Hi \(value)!")
+}
+```
+
+> When you register an observer, it will be immediately invoked with the current value of the property so that snippet will print "Hi Jim!".
+
+To change value of the property afterwards, just set the `value` property.
+
+```swift
+name.value = "Jim Kirk" // Prints: Hi Jim Kirk!
+```
 
 
-## Observable Collections
+## Collection Property
 
-When working with collections knowing that the collection changed is usually not enough. Often we need to know how exactly did the collection change - what elements were updated, what inserted and what deleted. `ObservableCollection` enables exactly that. It wraps a collection in order to provide mechanisms for observation of fine-grained changes done to the collection itself. Events generated by observable collection contain both the new state of the collection (the collection itself) plus the information about what elements were inserted, updated or deleted.
+When working with collections knowing that the collection changed is usually not enough. Often we need to know how exactly did the collection change - what elements were updated, what inserted and what deleted. `CollectionProperty` enables exactly that. It wraps a collection in order to provide mechanisms for observation of fine-grained changes done to the collection itself. Events generated by collection property contain both the new state of the collection (the collection itself) plus the information about what elements were inserted, updated or deleted.
 
-To provide observable collection, just initialize it with the initial value. The type of the value you provide determines the type of the observable collection. You can provide an array, a dictionary or a set.
+To provide collection property, just initialize it with the initial value. The type of the value you provide determines the type of the collection property. You can provide an array, a dictionary or a set.
 
 
 ```swift
-let uniqueNumbers = ObservableCollection(Set([0, 1, 2]))
+let uniqueNumbers = CollectionProperty(Set([0, 1, 2]))
 ```
 
 ```swift
-let options = ObservableCollection(["enabled": "yes"])
+let options = CollectionProperty(["enabled": "yes"])
 ```
 
 ```swift
-let names: ObservableCollection(["Steve", "Tim"])
+let names: CollectionProperty(["Steve", "Tim"])
 ```
 
-When observing observable collection, events you receive will be a structs that contain detailed description of changes that happened.
+When observing collection property, events you receive will be structs that contain detailed description of changes that happened.
 
 ```swift
-names.observe { e in
+names.observeNext { e in
   print("array: \(e.collection), inserts: \(e.inserts), updates: \(e.updates), deletes: \(e.deletes)")
 }
 ```
 
-You work with the observable collection like you'd work with the collection it encapsulates.
+You work with the collection property like you'd work with the collection it encapsulates.
 
 ```swift
 names.append("John") // prints: array ["Steve", "Tim", "John"], inserts: [2], updates: [], deletes: []
@@ -90,10 +328,10 @@ names.removeLast()   // prints: array ["Steve", "Tim"], inserts: [], updates: []
 names[1] = "Mark"    // prints: array ["Steve", "Mark"], inserts: [], updates: [1], deletes: []
 ```
 
-Observable collections can be mapped, filtered and sorted. Let's say we have following obserable array:
+Collection properties can be mapped, filtered and sorted. Let's say we have following collection property:
 
 ```swift
-let numbers: ObservableCollection([2, 3, 1])
+let numbers = CollectionProperty([2, 3, 1])
 ```
 
 When we then do this:
@@ -114,10 +352,10 @@ Assert(evenNumbers.collection == [2, 4])
 Assert(sortedNumbers.collection == [1, 2, 3, 4])
 ```
 
-That enables us to build powerful UI bindings. With ReactiveUIKit, observable collection containing an array can be bound to `UITableView` or `UICollectionView`. Just provide a closure that creates cells to the `bindTo` method.
+That enables us to build powerful UI bindings. With ReactiveUIKit, collection property containing an array can be bound to `UITableView` or `UICollectionView`. Just provide a closure that creates cells to the `bindTo` method.
 
 ```swift
-let posts: ObservableCollection<[Post]> = ...
+let posts: CollectionProperty <[Post]> = ...
 
 posts.bindTo(tableView) { indexPath, posts, tableView in
   let cell = tableView.dequeueCellWithIdentifier("PostCell", forIndexPath: indexPath) as! PostCell
@@ -145,7 +383,7 @@ The resulting `sortedOptions` is of type `ObservableCollection<[(String, String)
 When you need to replace an array with another array, but need an event to contains fine-grained changes (for example to update table/collection view with nice animations), you can use method `replace:performDiff:`. For example, if you have
 
 ```swift
-let numbers: ObservableCollection([1, 2, 3])
+let numbers: CollectionProperty([1, 2, 3])
 ```
 
 and you do
@@ -164,225 +402,22 @@ Assert(event.deletes == [1])
 
 If that array was bound to a table or a collection view, the view would automatically animate only the changes from the *merge*. Helpful, isn't it.
 
-## Operation
-
-State change events are not the only events worth reacting upon. We can also react upon work being done. Anything that produces results can be made reactive. To enable that, ReactiveKit provides `Operation` type. Operation wraps a work that produces results into something that can be observed.
-
-To create an operation, pass a closure that performs actual work to the constructor. Closure has one argument - the observer whom you send events regarding operation state. To send one or more results, use `next` method of the observer. When operation successfully completes call `success` method, otherwise send the error using `failure` method.
-
-```swift
-func fetchImage(url: NSURL) -> Operation<UIImage, NSError> {
-  return Operation { observer in
-    let request = Alamofire.request(.GET, url: url).response { request, response, data, error in
-      if let error = error {
-        observer.failure(error)
-      } else {
-        observer.next(UIImage(imageWithData: data!))
-        observer.success()
-      }
-    }
-    return BlockDisposable {
-      request.cancel()
-    }
-  }
-}
-```
-
-> Closure should return a disposable that will cancel the operation. If operation cannot be cancelled, return `nil`.
-
-Operation can send any number of `.Next` events followed by one terminating event - either a `.Success` or a `.Failure`. No events will ever be sent (accepted) after the terminating event has been sent.
-
-Creating the operation doesn't do any work by itself. To start producing results, operation has to be started. Operation will be automatically started when you register an observer to it.
-
-```swift
-fetchImage(url: ...).observe { event in
-  switch event {
-    case .Next(let image):
-  	  print("Operation produced an image \(image).")
-    case .Success:
-  	  print("Operation completed successfully.")
-    case .Failure(let error):
-  	  print("Operation failed with error \(error).")
-  }
-}
-```
-
-> Observers registered with `observe` method will be by default invoked on the main thread (queue). You can change default behaviour by passing another [execution context](#threading) to the `observe` method.
-
-The observer you register with the operation is actually the one that will be passed to the closure that was provided in operation constructor (the one that does the actual work) - just wrapped into a struct that simplifies sending result. You see how the operation is just a light wrapper around a closure, but that abstraction enables powerful paradigm.
-
-### Observing  results
-
-When you're interested in just results of the operation and you don't care when it completes or if it fails, you can use `*Next` family of methods. To observe results of the operation, you would use `observeNext`.
-
-```swift
-fetchImage(url: ...).observeNext { image in
-  imageView.image = image
-}
-```
-
-### Bindings
-
-To bind results with ReactiveUIKit, do something like:
-
-```swift
-fetchImage(url: ...).bindNextTo(imageView)
-```
-
-> `bindNextTo` by default delivers result on the main queue so you don't have to worry about threads.
-
-### Sharing results
-Whenever the observer is registered, the operation starts all over again. To share results of a single operation run, use `shareNext` method.
-
-```swift
-let image = fetchImage(url: ...).shareNext()
-image.bindTo(imageView1)
-image.bindTo(imageView2)
-```
-
-> Method `shareNext` buffers results of the operation using `ObservableBuffer` type. To learn more about that, continue reading.
-
-### Transformations
-
-Operations can be transformed into another operations. For example, to create an operation that fetches and then blurs the image, we would just map the operation we already have for image fetching.
-
-```swift
-func fetchAndBlurImage(url: NSURL) -> Operation<UIImage, NSError> {
-  return fetchImage(url: url).map { $0.blurred() }
-}
-```
-
-If we expect lousy network, we can have our fetch operation retry few times before giving up.
-
-```swift
-fetchImage(url: ...).retry(3).bindNextTo(imageView)
-```
-> The operation will be retried only if it fails.
-
-Operations enable us to model business logic using simple composition. Let's say we have an operation that does the authentication and the one that can fetch current user for the given authentication token.
-
-```swift
-func authenticate(username: String, password: String) -> Operation<Token, NSError>
-func fetchCurrentUser(token: Token) -> Operation<User, NSError>
-```
-
-When we then need to get a user for given login, we do:
-
-```swift
-authenticate(username: ..., password: ...)
-  .flatMap(.Latest) { token in
-    return fetchCurrentUser(token)
-  }
-  .observeNext { user in
-    print("Authenticated as \(user.fullname).")
-  }
-```
-
-### Cancellation
-
-Observing the operation (or the observable, for that matter) returns a disposable object. When the disposable object gets disposed, it will cancel the operation (and all ancestor operations if our operation was a composition of multiple operations). So, store it in a variable
-
-```swift
-let disposable = fetchImage(url: ...).observe(...)
-```
-
-and when you later need to cancel the operation, just call `dispose`.
-
-```swift
-disposable.dispose()
-```
-
-From that point on the operation will not send any more events and the underlying task will be cancelled.
-
-Bindings will automatically dispose themselves (i.e. cancel source operations) when the binding target gets deallocated. For example, if we do 
-
-```swift
-fetchImage(url: ...).bindNextTo(imageView)
-```
-
-then the image downloading will be automatically cancelled when the image view is deallocated. Isn't that cool!
-
-
-## Streams
-
-Observable, observable collection and operation are all streams that conform to `StreamType` protocol. Basic requirement of a stream is that it produces events that can be observed.
-
-```swift
-public protocol StreamType {
-  typealias Event
-  func observe(on context: ExecutionContext, sink: Event -> ()) -> DisposableType
-}
-```
-
-Observable, observable collection and operation differ in events they generate and whether their observation can cause side-effects or not.
-
-Observable generates events of the same type it encapsulates. 
-
-```swift
-Observable<Int>(0).observe { (event: Int) in ... }
-```
-
-On the other hand, observable collection generates events of `ObservableCollectionEvent` type. It's a struct that contains both the collection itself plus the change-set that describes performed operation.
-
-```swift
-ObservableCollection<[Int]>([0, 1, 2]).observe { (event: ObservableCollectionEvent<[Int]>) in ... }
-```
-
-```swift
-public struct ObservableCollectionEvent<Collection: CollectionType> {
-  
-  public let collection: Collection
-
-  public let inserts: [Collection.Index]
-  public let deletes: [Collection.Index]
-  public let updates: [Collection.Index]
-}
-```
-
-
-Both observable and observable collection represent so called *hot streams*. It means that observing them does not perform any work and no side effects are generated. They are both subclasses of `ActiveStream` type. The type represents a hot stream that can buffer events. In case of the observable and observable collection it buffers only one (latest) event, so each time you register an observer, it will be immediately called with the latest event - which is actually the current value of the observable.
-
-`Operation` is a bit different. It's built upon `Stream` type. It represents *cold stream*. Cold streams don't do any work until they are observed. Once you register an observer, the stream executes underlying operation and side effect might be performed.
-
-Operation generates events of `OperationEvent` type.
-
-```swift
-Operation<Int, NSError>(...).observe { (event: OperationEvent <Int, NSError>) in ... }
-```
-
-It's an enum defined like this:
-
-```swift
-public enum OperationEvent<Value, Error: ErrorType> {
-  case Next(Value)
-  case Failure(Error)
-  case Succes
-```
 
 ## <a name="threading"></a> Threading
 
 ReactiveKit uses simple concept of execution contexts inspired by [BrightFutures](https://github.com/Thomvis/BrightFutures) to handle threading.
 
-When you want to receive events on the same thread on which they were generated, just pass `nil` for the execution context parameter. When you want to receive them on a specific dispatch queue, just use `context` extension of dispatch queue wrapper type `Queue`, for example: `Queue.main.context`.
-
-## Why another FRP framework?
-
-With Swift Bond I tried to make Model-View-ViewModel architecture for iOS apps as simple as possible, but as the framework grow it was becoming more and more reactive. That conflicted with its premise of being simple binding library.
-
-ReactiveKit is a continuation of that project, but with different approach. It's based on streams inspired by ReactiveCocoa and RxSwift. It then builds upon those streams reactive types optimized for specific domains - `Operation` for asynchronous operations, `Observable` for observable variables and `ObservableCollection` for observable collections - making them simple and intuitive.
-
-Main advantages over some other frameworks are clear separation of types that can cause side effects vs. those that cannot, less confusion around hot and cold streams (signals/producers), simplified threading and provided observable collection types with out-of-the box bindings for respective UI components.
-
+When you want to receive events on a specific dispatch queue, just use `context` extension of dispatch queue wrapper type `Queue`, for example: `Queue.main.context`, and pass it to the `observeOn` stream operator.
 
 ## Requirements
 
 * iOS 8.0+ / OS X 10.9+ / tvOS 9.0+ / watchOS 2.0+
-* Xcode 7.1+
+* Xcode 7.3+
 
 ## Communication
 
-* If you need help, use Stack Overflow. (Tag '**ReactiveKit**')
 * If you'd like to ask a general question, use Stack Overflow.
+* If you'd like to ask a quick question or chat about the project, try [Gitter](https://gitter.im/ReactiveKit/General).
 * If you found a bug, open an issue.
 * If you have a feature request, open an issue.
 * If you want to contribute, submit a pull request (include unit tests).
@@ -392,9 +427,8 @@ Main advantages over some other frameworks are clear separation of types that ca
 ### CocoaPods
 
 ```
-pod 'ReactiveKit', '~> 1.0'
-pod 'ReactiveUIKit', '~> 1.0'
-pod 'ReactiveFoundation', '~> 1.0'
+pod 'ReactiveKit', '~> 2.0-beta1'
+pod 'ReactiveUIKit', '~> 2.0-beta1'
 ```
 
 ### Carthage
@@ -402,14 +436,30 @@ pod 'ReactiveFoundation', '~> 1.0'
 ```
 github "ReactiveKit/ReactiveKit" 
 github "ReactiveKit/ReactiveUIKit"
-github "ReactiveKit/ReactiveFoundation"
 ```
+
+## Migration
+
+### Migration from v1.x to v2.0
+
+* `Observable` is renamed to `Property`
+* `ObservableCollection` is renamed to `CollectionProperty`
+* `Stream` can now completable (with `.Completed` event)
+* `observe` method of `Stream` is renamed to `observeNext`
+* `shareNext` is renamed to `shareReplay`.
+* `Stream` and `Operation` now have consistent API-s
+* `Operation`is no longer bindable. Convert it to `Stream` first.
+* Execution context can now be set only using `executeOn` and `observeOn` methods. 
+* A number of new operators is introduced based on ReactiveX API.
+* Project is restructured and should be available as a Swift package.
+* Documentation is updated to put `Stream` type in focus.
+* ReactiveFoundation is now part of ReactiveKit.
 
 ## License
 
 The MIT License (MIT)
 
-Copyright (c) 2015 Srdan Rasic (@srdanrasic)
+Copyright (c) 2015-2016 Srdan Rasic (@srdanrasic)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

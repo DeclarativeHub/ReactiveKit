@@ -2,12 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:ReactiveKitPlayground.playground">
+   </FileRef>
+   <FileRef
       location = "group:ReactiveKit.xcodeproj">
-   </FileRef>
-   <FileRef
-      location = "group:Carthage/Checkouts/Quick/Quick.xcodeproj">
-   </FileRef>
-   <FileRef
-      location = "group:Carthage/Checkouts/Nimble/Nimble.xcodeproj">
    </FileRef>
 </Workspace>

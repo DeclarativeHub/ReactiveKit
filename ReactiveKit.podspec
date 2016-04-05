@@ -1,18 +1,18 @@
 Pod::Spec.new do |s|
   s.name             = "ReactiveKit"
-  s.version          = "1.1.3"
+  s.version          = "2.0.0-beta1"
   s.summary          = "A Swift Reactive Programming Framework"
   s.description      = "ReactiveKit is a collection of Swift frameworks for reactive and functional reactive programming."
   s.homepage         = "https://github.com/ReactiveKit/ReactiveKit"
   s.license          = 'MIT'
   s.author           = { "Srdan Rasic" => "srdan.rasic@gmail.com" }
-  s.source           = { :git => "https://github.com/ReactiveKit/ReactiveKit.git", :tag => "v1.1.3" }
+  s.source           = { :git => "https://github.com/ReactiveKit/ReactiveKit.git", :tag => "v2.0.0-beta1" }
 
   s.ios.deployment_target       = '8.0'
   s.osx.deployment_target       = '10.9'
   s.watchos.deployment_target   = '2.0'
   s.tvos.deployment_target      = '9.0'
 
-  s.source_files      = 'ReactiveKit/**/*.{h,swift}'
+  s.source_files      = 'Sources/*.swift', 'ReactiveKit/*.h'
   s.requires_arc      = true
 end
