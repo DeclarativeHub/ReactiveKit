@@ -427,8 +427,8 @@ When you want to receive events on a specific dispatch queue, just use `context`
 ### CocoaPods
 
 ```
-pod 'ReactiveKit', '~> 2.0-beta1'
-pod 'ReactiveUIKit', '~> 2.0-beta1'
+pod 'ReactiveKit', '~> 2.0-beta2'
+pod 'ReactiveUIKit', '~> 2.0-beta2'
 ```
 
 ### Carthage
