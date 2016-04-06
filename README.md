@@ -421,6 +421,7 @@ When you want to receive events on a specific dispatch queue, just use `context`
 * If you found a bug, open an issue.
 * If you have a feature request, open an issue.
 * If you want to contribute, submit a pull request (include unit tests).
+* You can track project plan and progress on [Waffle](https://waffle.io/ReactiveKit/ReactiveKit).
 
 ## Installation
 
