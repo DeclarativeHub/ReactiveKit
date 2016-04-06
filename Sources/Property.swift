@@ -67,6 +67,10 @@ extension Property: BindableType {
   /// Can accept a disposable that will be disposed on receiver's deinit.
   public func observer(disconnectDisposable: Disposable) -> StreamEvent<T> -> () {
     disposeBag.addDisposable(disconnectDisposable)
-    return { [weak self] in self?.subject.on($0) }
+    return { [weak self] event in
+      if let value = event.element {
+        self?.value = value
+      }
+    }
   }
 }
