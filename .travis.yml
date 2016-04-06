@@ -1,0 +1,7 @@
+language: objective-c
+matrix:
+  include:
+    - osx_image: xcode7.3
+      env: DEVICE="iPhone 6s" VERSION=9.3
+script:
+  - xctool sdk iphonesimulator -workspace ReactiveKit.xcworkspace  -scheme ReactiveKit-iOS clean build test
