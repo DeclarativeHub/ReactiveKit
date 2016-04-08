@@ -403,7 +403,7 @@ Assert(event.deletes == [1])
 If that array was bound to a table or a collection view, the view would automatically animate only the changes from the *merge*. Helpful, isn't it.
 
 
-## <a name="threading"></a> Threading
+## <a name="threading"></a>Threading
 
 ReactiveKit uses simple concept of execution contexts inspired by [BrightFutures](https://github.com/Thomvis/BrightFutures) to handle threading.
 
