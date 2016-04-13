@@ -536,7 +536,7 @@ extension StreamType {
                         start: (() -> Void)? = nil,
                         completed: (() -> Void)? = nil,
                         disposed: (() -> ())? = nil,
-                        termination: (() -> ())? = nil) -> Stream<Element> {
+                        terminated: (() -> ())? = nil) -> Stream<Element> {
     return Stream { observer in
       start?()
       let disposable = self.observe { event in
@@ -545,14 +545,14 @@ extension StreamType {
           next?(value)
         case .Completed:
           completed?()
-          termination?()
+          terminated?()
         }
         observer.observer(event)
       }
       return BlockDisposable {
         disposable.dispose()
         disposed?()
-        termination?()
+        terminated?()
       }
     }
   }

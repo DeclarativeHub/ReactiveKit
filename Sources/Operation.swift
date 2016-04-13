@@ -703,7 +703,7 @@ extension OperationType {
                         start: (() -> Void)? = nil,
                         completed: (() -> Void)? = nil,
                         disposed: (() -> ())? = nil,
-                        termination: (() -> ())? = nil
+                        terminated: (() -> ())? = nil
     ) -> Operation<Element, Error> {
     return Operation { observer in
       start?()
@@ -713,17 +713,17 @@ extension OperationType {
           next?(value)
         case .Failure(let error):
           failure?(error)
-          termination?()
+          terminated?()
         case .Completed:
           completed?()
-          termination?()
+          terminated?()
         }
         observer.observer(event)
       }
       return BlockDisposable {
         disposable.dispose()
         disposed?()
-        termination?()
+        terminated?()
       }
     }
   }

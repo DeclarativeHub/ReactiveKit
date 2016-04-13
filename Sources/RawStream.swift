@@ -442,7 +442,7 @@ public extension RawStreamType where Event.Element: Equatable {
   /// Emit first element and then all elements that are not equal to their predecessor(s).
   @warn_unused_result
   public func distinct() -> RawStream<Event> {
-    return distinct(==)
+    return distinct(!=)
   }
 }
 
