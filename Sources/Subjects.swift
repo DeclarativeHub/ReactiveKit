@@ -56,6 +56,7 @@ public final class PublishSubject<E: EventType>: ObserverRegister<E>, SubjectTyp
 
   private let lock = RecursiveLock(name: "ReactiveKit.PublishSubject")
   private var completed = false
+  private var isUpdating = false
 
   public override init() {
   }
@@ -63,8 +64,11 @@ public final class PublishSubject<E: EventType>: ObserverRegister<E>, SubjectTyp
   public func on(event: E) {
     guard !completed else { return }
     lock.lock(); defer { lock.unlock() }
+    guard !isUpdating else { return }
+    isUpdating = true
     completed = event.isTermination
     observers.forEach { $0(event) }
+    isUpdating = false
   }
 
   public func observe(observer: E -> Void) -> Disposable {
@@ -77,6 +81,7 @@ public final class ReplaySubject<E: EventType>: ObserverRegister<E>, SubjectType
   public let bufferSize: Int
   private var buffer: ArraySlice<E> = []
   private let lock = RecursiveLock(name: "ReactiveKit.ReplaySubject")
+  private var isUpdating = false
 
   public init(bufferSize: Int = Int.max) {
     self.bufferSize = bufferSize
@@ -85,9 +90,12 @@ public final class ReplaySubject<E: EventType>: ObserverRegister<E>, SubjectType
   public func on(event: E) {
     guard !completed else { return }
     lock.lock(); defer { lock.unlock() }
+    guard !isUpdating else { return }
+    isUpdating = true
     buffer.append(event)
     buffer = buffer.suffix(bufferSize)
     observers.forEach { $0(event) }
+    isUpdating = false
   }
 
   public func observe(observer: E -> Void) -> Disposable {
