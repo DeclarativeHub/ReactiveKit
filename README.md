@@ -1,5 +1,10 @@
 ![](Assets/logo.png)
 
+[![Platform](https://img.shields.io/cocoapods/p/ReactiveKit.svg?style=flat)](http://cocoadocs.org/docsets/ReactiveKit/2.0.0-beta4/)
+[![Build Status](https://travis-ci.org/ReactiveKit/ReactiveKit.svg?branch=master)](https://travis-ci.org/ReactiveKit/ReactiveKit)
+[![Join Us on Gitter](https://img.shields.io/badge/GITTER-join%20chat-blue.svg)](https://gitter.im/ReactiveKit/General)
+[![Twitter](https://img.shields.io/badge/twitter-@srdanrasic-red.svg?style=flat)](http://twitter.com/AlamofireSF)
+
 __ReactiveKit__ is a collection of Swift frameworks for reactive and functional reactive programming.
 
 * [ReactiveKit](https://github.com/ReactiveKit/ReactiveKit) - A Swift Reactive Programming Kit.
