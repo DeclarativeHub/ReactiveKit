@@ -142,6 +142,7 @@ public protocol CollectionPropertyType: CollectionType, StreamType {
 public class CollectionProperty<C: CollectionType>: CollectionPropertyType {
   private let subject = PublishSubject<StreamEvent<CollectionChangeset<C>>>()
   private let lock = RecursiveLock(name: "ReactiveKit.CollectionProperty")
+  private let disposeBag = DisposeBag()
 
   public var rawStream: RawStream<StreamEvent<CollectionChangeset<C>>> {
     return subject.toRawStream().startWith(.Next(CollectionChangeset.initial(collection)))
@@ -560,5 +561,19 @@ extension Array where Element: Equatable {
 
     // Reverse the result
     return backtrack.reverse()
+  }
+}
+
+extension CollectionProperty: BindableType {
+
+  /// Returns an observer that can be used to dispatch events to the receiver.
+  /// Can accept a disposable that will be disposed on receiver's deinit.
+  public func observer(disconnectDisposable: Disposable) -> StreamEvent<CollectionChangeset<C>> -> () {
+    disposeBag.addDisposable(disconnectDisposable)
+    return { [weak self] event in
+      if let changeset = event.element {
+        self?.update(changeset)
+      }
+    }
   }
 }

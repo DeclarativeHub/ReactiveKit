@@ -588,7 +588,7 @@ extension StreamType {
 
 extension StreamType {
 
-  /// Propagate event only from an operation that starts emitting first.
+  /// Propagate event only from a stream that starts emitting first.
   @warn_unused_result
   public func ambWith<S: StreamType where S.Element == Element>(other: S) -> Stream<Element> {
     return lift { $0.ambWith(other.rawStream) }

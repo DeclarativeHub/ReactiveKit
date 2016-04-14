@@ -494,7 +494,9 @@ extension RawStreamType {
         lock.atomic {
           if let element = event.element { latestMyElement = element }
           latestMyEvent = event
-          dispatchNextIfPossible()
+          if !event.isTermination || latestTheirEvent?.isTermination ?? false {
+            dispatchNextIfPossible()
+          }
         }
       }
 
@@ -502,7 +504,9 @@ extension RawStreamType {
         lock.atomic {
           if let element = event.element { latestTheirElement = element }
           latestTheirEvent = event
-          dispatchNextIfPossible()
+          if !event.isTermination || latestMyEvent?.isTermination ?? false {
+            dispatchNextIfPossible()
+          }
         }
       }
 

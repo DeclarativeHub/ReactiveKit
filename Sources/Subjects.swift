@@ -84,7 +84,11 @@ public final class ReplaySubject<E: EventType>: ObserverRegister<E>, SubjectType
   private var isUpdating = false
 
   public init(bufferSize: Int = Int.max) {
-    self.bufferSize = bufferSize
+    if bufferSize < Int.max {
+      self.bufferSize = bufferSize + 1 // plus terminal event
+    } else {
+      self.bufferSize = bufferSize
+    }
   }
 
   public func on(event: E) {
