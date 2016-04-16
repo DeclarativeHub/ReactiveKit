@@ -457,7 +457,7 @@ public extension RawStreamType where Event.Element: OptionalType, Event.Element.
         return true
       case (.Some, .None):
         return true
-      case (.Some(let old), .Some(let new)) where old == new:
+      case (.Some(let old), .Some(let new)) where old != new:
         return true
       default:
         return false
