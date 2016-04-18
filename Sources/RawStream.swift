@@ -568,8 +568,8 @@ extension RawStreamType {
         while selfBuffer.count > 0 && otherBuffer.count > 0 {
           let event = zip(selfBuffer[0], otherBuffer[0])
           observer.observer(event)
-          selfBuffer.removeAtIndex(0)
-          otherBuffer.removeAtIndex(0)
+          selfBuffer.removeFirst()
+          otherBuffer.removeFirst()
           if event.isCompletion || event.isFailure {
             disposable.dispose()
           }
@@ -908,7 +908,7 @@ public extension RawStreamType where Event.Element: _StreamType {
       startNextOperation = {
         innerCompleted = false
 
-        let task = lock.atomic { taskQueue.removeAtIndex(0) }
+        let task = lock.atomic { taskQueue.removeFirst() }
 
         serialDisposable.otherDisposable?.dispose()
         serialDisposable.otherDisposable = task.observe { event in
