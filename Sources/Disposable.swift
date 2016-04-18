@@ -73,10 +73,10 @@ public final class BlockDisposable: Disposable {
   }
 
   public func dispose() {
-    lock.lock()
-    handler?()
-    handler = nil
-    lock.unlock()
+    lock.atomic {
+      handler?()
+      handler = nil
+    }
   }
 }
 
@@ -118,24 +118,22 @@ public final class CompositeDisposable: Disposable {
   }
 
   public func addDisposable(disposable: Disposable) {
-    lock.lock()
-    if isDisposed {
-      disposable.dispose()
-    } else {
-      disposables.append(disposable)
-      self.disposables = disposables.filter { $0.isDisposed == false }
+    lock.atomic {
+      if isDisposed {
+        disposable.dispose()
+      } else {
+        disposables.append(disposable)
+        self.disposables = disposables.filter { $0.isDisposed == false }
+      }
     }
-    lock.unlock()
   }
 
   public func dispose() {
-    lock.lock()
-    isDisposed = true
-    for disposable in disposables {
-      disposable.dispose()
+    lock.atomic {
+      isDisposed = true
+      disposables.forEach { $0.dispose() }
+      disposables.removeAll()
     }
-    disposables = []
-    lock.unlock()
   }
 }
 
@@ -163,10 +161,8 @@ public final class DisposeBag: Disposable {
 
   /// Disposes all disposables that are currenty in the bag.
   public func dispose() {
-    for disposable in disposables {
-      disposable.dispose()
-    }
-    disposables = []
+    disposables.forEach { $0.dispose() }
+    disposables.removeAll()
   }
 
   deinit {
@@ -189,11 +185,11 @@ public final class SerialDisposable: Disposable {
   /// Will dispose other disposable immediately if self is already disposed.
   public var otherDisposable: Disposable? {
     didSet {
-      lock.lock()
-      if isDisposed {
-        otherDisposable?.dispose()
+      lock.atomic {
+        if isDisposed {
+          otherDisposable?.dispose()
+        }
       }
-      lock.unlock()
     }
   }
 
@@ -202,11 +198,11 @@ public final class SerialDisposable: Disposable {
   }
 
   public func dispose() {
-    lock.lock()
-    if !isDisposed {
-      isDisposed = true
-      otherDisposable?.dispose()
+    lock.atomic {
+      if !isDisposed {
+        isDisposed = true
+        otherDisposable?.dispose()
+      }
     }
-    lock.unlock()
   }
 }

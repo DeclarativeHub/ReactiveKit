@@ -26,7 +26,6 @@
 
 /// Represents an operation event.
 public protocol OperationEventType: EventType, Errorable {
-  associatedtype Error: ErrorType
 }
 
 // MARK: - OperationEvent
@@ -77,11 +76,9 @@ public enum OperationEvent<T, E: ErrorType>: OperationEventType {
   /// Does the event mark failure of a stream? `True` if event is `.Failure`.
   public var isFailure: Bool {
     switch self {
-    case .Next:
-      return false
     case .Failure:
       return true
-    case .Completed:
+    default:
       return false
     }
   }
@@ -89,12 +86,10 @@ public enum OperationEvent<T, E: ErrorType>: OperationEventType {
   /// Does the event mark completion of a stream? `True` if event is `.Completion`.
   public var isCompletion: Bool {
     switch self {
-    case .Next:
-      return false
-    case .Failure:
-      return false
     case .Completed:
       return true
+    default:
+      return false
     }
   }
 
@@ -310,7 +305,7 @@ public extension OperationType {
           buffer.append(element)
           if buffer.count == size {
             observer.next(buffer)
-            buffer = []
+            buffer.removeAll()
           }
         case .Completed:
           observer.completed()

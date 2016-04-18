@@ -101,9 +101,21 @@ public extension Queue {
   }
 }
 
+internal protocol Lock {
+  func lock()
+  func unlock()
+  func atomic<T>(@noescape body: () -> T) -> T
+}
+
+internal extension Lock {
+  func atomic<T>(@noescape body: () -> T) -> T {
+    lock(); defer { unlock() }
+    return body()
+  }
+}
 
 /// Spin Lock
-internal final class SpinLock {
+internal final class SpinLock: Lock {
   private var spinLock = OS_SPINLOCK_INIT
 
   internal func lock() {
@@ -113,16 +125,10 @@ internal final class SpinLock {
   internal func unlock() {
     OSSpinLockUnlock(&spinLock)
   }
-
-  internal func atomic(body: () -> Void) {
-    lock()
-    body()
-    unlock()
-  }
 }
 
 /// Recursive Lock
-internal final class RecursiveLock: NSRecursiveLock {
+internal final class RecursiveLock: NSRecursiveLock, Lock {
 
   internal init(name: String) {
     super.init()
