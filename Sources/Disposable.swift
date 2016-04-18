@@ -131,9 +131,7 @@ public final class CompositeDisposable: Disposable {
   public func dispose() {
     lock.lock()
     isDisposed = true
-    for disposable in disposables {
-      disposable.dispose()
-    }
+    disposables.forEach { $0.dispose() }
     disposables = []
     lock.unlock()
   }
@@ -163,9 +161,7 @@ public final class DisposeBag: Disposable {
 
   /// Disposes all disposables that are currenty in the bag.
   public func dispose() {
-    for disposable in disposables {
-      disposable.dispose()
-    }
+    disposables.forEach { $0.dispose() }
     disposables = []
   }
 
