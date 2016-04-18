@@ -173,6 +173,7 @@ public extension RawStreamType {
   public func scan<U: EventType>(initial: U, _ combine: (U, Event) -> U) -> RawStream<U> {
     return RawStream<U> { observer in
       var accumulator = initial
+      observer.observer(accumulator)
       return self.observe { event in
         accumulator = combine(accumulator, event)
         observer.observer(accumulator)
@@ -794,10 +795,7 @@ public extension RawStreamType {
   /// Reduce stream events to a single event by applying given function on each emission.
   @warn_unused_result
   public func reduce<U: EventType>(initial: U, _ combine: (U, Event) -> U) -> RawStream<U> {
-    return RawStream<U> { observer in
-      observer.observer(initial)
-      return self.scan(initial, combine).observe(observer.observer)
-      }.takeLast()
+    return scan(initial, combine).takeLast()
   }
 }
 
