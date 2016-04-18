@@ -310,7 +310,7 @@ public extension OperationType {
           buffer.append(element)
           if buffer.count == size {
             observer.next(buffer)
-            buffer = []
+            buffer.removeAll()
           }
         case .Completed:
           observer.completed()

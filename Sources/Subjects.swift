@@ -103,9 +103,10 @@ public final class ReplaySubject<E: EventType>: ObserverRegister<E>, SubjectType
   }
 
   public func observe(observer: E -> Void) -> Disposable {
-    lock.lock(); defer { lock.unlock() }
-    buffer.forEach(observer)
-    return addObserver(observer)
+    return lock.atomic {
+      buffer.forEach(observer)
+      return addObserver(observer)
+    }
   }
 
   private var completed: Bool {

@@ -729,22 +729,24 @@ public extension RawStreamType {
       let d2 = SerialDisposable(otherDisposable: nil)
 
       d1.otherDisposable = self.observe { event in
-        lock.lock(); defer { lock.unlock() }
-        guard !isOtherDispatching else { return }
-        isSelfDispatching = true
-        observer.observer(event)
-        if !d2.isDisposed {
-          d2.dispose()
+        lock.atomic {
+          guard !isOtherDispatching else { return }
+          isSelfDispatching = true
+          observer.observer(event)
+          if !d2.isDisposed {
+            d2.dispose()
+          }
         }
       }
 
       d2.otherDisposable = other.observe { event in
-        lock.lock(); defer { lock.unlock() }
-        guard !isSelfDispatching else { return }
-        isOtherDispatching = true
-        observer.observer(event)
-        if !d1.isDisposed {
-          d1.dispose()
+        lock.atomic {
+          guard !isSelfDispatching else { return }
+          isOtherDispatching = true
+          observer.observer(event)
+          if !d1.isDisposed {
+            d1.dispose()
+          }
         }
       }
 
@@ -906,9 +908,7 @@ public extension RawStreamType where Event.Element: _StreamType {
       startNextOperation = {
         innerCompleted = false
 
-        lock.lock()
-        let task = taskQueue.removeAtIndex(0)
-        lock.unlock()
+        let task = lock.atomic { taskQueue.removeAtIndex(0) }
 
         serialDisposable.otherDisposable?.dispose()
         serialDisposable.otherDisposable = task.observe { event in
@@ -927,9 +927,9 @@ public extension RawStreamType where Event.Element: _StreamType {
       }
 
       let addToQueue = { (task: Event.Element) -> () in
-        lock.lock()
-        taskQueue.append(task)
-        lock.unlock()
+        lock.atomic {
+          taskQueue.append(task)
+        }
         if innerCompleted {
           startNextOperation()
         }
@@ -996,11 +996,12 @@ public final class RawConnectableStream<R: RawStreamType>: ConnectableStreamType
 
   /// Start the stream.
   public func connect() -> Disposable {
-    lock.lock(); defer { lock.unlock() }
-    if let connectionDisposable = connectionDisposable {
-      return connectionDisposable
-    } else {
-      return source.observe(subject.on)
+    return lock.atomic {
+      if let connectionDisposable = connectionDisposable {
+        return connectionDisposable
+      } else {
+        return source.observe(subject.on)
+      }
     }
   }
 

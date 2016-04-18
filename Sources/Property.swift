@@ -42,13 +42,13 @@ public final class Property<T>: PropertyType {
   /// Underlying value. Changing it emits `.Next` event with new value.
   public var value: T {
     get {
-      lock.lock(); defer { lock.unlock() }
-      return _value
+      return lock.atomic { _value }
     }
     set {
-      lock.lock(); defer { lock.unlock() }
-      _value = newValue
-      subject.next(newValue)
+      lock.atomic {
+        _value = newValue
+        subject.next(newValue)
+      }
     }
   }
 
