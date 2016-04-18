@@ -699,7 +699,7 @@ public extension RawStreamType {
 
   /// Propagate event only from a stream that starts emitting first.
   @warn_unused_result
-  public func ambWith(other: RawStream<Event>) -> RawStream<Event> {
+  public func ambWith<R: RawStreamType where R.Event == Event>(other: R) -> RawStream<Event> {
     return RawStream { observer in
       let lock = SpinLock()
       var isOtherDispatching = false
