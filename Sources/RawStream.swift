@@ -99,24 +99,21 @@ public extension _StreamType {
 
 // MARK: Creation
 
-public extension RawStream where Event.Element == Int {
+public extension RawStream where Event.Element: IntegerType {
 
   /// Create a stream that emits an integer every `interval` time on a given queue.
   @warn_unused_result
   public static func interval(interval: TimeValue, queue: Queue) -> RawStream<Event> {
     return RawStream { observer in
-      var number = 0
+      var number: Event.Element = 0
       var dispatch: (() -> Void)!
       let disposable = SimpleDisposable()
       dispatch = {
         queue.after(interval) {
-          if !disposable.isDisposed {
-            observer.next(number)
-            number += 1
-            dispatch()
-          } else {
-            dispatch = nil
-          }
+          guard !disposable.isDisposed else { dispatch = nil; return }
+          observer.next(number)
+          number = number + 1
+          dispatch()
         }
       }
       dispatch()
