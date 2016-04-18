@@ -130,10 +130,9 @@ public extension RawStream {
     return RawStream { observer in
       let disposable = SimpleDisposable()
       queue.after(time) {
-        if !disposable.isDisposed {
-          observer.next(element)
-          observer.completed()
-        }
+        guard !disposable.isDisposed else { return }
+        observer.next(element)
+        observer.completed()
       }
       return disposable
     }
@@ -287,15 +286,12 @@ public extension RawStreamType {
       var dispatch: (() -> Void)!
       dispatch = {
         queue.after(interval) {
-          if !serialDisposable.isDisposed {
-            if let event = latestEvent {
-              observer.observer(event)
-              latestEvent = nil
-            }
-            dispatch()
-          } else {
-            dispatch = nil
+          guard !serialDisposable.isDisposed else { dispatch = nil; return }
+          if let event = latestEvent {
+            observer.observer(event)
+            latestEvent = nil
           }
+          dispatch()
         }
       }
 
@@ -390,13 +386,11 @@ public extension RawStreamType {
       return self.observe { event in
 
         if let element = event.element {
-          while values.count + 1 > count {
-            values.removeFirst()
+          if values.count + 1 > count {
+            values.removeFirst(values.count - count + 1)
           }
           values.append(element)
-        }
-
-        if event.isCompletion {
+        } else if event.isCompletion {
           values.forEach(observer.next)
           observer.completed()
         } else if event.isFailure {
@@ -484,7 +478,7 @@ extension RawStreamType {
         lock.atomic {
           if let element = event.element { latestMyElement = element }
           latestMyEvent = event
-          if !event.isTermination || latestTheirEvent?.isTermination ?? false {
+          if !event.isTermination || (latestTheirEvent?.isTermination ?? false) {
             dispatchNextIfPossible()
           }
         }
@@ -494,7 +488,7 @@ extension RawStreamType {
         lock.atomic {
           if let element = event.element { latestTheirElement = element }
           latestTheirEvent = event
-          if !event.isTermination || latestMyEvent?.isTermination ?? false {
+          if !event.isTermination || (latestMyEvent?.isTermination ?? false) {
             dispatchNextIfPossible()
           }
         }
@@ -555,12 +549,12 @@ extension RawStreamType {
       let disposable = CompositeDisposable()
 
       let dispatchIfPossible = {
-        while selfBuffer.count > 0 && otherBuffer.count > 0 {
+        while !selfBuffer.isEmpty && !otherBuffer.isEmpty {
           let event = zip(selfBuffer[0], otherBuffer[0])
           observer.observer(event)
           selfBuffer.removeFirst()
           otherBuffer.removeFirst()
-          if event.isCompletion || event.isFailure {
+          if event.isTermination {
             disposable.dispose()
           }
         }
@@ -601,14 +595,9 @@ public extension RawStreamType where Event: Errorable {
       attempt = {
         serialDisposable.otherDisposable?.dispose()
         serialDisposable.otherDisposable = self.observe { event in
-          if event.error != nil {
-            if times > 0 {
-              times -= 1
-              attempt?()
-            } else {
-              observer.observer(event)
-              attempt = nil
-            }
+          if event.error != nil && times > 0 {
+            times -= 1
+            attempt?()
           } else {
             observer.observer(event)
             attempt = nil
@@ -688,7 +677,7 @@ public extension RawStreamType {
       }
 
       compositeDisposable += self.observe { event in
-        if event.isFailure || event.isCompletion {
+        if event.isTermination {
           observer.observer(event)
         } else if allowed {
           observer.observer(event)
@@ -884,6 +873,7 @@ public extension RawStreamType where Event.Element: _StreamType {
   @warn_unused_result
   public func concat<U: EventType>(unboxEvent: InnerEvent -> U, propagateErrorEvent: (Event, Observer<U>) -> Void) -> RawStream<U> {
     return RawStream<U> { observer in
+      typealias Task = Event.Element
       let lock = SpinLock()
 
       let serialDisposable = SerialDisposable(otherDisposable: nil)
@@ -892,7 +882,7 @@ public extension RawStreamType where Event.Element: _StreamType {
       var outerCompleted: Bool = false
       var innerCompleted: Bool = true
 
-      var taskQueue: [Event.Element] = []
+      var taskQueue: [Task] = []
 
       var startNextOperation: (() -> ())! = nil
       startNextOperation = {
@@ -907,7 +897,7 @@ public extension RawStreamType where Event.Element: _StreamType {
             observer.observer(unboxEvent(event))
           } else {
             innerCompleted = true
-            if taskQueue.count > 0 {
+            if !taskQueue.isEmpty {
               startNextOperation()
             } else if outerCompleted {
               observer.completed()
@@ -916,7 +906,7 @@ public extension RawStreamType where Event.Element: _StreamType {
         }
       }
 
-      let addToQueue = { (task: Event.Element) -> () in
+      let addToQueue = { (task: Task) -> () in
         lock.atomic {
           taskQueue.append(task)
         }
