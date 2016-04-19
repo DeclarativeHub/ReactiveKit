@@ -77,7 +77,7 @@ class OperatorsTests: XCTestCase {
   func testScan() {
     let operation = Operation<Int, TestError>.sequence([1, 2, 3])
     let scanned = operation.scan(0, +)
-    scanned.expectNext([1, 3, 6])
+    scanned.expectNext([0, 1, 3, 6])
   }
 
   func testToOperation() {

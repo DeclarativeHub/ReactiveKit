@@ -68,7 +68,7 @@ class StreamTests: XCTestCase {
   func testScan() {
     let stream = Stream.sequence([1, 2, 3])
     let scanned = stream.scan(0, +)
-    scanned.expectNext([1, 3, 6])
+    scanned.expectNext([0, 1, 3, 6])
   }
 
   func testToOperation() {
