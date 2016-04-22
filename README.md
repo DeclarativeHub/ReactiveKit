@@ -440,8 +440,8 @@ pod 'ReactiveUIKit', '~> 2.0-beta'
 ### Carthage
 
 ```
-github "ReactiveKit/ReactiveKit"  ~> 2.0
-github "ReactiveKit/ReactiveUIKit"  ~> 2.0
+github "ReactiveKit/ReactiveKit" ~> 2.0
+github "ReactiveKit/ReactiveUIKit" ~> 2.0
 ```
 
 ## Migration
