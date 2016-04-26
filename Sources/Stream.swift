@@ -175,7 +175,7 @@ public extension Stream {
     return Stream { observer in
       observer.next(element)
       observer.completed()
-      return SimpleDisposable()
+      return NotDisposable
     }
   }
 
@@ -185,7 +185,7 @@ public extension Stream {
     return Stream { observer in
       sequence.forEach(observer.next)
       observer.completed()
-      return SimpleDisposable()
+      return NotDisposable
     }
   }
 
@@ -194,7 +194,7 @@ public extension Stream {
   public static func completed() -> Stream<Element> {
     return Stream { observer in
       observer.completed()
-      return SimpleDisposable()
+      return NotDisposable
     }
   }
 
@@ -202,7 +202,7 @@ public extension Stream {
   @warn_unused_result
   public static func never() -> Stream<Element> {
     return Stream { observer in
-      return SimpleDisposable()
+      return NotDisposable
     }
   }
 
