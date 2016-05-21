@@ -486,7 +486,6 @@ Note that in the mapping closures of both `streamFor` and `feed` methods you mus
 ## Additional Documentation
 
 * [ReactiveGitter](https://github.com/ReactiveKit/ReactiveGitter) - A ReactiveKit demo application.
-* [ReactiveGitterAPI](https://github.com/ReactiveKit/ReactiveGitterAPI) - Example of API using ReactiveKit.
 * [ReactiveKit Reference](http://cocoadocs.org/docsets/ReactiveKit/2.0.0) - Code reference on Cocoadocs.
 
 ## Installation
