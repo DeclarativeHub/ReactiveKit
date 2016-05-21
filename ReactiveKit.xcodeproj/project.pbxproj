@@ -7,6 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		16A6B8F11CE7952600C27D5B /* RKProtocolProxyBase.h in Headers */ = {isa = PBXBuildFile; fileRef = 16A6B8EF1CE7952600C27D5B /* RKProtocolProxyBase.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		16A6B8F21CE7952600C27D5B /* RKProtocolProxyBase.h in Headers */ = {isa = PBXBuildFile; fileRef = 16A6B8EF1CE7952600C27D5B /* RKProtocolProxyBase.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		16A6B8F31CE7952600C27D5B /* RKProtocolProxyBase.h in Headers */ = {isa = PBXBuildFile; fileRef = 16A6B8EF1CE7952600C27D5B /* RKProtocolProxyBase.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		16A6B8F41CE7952600C27D5B /* RKProtocolProxyBase.h in Headers */ = {isa = PBXBuildFile; fileRef = 16A6B8EF1CE7952600C27D5B /* RKProtocolProxyBase.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		16A6B8F51CE7952600C27D5B /* RKProtocolProxyBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 16A6B8F01CE7952600C27D5B /* RKProtocolProxyBase.m */; };
+		16A6B8F61CE7952600C27D5B /* RKProtocolProxyBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 16A6B8F01CE7952600C27D5B /* RKProtocolProxyBase.m */; };
+		16A6B8F71CE7952600C27D5B /* RKProtocolProxyBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 16A6B8F01CE7952600C27D5B /* RKProtocolProxyBase.m */; };
+		16A6B8F81CE7952600C27D5B /* RKProtocolProxyBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 16A6B8F01CE7952600C27D5B /* RKProtocolProxyBase.m */; };
+		16A6B8FA1CE7957400C27D5B /* ProtocolProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A6B8F91CE7957400C27D5B /* ProtocolProxy.swift */; };
+		16A6B8FB1CE7957400C27D5B /* ProtocolProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A6B8F91CE7957400C27D5B /* ProtocolProxy.swift */; };
+		16A6B8FC1CE7957400C27D5B /* ProtocolProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A6B8F91CE7957400C27D5B /* ProtocolProxy.swift */; };
+		16A6B8FD1CE7957400C27D5B /* ProtocolProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A6B8F91CE7957400C27D5B /* ProtocolProxy.swift */; };
 		16C33B831BEFBAC800A0DBE0 /* ReactiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		16C33B841BEFBAC900A0DBE0 /* ReactiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		16C33B851BEFBAC900A0DBE0 /* ReactiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -64,6 +76,10 @@
 		EC8A9A161CABD9B50042A6AD /* Threading.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8A99E61CABD9B50042A6AD /* Threading.swift */; };
 		ECBCCDD41BEB6B9A00723476 /* ReactiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		ECBCCDDB1BEB6B9B00723476 /* ReactiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ECBCCDD01BEB6B9A00723476 /* ReactiveKit.framework */; };
+		ECCC81C61CDF4D5900019ECF /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCC81C51CDF4D5900019ECF /* Result.swift */; };
+		ECCC81C71CDF4D5900019ECF /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCC81C51CDF4D5900019ECF /* Result.swift */; };
+		ECCC81C81CDF4D5900019ECF /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCC81C51CDF4D5900019ECF /* Result.swift */; };
+		ECCC81C91CDF4D5900019ECF /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCC81C51CDF4D5900019ECF /* Result.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -80,6 +96,9 @@
 		162CB7461CB451D200FB6375 /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		1671707E1BF4F62A001786CE /* ReactiveKit.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReactiveKit.podspec; sourceTree = SOURCE_ROOT; };
 		1671707F1BF4F64E001786CE /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; lineEnding = 0; path = README.md; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.markdown; };
+		16A6B8EF1CE7952600C27D5B /* RKProtocolProxyBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RKProtocolProxyBase.h; sourceTree = "<group>"; };
+		16A6B8F01CE7952600C27D5B /* RKProtocolProxyBase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RKProtocolProxyBase.m; sourceTree = "<group>"; };
+		16A6B8F91CE7957400C27D5B /* ProtocolProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ProtocolProxy.swift; path = Sources/ProtocolProxy.swift; sourceTree = SOURCE_ROOT; };
 		16C33AF91BEFB72500A0DBE0 /* ReactiveKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		16C33B161BEFB9CB00A0DBE0 /* ReactiveKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		16C33B241BEFBA0100A0DBE0 /* ReactiveKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -105,6 +124,7 @@
 		ECBCCDD51BEB6B9A00723476 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		ECBCCDDA1BEB6B9B00723476 /* ReactiveKit-iOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ReactiveKit-iOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ECBCCDE11BEB6B9B00723476 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		ECCC81C51CDF4D5900019ECF /* Result.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Result.swift; path = Sources/Result.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -188,6 +208,10 @@
 				EC8A99DE1CABD9B50042A6AD /* Foundation.swift */,
 				EC8A99E51CABD9B50042A6AD /* System.swift */,
 				EC8A99E61CABD9B50042A6AD /* Threading.swift */,
+				ECCC81C51CDF4D5900019ECF /* Result.swift */,
+				16A6B8F91CE7957400C27D5B /* ProtocolProxy.swift */,
+				16A6B8EF1CE7952600C27D5B /* RKProtocolProxyBase.h */,
+				16A6B8F01CE7952600C27D5B /* RKProtocolProxyBase.m */,
 			);
 			path = ReactiveKit;
 			sourceTree = "<group>";
@@ -212,6 +236,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				16A6B8F21CE7952600C27D5B /* RKProtocolProxyBase.h in Headers */,
 				16C33B851BEFBAC900A0DBE0 /* ReactiveKit.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -220,6 +245,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				16A6B8F31CE7952600C27D5B /* RKProtocolProxyBase.h in Headers */,
 				16C33B841BEFBAC900A0DBE0 /* ReactiveKit.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -228,6 +254,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				16A6B8F41CE7952600C27D5B /* RKProtocolProxyBase.h in Headers */,
 				16C33B831BEFBAC800A0DBE0 /* ReactiveKit.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -236,6 +263,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				16A6B8F11CE7952600C27D5B /* RKProtocolProxyBase.h in Headers */,
 				ECBCCDD41BEB6B9A00723476 /* ReactiveKit.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -425,7 +453,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				EC8A9A041CABD9B50042A6AD /* RawStream.swift in Sources */,
+				ECCC81C71CDF4D5900019ECF /* Result.swift in Sources */,
 				EC8A9A001CABD9B50042A6AD /* Property.swift in Sources */,
+				16A6B8FB1CE7957400C27D5B /* ProtocolProxy.swift in Sources */,
 				EC8A99E81CABD9B50042A6AD /* CollectionProperty.swift in Sources */,
 				EC8A99F81CABD9B50042A6AD /* Observer.swift in Sources */,
 				EC8A9A141CABD9B50042A6AD /* Threading.swift in Sources */,
@@ -436,6 +466,7 @@
 				EC8A9A081CABD9B50042A6AD /* Stream.swift in Sources */,
 				EC8A99FC1CABD9B50042A6AD /* Operation.swift in Sources */,
 				EC8A9A101CABD9B50042A6AD /* System.swift in Sources */,
+				16A6B8F61CE7952600C27D5B /* RKProtocolProxyBase.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -444,7 +475,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				EC8A9A051CABD9B50042A6AD /* RawStream.swift in Sources */,
+				ECCC81C81CDF4D5900019ECF /* Result.swift in Sources */,
 				EC8A9A011CABD9B50042A6AD /* Property.swift in Sources */,
+				16A6B8FC1CE7957400C27D5B /* ProtocolProxy.swift in Sources */,
 				EC8A99E91CABD9B50042A6AD /* CollectionProperty.swift in Sources */,
 				EC8A99F91CABD9B50042A6AD /* Observer.swift in Sources */,
 				EC8A9A151CABD9B50042A6AD /* Threading.swift in Sources */,
@@ -455,6 +488,7 @@
 				EC8A9A091CABD9B50042A6AD /* Stream.swift in Sources */,
 				EC8A99FD1CABD9B50042A6AD /* Operation.swift in Sources */,
 				EC8A9A111CABD9B50042A6AD /* System.swift in Sources */,
+				16A6B8F71CE7952600C27D5B /* RKProtocolProxyBase.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -463,7 +497,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				EC8A9A061CABD9B50042A6AD /* RawStream.swift in Sources */,
+				ECCC81C91CDF4D5900019ECF /* Result.swift in Sources */,
 				EC8A9A021CABD9B50042A6AD /* Property.swift in Sources */,
+				16A6B8FD1CE7957400C27D5B /* ProtocolProxy.swift in Sources */,
 				EC8A99EA1CABD9B50042A6AD /* CollectionProperty.swift in Sources */,
 				EC8A99FA1CABD9B50042A6AD /* Observer.swift in Sources */,
 				EC8A9A161CABD9B50042A6AD /* Threading.swift in Sources */,
@@ -474,6 +510,7 @@
 				EC8A9A0A1CABD9B50042A6AD /* Stream.swift in Sources */,
 				EC8A99FE1CABD9B50042A6AD /* Operation.swift in Sources */,
 				EC8A9A121CABD9B50042A6AD /* System.swift in Sources */,
+				16A6B8F81CE7952600C27D5B /* RKProtocolProxyBase.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -482,7 +519,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				EC8A9A031CABD9B50042A6AD /* RawStream.swift in Sources */,
+				ECCC81C61CDF4D5900019ECF /* Result.swift in Sources */,
 				EC8A99FF1CABD9B50042A6AD /* Property.swift in Sources */,
+				16A6B8FA1CE7957400C27D5B /* ProtocolProxy.swift in Sources */,
 				EC8A99E71CABD9B50042A6AD /* CollectionProperty.swift in Sources */,
 				EC8A99F71CABD9B50042A6AD /* Observer.swift in Sources */,
 				EC8A9A131CABD9B50042A6AD /* Threading.swift in Sources */,
@@ -493,6 +532,7 @@
 				EC8A9A071CABD9B50042A6AD /* Stream.swift in Sources */,
 				EC8A99FB1CABD9B50042A6AD /* Operation.swift in Sources */,
 				EC8A9A0F1CABD9B50042A6AD /* System.swift in Sources */,
+				16A6B8F51CE7952600C27D5B /* RKProtocolProxyBase.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

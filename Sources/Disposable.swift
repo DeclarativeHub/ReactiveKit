@@ -206,3 +206,8 @@ public final class SerialDisposable: Disposable {
     }
   }
 }
+
+/// A type that provides dispose bag.
+public protocol DisposeBagProvider: class {
+  var disposeBag: DisposeBag { get }
+}

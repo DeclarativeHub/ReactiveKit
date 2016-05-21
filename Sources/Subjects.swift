@@ -50,6 +50,7 @@ internal class ObserverRegister<E: EventType> {
 }
 
 public protocol SubjectType: ObserverType, RawStreamType {
+  func on(event: Event)
 }
 
 public final class PublishSubject<E: EventType>: ObserverRegister<E>, SubjectType {
@@ -112,6 +113,43 @@ public final class ReplaySubject<E: EventType>: ObserverRegister<E>, SubjectType
   private var completed: Bool {
     if let lastEvent = buffer.last {
       return lastEvent.isTermination
+    } else {
+      return false
+    }
+  }
+}
+
+public final class ReplayOneSubject<E: EventType>: ObserverRegister<E>, SubjectType {
+
+  private var event: E? = nil
+  private let lock = RecursiveLock(name: "ReactiveKit.ReplayOneSubject")
+  private var isUpdating = false
+
+  public override init() {
+  }
+
+  public func on(event: E) {
+    guard !completed else { return }
+    lock.lock(); defer { lock.unlock() }
+    guard !isUpdating else { return }
+    isUpdating = true
+    self.event = event
+    observers.forEach { $0(event) }
+    isUpdating = false
+  }
+
+  public func observe(observer: E -> Void) -> Disposable {
+    return lock.atomic {
+      if let event = event {
+        observer(event)
+      }
+      return addObserver(observer)
+    }
+  }
+
+  private var completed: Bool {
+    if let event = event {
+      return event.isTermination
     } else {
       return false
     }

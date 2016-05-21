@@ -1,7 +1,7 @@
 //
 //  The MIT License (MIT)
 //
-//  Copyright (c) 2015 Srdan Rasic (@srdanrasic)
+//  Copyright (c) 2016 Srdan Rasic (@srdanrasic)
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -22,11 +22,59 @@
 //  THE SOFTWARE.
 //
 
-#import <Foundation/Foundation.h>
-#import <ReactiveKit/RKProtocolProxyBase.h>
+public protocol ResultType {
+  associatedtype Value
+  associatedtype Error: ErrorType
 
-//! Project version number for ReactiveKit.
-FOUNDATION_EXPORT double ReactiveKitVersionNumber;
+  var value: Value? { get }
+  var error: Error? { get }
+}
 
-//! Project version string for ReactiveKit.
-FOUNDATION_EXPORT const unsigned char ReactiveKitVersionString[];
+/// An enum representing either a failure or a success.
+public enum Result<T, E: ErrorType>: CustomStringConvertible {
+
+  case Success(T)
+  case Failure(E)
+
+  /// Constructs a result with a success value.
+  public init(value: T) {
+    self = .Success(value)
+  }
+
+  /// Constructs a result with an error.
+  public init(error: E) {
+    self = .Failure(error)
+  }
+
+  public var description: String {
+    switch self {
+    case let .Success(value):
+      return ".Success(\(value))"
+    case let .Failure(error):
+      return ".Failure(\(error))"
+    }
+  }
+}
+
+extension Result: ResultType {
+
+  public var value: T? {
+    if case .Success(let value) = self {
+      return value
+    } else {
+      return nil
+    }
+  }
+
+  public var error: E? {
+    if case .Failure(let error) = self {
+      return error
+    } else {
+      return nil
+    }
+  }
+
+  public var unbox: Result<T, E> {
+    return self
+  }
+}

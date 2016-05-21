@@ -17,7 +17,7 @@ Apps transform data. They take some data as input or generate data by themselves
 
 Basic premise of reactive programming is that the output should be derived from the input in such way that whenever the input changes, the output is changed too. Whenever new magnetometer readings are received, needle is updated. In addition to that, if the input is derived into the output using functional constructs like pure or higher-order functions one gets functional reactive programming.
 
-ReactiveKit is a framework that provides mechanisms for leveraging functional reactive paradigm. It's based on ReactiveX API, but with flavours of its own. Instead of one *Observable* type, ReactiveKit offers two types, *Operation* and *Stream*, that are same on all fronts except that the former **can** error-out and the latter **cannot**. ReactiveKit also provides weak binding mechanism as well as reactive collection types.
+ReactiveKit is a framework that provides mechanisms for leveraging functional reactive paradigm. It's based on ReactiveX API, but with flavours of its own. Instead of one *Observable* type, ReactiveKit offers two types, *Operation* and *Stream*, that are same on all fronts except that the former **can error-out** and the latter **cannot**. ReactiveKit also provides weak binding mechanism as well as reactive collection types.
 
 ## Stream
 
@@ -415,6 +415,60 @@ ReactiveKit uses simple concept of execution contexts inspired by [BrightFutures
 
 When you want to receive events on a specific dispatch queue, just use `context` extension of dispatch queue wrapper type `Queue`, for example: `Queue.main.context`, and pass it to the `observeOn` stream operator.
 
+## Reactive Delegates
+
+ReactiveKit provides NSObject extensions that makes it easy to convert delegate pattern into streams. 
+
+First make an extension on your type, UITableView in the following example, that provides a reactive delegate proxy:
+
+```swift
+extension UITableView {
+  public var rDelegate: ProtocolProxy {
+    return protocolProxyFor(UITableViewDelegate.self, setter: NSSelectorFromString("setDelegate:"))
+  }
+}
+```
+
+You can then convert methods of that protocol into streams:
+
+```swift
+extension UITableView {
+  var selectedRow: Stream<Int> {
+    return rDelegate.streamFor(#selector(UITableViewDelegate.tableView(_:didSelectRowAtIndexPath:))) { (_: UITableView, indexPath: NSIndexPath) in indexPath.row }
+  }
+}
+```
+
+Method `streamFor` takes two parameters: a selector to convert to a stream and a mapping closure that maps selector method arguments into a stream.
+
+Now you can do:
+
+```swift
+tableView.selectedRow.observeNext { row in
+  print("Tapped row at index \(row).")
+}.disposeIn(rBag)
+```
+
+Protocol proxy takes up delegate slot of the object so if you also need to implement delegate methods manually, don't set `tableView.delegate = x`, rather set `tableView.rDelegate.forwardTo = x`.
+
+Protocol methods that return values are usually used to query data. Such methods can be set up to be fed from a property type. For example:
+
+```swift
+let numberOfItems = Property(12)
+
+tableView.rDataSource.feed(
+  numberOfItems,
+  to: #selector(UITableViewDataSource.tableView(_:numberOfRowsInSection:)),
+  map: { (value: Int, _: UITableView, _: Int) -> Int in value }
+)
+```
+
+Method `feed` takes three parameters: a property to feed from, a selector, and a mapping closure that maps from the property value and selector method arguments to the selector method return value. 
+
+You should not set more that one feed property per selector.
+
+Note that in the mapping closures of both `streamFor` and `feed` methods you must be explicit about argument and return types. You must also use ObjC types as this is ObjC API. For example, use `NSString` instead of `String`. 
+
 ## Requirements
 
 * iOS 8.0+ / OS X 10.9+ / tvOS 9.0+ / watchOS 2.0+
@@ -429,13 +483,19 @@ When you want to receive events on a specific dispatch queue, just use `context`
 * If you want to contribute, submit a pull request (include unit tests).
 * You can track project plan and progress on [Waffle](https://waffle.io/ReactiveKit/ReactiveKit).
 
+## Additional Documentation
+
+* [ReactiveGitter](https://github.com/ReactiveKit/ReactiveGitter) - A ReactiveKit demo application.
+* [ReactiveGitterAPI](https://github.com/ReactiveKit/ReactiveGitterAPI) - Example of API using ReactiveKit.
+* [ReactiveKit Reference](http://cocoadocs.org/docsets/ReactiveKit/2.0.0) - Code reference on Cocoadocs.
+
 ## Installation
 
 ### CocoaPods
 
 ```
-pod 'ReactiveKit', '~> 2.0-beta'
-pod 'ReactiveUIKit', '~> 2.0-beta'
+pod 'ReactiveKit', '~> 2.0'
+pod 'ReactiveUIKit', '~> 2.0'
 ```
 
 ### Carthage

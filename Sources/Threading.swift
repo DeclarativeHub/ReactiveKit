@@ -65,6 +65,13 @@ public struct Queue {
     dispatch_after(dispatchTime, queue, block)
   }
 
+  public func after(interval: TimeValue) -> (() -> Void) -> Void {
+    return { block in
+      let dispatchTime = dispatch_time(DISPATCH_TIME_NOW, Int64(interval * NSTimeInterval(NSEC_PER_SEC)))
+      dispatch_after(dispatchTime, self.queue, block)
+    }
+  }
+
   public func disposableAfter(interval: TimeValue, block: () -> ()) -> Disposable {
     let disposable = SimpleDisposable()
     let dispatchTime = dispatch_time(DISPATCH_TIME_NOW, Int64(interval * NSTimeInterval(NSEC_PER_SEC)))

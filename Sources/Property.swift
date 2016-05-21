@@ -23,12 +23,13 @@
 //
 
 /// Represents a state as a stream of events.
-public protocol PropertyType: StreamType {
-  var value: Element { get set }
+public protocol PropertyType {
+  associatedtype ProperyElement
+  var value: ProperyElement { get }
 }
 
 /// Represents a state as a stream of events.
-public final class Property<T>: PropertyType {
+public final class Property<T>: PropertyType, StreamType, SubjectType {
 
   private var _value: T
   private let subject = PublishSubject<StreamEvent<T>>()
@@ -52,12 +53,37 @@ public final class Property<T>: PropertyType {
     }
   }
 
+  public func on(event: StreamEvent<T>) {
+    subject.on(event)
+  }
+
+  public var readOnlyView: AnyProperty<T> {
+    return AnyProperty(property: self)
+  }
+
   public init(_ value: T) {
     _value = value
   }
 
   deinit {
     subject.completed()
+  }
+}
+
+public final class AnyProperty<T>: PropertyType, StreamType {
+
+  private let property: Property<T>
+
+  public var value: T {
+    return property.value
+  }
+
+  public var rawStream: RawStream<StreamEvent<T>> {
+    return property.rawStream
+  }
+
+  public init(property: Property<T>) {
+    self.property = property
   }
 }
 

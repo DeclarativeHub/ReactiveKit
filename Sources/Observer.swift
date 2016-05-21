@@ -71,3 +71,27 @@ public extension ObserverType where Event: Errorable {
     on(.failure(error))
   }
 }
+
+public final class ObserverWith<O: AnyObject, T>: ObserverType, BindableType {
+  weak var object: O?
+  let observer: (O, T) -> Void
+  public let disposeBag = DisposeBag()
+
+  public init(_ object: O, observer: (O, T) -> Void) {
+    self.object = object
+    self.observer = observer
+  }
+
+  public func on(event: StreamEvent<T>) {
+    if case .Next(let element) = event, let object = object {
+      observer(object, element)
+    } else {
+      disposeBag.dispose()
+    }
+  }
+
+  public func observer(disconnectDisposable: Disposable) -> (StreamEvent<T> -> Void) {
+    disconnectDisposable.disposeIn(disposeBag)
+    return self.on
+  }
+}

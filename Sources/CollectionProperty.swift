@@ -130,7 +130,7 @@ public extension CollectionChangesetType where Collection.Index: Equatable {
   }
 }
 
-public protocol CollectionPropertyType: CollectionType, StreamType {
+public protocol CollectionPropertyType: CollectionType, StreamType, PropertyType {
   associatedtype Collection: CollectionType
   associatedtype Index = Collection.Index
   associatedtype Member = Collection.Generator.Element
@@ -149,6 +149,10 @@ public class CollectionProperty<C: CollectionType>: CollectionPropertyType {
   }
 
   public private(set) var collection: C
+
+  public var value: C {
+    return collection
+  }
 
   public init(_ collection: C) {
     self.collection = collection

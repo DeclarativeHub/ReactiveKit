@@ -80,7 +80,11 @@ public struct RawStream<Event: EventType>: RawStreamType {
       terminated = event.isTermination
       observer(event)
     }
-    return producer(observer)
+    let disposable = producer(observer)
+    return BlockDisposable {
+      terminated = true
+      disposable.dispose()
+    }
   }
 }
 
@@ -458,18 +462,18 @@ extension RawStreamType {
   /// Emit a combination of latest elements from each stream. Starts when both streams emit at least one element,
   /// and emits next when either stream generates an event.
   @warn_unused_result
-  public func combineLatestWith<R: _StreamType, U: EventType>(other: R, combine: (Event.Element?, Event, R.Event.Element?, R.Event) -> U?) -> RawStream<U> {
+  public func combineLatestWith<R: _StreamType, U: EventType>(other: R, combine: (Event.Element?, Event, R.Event.Element?, R.Event, Bool) -> U?) -> RawStream<U> {
     return RawStream<U> { observer in
-      let lock = SpinLock()
+      let lock = RecursiveLock(name: "combineLatestWith")
 
       var latestMyElement: Event.Element?
       var latestTheirElement: R.Event.Element?
       var latestMyEvent: Event?
       var latestTheirEvent: R.Event?
 
-      let dispatchNextIfPossible = { () -> () in
+      let dispatchNextIfPossible = { (isMy: Bool) -> () in
         if let latestMyEvent = latestMyEvent, latestTheirEvent = latestTheirEvent {
-          if let event = combine(latestMyElement, latestMyEvent, latestTheirElement, latestTheirEvent) {
+          if let event = combine(latestMyElement, latestMyEvent, latestTheirElement, latestTheirEvent, isMy) {
             observer.observer(event)
           }
         }
@@ -480,7 +484,7 @@ extension RawStreamType {
           if let element = event.element { latestMyElement = element }
           latestMyEvent = event
           if !event.isTermination || (latestTheirEvent?.isTermination ?? false) {
-            dispatchNextIfPossible()
+            dispatchNextIfPossible(true)
           }
         }
       }
@@ -490,7 +494,7 @@ extension RawStreamType {
           if let element = event.element { latestTheirElement = element }
           latestTheirEvent = event
           if !event.isTermination || (latestMyEvent?.isTermination ?? false) {
-            dispatchNextIfPossible()
+            dispatchNextIfPossible(false)
           }
         }
       }
@@ -503,7 +507,7 @@ extension RawStreamType {
   @warn_unused_result
   public func mergeWith<R: _StreamType where R.Event == Event>(other: R) -> RawStream<Event> {
     return RawStream<Event> { observer in
-      let lock = SpinLock()
+      let lock = RecursiveLock(name: "mergeWith")
       var numberOfOperations = 2
       let compositeDisposable = CompositeDisposable()
       let onBoth: Event -> Void = { event in
@@ -543,7 +547,7 @@ extension RawStreamType {
   @warn_unused_result
   public func zipWith<R: _StreamType, U: EventType>(other: R, zip: (Event, R.Event) -> U) -> RawStream<U> {
     return RawStream<U> { observer in
-      let lock = SpinLock()
+      let lock = RecursiveLock(name: "zipWith")
 
       var selfBuffer = Array<Event>()
       var otherBuffer = Array<R.Event>()
@@ -702,7 +706,7 @@ public extension RawStreamType {
   @warn_unused_result
   public func ambWith<R: RawStreamType where R.Event == Event>(other: R) -> RawStream<Event> {
     return RawStream { observer in
-      let lock = SpinLock()
+      let lock = RecursiveLock(name: "ambWith")
       var isOtherDispatching = false
       var isSelfDispatching = false
       let d1 = SerialDisposable(otherDisposable: nil)
@@ -790,7 +794,7 @@ public extension RawStreamType where Event.Element: _StreamType {
   @warn_unused_result
   public func merge<U: EventType>(unboxEvent: InnerEvent -> U, propagateErrorEvent: (Event, Observer<U>) -> Void) -> RawStream<U> {
     return RawStream<U> { observer in
-      let lock = SpinLock()
+      let lock = RecursiveLock(name: "merge")
 
       var numberOfOperations = 1
       let compositeDisposable = CompositeDisposable()
@@ -872,7 +876,7 @@ public extension RawStreamType where Event.Element: _StreamType {
   public func concat<U: EventType>(unboxEvent: InnerEvent -> U, propagateErrorEvent: (Event, Observer<U>) -> Void) -> RawStream<U> {
     return RawStream<U> { observer in
       typealias Task = Event.Element
-      let lock = SpinLock()
+      let lock = RecursiveLock(name: "concat")
 
       let serialDisposable = SerialDisposable(otherDisposable: nil)
       let compositeDisposable = CompositeDisposable([serialDisposable])
@@ -938,7 +942,11 @@ extension RawStreamType {
   /// Ensure that all observers see the same sequence of elements. Connectable.
   @warn_unused_result
   public func replay(limit: Int = Int.max) -> RawConnectableStream<Self> {
-    return RawConnectableStream(source: self, subject: AnySubject(base: ReplaySubject(bufferSize: limit)))
+    if limit == 1 {
+      return RawConnectableStream(source: self, subject: AnySubject(base: ReplayOneSubject()))
+    } else {
+      return RawConnectableStream(source: self, subject: AnySubject(base: ReplaySubject(bufferSize: limit)))
+    }
   }
 
   /// Convert stream to a connectable stream.

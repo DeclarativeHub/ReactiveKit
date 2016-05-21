@@ -258,6 +258,24 @@ public extension StreamType {
     }
   }
 
+  /// Map each event into an stream and then flattens inner streams.
+  @warn_unused_result
+  public func flatMapLatest<U: StreamType>(transform: Element -> U) -> Stream<U.Element> {
+    return flatMap(.Latest, transform: transform)
+  }
+
+  /// Map each event into an stream and then flattens inner streams.
+  @warn_unused_result
+  public func flatMapMerge<U: StreamType>(transform: Element -> U) -> Stream<U.Element> {
+    return flatMap(.Merge, transform: transform)
+  }
+
+  /// Map each event into an stream and then flattens inner streams.
+  @warn_unused_result
+  public func flatMapConcat<U: StreamType>(transform: Element -> U) -> Stream<U.Element> {
+    return flatMap(.Concat, transform: transform)
+  }
+
   /// Map each event into an operation and then flatten those operation using
   /// the given flattening strategy.
   @warn_unused_result
@@ -273,6 +291,24 @@ public extension StreamType {
     }
   }
 
+  /// Map each event into an operation and then flattens inner operations.
+  @warn_unused_result
+  public func flatMapLatest<U: OperationType>(transform: Element -> U) -> Operation<U.Element, U.Error> {
+    return flatMap(.Latest, transform: transform)
+  }
+
+  /// Map each event into an operation and then flattens inner operations.
+  @warn_unused_result
+  public func flatMapMerge<U: OperationType>(transform: Element -> U) -> Operation<U.Element, U.Error> {
+    return flatMap(.Merge, transform: transform)
+  }
+
+  /// Map each event into an operation and then flattens inner operations.
+  @warn_unused_result
+  public func flatMapConcat<U: OperationType>(transform: Element -> U) -> Operation<U.Element, U.Error> {
+    return flatMap(.Concat, transform: transform)
+  }
+
   /// Transform each element by applying `transform` on it.
   @warn_unused_result
   public func map<U>(transform: Element -> U) -> Stream<U> {
@@ -281,6 +317,12 @@ public extension StreamType {
         return event.map(transform)
       }
     }
+  }
+
+  /// Maps elements to Void.
+  @warn_unused_result
+  public func eraseType() -> Stream<Void> {
+    return map { _ in }
   }
 
   /// Apply `combine` to each element starting with `initial` and emit each
@@ -297,6 +339,12 @@ public extension StreamType {
         }
       }
     }
+  }
+
+  /// Transform each element by applying `transform` on it.
+  @warn_unused_result
+  public func tryMap<U, Error>(transform: Element -> Result<U, Error>) -> Operation<U, Error> {
+    return toOperation().tryMap(transform)
   }
 
   /// Convert the stream to an operation.
@@ -457,14 +505,14 @@ extension StreamType {
   @warn_unused_result
   public func combineLatestWith<S: StreamType>(other: S) -> Stream<(Element, S.Element)> {
     return lift {
-      return $0.combineLatestWith(other.toStream()) { myLatestElement, my, theirLatestElement, their in
+      return $0.combineLatestWith(other.toStream()) { myLatestElement, my, theirLatestElement, their, isMy in
         switch (my, their) {
         case (.Completed, .Completed):
           return StreamEvent.Completed
         case (.Next(let myElement), .Next(let theirElement)):
           return StreamEvent.Next(myElement, theirElement)
         case (.Next(let myElement), .Completed):
-          if let theirLatestElement = theirLatestElement {
+          if let theirLatestElement = theirLatestElement where isMy {
             return StreamEvent.Next(myElement, theirLatestElement)
           } else {
             return nil
@@ -507,6 +555,29 @@ extension StreamType {
           return StreamEvent.Completed
         default:
           fatalError("This will never execute: Swift compiler cannot infer switch completeness.")
+        }
+      }
+    }
+  }
+
+  /// Combines two streams into a stream of pairs of elements whenever the receiver emits an element with the latest element from the given stream.
+  @warn_unused_result
+  public func withLatestFrom<S: StreamType>(other: S) -> Stream<(Element, S.Element)> {
+    return lift {
+      return $0.combineLatestWith(other.toStream()) { myLatestElement, my, theirLatestElement, their, isMy in
+        switch (my, their) {
+        case (.Completed, _):
+          return StreamEvent.Completed
+        case (.Next(let myElement), .Next(let theirElement)):
+          guard isMy else { return nil }
+          return StreamEvent.Next(myElement, theirElement)
+        case (.Next(let myElement), .Completed):
+          guard isMy else { return nil }
+          if let theirLatestElement = theirLatestElement {
+            return StreamEvent.Next(myElement, theirLatestElement)
+          } else {
+            return nil
+          }
         }
       }
     }
@@ -581,6 +652,29 @@ extension StreamType {
   @warn_unused_result
   public func pausable<S: _StreamType where S.Event.Element == Bool>(by other: S) -> Stream<Element> {
     return lift { $0.pausable(other) }
+  }
+}
+
+// MARK: Injections
+
+extension StreamType {
+
+  /// Updates the given subject with `true` when the receiver starts and with `false` when the receiver terminates.
+  @warn_unused_result
+  public func feedActivityInto<S: SubjectType where S.Event.Element == Bool>(listener: S) -> Stream<Element> {
+    return doOn(start: { listener.next(true) }, terminated: { listener.next(false) })
+  }
+
+  /// Updates the given subject with .Next elements.
+  @warn_unused_result
+  public func feedNextInto<S: SubjectType where S.Event.Element == Element>(listener: S) -> Stream<Element> {
+    return doOn(next: { e in listener.next(e) })
+  }
+
+  /// Updates the given subject with mapped .Next element whenever the element satisfies the given constraint.
+  @warn_unused_result
+  public func feedNextInto<S: SubjectType>(listener: S, when: Element -> Bool = { _ in true }, map: Element -> S.Event.Element) -> Stream<Element> {
+    return doOn(next: { e in if when(e) { listener.next(map(e)) } })
   }
 }
 
@@ -904,7 +998,7 @@ public protocol BindableType {
 
   /// Returns an observer that can be used to dispatch events to the receiver.
   /// Can accept a disposable that will be disposed on receiver's deinit.
-  func observer(disconnectDisposable: Disposable) -> (StreamEvent<Element> -> ())
+  func observer(disconnectDisposable: Disposable) -> (StreamEvent<Element> -> Void)
 }
 
 extension StreamType {
