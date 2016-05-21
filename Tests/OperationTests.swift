@@ -88,13 +88,13 @@ class OperatorsTests: XCTestCase {
 
   func testToStream() {
     let operation = Operation<Int, TestError>.sequence([1, 2, 3])
-    let stream = operation.toStream(logError: false)
+    let stream = operation.toStream(justLogError: false)
     stream.expectNext([1, 2, 3])
   }
 
   func testToStream2() {
     let operation = Operation<Int, TestError>.failure(.Error)
-    let stream = operation.toStream(logError: false)
+    let stream = operation.toStream(justLogError: false)
     stream.expectNext([])
   }
 
