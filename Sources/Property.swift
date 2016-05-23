@@ -65,6 +65,10 @@ public final class Property<T>: PropertyType, StreamType, SubjectType {
     _value = value
   }
 
+  public func silentUpdate(value: T) {
+    _value = value
+  }
+
   deinit {
     subject.completed()
   }

@@ -130,7 +130,7 @@ public extension CollectionChangesetType where Collection.Index: Equatable {
   }
 }
 
-public protocol CollectionPropertyType: CollectionType, StreamType, PropertyType {
+public protocol CollectionPropertyType: CollectionType, StreamType, PropertyType, SubjectType {
   associatedtype Collection: CollectionType
   associatedtype Index = Collection.Index
   associatedtype Member = Collection.Generator.Element
@@ -201,6 +201,13 @@ public class CollectionProperty<C: CollectionType>: CollectionPropertyType {
   public func update(changeset: CollectionChangeset<C>) {
     collection = changeset.collection
     subject.on(.Next(changeset))
+  }
+
+  public func on(event: StreamEvent<CollectionChangeset<C>>) {
+    if let changeset = event.element {
+      collection = changeset.collection
+    }
+    subject.on(event)
   }
 }
 

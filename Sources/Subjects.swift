@@ -49,11 +49,13 @@ internal class ObserverRegister<E: EventType> {
   }
 }
 
-public protocol SubjectType: ObserverType, RawStreamType {
-  func on(event: Event)
+public protocol SubjectType: ObserverType, _StreamType {
 }
 
-public final class PublishSubject<E: EventType>: ObserverRegister<E>, SubjectType {
+public protocol RawSubjectType: ObserverType, RawStreamType {
+}
+
+public final class PublishSubject<E: EventType>: ObserverRegister<E>, RawSubjectType {
 
   private let lock = RecursiveLock(name: "ReactiveKit.PublishSubject")
   private var completed = false
@@ -77,7 +79,7 @@ public final class PublishSubject<E: EventType>: ObserverRegister<E>, SubjectTyp
   }
 }
 
-public final class ReplaySubject<E: EventType>: ObserverRegister<E>, SubjectType {
+public final class ReplaySubject<E: EventType>: ObserverRegister<E>, RawSubjectType {
 
   public let bufferSize: Int
   private var buffer: ArraySlice<E> = []
@@ -119,7 +121,7 @@ public final class ReplaySubject<E: EventType>: ObserverRegister<E>, SubjectType
   }
 }
 
-public final class ReplayOneSubject<E: EventType>: ObserverRegister<E>, SubjectType {
+public final class ReplayOneSubject<E: EventType>: ObserverRegister<E>, RawSubjectType {
 
   private var event: E? = nil
   private let lock = RecursiveLock(name: "ReactiveKit.ReplayOneSubject")
@@ -156,11 +158,11 @@ public final class ReplayOneSubject<E: EventType>: ObserverRegister<E>, SubjectT
   }
 }
 
-public final class AnySubject<E: EventType>: SubjectType {
+public final class AnySubject<E: EventType>: RawSubjectType {
   private let baseObserve: (E -> Void) -> Disposable
   private let baseOn: E -> Void
 
-  public init<S: SubjectType where S.Event == E>(base: S) {
+  public init<S: RawSubjectType where S.Event == E>(base: S) {
     baseObserve = base.observe
     baseOn = base.on
   }
