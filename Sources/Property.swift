@@ -54,6 +54,9 @@ public final class Property<T>: PropertyType, StreamType, SubjectType {
   }
 
   public func on(event: StreamEvent<T>) {
+    if let element = event.element {
+      self._value = element
+    }
     subject.on(event)
   }
 
