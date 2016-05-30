@@ -215,7 +215,7 @@ public extension Stream {
   /// Create a stream that emits given element after `time` time on a given queue.
   @warn_unused_result
   public static func timer(element: Element, time: TimeValue, queue: Queue) -> Stream<Element> {
-    return Stream<Element>(rawStream: RawStream.timer(element, time: time, queue: queue))
+    return Stream<Element>(rawStream: RawStream.timer([.Next(element), .Completed], time: time, queue: queue))
   }
 }
 

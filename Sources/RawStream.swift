@@ -128,15 +128,14 @@ public extension RawStream where Event.Element: IntegerType {
 
 public extension RawStream {
 
-  /// Create a stream that emits given element after `time` time on a given queue.
+  /// Create a stream that emits given elements after `time` time on a given queue.
   @warn_unused_result
-  public static func timer(element: Event.Element, time: TimeValue, queue: Queue) -> RawStream<Event> {
+  public static func timer(events: [Event], time: TimeValue, queue: Queue) -> RawStream<Event> {
     return RawStream { observer in
       let disposable = SimpleDisposable()
       queue.after(time) {
         guard !disposable.isDisposed else { return }
-        observer.next(element)
-        observer.completed()
+        events.forEach(observer.on)
       }
       return disposable
     }

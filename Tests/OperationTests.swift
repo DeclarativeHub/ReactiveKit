@@ -187,11 +187,11 @@ class OperatorsTests: XCTestCase {
   }
 
   func testThrottle() {
-    let operation = Operation<Int, TestError>.interval(0.1, queue: Queue.global).take(4)
-    let distinct = operation.throttle(0.25)
+    let operation = Operation<Int, TestError>.interval(0.4, queue: Queue.global).take(5)
+    let distinct = operation.throttle(1)
     let expectation = expectationWithDescription("completed")
-    distinct.expectNext([0, 2], expectation: expectation)
-    waitForExpectationsWithTimeout(1, handler: nil)
+    distinct.expectNext([0, 3], expectation: expectation)
+    waitForExpectationsWithTimeout(3, handler: nil)
   }
 
   func testIgnoreNil() {
@@ -333,6 +333,18 @@ class OperatorsTests: XCTestCase {
     operation.next(3)
     operation.completed()
 
+    waitForExpectationsWithTimeout(1, handler: nil)
+  }
+
+  func testTimeoutNoFailure() {
+    let expectation = expectationWithDescription("completed")
+    Operation<Int, TestError>.just(1).timeout(0.2, with: .Error, on: Queue.main).expectNext([1], expectation: expectation)
+    waitForExpectationsWithTimeout(1, handler: nil)
+  }
+
+  func testTimeoutFailure() {
+    let expectation = expectationWithDescription("completed")
+    Operation<Int, TestError>.never().timeout(0.5, with: .Error, on: Queue.main).expect([.Failure(.Error)], expectation: expectation)
     waitForExpectationsWithTimeout(1, handler: nil)
   }
 

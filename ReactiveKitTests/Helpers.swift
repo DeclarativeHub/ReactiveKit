@@ -55,7 +55,7 @@ extension _StreamType {
       }
       let expected = eventsToProcess.removeFirst()
       XCTAssert(event.isEqualTo(expected), message + "(Got \(receivedEvents) instead of \(expectedEvents))", file: file, line: line)
-      if event.isCompletion {
+      if event.isTermination {
         expectation?.fulfill()
       }
     }

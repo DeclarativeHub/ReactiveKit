@@ -286,7 +286,7 @@ public extension Operation {
   /// Create an operation that emits given element after `time` time on a given queue.
   @warn_unused_result
   public static func timer(element: Element, time: TimeValue, queue: Queue) -> Operation<Element, Error> {
-    return Operation(rawStream: RawStream.timer(element, time: time, queue: queue))
+    return Operation(rawStream: RawStream.timer([.Next(element), .Completed], time: time, queue: queue))
   }
 }
 
@@ -869,17 +869,20 @@ extension OperationType {
   public func timeout(interval: TimeValue, with error: Error, on queue: Queue) -> Operation<Element, Error> {
     return Operation { observer in
       var completed = false
-      var lastSubscription: Disposable? = nil
-      return self.observe { event in
-        lastSubscription?.dispose()
-        observer.observer(event)
-        completed = event.isTermination
-        lastSubscription = queue.disposableAfter(interval) {
+      let timeoutWhenCan: () -> Disposable = {
+        return queue.disposableAfter(interval) {
           if !completed {
             completed = true
             observer.failure(error)
           }
         }
+      }
+      var lastSubscription = timeoutWhenCan()
+      return self.observe { event in
+        lastSubscription.dispose()
+        observer.observer(event)
+        completed = event.isTermination
+        lastSubscription = timeoutWhenCan()
       }
     }
   }

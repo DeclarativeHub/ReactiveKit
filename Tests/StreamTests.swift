@@ -166,11 +166,11 @@ class StreamTests: XCTestCase {
   }
 
   func testThrottle() {
-    let stream = Stream<Int>.interval(0.1, queue: Queue.global).take(4)
-    let distinct = stream.throttle(0.25)
+    let stream = Stream<Int>.interval(0.4, queue: Queue.global).take(5)
+    let distinct = stream.throttle(1)
     let expectation = expectationWithDescription("completed")
-    distinct.expectNext([0, 2], expectation: expectation)
-    waitForExpectationsWithTimeout(1, handler: nil)
+    distinct.expectNext([0, 3], expectation: expectation)
+    waitForExpectationsWithTimeout(3, handler: nil)
   }
 
   func testIgnoreNil() {
