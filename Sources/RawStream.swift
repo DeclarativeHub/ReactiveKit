@@ -49,6 +49,29 @@ extension _StreamType {
       }
     }
   }
+
+  /// Register an observer that will be executed on `.Completed` event.
+  @warn_unused_result
+  public func observeCompleted(observer: () -> Void) -> Disposable {
+    return observe { event in
+      if event.isCompletion {
+        observer()
+      }
+    }
+  }
+}
+
+extension _StreamType where Event: Errorable {
+
+  /// Register an observer that will receive error from `.Error` event of the stream.
+  @warn_unused_result
+  public func observeError(observer: Event.Error -> Void) -> Disposable {
+    return observe { event in
+      if let error = event.error {
+        observer(error)
+      }
+    }
+  }
 }
 
 // MARK: - RawStreamType
@@ -74,17 +97,23 @@ public struct RawStream<Event: EventType>: RawStreamType {
   /// Register an observer that will receive events from a stream.
   @warn_unused_result
   public func observe(observer: Event -> Void) -> Disposable {
+    let serialDisposable = SerialDisposable(otherDisposable: nil)
+    let lock = RecursiveLock(name: "observe")
     var terminated = false
     let observer = Observer<Event> { event in
-      guard !terminated else { return }
-      terminated = event.isTermination
-      observer(event)
+      lock.atomic {
+        guard !serialDisposable.isDisposed && !terminated else { return }
+        if event.isTermination {
+          terminated = true
+          observer(event)
+          serialDisposable.dispose()
+        } else {
+          observer(event)
+        }
+      }
     }
-    let disposable = producer(observer)
-    return BlockDisposable {
-      terminated = true
-      disposable.dispose()
-    }
+    serialDisposable.otherDisposable = producer(observer)
+    return serialDisposable
   }
 }
 

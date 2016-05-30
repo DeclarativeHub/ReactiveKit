@@ -810,8 +810,7 @@ extension OperationType {
                         failure: (Error -> ())? = nil,
                         start: (() -> Void)? = nil,
                         completed: (() -> Void)? = nil,
-                        disposed: (() -> ())? = nil,
-                        terminated: (() -> ())? = nil
+                        disposed: (() -> ())? = nil
     ) -> Operation<Element, Error> {
     return Operation { observer in
       start?()
@@ -821,17 +820,14 @@ extension OperationType {
           next?(value)
         case .Failure(let error):
           failure?(error)
-          terminated?()
         case .Completed:
           completed?()
-          terminated?()
         }
         observer.observer(event)
       }
       return BlockDisposable {
         disposable.dispose()
         disposed?()
-        terminated?()
       }
     }
   }
@@ -895,7 +891,7 @@ extension OperationType {
   /// Updates the given subject with `true` when the receiver starts and with `false` when the receiver terminates.
   @warn_unused_result
   public func feedActivityInto<S: SubjectType where S.Event.Element == Bool>(listener: S) -> Operation<Element, Error> {
-    return doOn(start: { listener.next(true) }, terminated: { listener.next(false) })
+    return doOn(start: { listener.next(true) }, disposed: { listener.next(false) })
   }
 
   /// Updates the given subject with .Next element.

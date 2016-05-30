@@ -250,15 +250,13 @@ class StreamTests: XCTestCase {
     var next = 0
     var completed = 0
     var disposed = 0
-    var terminated = 0
 
-    let d = stream.doOn(next: { _ in next += 1 }, start: { start += 1}, completed: { completed += 1}, disposed: { disposed += 1}, terminated: { terminated += 1 }).observe { _ in }
+    let d = stream.doOn(next: { _ in next += 1 }, start: { start += 1}, completed: { completed += 1}, disposed: { disposed += 1}).observe { _ in }
 
     XCTAssert(start == 1)
     XCTAssert(next == 3)
     XCTAssert(completed == 1)
-    XCTAssert(disposed == 0)
-    XCTAssert(terminated == 1)
+    XCTAssert(disposed == 1)
 
     d.dispose()
     XCTAssert(disposed == 1)

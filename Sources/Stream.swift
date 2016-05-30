@@ -606,8 +606,7 @@ extension StreamType {
   public func doOn(next next: (Element -> ())? = nil,
                         start: (() -> Void)? = nil,
                         completed: (() -> Void)? = nil,
-                        disposed: (() -> ())? = nil,
-                        terminated: (() -> ())? = nil) -> Stream<Element> {
+                        disposed: (() -> ())? = nil) -> Stream<Element> {
     return Stream { observer in
       start?()
       let disposable = self.observe { event in
@@ -616,14 +615,12 @@ extension StreamType {
           next?(value)
         case .Completed:
           completed?()
-          terminated?()
         }
         observer.observer(event)
       }
       return BlockDisposable {
         disposable.dispose()
         disposed?()
-        terminated?()
       }
     }
   }
@@ -662,7 +659,7 @@ extension StreamType {
   /// Updates the given subject with `true` when the receiver starts and with `false` when the receiver terminates.
   @warn_unused_result
   public func feedActivityInto<S: SubjectType where S.Event.Element == Bool>(listener: S) -> Stream<Element> {
-    return doOn(start: { listener.next(true) }, terminated: { listener.next(false) })
+    return doOn(start: { listener.next(true) }, disposed: { listener.next(false) })
   }
 
   /// Updates the given subject with .Next elements.
