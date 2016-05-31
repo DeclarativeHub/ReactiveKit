@@ -23,7 +23,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <ReactiveKit/RKProtocolProxyBase.h>
+#import "RKProtocolProxyBase.h"
 
 //! Project version number for ReactiveKit.
 FOUNDATION_EXPORT double ReactiveKitVersionNumber;
