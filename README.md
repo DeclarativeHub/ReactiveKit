@@ -487,6 +487,8 @@ Note that in the mapping closures of both `streamFor` and `feed` methods you mus
 
 * [ReactiveGitter](https://github.com/ReactiveKit/ReactiveGitter) - A ReactiveKit demo application.
 * [ReactiveKit Reference](http://cocoadocs.org/docsets/ReactiveKit/2.0.0) - Code reference on Cocoadocs.
+* [A Different Take on MVVM with Swift](http://rasic.info/a-different-take-on-mvvm-with-swift/) - App architecture example with ReactiveKit.
+* [Implementing Reactive Delegates](http://rasic.info/implementing-reactive-delegates-in-swift-powered-by-objective-c/) - A post about reactive delegates implementation.
 
 ## Installation
 
