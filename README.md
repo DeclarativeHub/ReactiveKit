@@ -160,6 +160,34 @@ disposable.dispose()
 
 From that point on the stream will not send any more events and the underlying task will be cancelled.
 
+A general rule is to dispose all observations you make. It's recommended to keep a dispose bag where you should all of your disposables. The bag will automatically dispose all disposables you put in when it is deallocated.
+
+```swift
+class X {
+  let disposeBag = DisposeBag()
+  
+  func y() {
+    ...
+    aStream.observeNext { _ in
+      ...
+    }.disposeIn(disposeBag)
+  }
+}
+```
+
+If your class is a subclass or a descendent of NSObject, ReactiveKit provides the bag as an extension property `rBag` that you can you out of the box.
+
+```swift
+class MyViewController: UIViewController {
+  func viewDidLoad() {
+    ...
+    aStream.observeNext { _ in
+      ...
+    }.disposeIn(rBag)
+  }
+}
+```
+
 ### Bindings
 
 Streams cannot fail and that makes them safe to represent the data that UI displays. To facilitate that use, streams are made to be bindable. They can be bound to any type conforming to `BindableType` protocol.
