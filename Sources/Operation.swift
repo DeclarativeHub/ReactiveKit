@@ -198,6 +198,20 @@ public extension OperationType {
   }
 }
 
+extension OperationEvent: CustomStringConvertible {
+
+  public var description: String {
+    switch self {
+    case .Next(let element):
+      return ".Next(\(element))"
+    case .Failure(let error):
+      return ".Failure(\(error))"
+    case .Completed:
+      return ".Completed"
+    }
+  }
+}
+
 // MARK: - Operation
 
 /// Represents a stream that can fail.

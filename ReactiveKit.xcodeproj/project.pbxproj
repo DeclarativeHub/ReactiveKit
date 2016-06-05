@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		168103451D046388007D1DD4 /* CollectionPropertyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168103431D046388007D1DD4 /* CollectionPropertyTests.swift */; };
+		168103461D046388007D1DD4 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168103441D046388007D1DD4 /* Helpers.swift */; };
 		16A6B8F11CE7952600C27D5B /* RKProtocolProxyBase.h in Headers */ = {isa = PBXBuildFile; fileRef = 16A6B8EF1CE7952600C27D5B /* RKProtocolProxyBase.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		16A6B8F21CE7952600C27D5B /* RKProtocolProxyBase.h in Headers */ = {isa = PBXBuildFile; fileRef = 16A6B8EF1CE7952600C27D5B /* RKProtocolProxyBase.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		16A6B8F31CE7952600C27D5B /* RKProtocolProxyBase.h in Headers */ = {isa = PBXBuildFile; fileRef = 16A6B8EF1CE7952600C27D5B /* RKProtocolProxyBase.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -23,7 +25,6 @@
 		16C33B841BEFBAC900A0DBE0 /* ReactiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		16C33B851BEFBAC900A0DBE0 /* ReactiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EC2515771CBD4E0700175926 /* StreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2515751CBD4E0000175926 /* StreamTests.swift */; };
-		EC25158D1CBF94B400175926 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC25158C1CBF94B400175926 /* Helpers.swift */; };
 		EC25158F1CBFB6A400175926 /* ArrayDiffTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8A9A171CABDA5F0042A6AD /* ArrayDiffTests.swift */; };
 		EC65A0B31CBFEE4D00B41FA7 /* OperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65A0B21CBFEE4D00B41FA7 /* OperationTests.swift */; };
 		EC8A99E71CABD9B50042A6AD /* CollectionProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8A99DB1CABD9B50042A6AD /* CollectionProperty.swift */; };
@@ -96,6 +97,8 @@
 		162CB7461CB451D200FB6375 /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		1671707E1BF4F62A001786CE /* ReactiveKit.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReactiveKit.podspec; sourceTree = SOURCE_ROOT; };
 		1671707F1BF4F64E001786CE /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; lineEnding = 0; path = README.md; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.markdown; };
+		168103431D046388007D1DD4 /* CollectionPropertyTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CollectionPropertyTests.swift; path = Tests/CollectionPropertyTests.swift; sourceTree = SOURCE_ROOT; };
+		168103441D046388007D1DD4 /* Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Helpers.swift; path = Tests/Helpers.swift; sourceTree = SOURCE_ROOT; };
 		16A6B8EF1CE7952600C27D5B /* RKProtocolProxyBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RKProtocolProxyBase.h; sourceTree = "<group>"; };
 		16A6B8F01CE7952600C27D5B /* RKProtocolProxyBase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RKProtocolProxyBase.m; sourceTree = "<group>"; };
 		16A6B8F91CE7957400C27D5B /* ProtocolProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ProtocolProxy.swift; path = Sources/ProtocolProxy.swift; sourceTree = SOURCE_ROOT; };
@@ -103,7 +106,6 @@
 		16C33B161BEFB9CB00A0DBE0 /* ReactiveKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		16C33B241BEFBA0100A0DBE0 /* ReactiveKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EC2515751CBD4E0000175926 /* StreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = StreamTests.swift; path = Tests/StreamTests.swift; sourceTree = SOURCE_ROOT; };
-		EC25158C1CBF94B400175926 /* Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
 		EC65A0B21CBFEE4D00B41FA7 /* OperationTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = OperationTests.swift; path = Tests/OperationTests.swift; sourceTree = SOURCE_ROOT; };
 		EC8A99DB1CABD9B50042A6AD /* CollectionProperty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CollectionProperty.swift; path = Sources/CollectionProperty.swift; sourceTree = SOURCE_ROOT; };
 		EC8A99DC1CABD9B50042A6AD /* Disposable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Disposable.swift; path = Sources/Disposable.swift; sourceTree = SOURCE_ROOT; };
@@ -223,7 +225,8 @@
 				EC8A9A181CABDA5F0042A6AD /* PerformanceTests.swift */,
 				EC2515751CBD4E0000175926 /* StreamTests.swift */,
 				EC65A0B21CBFEE4D00B41FA7 /* OperationTests.swift */,
-				EC25158C1CBF94B400175926 /* Helpers.swift */,
+				168103431D046388007D1DD4 /* CollectionPropertyTests.swift */,
+				168103441D046388007D1DD4 /* Helpers.swift */,
 				ECBCCDE11BEB6B9B00723476 /* Info.plist */,
 			);
 			path = ReactiveKitTests;
@@ -540,9 +543,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EC25158D1CBF94B400175926 /* Helpers.swift in Sources */,
+				168103451D046388007D1DD4 /* CollectionPropertyTests.swift in Sources */,
 				EC2515771CBD4E0700175926 /* StreamTests.swift in Sources */,
 				EC25158F1CBFB6A400175926 /* ArrayDiffTests.swift in Sources */,
+				168103461D046388007D1DD4 /* Helpers.swift in Sources */,
 				EC65A0B31CBFEE4D00B41FA7 /* OperationTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

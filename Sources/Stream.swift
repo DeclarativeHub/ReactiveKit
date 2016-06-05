@@ -137,6 +137,18 @@ public extension StreamType {
   }
 }
 
+extension StreamEvent: CustomStringConvertible {
+
+  public var description: String {
+    switch self {
+    case .Next(let element):
+      return ".Next(\(element))"
+    case .Completed:
+      return ".Completed"
+    }
+  }
+}
+
 // MARK: - Stream
 
 /// Represents a stream over generic Element type.

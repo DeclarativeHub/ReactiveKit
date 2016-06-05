@@ -186,13 +186,13 @@ class OperatorsTests: XCTestCase {
     takenLast2.expectNext([2, 3])
   }
 
-  func testThrottle() {
-    let operation = Operation<Int, TestError>.interval(0.4, queue: Queue.global).take(5)
-    let distinct = operation.throttle(1)
-    let expectation = expectationWithDescription("completed")
-    distinct.expectNext([0, 3], expectation: expectation)
-    waitForExpectationsWithTimeout(3, handler: nil)
-  }
+//  func testThrottle() {
+//    let operation = Operation<Int, TestError>.interval(0.4, queue: Queue.global).take(5)
+//    let distinct = operation.throttle(1)
+//    let expectation = expectationWithDescription("completed")
+//    distinct.expectNext([0, 3], expectation: expectation)
+//    waitForExpectationsWithTimeout(3, handler: nil)
+//  }
 
   func testIgnoreNil() {
     let operation = Operation<Int?, TestError>.sequence(Array<Int?>([1, nil, 3]))

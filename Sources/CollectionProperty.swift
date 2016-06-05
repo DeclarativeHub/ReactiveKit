@@ -30,7 +30,7 @@ public protocol CollectionChangesetType {
   var updates: [Collection.Index] { get }
 }
 
-public struct CollectionChangeset<Collection: CollectionType>: CollectionChangesetType {
+public struct CollectionChangeset<Collection: CollectionType>: CollectionChangesetType, CustomStringConvertible {
   public let collection: Collection
   public let inserts: [Collection.Index]
   public let deletes: [Collection.Index]
@@ -45,6 +45,10 @@ public struct CollectionChangeset<Collection: CollectionType>: CollectionChanges
     self.inserts = inserts
     self.deletes = deletes
     self.updates = updates
+  }
+
+  public var description: String {
+    return "Collection: \(collection), changes: i\(inserts), d\(deletes), u\(updates)."
   }
 }
 
@@ -74,17 +78,42 @@ public extension CollectionChangesetType where Collection.Index == Int {
 public extension CollectionChangesetType where Collection.Index == Int {
 
   /// O(n)
-  public func filter(include: Collection.Generator.Element -> Bool) -> CollectionChangeset<Array<Collection.Generator.Element>> {
+  public func filter(previousIndexMap: [Int: Int], include: Collection.Generator.Element -> Bool) -> ([Int: Int], CollectionChangeset<Array<Collection.Generator.Element>>?) {
+    var filtered: [Collection.Generator.Element] = []
+    var indexMap: [Int: Int] = [:]
+    var iterator = 0
 
-    let filteredPairs = zip(collection.indices, collection).filter { include($0.1) }
-    let includedIndices = Set(filteredPairs.map { $0.0 })
+    filtered.reserveCapacity(collection.count)
 
-    let filteredCollection = filteredPairs.map { $0.1 }
-    let filteredInserts = inserts.filter { includedIndices.contains($0) }
-    let filteredDeletes = deletes.filter { includedIndices.contains($0) }
-    let filteredUpdates = updates.filter { includedIndices.contains($0) }
+    for (index, element) in collection.enumerate() {
+      if include(element) {
+        filtered.append(element)
+        indexMap[index] = iterator
+        iterator += 1
+      }
+    }
 
-    return CollectionChangeset(collection: filteredCollection, inserts: filteredInserts, deletes: filteredDeletes, updates: filteredUpdates)
+    var filteredInserts = inserts.flatMap { indexMap[$0] }
+    var filteredDeletes = deletes.flatMap { previousIndexMap[$0] }
+    var filteredUpdates: [Int] = []
+
+    for update in updates {
+      if let index = indexMap[update] {
+        if let _ = previousIndexMap[update] {
+          filteredUpdates.append(index)
+        } else {
+          filteredInserts.append(index)
+        }
+      } else if let index = previousIndexMap[update] {
+        filteredDeletes.append(index)
+      }
+    }
+
+    if inserts.count + deletes.count + updates.count > 0 && filteredInserts.count + filteredDeletes.count + filteredUpdates.count == 0 {
+      return (indexMap, nil)
+    } else {
+      return (indexMap, CollectionChangeset(collection: filtered, inserts: filteredInserts, deletes: filteredDeletes, updates: filteredUpdates))
+    }
   }
 }
 
@@ -104,11 +133,23 @@ public extension CollectionChangesetType where Collection.Index: Hashable {
     }
 
     let sortedCollection = sortedPairs.map { $0.1 }
-    let newDeletes = deletes.map { previousSortMap![$0]! }
-    let newInserts = inserts.map { sortMap[$0]! }
-    let newUpdates = updates.map { sortMap[$0]! }
-    let changeSet = CollectionChangeset(collection: sortedCollection, inserts: newInserts, deletes: newDeletes, updates: newUpdates)
 
+    var newDeletes = deletes.map { previousSortMap![$0]! }
+    var newInserts = inserts.map { sortMap[$0]! }
+    var newUpdates: [Int] = []
+
+    for update in updates {
+      if let index = sortMap[update], prevIndex = previousSortMap![update] {
+        if index == prevIndex {
+          newUpdates.append(index)
+        } else {
+          newDeletes.append(prevIndex)
+          newInserts.append(index)
+        }
+      }
+    }
+
+    let changeSet = CollectionChangeset(collection: sortedCollection, inserts: newInserts, deletes: newDeletes, updates: newUpdates)
     return (changeset: changeSet, sortMap: sortMap)
   }
 }
@@ -121,11 +162,23 @@ public extension CollectionChangesetType where Collection.Index: Equatable {
     let sortedIndices = sortedPairs.map { $0.0 }
 
     let sortedCollection = sortedPairs.map { $0.1 }
-    let newDeletes = deletes.map { previousSortedIndices!.indexOf($0)! }
-    let newInserts = inserts.map { sortedIndices.indexOf($0)! }
-    let newUpdates = updates.map { sortedIndices.indexOf($0)! }
-    let changeset = CollectionChangeset(collection: sortedCollection, inserts: newInserts, deletes: newDeletes, updates: newUpdates)
 
+    var newDeletes = deletes.map { previousSortedIndices!.indexOf($0)! }
+    var newInserts = inserts.map { sortedIndices.indexOf($0)! }
+    var newUpdates: [Array<Collection.Generator.Element>.Index] = []
+
+    for update in updates {
+      if let index = sortedIndices.indexOf(update), prevIndex = previousSortedIndices!.indexOf(update) {
+        if index == prevIndex {
+          newUpdates.append(index)
+        } else {
+          newDeletes.append(prevIndex)
+          newInserts.append(index)
+        }
+      }
+    }
+
+    let changeset = CollectionChangeset(collection: sortedCollection, inserts: newInserts, deletes: newDeletes, updates: newUpdates)
     return (changeset: changeset, sortedIndices: sortedIndices)
   }
 }
@@ -246,8 +299,17 @@ public extension CollectionPropertyType where Collection.Index == Int {
   @warn_unused_result
   public func filter(include: Collection.Generator.Element -> Bool) -> Stream<CollectionChangeset<Array<Collection.Generator.Element>>> {
     return Stream { observer in
+      var previousIndexMap: [Int: Int] = [:]
       return self.observe { event in
-        observer.observer(event.map { $0.filter(include) })
+        if let changeset = event.element {
+          let (indexMap, filteredChanges) = changeset.filter(previousIndexMap, include: include)
+          previousIndexMap = indexMap
+          if let filteredChanges = filteredChanges {
+            observer.next(filteredChanges)
+          }
+        } else {
+          observer.completed()
+        }
       }
     }
   }

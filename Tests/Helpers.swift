@@ -28,8 +28,12 @@ extension EventType {
         return left == right
       } else if let left = left as? [String], right = right as? [String] {
         return left == right
+      } else if let left = left as? CollectionChangeset<[Int]>, right = right as? CollectionChangeset<[Int]> {
+        return left.collection == right.collection && left.inserts == right.inserts && left.updates == right.updates && left.deletes == right.deletes
+      } else if let left = left as? CollectionChangeset<[(String, Int)]>, right = right as? CollectionChangeset<[(String, Int)]> {
+        return left.collection == right.collection && left.inserts == right.inserts && left.updates == right.updates && left.deletes == right.deletes
       } else {
-        fatalError("Cannot compare that element type.")
+        fatalError("Cannot compare that element type. \(left)")
       }
     } else {
       return false
@@ -92,3 +96,14 @@ class Scheduler {
     }
   }
 }
+
+func ==(lhs: [(String, Int)], rhs: [(String, Int)]) -> Bool {
+  if lhs.count != rhs.count {
+    return false
+  }
+
+  return zip(lhs, rhs).reduce(true) { memo, new in
+    memo && new.0.0 == new.1.0 && new.0.1 == new.1.1
+  }
+}
+
