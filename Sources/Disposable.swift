@@ -117,7 +117,7 @@ public final class CompositeDisposable: Disposable {
     self.disposables = disposables
   }
 
-  public func addDisposable(disposable: Disposable) {
+  public func add(disposable: Disposable) {
     lock.atomic {
       if isDisposed {
         disposable.dispose()
@@ -138,7 +138,7 @@ public final class CompositeDisposable: Disposable {
 }
 
 public func += (left: CompositeDisposable, right: Disposable) {
-  left.addDisposable(right)
+  left.add(disposable: right)
 }
 
 /// A disposable container that will dispose a collection of disposables upon deinit.
@@ -155,7 +155,7 @@ public final class DisposeBag: Disposable {
 
   /// Adds the given disposable to the bag.
   /// Disposable will be disposed when the bag is deinitialized.
-  public func addDisposable(disposable: Disposable) {
+  public func add(disposable: Disposable) {
     disposables.append(disposable)
   }
 
@@ -171,8 +171,8 @@ public final class DisposeBag: Disposable {
 }
 
 public extension Disposable {
-  public func disposeIn(disposeBag: DisposeBag) {
-    disposeBag.addDisposable(self)
+  public func disposeIn(_ disposeBag: DisposeBag) {
+    disposeBag.add(disposable: self)
   }
 }
 

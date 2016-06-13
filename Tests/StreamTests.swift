@@ -55,7 +55,7 @@ class StreamTests: XCTestCase {
 
   func testBuffer() {
     let stream = Stream.sequence([1,2,3,4,5])
-    let buffered = stream.buffer(2)
+    let buffered = stream.buffer(size: 2)
     buffered.expectNext([[1, 2], [3, 4]])
   }
 
@@ -85,16 +85,16 @@ class StreamTests: XCTestCase {
 
   func testWindow() {
     let stream = Stream.sequence([1, 2, 3])
-    let window = stream.window(2)
+    let window = stream.window(size: 2)
     window.merge().expectNext([1, 2])
   }
 
   func testDebounce() {
-    let stream = Stream<Int>.interval(0.1, queue: Queue.global).take(3)
-    let distinct = stream.debounce(0.2, on: Queue.global)
-    let expectation = expectationWithDescription("completed")
-    distinct.expectNext([2], expectation: expectation)
-    waitForExpectationsWithTimeout(1, handler: nil)
+    let stream = Stream<Int>.interval(0.1, queue: Queue.global).take(first: 3)
+    let distinct = stream.debounce(interval: 0.2, on: Queue.global)
+    let exp = expectation(withDescription: "completed")
+    distinct.expectNext([2], expectation: exp)
+    waitForExpectations(withTimeout: 1, handler: nil)
   }
 
   func testDistinct() {
@@ -111,7 +111,7 @@ class StreamTests: XCTestCase {
 
   func testElementAt() {
     let stream = Stream.sequence([1, 2, 3])
-    let elementAt1 = stream.elementAt(1)
+    let elementAt1 = stream.element(at: 1)
     elementAt1.expectNext([2])
   }
 
@@ -143,33 +143,33 @@ class StreamTests: XCTestCase {
 
   func testSkip() {
     let stream = Stream.sequence([1, 2, 3])
-    let skipped1 = stream.skip(1)
+    let skipped1 = stream.skip(first: 1)
     skipped1.expectNext([2, 3])
   }
 
   func testSkipLast() {
     let stream = Stream.sequence([1, 2, 3])
-    let skippedLast1 = stream.skipLast(1)
+    let skippedLast1 = stream.skip(last: 1)
     skippedLast1.expectNext([1, 2])
   }
 
   func testTake() {
     let stream = Stream.sequence([1, 2, 3])
-    let taken2 = stream.take(2)
+    let taken2 = stream.take(first: 2)
     taken2.expectNext([1, 2])
   }
 
   func testTakeLast() {
     let stream = Stream.sequence([1, 2, 3])
-    let takenLast2 = stream.takeLast(2)
+    let takenLast2 = stream.take(last: 2)
     takenLast2.expectNext([2, 3])
   }
 
 //  func testThrottle() {
 //    let stream = Stream<Int>.interval(0.4, queue: Queue.global).take(5)
 //    let distinct = stream.throttle(1)
-//    let expectation = expectationWithDescription("completed")
-//    distinct.expectNext([0, 3], expectation: expectation)
+//    let exp = expectation(withDescription: "completed")
+//    distinct.expectNext([0, 3], expectation: exp)
 //    waitForExpectationsWithTimeout(3, handler: nil)
 //  }
 
@@ -185,10 +185,10 @@ class StreamTests: XCTestCase {
 
     let streamA = Stream.sequence([1, 2, 3]).observeIn(bob.context)
     let streamB = Stream.sequence(["A", "B", "C"]).observeIn(eve.context)
-    let combined = streamA.combineLatestWith(streamB).map { "\($0)\($1)" }
+    let combined = streamA.combineLatest(with: streamB).map { "\($0)\($1)" }
 
-    let expectation = expectationWithDescription("completed")
-    combined.expectNext(["1A", "1B", "2B", "3B", "3C"], expectation: expectation)
+    let exp = expectation(withDescription: "completed")
+    combined.expectNext(["1A", "1B", "2B", "3B", "3C"], expectation: exp)
 
     bob.runOne()
     eve.runOne()
@@ -196,7 +196,7 @@ class StreamTests: XCTestCase {
     bob.runRemaining()
     eve.runRemaining()
 
-    waitForExpectationsWithTimeout(1, handler: nil)
+    waitForExpectations(withTimeout: 1, handler: nil)
   }
 
   func testMergeWith() {
@@ -204,10 +204,10 @@ class StreamTests: XCTestCase {
     let eve = Scheduler()
     let streamA = Stream.sequence([1, 2, 3]).observeIn(bob.context)
     let streamB = Stream.sequence([4, 5, 6]).observeIn(eve.context)
-    let merged = streamA.mergeWith(streamB)
+    let merged = streamA.merge(with: streamB)
 
-    let expectation = expectationWithDescription("completed")
-    merged.expectNext([1, 4, 5, 2, 6, 3], expectation: expectation)
+    let exp = expectation(withDescription: "completed")
+    merged.expectNext([1, 4, 5, 2, 6, 3], expectation: exp)
 
     bob.runOne()
     eve.runOne()
@@ -216,19 +216,19 @@ class StreamTests: XCTestCase {
     eve.runRemaining()
     bob.runRemaining()
 
-    waitForExpectationsWithTimeout(1, handler: nil)
+    waitForExpectations(withTimeout: 1, handler: nil)
   }
 
   func testStartWith() {
     let stream = Stream.sequence([1, 2, 3])
-    let startWith4 = stream.startWith(4)
+    let startWith4 = stream.start(with: 4)
     startWith4.expectNext([4, 1, 2, 3])
   }
 
   func testZipWith() {
     let streamA = Stream.sequence([1, 2, 3])
     let streamB = Stream.sequence(["A", "B"])
-    let combined = streamA.zipWith(streamB).map { "\($0)\($1)" }
+    let combined = streamA.zip(with: streamB).map { "\($0)\($1)" }
     combined.expectNext(["1A", "2B"])
   }
 
@@ -251,7 +251,9 @@ class StreamTests: XCTestCase {
     var completed = 0
     var disposed = 0
 
-    let d = stream.doOn(next: { _ in next += 1 }, start: { start += 1}, completed: { completed += 1}, disposed: { disposed += 1}).observe { _ in }
+    let d = stream
+      .doOn(next: { _ in next += 1 }, start: { start += 1}, completed: { completed += 1}, disposed: { disposed += 1})
+      .observe { _ in }
 
     XCTAssert(start == 1)
     XCTAssert(next == 3)
@@ -277,8 +279,8 @@ class StreamTests: XCTestCase {
     let controller = PushStream<Bool>()
     let paused = stream.shareReplay().pausable(by: controller)
 
-    let expectation = expectationWithDescription("completed")
-    paused.expectNext([1, 3], expectation: expectation)
+    let exp = expectation(withDescription: "completed")
+    paused.expectNext([1, 3], expectation: exp)
 
     stream.next(1)
     controller.next(false)
@@ -287,7 +289,7 @@ class StreamTests: XCTestCase {
     stream.next(3)
     stream.completed()
 
-    waitForExpectationsWithTimeout(1, handler: nil)
+    waitForExpectations(withTimeout: 1, handler: nil)
   }
 
   func testAmbWith() {
@@ -296,16 +298,16 @@ class StreamTests: XCTestCase {
 
     let streamA = Stream.sequence([1, 2]).observeIn(bob.context)
     let streamB = Stream.sequence([3, 4]).observeIn(eve.context)
-    let ambdWith = streamA.ambWith(streamB)
+    let ambdWith = streamA.amb(with: streamB)
 
-    let expectation = expectationWithDescription("completed")
-    ambdWith.expectNext([3, 4], expectation: expectation)
+    let exp = expectation(withDescription: "completed")
+    ambdWith.expectNext([3, 4], expectation: exp)
 
     eve.runOne()
     bob.runRemaining()
     eve.runRemaining()
 
-    waitForExpectationsWithTimeout(1, handler: nil)
+    waitForExpectations(withTimeout: 1, handler: nil)
   }
 
   func testCollect() {
@@ -320,17 +322,17 @@ class StreamTests: XCTestCase {
 
     let streamA = Stream.sequence([1, 2]).observeIn(bob.context)
     let streamB = Stream.sequence([3, 4]).observeIn(eve.context)
-    let merged = streamA.concatWith(streamB)
+    let merged = streamA.concat(with: streamB)
     
-    let expectation = expectationWithDescription("completed")
-    merged.expectNext([1, 2, 3, 4], expectation: expectation)
+    let exp = expectation(withDescription: "completed")
+    merged.expectNext([1, 2, 3, 4], expectation: exp)
 
     bob.runOne()
     eve.runOne()
     bob.runRemaining()
     eve.runRemaining()
 
-    waitForExpectationsWithTimeout(1, handler: nil)
+    waitForExpectations(withTimeout: 1, handler: nil)
   }
 
   func testDefaultIfEmpty() {
@@ -356,12 +358,12 @@ class StreamTests: XCTestCase {
     let eves = [Scheduler(), Scheduler()]
 
     let stream = Stream.sequence([1, 2]).observeIn(bob.context)
-    let merged = stream.flatMap(.Merge) { num in
+    let merged = stream.flatMapMerge { num in
       return Stream.sequence([5, 6].map { $0 * num }).observeIn(eves[num-1].context)
     }
 
-    let expectation = expectationWithDescription("completed")
-    merged.expectNext([5, 10, 12, 6], expectation: expectation)
+    let exp = expectation(withDescription: "completed")
+    merged.expectNext([5, 10, 12, 6], expectation: exp)
 
     bob.runOne()
     eves[0].runOne()
@@ -369,7 +371,7 @@ class StreamTests: XCTestCase {
     eves[1].runRemaining()
     eves[0].runRemaining()
 
-    waitForExpectationsWithTimeout(1, handler: nil)
+    waitForExpectations(withTimeout: 1, handler: nil)
   }
 
   func testFlatMapLatest() {
@@ -377,12 +379,12 @@ class StreamTests: XCTestCase {
     let eves = [Scheduler(), Scheduler()]
 
     let stream = Stream.sequence([1, 2]).observeIn(bob.context)
-    let merged = stream.flatMap(.Latest) { num in
+    let merged = stream.flatMapLatest { num in
       return Stream.sequence([5, 6].map { $0 * num }).observeIn(eves[num-1].context)
     }
 
-    let expectation = expectationWithDescription("completed")
-    merged.expectNext([5, 10, 12], expectation: expectation)
+    let exp = expectation(withDescription: "completed")
+    merged.expectNext([5, 10, 12], expectation: exp)
 
     bob.runOne()
     eves[0].runOne()
@@ -390,7 +392,7 @@ class StreamTests: XCTestCase {
     eves[1].runRemaining()
     eves[0].runRemaining()
 
-    waitForExpectationsWithTimeout(1, handler: nil)
+    waitForExpectations(withTimeout: 1, handler: nil)
   }
 
   func testFlatMapConcat() {
@@ -398,19 +400,19 @@ class StreamTests: XCTestCase {
     let eves = [Scheduler(), Scheduler()]
 
     let stream = Stream.sequence([1, 2]).observeIn(bob.context)
-    let merged = stream.flatMap(.Concat) { num in
+    let merged = stream.flatMapConcat { num in
       return Stream.sequence([5, 6].map { $0 * num }).observeIn(eves[num-1].context)
     }
 
-    let expectation = expectationWithDescription("completed")
-    merged.expectNext([5, 6, 10, 12], expectation: expectation)
+    let exp = expectation(withDescription: "completed")
+    merged.expectNext([5, 6, 10, 12], expectation: exp)
 
     bob.runRemaining()
     eves[1].runOne()
     eves[0].runRemaining()
     eves[1].runRemaining()
 
-    waitForExpectationsWithTimeout(1, handler: nil)
+    waitForExpectations(withTimeout: 1, handler: nil)
   }
 
   func testReplay() {
@@ -421,7 +423,7 @@ class StreamTests: XCTestCase {
     let replayed = stream.replay(2)
 
     replayed.expectNext([1, 2, 3])
-    replayed.connect()
+    let _ = replayed.connect()
     replayed.expectNext([2, 3])
     XCTAssertEqual(bob.numberOfRuns, 1)
   }
@@ -434,7 +436,7 @@ class StreamTests: XCTestCase {
     let published = stream.publish()
 
     published.expectNext([1, 2, 3])
-    published.connect()
+    let _ = published.connect()
     published.expectNext([])
 
     XCTAssertEqual(bob.numberOfRuns, 1)

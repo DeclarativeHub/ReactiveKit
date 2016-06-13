@@ -19,7 +19,7 @@ public class ProtocolProxy: RKProtocolProxyBase {
   public init(object: NSObject, `protocol`: Protocol, setter: Selector) {
     self.object = object
     self.setter = setter
-    super.init(withProtocol: `protocol`)
+    super.init(with: `protocol`)
   }
 
   public override var forwardTo: NSObject? {
@@ -32,20 +32,20 @@ public class ProtocolProxy: RKProtocolProxyBase {
     }
   }
 
-  public override func hasHandlerForSelector(selector: Selector) -> Bool {
+  public override func hasHandler(for selector: Selector) -> Bool {
     return invokers[selector] != nil
   }
 
-  public override func invoke(selector: Selector, argumentExtractor: (Int, UnsafeMutablePointer<Void>) -> Void, setReturnValue: ((UnsafeMutablePointer<Void>) -> Void)?) {
+  public override func invoke(_ selector: Selector, argumentExtractor: (Int, UnsafeMutablePointer<Void>) -> Void, setReturnValue: ((UnsafeMutablePointer<Void>) -> Void)?) {
     guard let invoker = invokers[selector] else { return }
     invoker(argumentExtractor, setReturnValue)
   }
 
-  private func registerInvoker<T, R>(selector: Selector, block: T -> R) {
+  private func registerInvoker<T, R>(selector: Selector, block: (T) -> R) {
     invokers[selector] = { extractor, setReturnValue in
-      let a1 = UnsafeMutablePointer<T>.alloc(1)
+      let a1 = UnsafeMutablePointer<T>(allocatingCapacity: 1)
       extractor(2, a1)
-      var r = block(a1.memory as T)
+      var r = block(a1.pointee as T)
       if let setReturnValue = setReturnValue { setReturnValue(&r) }
     }
     registerDelegate()
@@ -53,11 +53,11 @@ public class ProtocolProxy: RKProtocolProxyBase {
 
   private func registerInvoker<T, U, R>(selector: Selector, block: (T, U) -> R) {
     invokers[selector] = { extractor, setReturnValue in
-      let a1 = UnsafeMutablePointer<T>.alloc(1)
+      let a1 = UnsafeMutablePointer<T>(allocatingCapacity: 1)
       extractor(2, a1)
-      let a2 = UnsafeMutablePointer<U>.alloc(1)
+      let a2 = UnsafeMutablePointer<U>(allocatingCapacity: 1)
       extractor(3, a2)
-      var r = block(a1.memory as T, a2.memory as U)
+      var r = block(a1.pointee as T, a2.pointee as U)
       if let setReturnValue = setReturnValue { setReturnValue(&r) }
     }
     registerDelegate()
@@ -65,13 +65,13 @@ public class ProtocolProxy: RKProtocolProxyBase {
 
   private func registerInvoker<T, U, V, R>(selector: Selector, block: (T, U, V) -> R) {
     invokers[selector] = { extractor, setReturnValue in
-      let a1 = UnsafeMutablePointer<T>.alloc(1)
+      let a1 = UnsafeMutablePointer<T>(allocatingCapacity: 1)
       extractor(2, a1)
-      let a2 = UnsafeMutablePointer<U>.alloc(1)
+      let a2 = UnsafeMutablePointer<U>(allocatingCapacity: 1)
       extractor(3, a2)
-      let a3 = UnsafeMutablePointer<V>.alloc(1)
+      let a3 = UnsafeMutablePointer<V>(allocatingCapacity: 1)
       extractor(4, a3)
-      var r = block(a1.memory as T, a2.memory as U, a3.memory as V)
+      var r = block(a1.pointee as T, a2.pointee as U, a3.pointee as V)
       if let setReturnValue = setReturnValue { setReturnValue(&r) }
     }
     registerDelegate()
@@ -79,15 +79,15 @@ public class ProtocolProxy: RKProtocolProxyBase {
 
   private func registerInvoker<T, U, V, W, R>(selector: Selector, block: (T, U, V, W) -> R) {
     invokers[selector] = { extractor, setReturnValue in
-      let a1 = UnsafeMutablePointer<T>.alloc(1)
+      let a1 = UnsafeMutablePointer<T>(allocatingCapacity: 1)
       extractor(2, a1)
-      let a2 = UnsafeMutablePointer<U>.alloc(1)
+      let a2 = UnsafeMutablePointer<U>(allocatingCapacity: 1)
       extractor(3, a2)
-      let a3 = UnsafeMutablePointer<V>.alloc(1)
+      let a3 = UnsafeMutablePointer<V>(allocatingCapacity: 1)
       extractor(4, a3)
-      let a4 = UnsafeMutablePointer<W>.alloc(1)
+      let a4 = UnsafeMutablePointer<W>(allocatingCapacity: 1)
       extractor(5, a4)
-      var r = block(a1.memory as T, a2.memory as U, a3.memory as V, a4.memory as W)
+      var r = block(a1.pointee as T, a2.pointee as U, a3.pointee as V, a4.pointee as W)
       if let setReturnValue = setReturnValue { setReturnValue(&r) }
     }
     registerDelegate()
@@ -95,17 +95,17 @@ public class ProtocolProxy: RKProtocolProxyBase {
 
   private func registerInvoker<T, U, V, W, X, R>(selector: Selector, block: (T, U, V, W, X) -> R) {
     invokers[selector] = { extractor, setReturnValue in
-      let a1 = UnsafeMutablePointer<T>.alloc(1)
+      let a1 = UnsafeMutablePointer<T>(allocatingCapacity: 1)
       extractor(2, a1)
-      let a2 = UnsafeMutablePointer<U>.alloc(1)
+      let a2 = UnsafeMutablePointer<U>(allocatingCapacity: 1)
       extractor(3, a2)
-      let a3 = UnsafeMutablePointer<V>.alloc(1)
+      let a3 = UnsafeMutablePointer<V>(allocatingCapacity: 1)
       extractor(4, a3)
-      let a4 = UnsafeMutablePointer<W>.alloc(1)
+      let a4 = UnsafeMutablePointer<W>(allocatingCapacity: 1)
       extractor(5, a4)
-      let a5 = UnsafeMutablePointer<X>.alloc(1)
+      let a5 = UnsafeMutablePointer<X>(allocatingCapacity: 1)
       extractor(6, a5)
-      var r = block(a1.memory as T, a2.memory as U, a3.memory as V, a4.memory as W, a5.memory as X)
+      var r = block(a1.pointee as T, a2.pointee as U, a3.pointee as V, a4.pointee as W, a5.pointee as X)
       if let setReturnValue = setReturnValue { setReturnValue(&r) }
     }
     registerDelegate()
@@ -114,13 +114,13 @@ public class ProtocolProxy: RKProtocolProxyBase {
   /// Maps the given protocol method to a stream.
   ///
   /// - important: This is ObjC API so you have to use ObjC types like NSString instead of String!
-  public func streamFor<T, Z>(selector: Selector, map: T -> Z) -> Stream<Z> {
+  public func streamFor<T, Z>(selector: Selector, map: (T) -> Z) -> Stream<Z> {
     if let stream = handlers[selector] {
       return (stream as! PushStream<Z>).toStream()
     } else {
       let pushStream = PushStream<Z>()
       handlers[selector] = pushStream
-      registerInvoker(selector) { a1 in
+      registerInvoker(selector: selector) { a1 in
         pushStream.next(map(a1))
       }
       return pushStream.toStream()
@@ -132,7 +132,7 @@ public class ProtocolProxy: RKProtocolProxyBase {
   /// - important: This is ObjC API so you have to use ObjC types like NSString instead of String!
   public func feed<A, T, R>(property: Property<A>, to selector: Selector, map: (A, T) -> R) {
     handlers[selector] = property
-    registerInvoker(selector) { (a1: T) -> R  in
+    registerInvoker(selector: selector) { (a1: T) -> R  in
       return map(property.value, a1)
     }
   }
@@ -146,7 +146,7 @@ public class ProtocolProxy: RKProtocolProxyBase {
     } else {
       let pushStream = PushStream<Z>()
       handlers[selector] = pushStream
-      registerInvoker(selector) { a1, a2 in
+      registerInvoker(selector: selector) { a1, a2 in
         pushStream.next(map(a1, a2))
       }
       return pushStream.toStream()
@@ -158,7 +158,7 @@ public class ProtocolProxy: RKProtocolProxyBase {
   /// - important: This is ObjC API so you have to use ObjC types like NSString instead of String!
   public func feed<A, T, U, R>(property: Property<A>, to selector: Selector, map: (A, T, U) -> R) {
     handlers[selector] = property
-    registerInvoker(selector) { (a1: T, a2: U) -> R  in
+    registerInvoker(selector: selector) { (a1: T, a2: U) -> R  in
       return map(property.value, a1, a2)
     }
   }
@@ -172,7 +172,7 @@ public class ProtocolProxy: RKProtocolProxyBase {
     } else {
       let pushStream = PushStream<Z>()
       handlers[selector] = pushStream
-      registerInvoker(selector) { a1, a2, a3 in
+      registerInvoker(selector: selector) { a1, a2, a3 in
         pushStream.next(map(a1, a2, a3))
       }
       return pushStream.toStream()
@@ -184,7 +184,7 @@ public class ProtocolProxy: RKProtocolProxyBase {
   /// - important: This is ObjC API so you have to use ObjC types like NSString instead of String!
   public func feed<A, T, U, V, R>(property: Property<A>, to selector: Selector, map: (A, T, U, V) -> R) {
     handlers[selector] = property
-    registerInvoker(selector) { (a1: T, a2: U, a3: V) -> R  in
+    registerInvoker(selector: selector) { (a1: T, a2: U, a3: V) -> R  in
       return map(property.value, a1, a2, a3)
     }
   }
@@ -198,7 +198,7 @@ public class ProtocolProxy: RKProtocolProxyBase {
     } else {
       let pushStream = PushStream<Z>()
       handlers[selector] = pushStream
-      registerInvoker(selector) { a1, a2, a3, a4 in
+      registerInvoker(selector: selector) { a1, a2, a3, a4 in
         pushStream.next(map(a1, a2, a3, a4))
       }
       return pushStream.toStream()
@@ -210,7 +210,7 @@ public class ProtocolProxy: RKProtocolProxyBase {
   /// - important: This is ObjC API so you have to use ObjC types like NSString instead of String!
   public func feed<A, T, U, V, W, R>(property: Property<A>, to selector: Selector, map: (A, T, U, V, W) -> R) {
     handlers[selector] = property
-    registerInvoker(selector) { (a1: T, a2: U, a3: V, a4: W) -> R  in
+    registerInvoker(selector: selector) { (a1: T, a2: U, a3: V, a4: W) -> R  in
       return map(property.value, a1, a2, a3, a4)
     }
   }
@@ -224,7 +224,7 @@ public class ProtocolProxy: RKProtocolProxyBase {
     } else {
       let pushStream = PushStream<Z>()
       handlers[selector] = pushStream
-      registerInvoker(selector) { a1, a2, a3, a4, a5 in
+      registerInvoker(selector: selector) { a1, a2, a3, a4, a5 in
         pushStream.next(map(a1, a2, a3, a4, a5))
       }
       return pushStream.toStream()
@@ -236,36 +236,37 @@ public class ProtocolProxy: RKProtocolProxyBase {
   /// - important: This is ObjC API so you have to use ObjC types like NSString instead of String!
   public func feed<A, T, U, V, W, X, R>(property: Property<A>, to selector: Selector, map: (A, T, U, V, W, X) -> R) {
     handlers[selector] = property
-    registerInvoker(selector) { (a1: T, a2: U, a3: V, a4: W, a5: X) -> R  in
+    registerInvoker(selector: selector) { (a1: T, a2: U, a3: V, a4: W, a5: X) -> R  in
       return map(property.value, a1, a2, a3, a4, a5)
     }
   }
+  
 
-  public override func conformsToProtocol(`protocol`: Protocol) -> Bool {
+  public override func conforms(to `protocol`: Protocol) -> Bool {
     if protocol_isEqual(`protocol`, self.`protocol`) {
       return true
     } else {
-      return super.conformsToProtocol(`protocol`)
+      return super.conforms(to: `protocol`)
     }
   }
 
-  public override func respondsToSelector(selector: Selector) -> Bool {
+  public override func responds(to selector: Selector) -> Bool {
     if handlers[selector] != nil {
       return true
-    } else if forwardTo?.respondsToSelector(selector) ?? false {
+    } else if forwardTo?.responds(to: selector) ?? false {
       return true
     } else {
-      return super.respondsToSelector(selector)
+      return super.responds(to: selector)
     }
   }
 
   private func registerDelegate() {
-    object?.performSelector(setter, withObject: nil)
-    object?.performSelector(setter, withObject: self)
+    let _ = object?.perform(setter, with: nil)
+    let _ = object?.perform(setter, with: self)
   }
 
   deinit {
-    object?.performSelector(setter, withObject: nil)
+    let _ = object?.perform(setter, with: nil)
   }
 }
 
@@ -297,7 +298,7 @@ extension NSObject {
   /// Note that if the protocol has any required methods, you have to handle them by providing a stream, a feed or implement them in a class
   /// whose instance you'll set to `forwardTo` property.
   public func protocolProxyFor(`protocol`: Protocol, setter: Selector) -> ProtocolProxy {
-    let key = String.fromCString(protocol_getName(`protocol`))!
+    let key = String(cString: protocol_getName(`protocol`))
     if let proxy = protocolProxies[key] {
       return proxy
     } else {

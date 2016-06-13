@@ -37,7 +37,7 @@ public final class Property<T>: PropertyType, StreamType, SubjectType {
   private let disposeBag = DisposeBag()
 
   public var rawStream: RawStream<StreamEvent<T>> {
-    return subject.toRawStream().startWith(.Next(value))
+    return subject.toRawStream().start(with: .Next(value))
   }
 
   /// Underlying value. Changing it emits `.Next` event with new value.
@@ -53,7 +53,7 @@ public final class Property<T>: PropertyType, StreamType, SubjectType {
     }
   }
 
-  public func on(event: StreamEvent<T>) {
+  public func on(_ event: StreamEvent<T>) {
     if let element = event.element {
       self._value = element
     }
@@ -98,8 +98,8 @@ extension Property: BindableType {
   
   /// Returns an observer that can be used to dispatch events to the receiver.
   /// Can accept a disposable that will be disposed on receiver's deinit.
-  public func observer(disconnectDisposable: Disposable) -> StreamEvent<T> -> () {
-    disposeBag.addDisposable(disconnectDisposable)
+  public func observer(disconnectDisposable: Disposable) -> (StreamEvent<T>) -> () {
+    disposeBag.add(disposable: disconnectDisposable)
     return { [weak self] event in
       if let value = event.element {
         self?.value = value

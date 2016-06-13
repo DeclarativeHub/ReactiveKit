@@ -29,22 +29,22 @@ public protocol ObserverType {
   associatedtype Event: EventType
 
   /// Sends given event to the observer.
-  func on(event: Event)
+  func on(_ event: Event)
 }
 
 /// Represents a type that receives events. Observer is just a convenience
 /// wrapper around a closure that accepts an event of EventType.
 public struct Observer<Event: EventType>: ObserverType {
 
-  internal let observer: Event -> Void
+  internal let observer: (Event) -> Void
 
   /// Creates an observer that wraps given closure.
-  public init(observer: Event -> Void) {
+  public init(observer: (Event) -> Void) {
     self.observer = observer
   }
 
   /// Calles wrapped closure with given element.
-  public func on(event: Event) {
+  public func on(_ event: Event) {
     observer(event)
   }
 }
@@ -54,7 +54,7 @@ public struct Observer<Event: EventType>: ObserverType {
 public extension ObserverType {
 
   /// Convenience method to send `.Next` event.
-  public func next(element: Event.Element) {
+  public func next(_ element: Event.Element) {
     on(.next(element))
   }
   
@@ -67,7 +67,7 @@ public extension ObserverType {
 public extension ObserverType where Event: Errorable {
 
   /// Convenience method to send `.Failure` event.
-  public func failure(error: Event.Error) {
+  public func failure(_ error: Event.Error) {
     on(.failure(error))
   }
 }
@@ -82,7 +82,7 @@ public final class ObserverWith<O: AnyObject, T>: ObserverType, BindableType {
     self.observer = observer
   }
 
-  public func on(event: StreamEvent<T>) {
+  public func on(_ event: StreamEvent<T>) {
     if case .Next(let element) = event, let object = object {
       observer(object, element)
     } else {
@@ -90,7 +90,7 @@ public final class ObserverWith<O: AnyObject, T>: ObserverType, BindableType {
     }
   }
 
-  public func observer(disconnectDisposable: Disposable) -> (StreamEvent<T> -> Void) {
+  public func observer(disconnectDisposable: Disposable) -> ((StreamEvent<T>) -> Void) {
     disconnectDisposable.disposeIn(disposeBag)
     return self.on
   }

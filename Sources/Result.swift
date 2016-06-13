@@ -24,14 +24,14 @@
 
 public protocol ResultType {
   associatedtype Value
-  associatedtype Error: ErrorType
+  associatedtype Error: ErrorProtocol
 
   var value: Value? { get }
   var error: Error? { get }
 }
 
 /// An enum representing either a failure or a success.
-public enum Result<T, E: ErrorType>: CustomStringConvertible {
+public enum Result<T, E: ErrorProtocol>: CustomStringConvertible {
 
   case Success(T)
   case Failure(E)

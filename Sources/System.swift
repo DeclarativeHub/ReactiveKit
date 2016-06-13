@@ -24,12 +24,18 @@
 
 import Foundation
 
+#if os(Linux)
+  func CFAbsoluteTimeGetCurrent() -> Double {
+    return NSDate().timeIntervalSince1970
+  }
+#endif
+
 public typealias TimeValue = Double
 
 internal struct SystemTime {
 
   internal static var now: TimeValue {
-    return CFAbsoluteTimeGetCurrent()
+      return CFAbsoluteTimeGetCurrent()
   }
 
   internal static var distantPast: TimeValue {

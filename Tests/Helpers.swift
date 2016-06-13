@@ -11,7 +11,7 @@ import XCTest
 
 extension EventType {
 
-  func isEqualTo<E: EventType where E.Element == Element>(event: E) -> Bool {
+  func isEqualTo<E: EventType where E.Element == Element>(_ event: E) -> Bool {
 
     if self.isCompletion && event.isCompletion {
       return true
@@ -43,11 +43,11 @@ extension EventType {
 
 extension _StreamType {
 
-  func expectNext(expectedElements: [Event.Element], @autoclosure _ message: () -> String = "", expectation: XCTestExpectation? = nil, file: StaticString = #file, line: UInt = #line) {
+  func expectNext(_ expectedElements: [Event.Element],  _ message: @autoclosure () -> String = "", expectation: XCTestExpectation? = nil, file: StaticString = #file, line: UInt = #line) {
     expect(expectedElements.map { Event.next($0) } + [Event.completed()], message, expectation: expectation, file: file, line: line)
   }
 
-  func expect(expectedEvents: [Event], @autoclosure _ message: () -> String = "", expectation: XCTestExpectation? = nil, file: StaticString = #file, line: UInt = #line) {
+  func expect(_ expectedEvents: [Event], _ message: @autoclosure () -> String = "", expectation: XCTestExpectation? = nil, file: StaticString = #file, line: UInt = #line) {
     var eventsToProcess = expectedEvents
     var receivedEvents: [Event] = []
     let message = message()

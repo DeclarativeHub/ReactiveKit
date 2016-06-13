@@ -241,7 +241,7 @@ numbers.next(2) // prints: 2
 Another important type provided by ReactiveKit is `Operation`. It's just like the `Stream`, but the one that can error-out. Operations are used to represents tasks that can fail like fetching a network resource, reading a file and similar. Operations error-out by sending failure event. Here is how `OperationEvent` type is defined:
 
 ```swift
-public enum OperationEvent<T, E: ErrorType> {
+public enum OperationEvent<T, E: ErrorProtocol> {
   case Next(T)
   case Failure(E)
   case Completed

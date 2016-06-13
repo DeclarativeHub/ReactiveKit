@@ -25,9 +25,9 @@
 internal class ObserverRegister<E: EventType> {
   private typealias Token = Int64
   private var nextToken: Token = 0
-  private(set) var observers: ContiguousArray<E -> Void> = []
+  private(set) var observers: ContiguousArray<(E) -> Void> = []
   
-  private var observerStorage: [Token: E -> Void] = [:] {
+  private var observerStorage: [Token: (E) -> Void] = [:] {
     didSet {
       observers = ContiguousArray(observerStorage.values)
     }
@@ -35,7 +35,7 @@ internal class ObserverRegister<E: EventType> {
 
   private let tokenLock = SpinLock()
 
-  func addObserver(observer: E -> Void) -> Disposable {
+  func add(observer: (E) -> Void) -> Disposable {
     tokenLock.lock()
     let token = nextToken
     nextToken = nextToken + 1
@@ -44,7 +44,7 @@ internal class ObserverRegister<E: EventType> {
     observerStorage[token] = observer
 
     return BlockDisposable { [weak self] in
-      self?.observerStorage.removeValueForKey(token)
+      let _ = self?.observerStorage.removeValue(forKey: token)
     }
   }
 }
@@ -64,7 +64,7 @@ public final class PublishSubject<E: EventType>: ObserverRegister<E>, RawSubject
   public override init() {
   }
 
-  public func on(event: E) {
+  public func on(_ event: E) {
     guard !completed else { return }
     lock.lock(); defer { lock.unlock() }
     guard !isUpdating else { return }
@@ -74,8 +74,8 @@ public final class PublishSubject<E: EventType>: ObserverRegister<E>, RawSubject
     isUpdating = false
   }
 
-  public func observe(observer: E -> Void) -> Disposable {
-    return addObserver(observer)
+  public func observe(observer: (E) -> Void) -> Disposable {
+    return add(observer: observer)
   }
 }
 
@@ -94,7 +94,7 @@ public final class ReplaySubject<E: EventType>: ObserverRegister<E>, RawSubjectT
     }
   }
 
-  public func on(event: E) {
+  public func on(_ event: E) {
     guard !completed else { return }
     lock.lock(); defer { lock.unlock() }
     guard !isUpdating else { return }
@@ -105,10 +105,10 @@ public final class ReplaySubject<E: EventType>: ObserverRegister<E>, RawSubjectT
     isUpdating = false
   }
 
-  public func observe(observer: E -> Void) -> Disposable {
+  public func observe(observer: (E) -> Void) -> Disposable {
     return lock.atomic {
       buffer.forEach(observer)
-      return addObserver(observer)
+      return add(observer: observer)
     }
   }
 
@@ -130,7 +130,7 @@ public final class ReplayOneSubject<E: EventType>: ObserverRegister<E>, RawSubje
   public override init() {
   }
 
-  public func on(event: E) {
+  public func on(_ event: E) {
     guard !completed else { return }
     lock.lock(); defer { lock.unlock() }
     guard !isUpdating else { return }
@@ -140,12 +140,12 @@ public final class ReplayOneSubject<E: EventType>: ObserverRegister<E>, RawSubje
     isUpdating = false
   }
 
-  public func observe(observer: E -> Void) -> Disposable {
+  public func observe(observer: (E) -> Void) -> Disposable {
     return lock.atomic {
       if let event = event {
         observer(event)
       }
-      return addObserver(observer)
+      return add(observer: observer)
     }
   }
 
@@ -159,19 +159,19 @@ public final class ReplayOneSubject<E: EventType>: ObserverRegister<E>, RawSubje
 }
 
 public final class AnySubject<E: EventType>: RawSubjectType {
-  private let baseObserve: (E -> Void) -> Disposable
-  private let baseOn: E -> Void
+  private let baseObserve: ((E) -> Void) -> Disposable
+  private let baseOn: (E) -> Void
 
   public init<S: RawSubjectType where S.Event == E>(base: S) {
     baseObserve = base.observe
     baseOn = base.on
   }
 
-  public func on(event: E) {
+  public func on(_ event: E) {
     return baseOn(event)
   }
 
-  public func observe(observer: E -> Void) -> Disposable {
+  public func observe(observer: (E) -> Void) -> Disposable {
     return baseObserve(observer)
   }
 }

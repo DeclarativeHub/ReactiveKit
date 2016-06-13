@@ -22,25 +22,27 @@
 //  THE SOFTWARE.
 //
 
+#if swift(>=3.0)
+
 public protocol CollectionChangesetType {
-  associatedtype Collection: CollectionType
-  var collection: Collection { get }
-  var inserts: [Collection.Index] { get }
-  var deletes: [Collection.Index] { get }
-  var updates: [Collection.Index] { get }
+  associatedtype Base: Collection
+  var collection: Base { get }
+  var inserts: [Base.Index] { get }
+  var deletes: [Base.Index] { get }
+  var updates: [Base.Index] { get }
 }
 
-public struct CollectionChangeset<Collection: CollectionType>: CollectionChangesetType, CustomStringConvertible {
-  public let collection: Collection
-  public let inserts: [Collection.Index]
-  public let deletes: [Collection.Index]
-  public let updates: [Collection.Index]
+public struct CollectionChangeset<C: Collection>: CollectionChangesetType, CustomStringConvertible {
+  public let collection: C
+  public let inserts: [C.Index]
+  public let deletes: [C.Index]
+  public let updates: [C.Index]
 
-  public static func initial(collection: Collection) -> CollectionChangeset<Collection> {
+  public static func initial(collection: C) -> CollectionChangeset<C> {
     return CollectionChangeset(collection: collection, inserts: [], deletes: [], updates: [])
   }
 
-  public init(collection: Collection, inserts: [Collection.Index], deletes: [Collection.Index], updates: [Collection.Index]) {
+  public init(collection: C, inserts: [C.Index], deletes: [C.Index], updates: [C.Index]) {
     self.collection = collection
     self.inserts = inserts
     self.deletes = deletes
@@ -54,7 +56,7 @@ public struct CollectionChangeset<Collection: CollectionType>: CollectionChanges
 
 public extension CollectionChangeset {
 
-  public init<E: CollectionChangesetType where E.Collection == Collection>(ObservableCollectionEvent: E) {
+  public init<E: CollectionChangesetType where E.Base == C>(ObservableCollectionEvent: E) {
     collection = ObservableCollectionEvent.collection
     inserts = ObservableCollectionEvent.inserts
     deletes = ObservableCollectionEvent.deletes
@@ -62,30 +64,33 @@ public extension CollectionChangeset {
   }
 }
 
-public extension CollectionChangesetType where Collection.Index == Int {
+#else
+
+
+public extension CollectionChangesetType where Base.Index == Int {
 
   /// O(n)
-  public func map<U>(transform: Collection.Generator.Element -> U) -> CollectionChangeset<[U]> {
+  public func map<U>(transform: (Base.Iterator.Element) -> U) -> CollectionChangeset<[U]> {
     return CollectionChangeset(collection: collection.map(transform), inserts: inserts, deletes: deletes, updates: updates)
   }
 
   /// O(1)
-  public func lazyMap<U>(transform: Collection.Generator.Element -> U) -> CollectionChangeset<LazyMapCollection<Collection, U>> {
+  public func lazyMap<U>(transform: (Base.Iterator.Element) -> U) -> CollectionChangeset<LazyMapCollection<Base, U>> {
     return CollectionChangeset(collection: collection.lazy.map(transform), inserts: inserts, deletes: deletes, updates: updates)
   }
 }
 
-public extension CollectionChangesetType where Collection.Index == Int {
+public extension CollectionChangesetType where Base.Index == Int, Base.IndexDistance == Int {
 
   /// O(n)
-  public func filter(previousIndexMap: [Int: Int], include: Collection.Generator.Element -> Bool) -> ([Int: Int], CollectionChangeset<Array<Collection.Generator.Element>>?) {
-    var filtered: [Collection.Generator.Element] = []
+  public func filter(previousIndexMap: [Int: Int], include: (Base.Iterator.Element) -> Bool) -> ([Int: Int], CollectionChangeset<Array<Base.Iterator.Element>>?) {
+    var filtered: [Base.Iterator.Element] = []
     var indexMap: [Int: Int] = [:]
     var iterator = 0
 
     filtered.reserveCapacity(collection.count)
 
-    for (index, element) in collection.enumerate() {
+    for (index, element) in collection.enumerated() {
       if include(element) {
         filtered.append(element)
         indexMap[index] = iterator
@@ -117,18 +122,18 @@ public extension CollectionChangesetType where Collection.Index == Int {
   }
 }
 
-public extension CollectionChangesetType where Collection.Index: Hashable {
+public extension CollectionChangesetType where Base.Index: Hashable {
 
-  typealias SortMap = [Collection.Index: Int]
-  typealias Changeset = CollectionChangeset<Array<Collection.Generator.Element>>
-  typealias CollectionElement = Collection.Generator.Element
+  typealias SortMap = [Base.Index: Int]
+  typealias Changeset = CollectionChangeset<Array<Base.Iterator.Element>>
+  typealias CollectionElement = Base.Iterator.Element
 
   /// O(n*logn)
   public func sort(previousSortMap: SortMap?, isOrderedBefore: (CollectionElement, CollectionElement) -> Bool) -> (changeset: Changeset, sortMap: SortMap) {
-    let sortedPairs = zip(collection.indices, collection).sort { isOrderedBefore($0.1, $1.1) }
+    let sortedPairs = zip(collection.indices, collection).sorted { isOrderedBefore($0.1, $1.1) }
 
-    var sortMap: [Collection.Index: Int] = [:]
-    for (index, pair) in sortedPairs.enumerate() {
+    var sortMap: [Base.Index: Int] = [:]
+    for (index, pair) in sortedPairs.enumerated() {
       sortMap[pair.0] = index
     }
 
@@ -650,3 +655,5 @@ extension CollectionProperty: BindableType {
     }
   }
 }
+
+#endif

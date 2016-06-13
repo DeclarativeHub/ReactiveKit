@@ -22,8 +22,12 @@
 //  THE SOFTWARE.
 //
 
-import Dispatch
 import Foundation
+#if os(Linux)
+  import Glibc
+#else
+  import Dispatch
+#endif
 
 /// Represents a context that can execute given block.
 public typealias ExecutionContext = (() -> Void) -> Void
@@ -33,72 +37,120 @@ public let ImmediateExecutionContext: ExecutionContext = { block in
   block()
 }
 
-/// If current thread is main thread, just execute block. Otherwise, do
-/// async dispatch of the block to the main queue (thread).
-public let ImmediateOnMainExecutionContext: ExecutionContext = { block in
-  if NSThread.isMainThread() {
-    block()
-  } else {
-    Queue.main.async(block)
-  }
-}
+#if os(Linux)
 
-/// A simple wrapper over GCD queue.
-public struct Queue {
-
-  public static let main = Queue(queue: dispatch_get_main_queue());
-  public static let global = Queue(queue: dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0))
-  public static let background = Queue(queue: dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0))
-  
-  public private(set) var queue: dispatch_queue_t
-  
-  public init(queue: dispatch_queue_t = dispatch_queue_create("ReactiveKit.Queue", DISPATCH_QUEUE_SERIAL)) {
-    self.queue = queue
-  }
-  
-  public init(name: String) {
-    self.queue = dispatch_queue_create(name, DISPATCH_QUEUE_SERIAL)
-  }
-  
-  public func after(interval: TimeValue, block: () -> ()) {
-    let dispatchTime = dispatch_time(DISPATCH_TIME_NOW, Int64(interval * NSTimeInterval(NSEC_PER_SEC)))
-    dispatch_after(dispatchTime, queue, block)
+  /// If current thread is main thread, just execute block. Otherwise, do
+  /// async dispatch of the block to the main queue (thread).
+  public let ImmediateOnMainExecutionContext: ExecutionContext = { block in
+    block() // TODO
   }
 
-  public func after(interval: TimeValue) -> (() -> Void) -> Void {
-    return { block in
-      let dispatchTime = dispatch_time(DISPATCH_TIME_NOW, Int64(interval * NSTimeInterval(NSEC_PER_SEC)))
-      dispatch_after(dispatchTime, self.queue, block)
+  public struct Queue {
+
+    public init() {
     }
-  }
 
-  public func disposableAfter(interval: TimeValue, block: () -> ()) -> Disposable {
-    let disposable = SimpleDisposable()
-    let dispatchTime = dispatch_time(DISPATCH_TIME_NOW, Int64(interval * NSTimeInterval(NSEC_PER_SEC)))
-    dispatch_after(dispatchTime, queue) {
-      if !disposable.isDisposed {
+    public init(name: String) {
+    }
+
+    public func after(_ interval: TimeValue, block: () -> ()) {
+      block()
+    }
+
+    public func after(_ interval: TimeValue) -> (() -> Void) -> Void {
+      return { block in
         block()
       }
     }
-    return disposable
+
+    public func disposableAfter(_ interval: TimeValue, block: () -> ()) -> Disposable {
+      block()
+      return NotDisposable
+    }
+
+    public func async(_ block: () -> ()) {
+      block()
+    }
+
+    public func sync(_ block: () -> ()) {
+      block()
+    }
+
+    public func sync<T>(_ block: () -> T) -> T {
+      return block()
+    }
   }
 
-  public func async(block: () -> ()) {
-    dispatch_async(queue, block)
-  }
-  
-  public func sync(block: () -> ()) {
-    dispatch_sync(queue, block)
-  }
-  
-  public func sync<T>(block: () -> T) -> T {
-    var res: T! = nil
-    sync {
-      res = block()
+#else
+
+  /// If current thread is main thread, just execute block. Otherwise, do
+  /// async dispatch of the block to the main queue (thread).
+  public let ImmediateOnMainExecutionContext: ExecutionContext = { block in
+    if NSThread.isMainThread() {
+      block()
+    } else {
+      Queue.main.async(block)
     }
-    return res
   }
-}
+
+  /// A simple wrapper over GCD queue.
+  public struct Queue {
+
+    public static let main = Queue(queue: dispatch_get_main_queue());
+    public static let global = Queue(queue: dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0))
+    public static let background = Queue(queue: dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0))
+
+    public private(set) var queue: dispatch_queue_t
+
+    public init(queue: dispatch_queue_t = dispatch_queue_create("ReactiveKit.Queue", DISPATCH_QUEUE_SERIAL)) {
+      self.queue = queue
+    }
+
+    public init(name: String) {
+      self.queue = dispatch_queue_create(name, DISPATCH_QUEUE_SERIAL)
+    }
+
+    public func after(_ interval: TimeValue, block: () -> ()) {
+      let dispatchTime = dispatch_time(DISPATCH_TIME_NOW, Int64(interval * NSTimeInterval(NSEC_PER_SEC)))
+      dispatch_after(dispatchTime, queue, block)
+    }
+
+    public func after(_ interval: TimeValue) -> (() -> Void) -> Void {
+      return { block in
+        let dispatchTime = dispatch_time(DISPATCH_TIME_NOW, Int64(interval * NSTimeInterval(NSEC_PER_SEC)))
+        dispatch_after(dispatchTime, self.queue, block)
+      }
+    }
+
+    public func disposableAfter(_ interval: TimeValue, block: () -> ()) -> Disposable {
+      let disposable = SimpleDisposable()
+      let dispatchTime = dispatch_time(DISPATCH_TIME_NOW, Int64(interval * NSTimeInterval(NSEC_PER_SEC)))
+      dispatch_after(dispatchTime, queue) {
+        if !disposable.isDisposed {
+          block()
+        }
+      }
+      return disposable
+    }
+
+    public func async(_ block: () -> ()) {
+      dispatch_async(queue, block)
+    }
+
+    public func sync(_ block: () -> ()) {
+      dispatch_sync(queue, block)
+    }
+
+    public func sync<T>(_ block: () -> T) -> T {
+      var res: T! = nil
+      sync {
+        res = block()
+      }
+      return res
+    }
+  }
+
+#endif
 
 public extension Queue {
 
@@ -111,26 +163,13 @@ public extension Queue {
 internal protocol Lock {
   func lock()
   func unlock()
-  func atomic<T>(@noescape body: () -> T) -> T
+  func atomic<T>(body: @noescape () -> T) -> T
 }
 
 internal extension Lock {
-  func atomic<T>(@noescape body: () -> T) -> T {
+  func atomic<T>(body: @noescape () -> T) -> T {
     lock(); defer { unlock() }
     return body()
-  }
-}
-
-/// Spin Lock
-internal final class SpinLock: Lock {
-  private var spinLock = OS_SPINLOCK_INIT
-
-  internal func lock() {
-    OSSpinLockLock(&spinLock)
-  }
-
-  internal func unlock() {
-    OSSpinLockUnlock(&spinLock)
   }
 }
 
@@ -142,3 +181,27 @@ internal final class RecursiveLock: NSRecursiveLock, Lock {
     self.name = name
   }
 }
+
+#if os(Linux)
+
+  /// Spin Lock
+  internal final class SpinLock: NSRecursiveLock, Lock {
+    // TODO
+  }
+
+#else
+
+  /// Spin Lock
+  internal final class SpinLock: Lock {
+    private var spinLock = OS_SPINLOCK_INIT
+    
+    internal func lock() {
+      OSSpinLockLock(&spinLock)
+    }
+    
+    internal func unlock() {
+      OSSpinLockUnlock(&spinLock)
+    }
+  }
+  
+#endif

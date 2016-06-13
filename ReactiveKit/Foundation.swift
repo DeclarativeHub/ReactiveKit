@@ -29,11 +29,11 @@ extension NSNotificationCenter {
   /// Observe notifications using a stream.
   public func rNotification(name: String, object: AnyObject?) -> Stream<NSNotification> {
     return Stream { observer in
-      let subscription = NSNotificationCenter.defaultCenter().addObserverForName(name, object: object, queue: nil, usingBlock: { notification in
+      let subscription = NSNotificationCenter.default().addObserver(forName: name, object: object, queue: nil, using: { notification in
         observer.next(notification)
       })
       return BlockDisposable {
-        NSNotificationCenter.defaultCenter().removeObserver(subscription)
+        NSNotificationCenter.default().removeObserver(subscription)
       }
     }
   }
@@ -70,12 +70,12 @@ public extension NSObject {
   public func rValueForKeyPath<T: OptionalType>(keyPath: String, sendInitial: Bool = true, retainStrongly: Bool = true) -> Stream<T> {
     return RKKeyValueStream(keyPath: keyPath, ofObject: self, sendInitial: sendInitial, retainStrongly: retainStrongly) { (object: AnyObject?) -> T? in
       if object == nil {
-        return T()
+        return T(nilLiteral: ())
       } else {
         if let object = object as? T.Wrapped {
           return T(object)
         } else {
-          return T()
+          return T(nilLiteral: ())
         }
       }
     }.toStream()
@@ -100,11 +100,11 @@ public extension NSObject {
     }
   }
 
-  public func rAssociatedPropertyForValueForKey<T>(key: String, initial: T? = nil, set: (T -> ())? = nil) -> Property<T> {
+  public func rAssociatedPropertyForValueForKey<T>(key: String, initial: T? = nil, set: ((T) -> ())? = nil) -> Property<T> {
     if let property: AnyObject = r_associatedProperties[key] {
       return property as! Property<T>
     } else {
-      let property = Property<T>(initial ?? self.valueForKey(key) as! T)
+      let property = Property<T>(initial ?? self.value(forKey: key) as! T)
       r_associatedProperties[key] = property
 
       property.observeNext { [weak self] (value: T) in
@@ -123,17 +123,17 @@ public extension NSObject {
     }
   }
 
-  public func rAssociatedPropertyForValueForKey<T: OptionalType>(key: String, initial: T? = nil, set: (T -> ())? = nil) -> Property<T> {
+  public func rAssociatedPropertyForValueForKey<T: OptionalType>(key: String, initial: T? = nil, set: ((T) -> ())? = nil) -> Property<T> {
     if let property: AnyObject = r_associatedProperties[key] {
       return property as! Property<T>
     } else {
       let property: Property<T>
       if let initial = initial {
         property = Property(initial)
-      } else if let value = self.valueForKey(key) as? T.Wrapped {
+      } else if let value = self.value(forKey: key) as? T.Wrapped {
         property = Property(T(value))
       } else {
-        property = Property(T())
+        property = Property(T(nilLiteral: ()))
       }
 
       r_associatedProperties[key] = property
@@ -159,13 +159,13 @@ public class RKKeyValueStream<T>: NSObject, StreamType {
   private var context = 0
   private var keyPath: String
   private var options: NSKeyValueObservingOptions
-  private let transform: AnyObject? -> T?
+  private let transform: (AnyObject?) -> T?
   private let subject: AnySubject<StreamEvent<T>>
   private var numberOfObservers: Int = 0
 
-  private init(keyPath: String, ofObject object: NSObject, sendInitial: Bool, retainStrongly: Bool, transform: AnyObject? -> T?) {
+  private init(keyPath: String, ofObject object: NSObject, sendInitial: Bool, retainStrongly: Bool, transform: (AnyObject?) -> T?) {
     self.keyPath = keyPath
-    self.options = sendInitial ? NSKeyValueObservingOptions.New.union(.Initial) : .New
+    self.options = sendInitial ? NSKeyValueObservingOptions.new.union(.initial) : .new
     self.transform = transform
 
     if sendInitial {
@@ -187,7 +187,7 @@ public class RKKeyValueStream<T>: NSObject, StreamType {
     print("deinit")
   }
 
-  public override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
+  public override func observeValue(forKeyPath keyPath: String?, of object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>?) {
     if context == &self.context {
       if let newValue = change?[NSKeyValueChangeNewKey] {
         if let newValue = transform(newValue) {
@@ -199,7 +199,7 @@ public class RKKeyValueStream<T>: NSObject, StreamType {
         // no new value - ignore
       }
     } else {
-      super.observeValueForKeyPath(keyPath, ofObject: object, change: change, context: context)
+      super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
     }
   }
 
@@ -220,7 +220,7 @@ public class RKKeyValueStream<T>: NSObject, StreamType {
   public var rawStream: RawStream<StreamEvent<T>> {
     return RawStream { observer in
       self.increaseNumberOfObservers()
-      let disposable = self.subject.toRawStream().observe(observer.observer)
+      let disposable = self.subject.toRawStream().observe(observer: observer.observer)
       let cleanupDisposabe = BlockDisposable {
         disposable.dispose()
         self.decreaseNumberOfObservers()
