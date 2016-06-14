@@ -1,6 +1,6 @@
 ![](Assets/logo.png)
 
-[![Platform](https://img.shields.io/cocoapods/p/ReactiveKit.svg?style=flat)](http://cocoadocs.org/docsets/ReactiveKit/2.0.0-beta4/)
+[![Platform](https://img.shields.io/cocoapods/p/ReactiveKit.svg?style=flat)](http://cocoadocs.org/docsets/ReactiveKit/2.1.0)
 [![Build Status](https://travis-ci.org/ReactiveKit/ReactiveKit.svg?branch=master)](https://travis-ci.org/ReactiveKit/ReactiveKit)
 [![Join Us on Gitter](https://img.shields.io/badge/GITTER-join%20chat-blue.svg)](https://gitter.im/ReactiveKit/General)
 [![Twitter](https://img.shields.io/badge/twitter-@srdanrasic-red.svg?style=flat)](https://twitter.com/srdanrasic)
@@ -447,7 +447,7 @@ When you want to receive events on a specific dispatch queue, just use `context`
 
 ReactiveKit provides NSObject extensions that makes it easy to convert delegate pattern into streams. 
 
-First make an extension on your type, UITableView in the following example, that provides a reactive delegate proxy:
+First make an extension on your type, UITableView in this example, that provides a reactive delegate proxy:
 
 ```swift
 extension UITableView {
@@ -462,12 +462,14 @@ You can then convert methods of that protocol into streams:
 ```swift
 extension UITableView {
   var selectedRow: Stream<Int> {
-    return rDelegate.streamFor(#selector(UITableViewDelegate.tableView(_:didSelectRowAtIndexPath:))) { (_: UITableView, indexPath: NSIndexPath) in indexPath.row }
+    return rDelegate.stream(#selector(UITableViewDelegate.tableView(_:didSelectRowAtIndexPath:))) { (s: PushStream<Int>, _: UITableView, indexPath: NSIndexPath) in
+      s.next(indexPath.row) 
+    }
   }
 }
 ```
 
-Method `streamFor` takes two parameters: a selector to convert to a stream and a mapping closure that maps selector method arguments into a stream.
+Method `stream` takes two parameters: a selector of a method to convert to a stream and a closure that is invoked on each method call. You should use that closure to push events into the given `PushStream`. Method returns that `PushStream` mapped to a `Stream`. 
 
 Now you can do:
 
@@ -479,23 +481,25 @@ tableView.selectedRow.observeNext { row in
 
 Protocol proxy takes up delegate slot of the object so if you also need to implement delegate methods manually, don't set `tableView.delegate = x`, rather set `tableView.rDelegate.forwardTo = x`.
 
-Protocol methods that return values are usually used to query data. Such methods can be set up to be fed from a property type. For example:
+Note that it is you who must ensure that the parameters in the `dispatch` closure are correctly typed. For example, if there is no specific type you can use Void stream.
+
 
 ```swift
-let numberOfItems = Property(12)
-
-tableView.rDataSource.feed(
-  numberOfItems,
-  to: #selector(UITableViewDataSource.tableView(_:numberOfRowsInSection:)),
-  map: { (value: Int, _: UITableView, _: Int) -> Int in value }
-)
+let _ = rDelegate.stream(#selector(UITextViewDelegate.textViewDidBeginEditing(_:))) { (s: PushStream<Void>, _: UITextView) in
+  s.next()
+}
 ```
 
-Method `feed` takes three parameters: a property to feed from, a selector, and a mapping closure that maps from the property value and selector method arguments to the selector method return value. 
+If a protocol method has return value then you must handle it by returning it in the `dispatch` closure.
 
-You should not set more that one feed property per selector.
+```swift
+let _ = rDelegate.stream(#selector(UITextViewDelegate.textView(_:shouldChangeTextInRange:replacementText:))) { (s: PushStream<String>, _: UITextView, range: NSRange, text: NSString) -> Bool in
+  s.next(text as String)
+  return true
+}
+```
 
-Note that in the mapping closures of both `streamFor` and `feed` methods you must be explicit about argument and return types. Also, **you must use ObjC types as this is ObjC API**. For example, use `NSString` instead of `String`. 
+Note that **you must use ObjC types as this is ObjC API** in the place of proxied method argument parameters. For example, use `NSString` instead of `String`. 
 
 ## Requirements
 
@@ -523,14 +527,14 @@ Note that in the mapping closures of both `streamFor` and `feed` methods you mus
 ### CocoaPods
 
 ```
-pod 'ReactiveKit', '~> 2.0'
+pod 'ReactiveKit', '~> 2.1'
 pod 'ReactiveUIKit', '~> 2.0'
 ```
 
 ### Carthage
 
 ```
-github "ReactiveKit/ReactiveKit" ~> 2.0
+github "ReactiveKit/ReactiveKit" ~> 2.1
 github "ReactiveKit/ReactiveUIKit" ~> 2.0
 ```
 

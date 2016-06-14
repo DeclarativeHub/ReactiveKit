@@ -41,6 +41,14 @@ public class ProtocolProxy: RKProtocolProxyBase {
     invoker(argumentExtractor, setReturnValue)
   }
 
+  private func registerInvoker<R>(selector: Selector, block: () -> R) {
+    invokers[selector] = { extractor, setReturnValue in
+      var r = block()
+      if let setReturnValue = setReturnValue { setReturnValue(&r) }
+    }
+    registerDelegate()
+  }
+
   private func registerInvoker<T, R>(selector: Selector, block: T -> R) {
     invokers[selector] = { extractor, setReturnValue in
       let a1 = UnsafeMutablePointer<T>.alloc(1)
@@ -111,133 +119,126 @@ public class ProtocolProxy: RKProtocolProxyBase {
     registerDelegate()
   }
 
-  /// Maps the given protocol method to a stream.
+  /// Maps the given protocol method to a stream. Whenever the method on the target object is called,
+  /// the framework will call the provided `dispatch` closure that you can use to generate a stream.
   ///
-  /// - important: This is ObjC API so you have to use ObjC types like NSString instead of String!
-  public func streamFor<T, Z>(selector: Selector, map: T -> Z) -> Stream<Z> {
+  /// - parameter selector: Selector of the method to map.
+  /// - parameter dispatch: A closure that dispatches calls to the given PushStream.
+  public func stream<S, R>(selector: Selector, dispatch: PushStream<S> -> R) -> Stream<S> {
     if let stream = handlers[selector] {
-      return (stream as! PushStream<Z>).toStream()
+      return (stream as! PushStream<S>).toStream()
     } else {
-      let pushStream = PushStream<Z>()
+      let pushStream = PushStream<S>()
       handlers[selector] = pushStream
-      registerInvoker(selector) { a1 in
-        pushStream.next(map(a1))
+      registerInvoker(selector) { () -> R in
+        return dispatch(pushStream)
       }
       return pushStream.toStream()
     }
   }
 
-  /// Provides a feed for specified protocol method.
+  /// Maps the given protocol method to a stream. Whenever the method on the target object is called,
+  /// the framework will call the provided `dispatch` closure that you can use to generate a stream.
   ///
-  /// - important: This is ObjC API so you have to use ObjC types like NSString instead of String!
-  public func feed<A, T, R>(property: Property<A>, to selector: Selector, map: (A, T) -> R) {
-    handlers[selector] = property
-    registerInvoker(selector) { (a1: T) -> R  in
-      return map(property.value, a1)
-    }
-  }
-
-  /// Maps the given protocol method to a stream.
+  /// - parameter selector: Selector of the method to map.
+  /// - parameter dispatch: A closure that dispatches calls to the given PushStream.
   ///
-  /// - important: This is ObjC API so you have to use ObjC types like NSString instead of String!
-  public func streamFor<T, U, Z>(selector: Selector, map: (T, U) -> Z) -> Stream<Z> {
+  /// - important: This is ObjC API so you have to use ObjC types like NSString instead of String
+  /// in place of generic parameter A and R!
+  public func stream<A, S, R>(selector: Selector, dispatch: (PushStream<S>, A) -> R) -> Stream<S> {
     if let stream = handlers[selector] {
-      return (stream as! PushStream<Z>).toStream()
+      return (stream as! PushStream<S>).toStream()
     } else {
-      let pushStream = PushStream<Z>()
+      let pushStream = PushStream<S>()
       handlers[selector] = pushStream
-      registerInvoker(selector) { a1, a2 in
-        pushStream.next(map(a1, a2))
+      registerInvoker(selector) { (a: A) -> R in
+        return dispatch(pushStream, a)
       }
       return pushStream.toStream()
     }
   }
 
-  /// Provides a feed for specified protocol method.
+  /// Maps the given protocol method to a stream. Whenever the method on the target object is called,
+  /// the framework will call the provided `dispatch` closure that you can use to generate a stream.
   ///
-  /// - important: This is ObjC API so you have to use ObjC types like NSString instead of String!
-  public func feed<A, T, U, R>(property: Property<A>, to selector: Selector, map: (A, T, U) -> R) {
-    handlers[selector] = property
-    registerInvoker(selector) { (a1: T, a2: U) -> R  in
-      return map(property.value, a1, a2)
-    }
-  }
-
-  /// Maps the given protocol method to a stream.
+  /// - parameter selector: Selector of the method to map.
+  /// - parameter dispatch: A closure that dispatches calls to the given PushStream.
   ///
-  /// - important: This is ObjC API so you have to use ObjC types like NSString instead of String!
-  public func streamFor<T, U, V, Z>(selector: Selector, map: (T, U, V) -> Z) -> Stream<Z> {
+  /// - important: This is ObjC API so you have to use ObjC types like NSString instead of String
+  /// in place of generic parameters A, B and R!
+  public func stream<A, B, S, R>(selector: Selector, dispatch: (PushStream<S>, A, B) -> R) -> Stream<S> {
     if let stream = handlers[selector] {
-      return (stream as! PushStream<Z>).toStream()
+      return (stream as! PushStream<S>).toStream()
     } else {
-      let pushStream = PushStream<Z>()
+      let pushStream = PushStream<S>()
       handlers[selector] = pushStream
-      registerInvoker(selector) { a1, a2, a3 in
-        pushStream.next(map(a1, a2, a3))
+      registerInvoker(selector) { (a: A, b: B) -> R in
+        return dispatch(pushStream, a, b)
       }
       return pushStream.toStream()
     }
   }
 
-  /// Provides a feed for specified protocol method.
+  /// Maps the given protocol method to a stream. Whenever the method on the target object is called,
+  /// the framework will call the provided `dispatch` closure that you can use to generate a stream.
   ///
-  /// - important: This is ObjC API so you have to use ObjC types like NSString instead of String!
-  public func feed<A, T, U, V, R>(property: Property<A>, to selector: Selector, map: (A, T, U, V) -> R) {
-    handlers[selector] = property
-    registerInvoker(selector) { (a1: T, a2: U, a3: V) -> R  in
-      return map(property.value, a1, a2, a3)
-    }
-  }
-
-  /// Maps the given protocol method to a stream.
+  /// - parameter selector: Selector of the method to map.
+  /// - parameter dispatch: A closure that dispatches calls to the given PushStream.
   ///
-  /// - important: This is ObjC API so you have to use ObjC types like NSString instead of String!
-  public func streamFor<T, U, V, W, Z>(selector: Selector, map: (T, U, V, W) -> Z) -> Stream<Z> {
+  /// - important: This is ObjC API so you have to use ObjC types like NSString instead of String
+  /// in place of generic parameters A, B, C and R!
+  public func stream<A, B, C, S, R>(selector: Selector, dispatch: (PushStream<S>, A, B, C) -> R) -> Stream<S> {
     if let stream = handlers[selector] {
-      return (stream as! PushStream<Z>).toStream()
+      return (stream as! PushStream<S>).toStream()
     } else {
-      let pushStream = PushStream<Z>()
+      let pushStream = PushStream<S>()
       handlers[selector] = pushStream
-      registerInvoker(selector) { a1, a2, a3, a4 in
-        pushStream.next(map(a1, a2, a3, a4))
+      registerInvoker(selector) { (a: A, b: B, c: C) -> R in
+        return dispatch(pushStream, a, b, c)
       }
       return pushStream.toStream()
     }
   }
 
-  /// Provides a feed for specified protocol method.
+  /// Maps the given protocol method to a stream. Whenever the method on the target object is called,
+  /// the framework will call the provided `dispatch` closure that you can use to generate a stream.
   ///
-  /// - important: This is ObjC API so you have to use ObjC types like NSString instead of String!
-  public func feed<A, T, U, V, W, R>(property: Property<A>, to selector: Selector, map: (A, T, U, V, W) -> R) {
-    handlers[selector] = property
-    registerInvoker(selector) { (a1: T, a2: U, a3: V, a4: W) -> R  in
-      return map(property.value, a1, a2, a3, a4)
-    }
-  }
-
-  /// Maps the given protocol method to a stream.
+  /// - parameter selector: Selector of the method to map.
+  /// - parameter dispatch: A closure that dispatches calls to the given PushStream.
   ///
-  /// - important: This is ObjC API so you have to use ObjC types like NSString instead of String!
-  public func streamFor<T, U, V, W, X, Z>(selector: Selector, map: (T, U, V, W, X) -> Z) -> Stream<Z> {
+  /// - important: This is ObjC API so you have to use ObjC types like NSString instead of String
+  /// in place of generic parameters A, B, C, D and R!
+  public func stream<A, B, C, D, S, R>(selector: Selector, dispatch: (PushStream<S>, A, B, C, D) -> R) -> Stream<S> {
     if let stream = handlers[selector] {
-      return (stream as! PushStream<Z>).toStream()
+      return (stream as! PushStream<S>).toStream()
     } else {
-      let pushStream = PushStream<Z>()
+      let pushStream = PushStream<S>()
       handlers[selector] = pushStream
-      registerInvoker(selector) { a1, a2, a3, a4, a5 in
-        pushStream.next(map(a1, a2, a3, a4, a5))
+      registerInvoker(selector) { (a: A, b: B, c: C, d: D) -> R in
+        return dispatch(pushStream, a, b, c, d)
       }
       return pushStream.toStream()
     }
   }
 
-  /// Provides a feed for specified protocol method.
+  /// Maps the given protocol method to a stream. Whenever the method on the target object is called,
+  /// the framework will call the provided `dispatch` closure that you can use to generate a stream.
   ///
-  /// - important: This is ObjC API so you have to use ObjC types like NSString instead of String!
-  public func feed<A, T, U, V, W, X, R>(property: Property<A>, to selector: Selector, map: (A, T, U, V, W, X) -> R) {
-    handlers[selector] = property
-    registerInvoker(selector) { (a1: T, a2: U, a3: V, a4: W, a5: X) -> R  in
-      return map(property.value, a1, a2, a3, a4, a5)
+  /// - parameter selector: Selector of the method to map.
+  /// - parameter dispatch: A closure that dispatches calls to the given PushStream.
+  ///
+  /// - important: This is ObjC API so you have to use ObjC types like NSString instead of String
+  /// in place of generic parameters A, B, C, D, E and R!
+  public func stream<A, B, C, D, E, S, R>(selector: Selector, dispatch: (PushStream<S>, A, B, C, D, E) -> R) -> Stream<S> {
+    if let stream = handlers[selector] {
+      return (stream as! PushStream<S>).toStream()
+    } else {
+      let pushStream = PushStream<S>()
+      handlers[selector] = pushStream
+      registerInvoker(selector) { (a: A, b: B, c: C, d: D, e: E) -> R in
+        return dispatch(pushStream, a, b, c, d, e)
+      }
+      return pushStream.toStream()
     }
   }
 
@@ -304,6 +305,106 @@ extension NSObject {
       let proxy = ProtocolProxy(object: self, protocol: `protocol`, setter: setter)
       protocolProxies[key] = proxy
       return proxy
+    }
+  }
+}
+
+// MARK: - Deprecated 
+
+extension ProtocolProxy {
+
+  /// Maps the given protocol method to a stream.
+  ///
+  /// - important: This is ObjC API so you have to use ObjC types like NSString instead of String!
+  @available(*, deprecated=2.1, message="Please use method stream(selector:dispatch:)")
+  public func streamFor<T, Z>(selector: Selector, map: T -> Z) -> Stream<Z> {
+    return stream(selector) { (pushStream: PushStream<Z>, a1: T) in
+      pushStream.next(map(a1))
+    }
+  }
+
+  /// Provides a feed for specified protocol method.
+  ///
+  /// - important: This is ObjC API so you have to use ObjC types like NSString instead of String!
+  public func feed<A, T, R>(property: Property<A>, to selector: Selector, map: (A, T) -> R) {
+    let _ = stream(selector) { (_: PushStream<Void>, a1: T) -> R in
+      return map(property.value, a1)
+    }
+  }
+
+  /// Maps the given protocol method to a stream.
+  ///
+  /// - important: This is ObjC API so you have to use ObjC types like NSString instead of String!
+  @available(*, deprecated=2.1, message="Please use method stream(selector:dispatch:)")
+  public func streamFor<T, U, Z>(selector: Selector, map: (T, U) -> Z) -> Stream<Z> {
+    return stream(selector) { (pushStream: PushStream<Z>, a1: T, a2: U) in
+      pushStream.next(map(a1, a2))
+    }
+  }
+
+  /// Provides a feed for specified protocol method.
+  ///
+  /// - important: This is ObjC API so you have to use ObjC types like NSString instead of String!
+  public func feed<A, T, U, R>(property: Property<A>, to selector: Selector, map: (A, T, U) -> R) {
+    let _ = stream(selector) { (_: PushStream<Void>, a1: T, a2: U) -> R in
+      return map(property.value, a1, a2)
+    }
+  }
+
+  /// Maps the given protocol method to a stream.
+  ///
+  /// - important: This is ObjC API so you have to use ObjC types like NSString instead of String!
+  @available(*, deprecated=2.1, message="Please use method stream(selector:dispatch:)")
+  public func streamFor<T, U, V, Z>(selector: Selector, map: (T, U, V) -> Z) -> Stream<Z> {
+    return stream(selector) { (pushStream: PushStream<Z>, a1: T, a2: U, a3: V) in
+      pushStream.next(map(a1, a2, a3))
+    }
+  }
+
+  /// Provides a feed for specified protocol method.
+  ///
+  /// - important: This is ObjC API so you have to use ObjC types like NSString instead of String!
+  public func feed<A, T, U, V, R>(property: Property<A>, to selector: Selector, map: (A, T, U, V) -> R) {
+    let _ = stream(selector) { (_: PushStream<Void>, a1: T, a2: U, a3: V) -> R in
+      return map(property.value, a1, a2, a3)
+    }
+  }
+
+  /// Maps the given protocol method to a stream.
+  ///
+  /// - important: This is ObjC API so you have to use ObjC types like NSString instead of String!
+  @available(*, deprecated=2.1, message="Please use method stream(selector:dispatch:)")
+  public func streamFor<T, U, V, W, Z>(selector: Selector, map: (T, U, V, W) -> Z) -> Stream<Z> {
+    return stream(selector) { (pushStream: PushStream<Z>, a1: T, a2: U, a3: V, a4: W) in
+      pushStream.next(map(a1, a2, a3, a4))
+    }
+  }
+
+  /// Provides a feed for specified protocol method.
+  ///
+  /// - important: This is ObjC API so you have to use ObjC types like NSString instead of String!
+  public func feed<A, T, U, V, W, R>(property: Property<A>, to selector: Selector, map: (A, T, U, V, W) -> R) {
+    let _ = stream(selector) { (_: PushStream<Void>, a1: T, a2: U, a3: V, a4: W) -> R in
+      return map(property.value, a1, a2, a3, a4)
+    }
+  }
+
+  /// Maps the given protocol method to a stream.
+  ///
+  /// - important: This is ObjC API so you have to use ObjC types like NSString instead of String!
+  @available(*, deprecated=2.1, message="Please use method stream(selector:dispatch:)")
+  public func streamFor<T, U, V, W, X, Z>(selector: Selector, map: (T, U, V, W, X) -> Z) -> Stream<Z> {
+    return stream(selector) { (pushStream: PushStream<Z>, a1: T, a2: U, a3: V, a4: W, a5: X) in
+      pushStream.next(map(a1, a2, a3, a4, a5))
+    }
+  }
+
+  /// Provides a feed for specified protocol method.
+  ///
+  /// - important: This is ObjC API so you have to use ObjC types like NSString instead of String!
+  public func feed<A, T, U, V, W, X, R>(property: Property<A>, to selector: Selector, map: (A, T, U, V, W, X) -> R) {
+    let _ = stream(selector) { (_: PushStream<Void>, a1: T, a2: U, a3: V, a4: W, a5: X) -> R in
+      return map(property.value, a1, a2, a3, a4, a5)
     }
   }
 }
