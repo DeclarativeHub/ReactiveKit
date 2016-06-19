@@ -343,7 +343,7 @@ let options = CollectionProperty(["enabled": "yes"])
 ```
 
 ```swift
-let names: CollectionProperty(["Steve", "Tim"])
+let names = CollectionProperty(["Steve", "Tim"])
 ```
 
 When observing collection property, events you receive will be structs that contain detailed description of changes that happened.
