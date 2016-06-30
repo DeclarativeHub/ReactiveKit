@@ -426,6 +426,32 @@ class StreamTests: XCTestCase {
     XCTAssertEqual(bob.numberOfRuns, 1)
   }
 
+  func testReplayLatest() {
+    let bob = Scheduler()
+    bob.runRemaining()
+
+    let stream = Stream.sequence([1, 2, 3]).executeIn(bob.context)
+    let replayed = stream.replay(1)
+
+    replayed.expectNext([1, 2, 3])
+    replayed.connect()
+    replayed.expectNext([3])
+    XCTAssertEqual(bob.numberOfRuns, 1)
+  }
+
+  func testReplayLatestIfEmpty() {
+    let bob = Scheduler()
+    bob.runRemaining()
+
+    let stream = Stream.sequence([]).executeIn(bob.context)
+    let replayed = stream.replay(1)
+
+    replayed.expectNext([])
+    replayed.connect()
+    replayed.expectNext([])
+    XCTAssertEqual(bob.numberOfRuns, 1)
+  }
+
   func testPublish() {
     let bob = Scheduler()
     bob.runRemaining()
