@@ -184,7 +184,6 @@ public class RKKeyValueStream<T>: NSObject, StreamType {
 
   deinit {
     subject.completed()
-    print("deinit")
   }
 
   public override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
