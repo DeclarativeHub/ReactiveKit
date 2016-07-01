@@ -124,6 +124,7 @@ public final class ReplaySubject<E: EventType>: ObserverRegister<E>, RawSubjectT
 public final class ReplayOneSubject<E: EventType>: ObserverRegister<E>, RawSubjectType {
 
   private var event: E? = nil
+  private var terminatingEvent: E? = nil
   private let lock = RecursiveLock(name: "ReactiveKit.ReplayOneSubject")
   private var isUpdating = false
 
@@ -135,7 +136,12 @@ public final class ReplayOneSubject<E: EventType>: ObserverRegister<E>, RawSubje
     lock.lock(); defer { lock.unlock() }
     guard !isUpdating else { return }
     isUpdating = true
-    self.event = event
+    if event.isTermination {
+      self.terminatingEvent = event
+    } else {
+      self.event = event
+    }
+
     observers.forEach { $0(event) }
     isUpdating = false
   }
@@ -145,12 +151,15 @@ public final class ReplayOneSubject<E: EventType>: ObserverRegister<E>, RawSubje
       if let event = event {
         observer(event)
       }
+      if let event = terminatingEvent {
+        observer(event)
+      }
       return addObserver(observer)
     }
   }
 
   private var completed: Bool {
-    if let event = event {
+    if let event = terminatingEvent {
       return event.isTermination
     } else {
       return false
