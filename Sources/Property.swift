@@ -29,7 +29,7 @@ public protocol PropertyType {
 }
 
 /// Represents a state as a stream of events.
-public final class Property<T>: PropertyType, StreamType, SubjectType {
+public class Property<T>: PropertyType, StreamType, SubjectType {
 
   private var _value: T
   private let subject = PublishSubject<StreamEvent<T>>()

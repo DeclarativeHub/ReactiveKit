@@ -136,13 +136,13 @@ public extension RawStream where Event.Element: Integer {
 
   /// Create a stream that emits an integer every `interval` time on a given queue.
   @warn_unused_result
-  public static func interval(_ interval: TimeValue, queue: Queue) -> RawStream<Event> {
+  public static func interval(_ interval: TimeValue, queue: DispatchQueue) -> RawStream<Event> {
     return RawStream { observer in
       var number: Event.Element = 0
       var dispatch: (() -> Void)!
       let disposable = SimpleDisposable()
       dispatch = {
-        queue.after(interval) {
+        queue.after(when: interval) {
           guard !disposable.isDisposed else { dispatch = nil; return }
           observer.next(number)
           number = number + 1
@@ -159,10 +159,10 @@ public extension RawStream {
 
   /// Create a stream that emits given elements after `time` time on a given queue.
   @warn_unused_result
-  public static func timer(events: [Event], time: TimeValue, queue: Queue) -> RawStream<Event> {
+  public static func timer(events: [Event], time: TimeValue, queue: DispatchQueue) -> RawStream<Event> {
     return RawStream { observer in
       let disposable = SimpleDisposable()
-      queue.after(time) {
+      queue.after(when: time) {
         guard !disposable.isDisposed else { return }
         events.forEach(observer.on)
       }
@@ -211,7 +211,7 @@ public extension RawStreamType {
 
   /// Emit an element only if `interval` time passes without emitting another element.
   @warn_unused_result
-  public func debounce(interval: TimeValue, on queue: Queue) -> RawStream<Event> {
+  public func debounce(interval: TimeValue, on queue: DispatchQueue) -> RawStream<Event> {
     return RawStream { observer in
       var timerSubscription: Disposable? = nil
       var previousEvent: Event? = nil
@@ -224,7 +224,7 @@ public extension RawStreamType {
           }
         } else {
           previousEvent = event
-          timerSubscription = queue.disposableAfter(interval) {
+          timerSubscription = queue.disposableAfter(when: interval) {
             if let _event = previousEvent {
               observer.observer(_event)
               previousEvent = nil
@@ -311,14 +311,14 @@ public extension RawStreamType {
 
   /// Periodically sample the stream and emit latest element from each interval.
   @warn_unused_result
-  public func sample(interval: TimeValue, on queue: Queue) -> RawStream<Event> {
+  public func sample(interval: TimeValue, on queue: DispatchQueue) -> RawStream<Event> {
     return RawStream { observer in
 
       let serialDisposable = SerialDisposable(otherDisposable: nil)
       var latestEvent: Event? = nil
       var dispatch: (() -> Void)!
       dispatch = {
-        queue.after(interval) {
+        queue.after(when: interval) {
           guard !serialDisposable.isDisposed else { dispatch = nil; return }
           if let event = latestEvent {
             observer.observer(event)
@@ -668,10 +668,10 @@ public extension RawStreamType {
 
   /// Delay stream events for `interval` time.
   @warn_unused_result
-  public func delay(interval: TimeValue, on queue: Queue) -> RawStream<Event> {
+  public func delay(interval: TimeValue, on queue: DispatchQueue) -> RawStream<Event> {
     return RawStream { observer in
       return self.observe { event in
-        queue.after(interval) {
+        queue.after(when: interval) {
           observer.observer(event)
         }
       }

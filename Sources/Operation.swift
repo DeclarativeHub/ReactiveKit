@@ -293,13 +293,13 @@ public extension Operation {
 
   /// Create an operation that emits an integer every `interval` time on a given queue.
   @warn_unused_result
-  public static func interval(_ interval: TimeValue, queue: Queue) -> Operation<Int, Error> {
+  public static func interval(_ interval: TimeValue, queue: DispatchQueue) -> Operation<Int, Error> {
     return Operation<Int, Error>(rawStream: RawStream.interval(interval, queue: queue))
   }
 
   /// Create an operation that emits given element after `time` time on a given queue.
   @warn_unused_result
-  public static func timer(element: Element, time: TimeValue, queue: Queue) -> Operation<Element, Error> {
+  public static func timer(element: Element, time: TimeValue, queue: DispatchQueue) -> Operation<Element, Error> {
     return Operation(rawStream: RawStream.timer(events: [.Next(element), .Completed], time: time, queue: queue))
   }
 }
@@ -499,7 +499,7 @@ extension OperationType {
 
   /// Emit an element only if `interval` time passes without emitting another element.
   @warn_unused_result
-  public func debounce(interval: TimeValue, on queue: Queue) -> Operation<Element, Error> {
+  public func debounce(interval: TimeValue, on queue: DispatchQueue) -> Operation<Element, Error> {
     return lift { $0.debounce(interval: interval, on: queue) }
   }
 
@@ -541,7 +541,7 @@ extension OperationType {
 
   /// Periodically sample the stream and emit latest element from each interval.
   @warn_unused_result
-  public func sample(interval: TimeValue, on queue: Queue) -> Operation<Element, Error> {
+  public func sample(interval: TimeValue, on queue: DispatchQueue) -> Operation<Element, Error> {
     return lift { $0.sample(interval: interval, on: queue) }
   }
 
@@ -814,7 +814,7 @@ extension OperationType {
 
   /// Delay stream events for `interval` time.
   @warn_unused_result
-  public func delay(interval: TimeValue, on queue: Queue) -> Operation<Element, Error> {
+  public func delay(interval: TimeValue, on queue: DispatchQueue) -> Operation<Element, Error> {
     return lift { $0.delay(interval: interval, on: queue) }
   }
 
@@ -876,11 +876,11 @@ extension OperationType {
 
   /// Error-out if `interval` time passes with no emitted elements.
   @warn_unused_result
-  public func timeout(after interval: TimeValue, with error: Error, on queue: Queue) -> Operation<Element, Error> {
+  public func timeout(after interval: TimeValue, with error: Error, on queue: DispatchQueue) -> Operation<Element, Error> {
     return Operation { observer in
       var completed = false
       let timeoutWhenCan: () -> Disposable = {
-        return queue.disposableAfter(interval) {
+        return queue.disposableAfter(when: interval) {
           if !completed {
             completed = true
             observer.failure(error)

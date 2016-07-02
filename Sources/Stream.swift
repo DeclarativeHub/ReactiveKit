@@ -220,13 +220,13 @@ public extension Stream {
 
   /// Create a stream that emits an integer every `interval` time on a given queue.
   @warn_unused_result
-  public static func interval(_ interval: TimeValue, queue: Queue) -> Stream<Int> {
+  public static func interval(_ interval: TimeValue, queue: DispatchQueue) -> Stream<Int> {
     return Stream<Int>(rawStream: RawStream.interval(interval, queue: queue))
   }
 
   /// Create a stream that emits given element after `time` time on a given queue.
   @warn_unused_result
-  public static func timer(element: Element, time: TimeValue, queue: Queue) -> Stream<Element> {
+  public static func timer(element: Element, time: TimeValue, queue: DispatchQueue) -> Stream<Element> {
     return Stream<Element>(rawStream: RawStream.timer(events: [.Next(element), .Completed], time: time, queue: queue))
   }
 }
@@ -393,7 +393,7 @@ extension StreamType {
 
   /// Emit an element only if `interval` time passes without emitting another element.
   @warn_unused_result
-  public func debounce(interval: TimeValue, on queue: Queue) -> Stream<Element> {
+  public func debounce(interval: TimeValue, on queue: DispatchQueue) -> Stream<Element> {
     return lift { $0.debounce(interval: interval, on: queue) }
   }
 
@@ -435,7 +435,7 @@ extension StreamType {
 
   /// Periodically sample the stream and emit latest element from each interval.
   @warn_unused_result
-  public func sample(interval: TimeValue, on queue: Queue) -> Stream<Element> {
+  public func sample(interval: TimeValue, on queue: DispatchQueue) -> Stream<Element> {
     return lift { $0.sample(interval: interval, on: queue) }
   }
 
@@ -609,7 +609,7 @@ extension StreamType {
 
   /// Delay stream events for `interval` time.
   @warn_unused_result
-  public func delay(interval: TimeValue, on queue: Queue) -> Stream<Element> {
+  public func delay(interval: TimeValue, on queue: DispatchQueue) -> Stream<Element> {
     return lift { $0.delay(interval: interval, on: queue) }
   }
 

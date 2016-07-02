@@ -24,16 +24,16 @@
 
 import Foundation
 
-extension NSNotificationCenter {
+extension NotificationCenter {
 
   /// Observe notifications using a stream.
-  public func rNotification(name: String, object: AnyObject?) -> Stream<NSNotification> {
+  public func rNotification(name: Notification.Name, object: AnyObject?) -> Stream<NSNotification> {
     return Stream { observer in
-      let subscription = NSNotificationCenter.default().addObserver(forName: name, object: object, queue: nil, using: { notification in
+      let subscription = NotificationCenter.default().addObserver(forName: name, object: object, queue: nil, using: { notification in
         observer.next(notification)
       })
       return BlockDisposable {
-        NSNotificationCenter.default().removeObserver(subscription)
+        NotificationCenter.default().removeObserver(subscription)
       }
     }
   }
@@ -100,7 +100,7 @@ public extension NSObject {
     }
   }
 
-  public func rAssociatedPropertyForValueForKey<T>(key: String, initial: T? = nil, set: ((T) -> ())? = nil) -> Property<T> {
+  public func rAssociatedPropertyForValueFor<T>(key: String, initial: T? = nil, set: ((T) -> ())? = nil) -> Property<T> {
     if let property: AnyObject = r_associatedProperties[key] {
       return property as! Property<T>
     } else {
@@ -123,7 +123,7 @@ public extension NSObject {
     }
   }
 
-  public func rAssociatedPropertyForValueForKey<T: OptionalType>(key: String, initial: T? = nil, set: ((T) -> ())? = nil) -> Property<T> {
+  public func rAssociatedPropertyForValueFor<T: OptionalType>(key: String, initial: T? = nil, set: ((T) -> ())? = nil) -> Property<T> {
     if let property: AnyObject = r_associatedProperties[key] {
       return property as! Property<T>
     } else {
@@ -187,9 +187,9 @@ public class RKKeyValueStream<T>: NSObject, StreamType {
     print("deinit")
   }
 
-  public override func observeValue(forKeyPath keyPath: String?, of object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>?) {
+  public override func observeValue(forKeyPath keyPath: String?, of object: AnyObject?, change: [NSKeyValueChangeKey : AnyObject]?, context: UnsafeMutablePointer<Void>?) {
     if context == &self.context {
-      if let newValue = change?[NSKeyValueChangeNewKey] {
+      if let newValue = change?[NSKeyValueChangeKey.newKey] {
         if let newValue = transform(newValue) {
           subject.next(newValue)
         } else {

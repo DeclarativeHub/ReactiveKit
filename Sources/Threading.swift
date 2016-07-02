@@ -86,77 +86,96 @@ public let ImmediateExecutionContext: ExecutionContext = { block in
   /// If current thread is main thread, just execute block. Otherwise, do
   /// async dispatch of the block to the main queue (thread).
   public let ImmediateOnMainExecutionContext: ExecutionContext = { block in
-    if NSThread.isMainThread() {
+    if Thread.isMainThread() {
       block()
     } else {
-      Queue.main.async(block)
+      DispatchQueue.main.async(execute: block)
     }
   }
 
-  /// A simple wrapper over GCD queue.
-  public struct Queue {
+  public extension DispatchQueue {
 
-    public static let main = Queue(queue: dispatch_get_main_queue());
-    public static let global = Queue(queue: dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0))
-    public static let background = Queue(queue: dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0))
-
-    public private(set) var queue: dispatch_queue_t
-
-    public init(queue: dispatch_queue_t = dispatch_queue_create("ReactiveKit.Queue", DISPATCH_QUEUE_SERIAL)) {
-      self.queue = queue
+    public func after(when interval: TimeValue, block: () -> ()) {
+      after(when: DispatchTime.now() + interval, execute: block)
     }
 
-    public init(name: String) {
-      self.queue = dispatch_queue_create(name, DISPATCH_QUEUE_SERIAL)
-    }
-
-    public func after(_ interval: TimeValue, block: () -> ()) {
-      let dispatchTime = dispatch_time(DISPATCH_TIME_NOW, Int64(interval * NSTimeInterval(NSEC_PER_SEC)))
-      dispatch_after(dispatchTime, queue, block)
-    }
-
-    public func after(_ interval: TimeValue) -> (() -> Void) -> Void {
-      return { block in
-        let dispatchTime = dispatch_time(DISPATCH_TIME_NOW, Int64(interval * NSTimeInterval(NSEC_PER_SEC)))
-        dispatch_after(dispatchTime, self.queue, block)
-      }
-    }
-
-    public func disposableAfter(_ interval: TimeValue, block: () -> ()) -> Disposable {
+    public func disposableAfter(when interval: TimeValue, block: () -> ()) -> Disposable {
       let disposable = SimpleDisposable()
-      let dispatchTime = dispatch_time(DISPATCH_TIME_NOW, Int64(interval * NSTimeInterval(NSEC_PER_SEC)))
-      dispatch_after(dispatchTime, queue) {
+      after(when: interval) {
         if !disposable.isDisposed {
           block()
         }
       }
       return disposable
     }
-
-    public func async(_ block: () -> ()) {
-      dispatch_async(queue, block)
-    }
-
-    public func sync(_ block: () -> ()) {
-      dispatch_sync(queue, block)
-    }
-
-    public func sync<T>(_ block: () -> T) -> T {
-      var res: T! = nil
-      sync {
-        res = block()
-      }
-      return res
-    }
   }
+
+  /// A simple wrapper over GCD queue.
+//  public struct Queue {
+//
+//    public static let main = Queue(queue: DispatchQueue.main)
+//    public static let global = Queue(queue: DispatchQueue.global())
+//    public static let background = Queue(queue: DispatchQueue.global(attributes: DispatchQueue.GlobalAttributes.qosBackground))
+//
+//    public private(set) var queue: DispatchQueue
+//
+//    public init(queue: DispatchQueue = dispatch_queue_create("ReactiveKit.Queue", DISPATCH_QUEUE_SERIAL)) {
+//      self.queue = queue
+//    }
+//
+//    public init(name: String) {
+//      self.queue = dispatch_queue_create(name, DISPATCH_QUEUE_SERIAL)
+//    }
+//
+//    public func after(_ interval: TimeValue, block: () -> ()) {
+//      let dispatchTime = dispatch_time(DISPATCH_TIME_NOW, Int64(interval * NSTimeInterval(NSEC_PER_SEC)))
+//      dispatch_after(dispatchTime, queue, block)
+//    }
+//
+//    public func after(_ interval: TimeValue) -> (() -> Void) -> Void {
+//      return { block in
+//        let dispatchTime = dispatch_time(DISPATCH_TIME_NOW, Int64(interval * NSTimeInterval(NSEC_PER_SEC)))
+//        dispatch_after(dispatchTime, self.queue, block)
+//      }
+//    }
+//
+//    public func disposableAfter(_ interval: TimeValue, block: () -> ()) -> Disposable {
+//      let disposable = SimpleDisposable()
+//      let dispatchTime = dispatch_time(DISPATCH_TIME_NOW, Int64(interval * NSTimeInterval(NSEC_PER_SEC)))
+//      dispatch_after(dispatchTime, queue) {
+//        if !disposable.isDisposed {
+//          block()
+//        }
+//      }
+//      return disposable
+//    }
+//
+//    public func async(_ block: () -> ()) {
+//      dispatch_async(queue, block)
+//    }
+//
+//    public func sync(_ block: () -> ()) {
+//      dispatch_sync(queue, block)
+//    }
+//
+//    public func sync<T>(_ block: () -> T) -> T {
+//      var res: T! = nil
+//      sync {
+//        res = block()
+//      }
+//      return res
+//    }
+//  }
 
 #endif
 
-public extension Queue {
+public extension DispatchQueue {
 
   /// Returns context that executes blocks on this queue.
   public var context: ExecutionContext {
-    return self.async
+    return { block in // TODO: remove redundant closure
+      self.async(execute: block)
+    }
   }
 }
 
@@ -174,10 +193,10 @@ internal extension Lock {
 }
 
 /// Recursive Lock
-internal final class RecursiveLock: NSRecursiveLock, Lock {
+extension RecursiveLock: Lock {
 
-  internal init(name: String) {
-    super.init()
+  internal convenience init(name: String) {
+    self.init()
     self.name = name
   }
 }
