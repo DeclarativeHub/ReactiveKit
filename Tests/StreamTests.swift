@@ -232,6 +232,74 @@ class StreamTests: XCTestCase {
     combined.expectNext(["1A", "2B"])
   }
 
+  func testZipWithPushStreams() {
+    let streamA = PushStream<String>()
+    let streamB = PushStream<Int>()
+
+    let combined = streamA.zipWith(streamB).map { "\($0)\($1)" }
+
+    streamA.next("A")
+    streamB.next(1)
+
+    combined.expectNext(["B2", "C3"])
+
+    streamA.next("B")
+    streamA.next("C")
+    streamA.completed()
+
+    streamB.next(2)
+    streamB.next(3)
+    streamB.completed()
+  }
+
+  func testZipWithFiniteToPushStream() {
+    let streamA = Stream.sequence(["A", "B", "C"])
+    let streamB = PushStream<Int>()
+
+    let combined = streamA.zipWith(streamB).map { "\($0)\($1)" }
+
+    streamB.next(1)
+
+    combined.expectNext(["A2", "B3"])
+
+    streamB.next(2)
+    streamB.next(3)
+    streamB.completed()
+  }
+
+  func testZipWithRecursive() {
+    var next: (String -> ())?
+    let recursiveStream = Stream<String> { observer in
+      next = { value in
+        observer.next(value)
+      }
+
+      next!("initial")
+
+      return NotDisposable
+    }
+
+    var values: [String] = []
+    let expectation = expectationWithDescription("completed")
+
+    recursiveStream
+      .zipWith(Stream.sequence(["A", "B", "C"]))
+      .map { "\($0)\($1)" }
+      .observe { event in
+        switch event {
+        case .Next(let value):
+          values.append(value)
+          next!("Pushed")
+        case .Completed:
+          XCTAssertEqual(values, ["initialA", "PushedB", "PushedC"])
+          expectation.fulfill()
+        }
+      }
+      .dispose()
+
+    waitForExpectationsWithTimeout(1, handler: nil)
+  }
+
   func testExecuteIn() {
     let bob = Scheduler()
     bob.runRemaining()

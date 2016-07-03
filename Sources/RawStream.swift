@@ -583,10 +583,9 @@ extension RawStreamType {
 
       let dispatchIfPossible = {
         while !selfBuffer.isEmpty && !otherBuffer.isEmpty {
-          let event = zip(selfBuffer[0], otherBuffer[0])
+          let event = zip(selfBuffer.removeFirst(), otherBuffer.removeFirst())
           observer.observer(event)
-          selfBuffer.removeFirst()
-          otherBuffer.removeFirst()
+
           if event.isTermination {
             disposable.dispose()
           }
