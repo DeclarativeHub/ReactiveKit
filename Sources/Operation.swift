@@ -775,6 +775,12 @@ extension OperationType {
   public func retry(times: Int) -> Operation<Element, Error> {
     return lift { $0.retry(times) }
   }
+
+  /// Restart the operation in case of failure when the handler emits a next value
+  @warn_unused_result
+  public func retryWhen<S: StreamType>(handler: Stream<Error> -> S) -> Operation<Element, Error> {
+    return lift { $0.retryWhen(handler) }
+  }
 }
 
 extension OperationType where Element: ResultType {
