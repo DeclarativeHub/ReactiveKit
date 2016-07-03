@@ -67,7 +67,7 @@ public final class PublishSubject<E: EventType>: ObserverRegister<E>, RawSubject
   public func on(event: E) {
     guard !completed else { return }
     lock.lock(); defer { lock.unlock() }
-    guard !isUpdating else { return }
+    guard !isUpdating else { assertionFailure("Cannot dispatch within update cycle"); return }
     isUpdating = true
     completed = event.isTermination
     observers.forEach { $0(event) }
@@ -97,7 +97,7 @@ public final class ReplaySubject<E: EventType>: ObserverRegister<E>, RawSubjectT
   public func on(event: E) {
     guard !completed else { return }
     lock.lock(); defer { lock.unlock() }
-    guard !isUpdating else { return }
+    guard !isUpdating else { assertionFailure("Cannot dispatch within update cycle"); return }
     isUpdating = true
     buffer.append(event)
     buffer = buffer.suffix(bufferSize)
@@ -134,7 +134,7 @@ public final class ReplayOneSubject<E: EventType>: ObserverRegister<E>, RawSubje
   public func on(event: E) {
     guard !completed else { return }
     lock.lock(); defer { lock.unlock() }
-    guard !isUpdating else { return }
+    guard !isUpdating else { assertionFailure("Cannot dispatch within update cycle"); return }
     isUpdating = true
     if event.isTermination {
       self.terminatingEvent = event
