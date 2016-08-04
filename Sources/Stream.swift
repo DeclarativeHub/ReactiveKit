@@ -115,7 +115,6 @@ public protocol StreamType: _StreamType {
   /// Register an observer that will receive events from the stream. Registering
   /// an observer starts the stream. Disposing the returned disposable can
   /// be used to cancel (stop) the stream.
-  @warn_unused_result
   func observe(observer: (StreamEvent<Element>) -> Void) -> Disposable
 }
 
@@ -131,7 +130,6 @@ public extension StreamType {
   /// Register an observer that will receive events from the stream. Registering
   /// an observer starts the stream. Disposing the returned disposable can
   /// be used to cancel (stop) the stream.
-  @warn_unused_result
   public func observe(observer: (StreamEvent<Element>) -> Void) -> Disposable {
     return rawStream.observe(observer: observer)
   }
@@ -182,7 +180,6 @@ public struct Stream<T>: StreamType {
 public extension Stream {
 
   /// Create a stream that emits given element and then completes.
-  @warn_unused_result
   public static func just(_ element: Element) -> Stream<Element> {
     return Stream { observer in
       observer.next(element)
@@ -192,7 +189,6 @@ public extension Stream {
   }
 
   /// Create a stream that emits given sequence of elements and then completes.
-  @warn_unused_result
   public static func sequence<S: Sequence where S.Iterator.Element == Element>(_ sequence: S) -> Stream<Element> {
     return Stream { observer in
       sequence.forEach(observer.next)
@@ -202,7 +198,6 @@ public extension Stream {
   }
 
   /// Create a stream that completes without emitting any elements.
-  @warn_unused_result
   public static func completed() -> Stream<Element> {
     return Stream { observer in
       observer.completed()
@@ -211,7 +206,6 @@ public extension Stream {
   }
 
   /// Create an stream that never completes.
-  @warn_unused_result
   public static func never() -> Stream<Element> {
     return Stream { observer in
       return NotDisposable
@@ -219,13 +213,11 @@ public extension Stream {
   }
 
   /// Create a stream that emits an integer every `interval` time on a given queue.
-  @warn_unused_result
   public static func interval(_ interval: TimeValue, queue: DispatchQueue) -> Stream<Int> {
     return Stream<Int>(rawStream: RawStream.interval(interval, queue: queue))
   }
 
   /// Create a stream that emits given element after `time` time on a given queue.
-  @warn_unused_result
   public static func timer(element: Element, time: TimeValue, queue: DispatchQueue) -> Stream<Element> {
     return Stream<Element>(rawStream: RawStream.timer(events: [.Next(element), .Completed], time: time, queue: queue))
   }
@@ -236,7 +228,6 @@ public extension Stream {
 public extension StreamType {
 
   /// Batch the elements into arrays of given size.
-  @warn_unused_result
   public func buffer(size: Int) -> Stream<[Element]> {
     return Stream { observer in
       var buffer: [Element] = []
@@ -257,7 +248,6 @@ public extension StreamType {
 
   /// Map each event into a stream and then flatten those streams using
   /// the given flattening strategy.
-  @warn_unused_result
   public func flatMap<U: StreamType>(strategy: FlatMapStrategy, transform: (Element) -> U) -> Stream<U.Element> {
     let transform: (Element) -> Stream<U.Element> = { transform($0).toStream() }
     switch strategy {
@@ -271,28 +261,24 @@ public extension StreamType {
   }
 
   /// Map each event into an stream and then flattens inner streams.
-  @warn_unused_result
   public func flatMapLatest<U: StreamType>(transform: (Element) -> U) -> Stream<U.Element> {
     return flatMap(strategy: .Latest, transform: transform)
   }
 
   /// Map each event into an stream and then flattens inner streams.
-  @warn_unused_result
   public func flatMapMerge<U: StreamType>(transform: (Element) -> U) -> Stream<U.Element> {
     return flatMap(strategy: .Merge, transform: transform)
   }
 
   /// Map each event into an stream and then flattens inner streams.
-  @warn_unused_result
   public func flatMapConcat<U: StreamType>(transform: (Element) -> U) -> Stream<U.Element> {
     return flatMap(strategy: .Concat, transform: transform)
   }
 
   /// Map each event into an operation and then flatten those operation using
   /// the given flattening strategy.
-  @warn_unused_result
-  public func flatMap<U: OperationType>(strategy: FlatMapStrategy, transform: (Element) -> U) -> Operation<U.Element, U.Error> {
-    let transform: (Element) -> Operation<U.Element, U.Error> = { transform($0).toOperation() }
+  public func flatMap<U: OperationType>(strategy: FlatMapStrategy, transform: (Element) -> U) -> Operation<U.Element, U.ErrorType> {
+    let transform: (Element) -> Operation<U.Element, U.ErrorType> = { transform($0).toOperation() }
     switch strategy {
     case .Latest:
       return map(transform).switchToLatest()
@@ -304,25 +290,21 @@ public extension StreamType {
   }
 
   /// Map each event into an operation and then flattens inner operations.
-  @warn_unused_result
-  public func flatMapLatest<U: OperationType>(transform: (Element) -> U) -> Operation<U.Element, U.Error> {
+  public func flatMapLatest<U: OperationType>(transform: (Element) -> U) -> Operation<U.Element, U.ErrorType> {
     return flatMap(strategy: .Latest, transform: transform)
   }
 
   /// Map each event into an operation and then flattens inner operations.
-  @warn_unused_result
-  public func flatMapMerge<U: OperationType>(transform: (Element) -> U) -> Operation<U.Element, U.Error> {
+  public func flatMapMerge<U: OperationType>(transform: (Element) -> U) -> Operation<U.Element, U.ErrorType> {
     return flatMap(strategy: .Merge, transform: transform)
   }
 
   /// Map each event into an operation and then flattens inner operations.
-  @warn_unused_result
-  public func flatMapConcat<U: OperationType>(transform: (Element) -> U) -> Operation<U.Element, U.Error> {
+  public func flatMapConcat<U: OperationType>(transform: (Element) -> U) -> Operation<U.Element, U.ErrorType> {
     return flatMap(strategy: .Concat, transform: transform)
   }
 
   /// Transform each element by applying `transform` on it.
-  @warn_unused_result
   public func map<U>(_ transform: (Element) -> U) -> Stream<U> {
     return lift { stream in
       stream.map { event in
@@ -332,14 +314,12 @@ public extension StreamType {
   }
 
   /// Maps elements to Void.
-  @warn_unused_result
   public func eraseType() -> Stream<Void> {
     return map { _ in }
   }
 
   /// Apply `combine` to each element starting with `initial` and emit each
   /// intermediate result. This differs from `reduce` which emits only final result.
-  @warn_unused_result
   public func scan<U>(_ initial: U, _ combine: (U, Element) -> U) -> Stream<U> {
     return lift { stream in
       return stream.scan(.Next(initial)) { memo, new in
@@ -354,14 +334,12 @@ public extension StreamType {
   }
 
   /// Transform each element by applying `transform` on it.
-  @warn_unused_result
-  public func tryMap<U, Error>(transform: (Element) -> Result<U, Error>) -> Operation<U, Error> {
+  public func tryMap<U, ErrorType>(transform: (Element) -> Result<U, ErrorType>) -> Operation<U, ErrorType> {
     return toOperation().tryMap(transform)
   }
 
   /// Convert the stream to an operation.
-  @warn_unused_result
-  public func toOperation<E: ErrorProtocol>() -> Operation<Element, E> {
+  public func toOperation<E: Error>() -> Operation<Element, E> {
     return Operation { observer in
       return self.observe { event in
         switch event {
@@ -375,13 +353,11 @@ public extension StreamType {
   }
 
   /// Convert the stream to a concrete stream.
-  @warn_unused_result
   public func toStream() -> Stream<Element> {
     return Stream(rawStream: self.rawStream)
   }
 
   /// Batch each `size` elements into another stream.
-  @warn_unused_result
   public func window(size: Int) -> Stream<Stream<Element>> {
     return buffer(size: size).map { Stream.sequence($0) }
   }
@@ -392,79 +368,66 @@ public extension StreamType {
 extension StreamType {
 
   /// Emit an element only if `interval` time passes without emitting another element.
-  @warn_unused_result
   public func debounce(interval: TimeValue, on queue: DispatchQueue) -> Stream<Element> {
     return lift { $0.debounce(interval: interval, on: queue) }
   }
 
   /// Emit first element and then all elements that are not equal to their predecessor(s).
-  @warn_unused_result
   public func distinct(areDistinct: (Element, Element) -> Bool) -> Stream<Element> {
     return lift { $0.distinct(areDistinct: areDistinct) }
   }
 
   /// Emit only element at given index if such element is produced.
-  @warn_unused_result
   public func element(at index: Int) -> Stream<Element> {
     return lift { $0.element(at: index) }
   }
 
   /// Emit only elements that pass `include` test.
-  @warn_unused_result
   public func filter(include: (Element) -> Bool) -> Stream<Element> {
     return lift { $0.filter { $0.element.flatMap(include) ?? true } }
   }
 
   /// Emit only the first element generated by the stream and then complete.
-  @warn_unused_result
   public func first() -> Stream<Element> {
     return lift { $0.first() }
   }
 
   /// Ignore all elements (just propagate terminal events).
-  @warn_unused_result
   public func ignoreElements() -> Stream<Element> {
     return lift { $0.ignoreElements() }
   }
 
   /// Emit only last element generated by the stream and then complete.
-  @warn_unused_result
   public func last() -> Stream<Element> {
     return lift { $0.last() }
   }
 
   /// Periodically sample the stream and emit latest element from each interval.
-  @warn_unused_result
   public func sample(interval: TimeValue, on queue: DispatchQueue) -> Stream<Element> {
     return lift { $0.sample(interval: interval, on: queue) }
   }
 
   /// Suppress first `count` elements generated by the stream.
-  @warn_unused_result
   public func skip(first count: Int) -> Stream<Element> {
     return lift { $0.skip(first: count) }
   }
 
   /// Suppress last `count` elements generated by the stream.
-  @warn_unused_result
   public func skip(last count: Int) -> Stream<Element> {
     return lift { $0.skip(last: count) }
   }
 
   /// Emit only first `count` elements of the stream and then complete.
-  @warn_unused_result
   public func take(first count: Int) -> Stream<Element> {
     return lift { $0.take(first: count) }
   }
 
   /// Emit only last `count` elements of the stream and then complete.
-  @warn_unused_result
   public func take(last count: Int) -> Stream<Element> {
     return lift { $0.take(last: count) }
   }
 
   /// Throttle the stream to emit at most one element per given `seconds` interval.
-  @warn_unused_result
   public func throttle(seconds: TimeValue) -> Stream<Element> {
     return lift { $0.throttle(seconds: seconds) }
   }
@@ -473,7 +436,6 @@ extension StreamType {
 extension StreamType where Element: Equatable {
 
   /// Emit first element and then all elements that are not equal to their predecessor(s).
-  @warn_unused_result
   public func distinct() -> Stream<Element> {
     return lift { $0.distinct() }
   }
@@ -482,7 +444,6 @@ extension StreamType where Element: Equatable {
 public extension StreamType where Element: OptionalType, Element.Wrapped: Equatable {
 
   /// Emit first element and then all elements that are not equal to their predecessor(s).
-  @warn_unused_result
   public func distinct() -> Stream<Element> {
     return lift { $0.distinct() }
   }
@@ -491,7 +452,6 @@ public extension StreamType where Element: OptionalType, Element.Wrapped: Equata
 public extension StreamType where Element: OptionalType {
 
   /// Suppress all `nil`-elements.
-  @warn_unused_result
   public func ignoreNil() -> Stream<Element.Wrapped> {
     return Stream { observer in
       return self.observe { event in
@@ -514,7 +474,6 @@ extension StreamType {
 
   /// Emit a pair of latest elements from each stream. Starts when both streams
   /// emit at least one element, and emits `.Next` when either stream generates an element.
-  @warn_unused_result
   public func combineLatest<S: StreamType>(with other: S) -> Stream<(Element, S.Element)> {
     return lift {
       return $0.combineLatest(with: other.toStream()) { myLatestElement, my, theirLatestElement, their, isMy in
@@ -524,7 +483,7 @@ extension StreamType {
         case (.Next(let myElement), .Next(let theirElement)):
           return StreamEvent.Next(myElement, theirElement)
         case (.Next(let myElement), .Completed):
-          if let theirLatestElement = theirLatestElement where isMy {
+          if let theirLatestElement = theirLatestElement, isMy {
             return StreamEvent.Next(myElement, theirLatestElement)
           } else {
             return nil
@@ -541,20 +500,17 @@ extension StreamType {
   }
 
   /// Merge emissions from both source and `other` into one stream.
-  @warn_unused_result
   public func merge<S: StreamType where S.Element == Element>(with other: S) -> Stream<Element> {
     return lift { $0.merge(with: other.rawStream) }
   }
 
   /// Prepend given element to the operation emission.
-  @warn_unused_result
   public func start(with element: Element) -> Stream<Element> {
     return lift { $0.start(with: .Next(element)) }
   }
 
   /// Emit elements from source and `other` in pairs. This differs from `combineLatestWith` in
   /// that pairs are produced from elements at same positions.
-  @warn_unused_result
   public func zip<S: StreamType>(with other: S) -> Stream<(Element, S.Element)> {
     return lift {
       return $0.zip(with: other.toStream()) { my, their in
@@ -573,7 +529,6 @@ extension StreamType {
   }
 
   /// Combines two streams into a stream of pairs of elements whenever the receiver emits an element with the latest element from the given stream.
-  @warn_unused_result
   public func withLatest<S: StreamType>(from other: S) -> Stream<(Element, S.Element)> {
     return lift {
       return $0.combineLatest(with: other.toStream()) { myLatestElement, my, theirLatestElement, their, isMy in
@@ -602,19 +557,16 @@ extension StreamType {
 
   /// Set the execution context in which to execute the stream (i.e. in which to run
   /// the stream's producer).
-  @warn_unused_result
   public func executeIn(_ context: ExecutionContext) -> Stream<Element> {
     return lift { $0.executeIn(context) }
   }
 
   /// Delay stream events for `interval` time.
-  @warn_unused_result
   public func delay(interval: TimeValue, on queue: DispatchQueue) -> Stream<Element> {
     return lift { $0.delay(interval: interval, on: queue) }
   }
 
   /// Do side-effect upon various events.
-  @warn_unused_result
   public func doOn(next: ((Element) -> ())? = nil,
                    start: (() -> Void)? = nil,
                    completed: (() -> Void)? = nil,
@@ -638,7 +590,6 @@ extension StreamType {
   }
 
   /// Use `doOn` to log various events.
-  @warn_unused_result
   public func debug(id: String = "Untitled Stream") -> Stream<Element> {
     return doOn(next: { element in
         print("\(id): Next(\(element))")
@@ -652,13 +603,11 @@ extension StreamType {
   }
 
   /// Set the execution context in which to dispatch events (i.e. in which to run observers).
-  @warn_unused_result
   public func observeIn(_ context: ExecutionContext) -> Stream<Element> {
     return lift { $0.observeIn(context) }
   }
 
   /// Supress non-terminal events while last event generated on other stream is `false`.
-  @warn_unused_result
   public func pausable<S: _StreamType where S.Event.Element == Bool>(by other: S) -> Stream<Element> {
     return lift { $0.pausable(by: other) }
   }
@@ -669,19 +618,16 @@ extension StreamType {
 extension StreamType {
 
   /// Updates the given subject with `true` when the receiver starts and with `false` when the receiver terminates.
-  @warn_unused_result
   public func feedActivityInto<S: SubjectType where S.Event.Element == Bool>(listener: S) -> Stream<Element> {
     return doOn(start: { listener.next(true) }, disposed: { listener.next(false) })
   }
 
   /// Updates the given subject with .Next elements.
-  @warn_unused_result
   public func feedNextInto<S: SubjectType where S.Event.Element == Element>(listener: S) -> Stream<Element> {
     return doOn(next: { e in listener.next(e) })
   }
 
   /// Updates the given subject with mapped .Next element whenever the element satisfies the given constraint.
-  @warn_unused_result
   public func feedNextInto<S: SubjectType>(listener: S, when: (Element) -> Bool = { _ in true }, map: (Element) -> S.Event.Element) -> Stream<Element> {
     return doOn(next: { e in if when(e) { listener.next(map(e)) } })
   }
@@ -692,19 +638,16 @@ extension StreamType {
 extension StreamType {
 
   /// Propagate event only from a stream that starts emitting first.
-  @warn_unused_result
   public func amb<S: StreamType where S.Element == Element>(with other: S) -> Stream<Element> {
     return lift { $0.amb(with: other.rawStream) }
   }
 
   /// Collect all elements into an array and emit just that array.
-  @warn_unused_result
   public func collect() -> Stream<[Element]> {
     return reduce([], { memo, new in memo + [new] })
   }
 
   /// First emit events from source and then from `other` stream.
-  @warn_unused_result
   public func concat<S: StreamType where S.Element == Element>(with other: S) -> Stream<Element> {
     return lift { stream in
       stream.concat(with: other.rawStream)
@@ -712,13 +655,11 @@ extension StreamType {
   }
 
   /// Emit default element is the stream completes without emitting any element.
-  @warn_unused_result
   public func defaultIfEmpty(_ element: Element) -> Stream<Element> {
     return lift { $0.defaultIfEmpty(element) }
   }
 
   /// Reduce elements to a single element by applying given function on each emission.
-  @warn_unused_result
   public func reduce<U>(_ initial: U, _ combine: (U, Element) -> U) -> Stream<U> {
     return Stream<U> { observer in
       observer.next(initial)
@@ -727,7 +668,6 @@ extension StreamType {
   }
 
   /// Par each element with its predecessor. First element is paired with `nil`.
-  @warn_unused_result
   public func zipPrevious() -> Stream<(Element?, Element)> {
     return Stream { observer in
       var previous: Element? = nil
@@ -751,7 +691,6 @@ public extension StreamType where Element: StreamType, Element.Event: StreamEven
   public typealias InnerElement = Element.Event.Element
 
   /// Flatten the stream by observing all inner streams and propagate elements from each one as they come.
-  @warn_unused_result
   public func merge() -> Stream<InnerElement> {
     return lift { stream in
       return stream.merge(unboxEvent: { $0.unbox }, propagateErrorEvent: { _, _ in })
@@ -759,7 +698,6 @@ public extension StreamType where Element: StreamType, Element.Event: StreamEven
   }
 
   /// Flatten the stream by observing and propagating emissions only from the latest inner stream.
-  @warn_unused_result
   public func switchToLatest() -> Stream<InnerElement> {
     return lift { stream in
       return stream.switchToLatest(unboxEvent: { $0.unbox }, propagateErrorEvent: { _, _ in })
@@ -768,7 +706,6 @@ public extension StreamType where Element: StreamType, Element.Event: StreamEven
 
   /// Flatten the stream by sequentially observing inner streams in order in
   /// which they arrive, starting next observation only after the previous one completes.
-  @warn_unused_result
   public func concat() -> Stream<InnerElement> {
     return lift { stream in
       return stream.concat(unboxEvent: { $0.unbox }, propagateErrorEvent: { _, _ in })
@@ -780,23 +717,20 @@ public extension StreamType where Element: StreamType, Element.Event: StreamEven
 
 public extension StreamType where Element: OperationType, Element.Event: OperationEventType {
   public typealias InnerOperationElement = Element.Event.Element
-  public typealias InnerOperationError = Element.Event.Error
+  public typealias InnerOperationError = Element.Event.ErrorType
 
   /// Flatten the stream by observing all inner operation and propagate elements from each one as they come.
-  @warn_unused_result
   public func merge() -> Operation<InnerOperationElement, InnerOperationError> {
     return self.toOperation().merge()
   }
 
   /// Flatten the stream by observing and propagating emissions only from the latest inner operation, cancelling previous one when new one starts.
-  @warn_unused_result
   public func switchToLatest() -> Operation<InnerOperationElement, InnerOperationError> {
     return self.toOperation().switchToLatest()
   }
 
   /// Flatten the stream by sequentially observing inner operations in order in
   /// which they arrive, starting next observation only after the previous one completes.
-  @warn_unused_result
   public func concat() -> Operation<InnerOperationElement, InnerOperationError> {
     return self.toOperation().switchToLatest()
   }
@@ -807,20 +741,17 @@ public extension StreamType where Element: OperationType, Element.Event: Operati
 extension StreamType {
 
   /// Ensure that all observers see the same sequence of elements. Connectable.
-  @warn_unused_result
   public func replay(_ limit: Int = Int.max) -> ConnectableStream<Element> {
     return ConnectableStream(rawConnectableStream: rawStream.replay(limit))
   }
 
   /// Convert the stream to a connectable stream.
-  @warn_unused_result
   public func publish() -> ConnectableStream<Element> {
     return ConnectableStream(rawConnectableStream: rawStream.publish())
   }
 
   /// Ensure that all observers see the same sequence of elements. 
   /// Shorthand for `replay(limit).refCount()`.
-  @warn_unused_result
   public func shareReplay(_ limit: Int = Int.max) -> Stream<Element> {
     return replay(limit).refCount()
   }
@@ -829,7 +760,6 @@ extension StreamType {
 // MARK: Functions
 
 /// Combine multiple streams into one. See `mergeWith` for more info.
-@warn_unused_result
 public func combineLatest
   <A: StreamType,
    B: StreamType>
@@ -838,7 +768,6 @@ public func combineLatest
 }
 
 /// Combine multiple operations into one. See `mergeWith` for more info.
-@warn_unused_result
 public func combineLatest
   <A: StreamType,
    B: StreamType,
@@ -848,7 +777,6 @@ public func combineLatest
 }
 
 /// Combine multiple operations into one. See `mergeWith` for more info.
-@warn_unused_result
 public func combineLatest
   <A: StreamType,
    B: StreamType,
@@ -859,7 +787,6 @@ public func combineLatest
 }
 
 /// Combine multiple operations into one. See `mergeWith` for more info.
-@warn_unused_result
 public func combineLatest
   <A: StreamType,
    B: StreamType,
@@ -871,7 +798,6 @@ public func combineLatest
 }
 
 /// Combine multiple operations into one. See `mergeWith` for more info.
-@warn_unused_result
 public func combineLatest
   <A: StreamType,
    B: StreamType,
@@ -884,7 +810,6 @@ public func combineLatest
 }
 
 /// Zip multiple operations into one. See `zipWith` for more info.
-@warn_unused_result
 public func zip
   <A: StreamType,
    B: StreamType>
@@ -893,7 +818,6 @@ public func zip
 }
 
 /// Zip multiple operations into one. See `zipWith` for more info.
-@warn_unused_result
 public func zip
   <A: StreamType,
    B: StreamType,
@@ -903,7 +827,6 @@ public func zip
 }
 
 /// Zip multiple operations into one. See `zipWith` for more info.
-@warn_unused_result
 public func zip
   <A: StreamType,
    B: StreamType,
@@ -914,7 +837,6 @@ public func zip
 }
 
 /// Zip multiple operations into one. See `zipWith` for more info.
-@warn_unused_result
 public func zip
   <A: StreamType,
    B: StreamType,
@@ -926,7 +848,6 @@ public func zip
 }
 
 /// Zip multiple operations into one. See `zipWith` for more info.
-@warn_unused_result
 public func zip
   <A: StreamType,
    B: StreamType,
@@ -956,7 +877,6 @@ public class ConnectableStream<T>: StreamType {
 
   /// Register an observer that will receive events from the stream.
   /// Note that the events will not be generated until `connect` is called.
-  @warn_unused_result
   public func observe(observer: (Event) -> Void) -> Disposable {
     return rawConnectableStream.observe(observer: observer)
   }
@@ -973,7 +893,6 @@ public extension ConnectableStream {
 
   /// Convert connectable stream into the ordinary one by calling `connect`
   /// on first subscription and calling dispose when number of observers goes down to zero.
-  @warn_unused_result
   public func refCount() -> Stream<T> {
     return Stream(rawStream: self.rawConnectableStream.refCount())
   }
@@ -1014,6 +933,7 @@ extension StreamType {
 
   /// Establish a one-way binding between the source and the bindable's observer
   /// and return a disposable that can cancel binding.
+  @discardableResult
   public func bindTo<B: BindableType where B.Element == Element>(_ bindable: B) -> Disposable {
     let disposable = SerialDisposable(otherDisposable: nil)
     let observer = bindable.observer(disconnectDisposable: disposable)
@@ -1023,6 +943,7 @@ extension StreamType {
 
   /// Establish a one-way binding between the source and the bindable's observer
   /// and return a disposable that can cancel binding.
+  @discardableResult
   public func bindTo<B: BindableType where B.Element: OptionalType, B.Element.Wrapped == Element>(_ bindable: B) -> Disposable {
     let disposable = SerialDisposable(otherDisposable: nil)
     let observer = bindable.observer(disconnectDisposable: disposable)

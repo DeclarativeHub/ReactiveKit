@@ -29,11 +29,11 @@ extension NotificationCenter {
   /// Observe notifications using a stream.
   public func rNotification(name: Notification.Name, object: AnyObject?) -> Stream<NSNotification> {
     return Stream { observer in
-      let subscription = NotificationCenter.default().addObserver(forName: name, object: object, queue: nil, using: { notification in
+      let subscription = NotificationCenter.default.addObserver(forName: name, object: object, queue: nil, using: { notification in
         observer.next(notification)
       })
       return BlockDisposable {
-        NotificationCenter.default().removeObserver(subscription)
+        NotificationCenter.default.removeObserver(subscription)
       }
     }
   }
@@ -58,7 +58,6 @@ public extension NSObject {
   }
 
   /// Create a stream that observes given key path using KVO.
-  @warn_unused_result
   public func rValueForKeyPath<T>(keyPath: String, sendInitial: Bool = true, retainStrongly: Bool = true) -> Stream<T> {
     return RKKeyValueStream(keyPath: keyPath, ofObject: self, sendInitial: sendInitial, retainStrongly: retainStrongly) { (object: AnyObject?) -> T? in
       return object as? T
@@ -66,7 +65,6 @@ public extension NSObject {
   }
 
   /// Create a stream that observes given key path using KVO.
-  @warn_unused_result
   public func rValueForKeyPath<T: OptionalType>(keyPath: String, sendInitial: Bool = true, retainStrongly: Bool = true) -> Stream<T> {
     return RKKeyValueStream(keyPath: keyPath, ofObject: self, sendInitial: sendInitial, retainStrongly: retainStrongly) { (object: AnyObject?) -> T? in
       if object == nil {

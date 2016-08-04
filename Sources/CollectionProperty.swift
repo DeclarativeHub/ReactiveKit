@@ -199,7 +199,7 @@ public protocol CollectionPropertyType: CollectionType, StreamType, PropertyType
 
 public class CollectionProperty<C: CollectionType>: CollectionPropertyType {
   private let subject = PublishSubject<StreamEvent<CollectionChangeset<C>>>()
-  private let lock = RecursiveLock(name: "ReactiveKit.CollectionProperty")
+  private let lock = NSRecursiveLock(name: "ReactiveKit.CollectionProperty")
   private let disposeBag = DisposeBag()
 
   public var rawStream: RawStream<StreamEvent<CollectionChangeset<C>>> {
@@ -281,7 +281,6 @@ public extension CollectionPropertyType {
 public extension CollectionPropertyType where Collection.Index == Int {
 
   /// Each event costs O(n)
-  @warn_unused_result
   public func map<U>(transform: Collection.Generator.Element -> U) -> Stream<CollectionChangeset<Array<U>>> {
     return Stream { observer in
       return self.observe { event in
@@ -291,7 +290,6 @@ public extension CollectionPropertyType where Collection.Index == Int {
   }
 
   /// Each event costs O(1)
-  @warn_unused_result
   public func lazyMap<U>(transform: Collection.Generator.Element -> U) -> Stream<CollectionChangeset<LazyMapCollection<Collection, U>>> {
     return Stream { observer in
       return self.observe { event in
@@ -301,7 +299,6 @@ public extension CollectionPropertyType where Collection.Index == Int {
   }
 
   /// Each event costs O(n)
-  @warn_unused_result
   public func filter(include: Collection.Generator.Element -> Bool) -> Stream<CollectionChangeset<Array<Collection.Generator.Element>>> {
     return Stream { observer in
       var previousIndexMap: [Int: Int] = [:]
@@ -325,7 +322,6 @@ public extension CollectionPropertyType where Collection.Index: Hashable {
   typealias CollectionElement = Collection.Generator.Element
 
   /// Each event costs O(n*logn)
-  @warn_unused_result
   public func sort(isOrderedBefore: (CollectionElement, CollectionElement) -> Bool) -> Stream<CollectionChangeset<[CollectionElement]>> {
     return Stream { observer in
       var previousSortMap: [Collection.Index: Int]? = nil
@@ -343,7 +339,6 @@ public extension CollectionPropertyType where Collection.Index: Hashable {
 public extension CollectionPropertyType where Collection.Index: Equatable {
 
   /// Each event costs O(n^2)
-  @warn_unused_result
   public func sort(isOrderedBefore: (Collection.Generator.Element, Collection.Generator.Element) -> Bool) -> Stream<CollectionChangeset<Array<Collection.Generator.Element>>> {
     return Stream { observer in
       var previousSortedIndices: [Collection.Index]? = nil

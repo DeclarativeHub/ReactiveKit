@@ -33,7 +33,7 @@ public class Property<T>: PropertyType, StreamType, SubjectType {
 
   private var _value: T
   private let subject = PublishSubject<StreamEvent<T>>()
-  private let lock = RecursiveLock(name: "ReactiveKit.Property")
+  private let lock = NSRecursiveLock(name: "ReactiveKit.Property")
   private let disposeBag = DisposeBag()
 
   public var rawStream: RawStream<StreamEvent<T>> {

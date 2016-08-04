@@ -34,14 +34,12 @@ public protocol _StreamType {
   ///
   /// In case of pull-driven streams, e.g. `Stream<T>` or `Operation<T, E>`,
   /// this actually triggers event generation.
-  @warn_unused_result
   func observe(observer: (Event) -> Void) -> Disposable
 }
 
 extension _StreamType {
 
   /// Register an observer that will receive elements from `.Next` events of the stream.
-  @warn_unused_result
   public func observeNext(observer: (Event.Element) -> Void) -> Disposable {
     return observe { event in
       if let element = event.element {
@@ -51,7 +49,6 @@ extension _StreamType {
   }
 
   /// Register an observer that will be executed on `.Completed` event.
-  @warn_unused_result
   public func observeCompleted(observer: () -> Void) -> Disposable {
     return observe { event in
       if event.isCompletion {
@@ -64,8 +61,7 @@ extension _StreamType {
 extension _StreamType where Event: Errorable {
 
   /// Register an observer that will receive error from `.Error` event of the stream.
-  @warn_unused_result
-  public func observeError(observer: (Event.Error) -> Void) -> Disposable {
+  public func observeError(observer: (Event.ErrorType) -> Void) -> Disposable {
     return observe { event in
       if let error = event.error {
         observer(error)
@@ -95,10 +91,9 @@ public struct RawStream<Event: EventType>: RawStreamType {
   }
 
   /// Register an observer that will receive events from a stream.
-  @warn_unused_result
   public func observe(observer: (Event) -> Void) -> Disposable {
     let serialDisposable = SerialDisposable(otherDisposable: nil)
-    let lock = RecursiveLock(name: "observe")
+    let lock = NSRecursiveLock(name: "observe")
     var terminated = false
     let observer = Observer<Event> { event in
       lock.atomic {
@@ -122,7 +117,6 @@ public struct RawStream<Event: EventType>: RawStreamType {
 public extension _StreamType {
 
   /// Transform a stream type into concrete `RawStream`.
-  @warn_unused_result
   public func toRawStream() -> RawStream<Event> {
     return RawStream { observer in
       return self.observe(observer: observer.observer)
@@ -135,7 +129,6 @@ public extension _StreamType {
 public extension RawStream where Event.Element: Integer {
 
   /// Create a stream that emits an integer every `interval` time on a given queue.
-  @warn_unused_result
   public static func interval(_ interval: TimeValue, queue: DispatchQueue) -> RawStream<Event> {
     return RawStream { observer in
       var number: Event.Element = 0
@@ -158,7 +151,6 @@ public extension RawStream where Event.Element: Integer {
 public extension RawStream {
 
   /// Create a stream that emits given elements after `time` time on a given queue.
-  @warn_unused_result
   public static func timer(events: [Event], time: TimeValue, queue: DispatchQueue) -> RawStream<Event> {
     return RawStream { observer in
       let disposable = SimpleDisposable()
@@ -179,7 +171,6 @@ public extension RawStreamType {
   // WONTDO: flatMap
 
   /// Transform each element by applying `transform` on it.
-  @warn_unused_result
   public func map<U: EventType>(_ transform: (Event) -> U) -> RawStream<U> {
     return RawStream<U> { observer in
       return self.observe { event in
@@ -190,7 +181,6 @@ public extension RawStreamType {
 
   /// Apply `combine` to each element starting with `initial` and emit each 
   /// intermediate result. This differs from `reduce` which emits only final result.
-  @warn_unused_result
   public func scan<U: EventType>(_ initial: U, _ combine: (U, Event) -> U) -> RawStream<U> {
     return RawStream<U> { observer in
       var accumulator = initial
@@ -210,7 +200,6 @@ public extension RawStreamType {
 public extension RawStreamType {
 
   /// Emit an element only if `interval` time passes without emitting another element.
-  @warn_unused_result
   public func debounce(interval: TimeValue, on queue: DispatchQueue) -> RawStream<Event> {
     return RawStream { observer in
       var timerSubscription: Disposable? = nil
@@ -236,7 +225,6 @@ public extension RawStreamType {
   }
 
   /// Emit first element and then all elements that are not equal to their predecessor(s).
-  @warn_unused_result
   public func distinct(areDistinct: (Event.Element, Event.Element) -> Bool) -> RawStream<Event> {
     return RawStream { observer in
       var lastElement: Event.Element? = nil
@@ -254,7 +242,6 @@ public extension RawStreamType {
   }
 
   /// Emit only element at given index if such element is produced.
-  @warn_unused_result
   public func element(at index: Int) -> RawStream<Event> {
     return RawStream { observer in
       var currentIndex = 0
@@ -274,7 +261,6 @@ public extension RawStreamType {
   }
 
   /// Emit only elements that pass `include` test.
-  @warn_unused_result
   public func filter(include: (Event) -> Bool) -> RawStream<Event> {
     return RawStream { observer in
       return self.observe { event in
@@ -286,13 +272,11 @@ public extension RawStreamType {
   }
 
   /// Emit only the first element generated by the stream and then completes.
-  @warn_unused_result
   public func first() -> RawStream<Event> {
     return take(first: 1)
   }
 
   /// Ignore all events that are not terminal events.
-  @warn_unused_result
   public func ignoreElements() -> RawStream<Event> {
     return RawStream { observer in
       return self.observe { event in
@@ -304,13 +288,11 @@ public extension RawStreamType {
   }
 
   /// Emit only last element generated by the stream and then completes.
-  @warn_unused_result
   public func last() -> RawStream<Event> {
     return take(last: 1)
   }
 
   /// Periodically sample the stream and emit latest element from each interval.
-  @warn_unused_result
   public func sample(interval: TimeValue, on queue: DispatchQueue) -> RawStream<Event> {
     return RawStream { observer in
 
@@ -342,7 +324,6 @@ public extension RawStreamType {
   }
 
   /// Suppress first `count` elements generated by the stream.
-  @warn_unused_result
   public func skip(first count: Int) -> RawStream<Event> {
     return RawStream { observer in
       var count = count
@@ -357,7 +338,6 @@ public extension RawStreamType {
   }
 
   /// Suppress last `count` elements generated by the stream.
-  @warn_unused_result
   public func skip(last count: Int) -> RawStream<Event> {
     guard count > 0 else { return self.toRawStream() }
     return RawStream { observer in
@@ -376,7 +356,6 @@ public extension RawStreamType {
   }
 
   /// Emit only first `count` elements of the stream and then complete.
-  @warn_unused_result
   public func take(first count: Int) -> RawStream<Event> {
     return RawStream { observer in
       guard count > 0 else {
@@ -409,7 +388,6 @@ public extension RawStreamType {
   }
 
   /// Emit only last `count` elements of the stream and then complete.
-  @warn_unused_result
   public func take(last count: Int) -> RawStream<Event> {
     return RawStream { observer in
 
@@ -435,7 +413,6 @@ public extension RawStreamType {
 
   // TODO: fix
   /// Throttle stream to emit at most one event per given `seconds` interval.
-  @warn_unused_result
   public func throttle(seconds: TimeValue) -> RawStream<Event> {
     return RawStream { observer in
       var lastEventTime: TimeValue = SystemTime.distantPast
@@ -457,7 +434,6 @@ public extension RawStreamType {
 public extension RawStreamType where Event.Element: Equatable {
 
   /// Emit first element and then all elements that are not equal to their predecessor(s).
-  @warn_unused_result
   public func distinct() -> RawStream<Event> {
     return distinct(areDistinct: !=)
   }
@@ -466,7 +442,6 @@ public extension RawStreamType where Event.Element: Equatable {
 public extension RawStreamType where Event.Element: OptionalType, Event.Element.Wrapped: Equatable {
 
   /// Emit first element and then all elements that are not equal to their predecessor(s).
-  @warn_unused_result
   public func distinct() -> RawStream<Event> {
     return distinct { a, b in
       switch (a._unbox, b._unbox) {
@@ -489,10 +464,9 @@ extension RawStreamType {
 
   /// Emit a combination of latest elements from each stream. Starts when both streams emit at least one element,
   /// and emits next when either stream generates an event.
-  @warn_unused_result
   public func combineLatest<R: _StreamType, U: EventType>(with other: R, combine: (Event.Element?, Event, R.Event.Element?, R.Event, Bool) -> U?) -> RawStream<U> {
     return RawStream<U> { observer in
-      let lock = RecursiveLock(name: "combineLatestWith")
+      let lock = NSRecursiveLock(name: "combineLatestWith")
 
       var latestMyElement: Event.Element?
       var latestTheirElement: R.Event.Element?
@@ -500,7 +474,7 @@ extension RawStreamType {
       var latestTheirEvent: R.Event?
 
       let dispatchNextIfPossible = { (isMy: Bool) -> () in
-        if let latestMyEvent = latestMyEvent, latestTheirEvent = latestTheirEvent {
+        if let latestMyEvent = latestMyEvent, let latestTheirEvent = latestTheirEvent {
           if let event = combine(latestMyElement, latestMyEvent, latestTheirElement, latestTheirEvent, isMy) {
             observer.observer(event)
           }
@@ -532,10 +506,9 @@ extension RawStreamType {
   }
 
   /// Merge emissions from both source and `other` into one stream.
-  @warn_unused_result
   public func merge<R: _StreamType where R.Event == Event>(with other: R) -> RawStream<Event> {
     return RawStream<Event> { observer in
-      let lock = RecursiveLock(name: "mergeWith")
+      let lock = NSRecursiveLock(name: "mergeWith")
       var numberOfOperations = 2
       let compositeDisposable = CompositeDisposable()
       let onBoth: (Event) -> Void = { event in
@@ -559,7 +532,6 @@ extension RawStreamType {
   }
 
   /// Prepend given event to the stream emission.
-  @warn_unused_result
   public func start(with event: Event) -> RawStream<Event> {
     return RawStream { observer in
       observer.observer(event)
@@ -572,10 +544,9 @@ extension RawStreamType {
 
   /// Emit elements from source and `other` in combination. This differs from `combineLatestWith` in
   /// that combinations are produced from elements at same positions.
-  @warn_unused_result
   public func zip<R: _StreamType, U: EventType>(with other: R, zip: (Event, R.Event) -> U) -> RawStream<U> {
     return RawStream<U> { observer in
-      let lock = RecursiveLock(name: "zipWith")
+      let lock = NSRecursiveLock(name: "zipWith")
 
       var selfBuffer = Array<Event>()
       var otherBuffer = Array<R.Event>()
@@ -617,7 +588,6 @@ extension RawStreamType {
 public extension RawStreamType where Event: Errorable {
 
   /// Restart the stream in case of failure at most `times` number of times.
-  @warn_unused_result
   public func retry(times: Int) -> RawStream<Event> {
     return RawStream { observer in
       var times = times
@@ -653,7 +623,6 @@ public extension RawStreamType {
 
   /// Set the execution context in which to execute the stream (i.e. in which to run
   /// stream's producer).
-  @warn_unused_result
   public func executeIn(_ context: ExecutionContext) -> RawStream<Event> {
     return RawStream { observer in
       let serialDisposable = SerialDisposable(otherDisposable: nil)
@@ -667,7 +636,6 @@ public extension RawStreamType {
   }
 
   /// Delay stream events for `interval` time.
-  @warn_unused_result
   public func delay(interval: TimeValue, on queue: DispatchQueue) -> RawStream<Event> {
     return RawStream { observer in
       return self.observe { event in
@@ -682,7 +650,6 @@ public extension RawStreamType {
 
   /// Set the execution context in which to dispatch events (i.e. in which to run
   /// observers).
-  @warn_unused_result
   public func observeIn(_ context: ExecutionContext) -> RawStream<Event> {
     return RawStream { observer in
       return self.observe { event in
@@ -694,7 +661,6 @@ public extension RawStreamType {
   }
 
   /// Supress events while last event generated on other stream is `false`.
-  @warn_unused_result
   public func pausable<R: _StreamType where R.Event.Element == Bool>(by: R) -> RawStream<Event> {
     return RawStream { observer in
 
@@ -731,10 +697,9 @@ public extension RawStreamType {
   // WONTDO: all
 
   /// Propagate event only from a stream that starts emitting first.
-  @warn_unused_result
   public func amb<R: RawStreamType where R.Event == Event>(with other: R) -> RawStream<Event> {
     return RawStream { observer in
-      let lock = RecursiveLock(name: "ambWith")
+      let lock = NSRecursiveLock(name: "ambWith")
       var isOtherDispatching = false
       var isSelfDispatching = false
       let d1 = SerialDisposable(otherDisposable: nil)
@@ -767,7 +732,6 @@ public extension RawStreamType {
   }
 
   /// First emit events from source and then from `other` stream.
-  @warn_unused_result
   public func concat(with other: RawStream<Event>) -> RawStream<Event> {
     return RawStream { observer in
       let serialDisposable = SerialDisposable(otherDisposable: nil)
@@ -785,7 +749,6 @@ public extension RawStreamType {
   // WONTDO: contains
 
   /// Emit default element is stream completes without emitting any element.
-  @warn_unused_result
   public func defaultIfEmpty(_ element: Event.Element) -> RawStream<Event> {
     return RawStream { observer in
       var didEmitNonTerminal = false
@@ -806,7 +769,6 @@ public extension RawStreamType {
   }
 
   /// Reduce stream events to a single event by applying given function on each emission.
-  @warn_unused_result
   public func reduce<U: EventType>(_ initial: U, _ combine: (U, Event) -> U) -> RawStream<U> {
     return scan(initial, combine).take(last: 1)
   }
@@ -819,10 +781,9 @@ public extension RawStreamType where Event.Element: _StreamType {
   public typealias InnerEvent = Event.Element.Event
 
   /// Flatten the stream by observing all inner streams and propagate events from each one as they come.
-  @warn_unused_result
   public func merge<U: EventType>(unboxEvent: (InnerEvent) -> U, propagateErrorEvent: (Event, Observer<U>) -> Void) -> RawStream<U> {
     return RawStream<U> { observer in
-      let lock = RecursiveLock(name: "merge")
+      let lock = NSRecursiveLock(name: "merge")
 
       var numberOfOperations = 1
       let compositeDisposable = CompositeDisposable()
@@ -860,7 +821,6 @@ public extension RawStreamType where Event.Element: _StreamType {
   }
 
   /// Flatten the stream by observing and propagating emissions only from latest stream.
-  @warn_unused_result
   public func switchToLatest<U: EventType>(unboxEvent: (InnerEvent) -> U, propagateErrorEvent: (Event, Observer<U>) -> Void) -> RawStream<U> {
     return RawStream<U> { observer in
       let serialDisposable = SerialDisposable(otherDisposable: nil)
@@ -900,11 +860,10 @@ public extension RawStreamType where Event.Element: _StreamType {
 
   /// Flatten the stream by sequentially observing inner streams in order in which they
   /// arrive, starting next observation only after previous one completes.
-  @warn_unused_result
   public func concat<U: EventType>(unboxEvent: (InnerEvent) -> U, propagateErrorEvent: (Event, Observer<U>) -> Void) -> RawStream<U> {
     return RawStream<U> { observer in
       typealias Task = Event.Element
-      let lock = RecursiveLock(name: "concat")
+      let lock = NSRecursiveLock(name: "concat")
 
       let serialDisposable = SerialDisposable(otherDisposable: nil)
       let compositeDisposable = CompositeDisposable([serialDisposable])
@@ -968,7 +927,6 @@ public extension RawStreamType where Event.Element: _StreamType {
 extension RawStreamType {
 
   /// Ensure that all observers see the same sequence of elements. Connectable.
-  @warn_unused_result
   public func replay(_ limit: Int = Int.max) -> RawConnectableStream<Self> {
     if limit == 1 {
       return RawConnectableStream(source: self, subject: AnySubject(base: ReplayOneSubject()))
@@ -978,7 +936,6 @@ extension RawStreamType {
   }
 
   /// Convert stream to a connectable stream.
-  @warn_unused_result
   public func publish() -> RawConnectableStream<Self> {
     return RawConnectableStream(source: self, subject: AnySubject(base: PublishSubject()))
   }
@@ -1021,7 +978,6 @@ public final class RawConnectableStream<R: RawStreamType>: ConnectableStreamType
 
   /// Register an observer that will receive events from the stream.
   /// Note that the events will not be generated until `connect` is called.
-  @warn_unused_result
   public func observe(observer: (R.Event) -> Void) -> Disposable {
     return subject.observe(observer: observer)
   }
@@ -1031,7 +987,6 @@ public extension ConnectableStreamType {
 
   /// Convert connectable stream into the ordinary stream by calling `connect`
   /// on first subscription and calling dispose when number of observers goes down to zero.
-  @warn_unused_result
   public func refCount() -> RawStream<Event> {
     var count = 0
     var connectionDisposable: Disposable? = nil

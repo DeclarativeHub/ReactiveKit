@@ -86,7 +86,7 @@ public let ImmediateExecutionContext: ExecutionContext = { block in
   /// If current thread is main thread, just execute block. Otherwise, do
   /// async dispatch of the block to the main queue (thread).
   public let ImmediateOnMainExecutionContext: ExecutionContext = { block in
-    if Thread.isMainThread() {
+    if Thread.isMainThread {
       block()
     } else {
       DispatchQueue.main.async(execute: block)
@@ -96,7 +96,7 @@ public let ImmediateExecutionContext: ExecutionContext = { block in
   public extension DispatchQueue {
 
     public func after(when interval: TimeValue, block: () -> ()) {
-      after(when: DispatchTime.now() + interval, execute: block)
+      asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(Int(interval)), execute: block)
     }
 
     public func disposableAfter(when interval: TimeValue, block: () -> ()) -> Disposable {
@@ -193,7 +193,7 @@ internal extension Lock {
 }
 
 /// Recursive Lock
-extension RecursiveLock: Lock {
+extension NSRecursiveLock: Lock {
 
   internal convenience init(name: String) {
     self.init()

@@ -57,7 +57,7 @@ public protocol RawSubjectType: ObserverType, RawStreamType {
 
 public final class PublishSubject<E: EventType>: ObserverRegister<E>, RawSubjectType {
 
-  private let lock = RecursiveLock(name: "ReactiveKit.PublishSubject")
+  private let lock = NSRecursiveLock(name: "ReactiveKit.PublishSubject")
   private var completed = false
   private var isUpdating = false
 
@@ -83,7 +83,7 @@ public final class ReplaySubject<E: EventType>: ObserverRegister<E>, RawSubjectT
 
   public let bufferSize: Int
   private var buffer: ArraySlice<E> = []
-  private let lock = RecursiveLock(name: "ReactiveKit.ReplaySubject")
+  private let lock = NSRecursiveLock(name: "ReactiveKit.ReplaySubject")
   private var isUpdating = false
 
   public init(bufferSize: Int = Int.max) {
@@ -124,7 +124,7 @@ public final class ReplaySubject<E: EventType>: ObserverRegister<E>, RawSubjectT
 public final class ReplayOneSubject<E: EventType>: ObserverRegister<E>, RawSubjectType {
 
   private var event: E? = nil
-  private let lock = RecursiveLock(name: "ReactiveKit.ReplayOneSubject")
+  private let lock = NSRecursiveLock(name: "ReactiveKit.ReplayOneSubject")
   private var isUpdating = false
 
   public override init() {

@@ -67,7 +67,7 @@ public extension ObserverType {
 public extension ObserverType where Event: Errorable {
 
   /// Convenience method to send `.Failure` event.
-  public func failure(_ error: Event.Error) {
+  public func failure(_ error: Event.ErrorType) {
     on(.failure(error))
   }
 }
