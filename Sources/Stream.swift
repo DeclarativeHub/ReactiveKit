@@ -524,7 +524,7 @@ extension StreamType {
         case (.Next(let myElement), .Next(let theirElement)):
           return StreamEvent.Next(myElement, theirElement)
         case (.Next(let myElement), .Completed):
-          if let theirLatestElement = theirLatestElement where isMy {
+          if let theirLatestElement = theirLatestElement, isMy {
             return StreamEvent.Next(myElement, theirLatestElement)
           } else {
             return nil

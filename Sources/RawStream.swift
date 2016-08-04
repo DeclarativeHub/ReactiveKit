@@ -500,7 +500,7 @@ extension RawStreamType {
       var latestTheirEvent: R.Event?
 
       let dispatchNextIfPossible = { (isMy: Bool) -> () in
-        if let latestMyEvent = latestMyEvent, latestTheirEvent = latestTheirEvent {
+        if let latestMyEvent = latestMyEvent, let latestTheirEvent = latestTheirEvent {
           if let event = combine(latestMyElement, latestMyEvent, latestTheirElement, latestTheirEvent, isMy) {
             observer.observer(event)
           }
