@@ -243,7 +243,6 @@ public struct Operation<T, E: Error>: OperationType {
 public extension Operation {
 
   /// Create an operation that emits given element and then completes.
-  @warn_unused_result
   public static func just(_ element: Element) -> Operation<Element, ErrorType> {
     return Operation { observer in
       observer.next(element)
@@ -253,7 +252,6 @@ public extension Operation {
   }
 
   /// Create an operation that emits given sequence of elements and then completes.
-  @warn_unused_result
   public static func sequence<S: Sequence where S.Iterator.Element == Element>(_ sequence: S) -> Operation<Element, ErrorType> {
     return Operation { observer in
       sequence.forEach(observer.next)
@@ -263,7 +261,6 @@ public extension Operation {
   }
 
   /// Create an operation that fails with given error without emitting any elements.
-  @warn_unused_result
   public static func failure(_ error: ErrorType) -> Operation<Element, ErrorType> {
     return Operation { observer in
       observer.failure(error)
@@ -273,7 +270,6 @@ public extension Operation {
   }
 
   /// Create an operation that completes without emitting any elements.
-  @warn_unused_result
   public static func completed() -> Operation<Element, ErrorType> {
     return Operation { observer in
       observer.completed()
@@ -282,7 +278,6 @@ public extension Operation {
   }
 
   /// Create an operation that never completes.
-  @warn_unused_result
   public static func never() -> Operation<Element, ErrorType> {
     return Operation { observer in
       return NotDisposable
@@ -290,13 +285,11 @@ public extension Operation {
   }
 
   /// Create an operation that emits an integer every `interval` time on a given queue.
-  @warn_unused_result
   public static func interval(_ interval: TimeValue, queue: DispatchQueue) -> Operation<Int, ErrorType> {
     return Operation<Int, ErrorType>(rawStream: RawStream.interval(interval, queue: queue))
   }
 
   /// Create an operation that emits given element after `time` time on a given queue.
-  @warn_unused_result
   public static func timer(element: Element, time: TimeValue, queue: DispatchQueue) -> Operation<Element, ErrorType> {
     return Operation(rawStream: RawStream.timer(events: [.Next(element), .Completed], time: time, queue: queue))
   }
@@ -307,7 +300,6 @@ public extension Operation {
 public extension OperationType {
 
   /// Batch the elements into arrays of given size.
-  @warn_unused_result
   public func buffer(size: Int) -> Operation<[Element], ErrorType> {
     return Operation { observer in
       var buffer: [Element] = []
@@ -330,7 +322,6 @@ public extension OperationType {
 
   /// Map each event into an operation and then flatten those operations using
   /// the given flattening strategy.
-  @warn_unused_result
   public func flatMap<U: OperationType where U.Event: OperationEventType, U.Event.ErrorType == ErrorType>(strategy: FlatMapStrategy, transform: (Element) -> U) -> Operation<U.Event.Element, ErrorType> {
     switch strategy {
     case .Latest:
@@ -343,43 +334,36 @@ public extension OperationType {
   }
 
   /// Map each event into an operation and then flattens inner operations.
-  @warn_unused_result
   public func flatMapLatest<U: OperationType where U.Event: OperationEventType, U.Event.ErrorType == ErrorType>(transform: (Element) -> U) -> Operation<U.Event.Element, ErrorType> {
     return flatMap(strategy: .Latest, transform: transform)
   }
 
   /// Map each event into an operation and then flattens inner operations.
-  @warn_unused_result
   public func flatMapMerge<U: OperationType where U.Event: OperationEventType, U.Event.ErrorType == ErrorType>(transform: (Element) -> U) -> Operation<U.Event.Element, ErrorType> {
     return flatMap(strategy: .Merge, transform: transform)
   }
   /// Map each event into an operation and then flattens inner operations.
-  @warn_unused_result
   public func flatMapConcat<U: OperationType where U.Event: OperationEventType, U.Event.ErrorType == ErrorType>(transform: (Element) -> U) -> Operation<U.Event.Element, ErrorType> {
     return flatMap(strategy: .Concat, transform: transform)
   }
 
   /// Transform each element by applying `transform` on it.
-  @warn_unused_result
   public func map<U>(_ transform: (Element) -> U) -> Operation<U, ErrorType> {
     return lift { $0.map { $0.map(transform) } }
   }
 
   /// Maps elements to Void.
-  @warn_unused_result
   public func eraseType() -> Operation<Void, ErrorType> {
     return map { _ in }
   }
 
   /// Transform error by applying `transform` on it.
-  @warn_unused_result
   public func mapError<F: Error>(transform: (ErrorType) -> F) -> Operation<Element, F> {
     return lift { $0.map { $0.mapError(transform) }  }
   }
 
   /// Apply `combine` to each element starting with `initial` and emit each
   /// intermediate result. This differs from `reduce` which emits only final result.
-  @warn_unused_result
   public func scan<U>(_ initial: U, _ combine: (U, Element) -> U) -> Operation<U, ErrorType> {
     return lift { stream in
       return stream.scan(.Next(initial)) { memo, new in
@@ -396,33 +380,28 @@ public extension OperationType {
   }
 
   /// Transform each element by applying `transform` on it.
-  @warn_unused_result
   public func tryMap<U>(_ transform: (Element) -> Result<U, ErrorType>) -> Operation<U, ErrorType> {
     return lift { $0.map { $0.tryMap(transform) } }
   }
 
   /// Convert the operation to a concrete operation.
-  @warn_unused_result
   public func toOperation() -> Operation<Element, ErrorType> {
     return Operation(rawStream: self.rawStream)
   }
 
   /// Converts operations into two streams: Element stream and Error stream.
-  @warn_unused_result
   public func toStream() -> (Stream<Element>, Stream<ErrorType>) {
     let shared = shareReplay()
     return (shared.toStream(justLogError: false), shared.toErrorStream())
   }
 
   /// Converts operations into two streams, Element stream and Error stream, and maps error to another type.
-  @warn_unused_result
   public func toStream<U>(mapError: (ErrorType) -> U) -> (Stream<Element>, Stream<U>) {
     let shared = shareReplay()
     return (shared.toStream(justLogError: false), shared.toErrorStream().map(mapError))
   }
 
   /// Convert the operation to a stream by ignoring the error.
-  @warn_unused_result
   public func toStream(justLogError logError: Bool, completeOnError: Bool = false, file: String = #file, line: Int = #line) -> Stream<Element> {
     return Stream { observer in
       return self.observe { event in
@@ -444,13 +423,11 @@ public extension OperationType {
   }
 
   /// Convert the operation to a stream by feeding the error into a subject.
-  @warn_unused_result
   public func toStream<S: SubjectType where S.Event.Element == ErrorType>(feedErrorInto listener: S, logError: Bool = true, completeOnError: Bool = false, file: String = #file, line: Int = #line) -> Stream<Element> {
     return feedError(into: listener).toStream(justLogError: logError, completeOnError: completeOnError, file: file, line: line)
   }
 
   /// Convert operation to a stream by propagating default element if error happens.
-  @warn_unused_result
   public func toStream(recoverWith element: Element) -> Stream<Element> {
     return Stream { observer in
       return self.observe { event in
@@ -468,7 +445,6 @@ public extension OperationType {
   }
 
   /// Maps the operation into an error stream.
-  @warn_unused_result
   public func toErrorStream() -> Stream<ErrorType> {
     return Stream<ErrorType> { observer in
       return self.observe { taskEvent in
@@ -485,7 +461,6 @@ public extension OperationType {
   }
 
   /// Batch each `size` elements into another operations.
-  @warn_unused_result
   public func window(size: Int) -> Operation<Operation<Element, ErrorType>, ErrorType> {
     return buffer(size: size).map { Operation.sequence($0) }
   }
@@ -496,79 +471,66 @@ public extension OperationType {
 extension OperationType {
 
   /// Emit an element only if `interval` time passes without emitting another element.
-  @warn_unused_result
   public func debounce(interval: TimeValue, on queue: DispatchQueue) -> Operation<Element, ErrorType> {
     return lift { $0.debounce(interval: interval, on: queue) }
   }
 
   /// Emit first element and then all elements that are not equal to their predecessor(s).
-  @warn_unused_result
   public func distinct(areDistinct: (Element, Element) -> Bool) -> Operation<Element, ErrorType> {
     return lift { $0.distinct(areDistinct: areDistinct) }
   }
 
   /// Emit only element at given index if such element is produced.
-  @warn_unused_result
   public func element(at index: Int) -> Operation<Element, ErrorType> {
     return lift { $0.element(at: index) }
   }
 
   /// Emit only elements that pass `include` test.
-  @warn_unused_result
   public func filter(include: (Element) -> Bool) -> Operation<Element, ErrorType> {
     return lift { $0.filter { $0.element.flatMap(include) ?? true } }
   }
 
   /// Emit only the first element generated by the operation and then complete.
-  @warn_unused_result
   public func first() -> Operation<Element, ErrorType> {
     return lift { $0.first() }
   }
 
   /// Ignore all elements (just propagate terminal events).
-  @warn_unused_result
   public func ignoreElements() -> Operation<Element, ErrorType> {
     return lift { $0.ignoreElements() }
   }
 
   /// Emit only last element generated by the stream and then completes.
-  @warn_unused_result
   public func last() -> Operation<Element, ErrorType> {
     return lift { $0.last() }
   }
 
   /// Periodically sample the stream and emit latest element from each interval.
-  @warn_unused_result
   public func sample(interval: TimeValue, on queue: DispatchQueue) -> Operation<Element, ErrorType> {
     return lift { $0.sample(interval: interval, on: queue) }
   }
 
   /// Suppress first `count` elements generated by the operation.
-  @warn_unused_result
   public func skip(first count: Int) -> Operation<Element, ErrorType> {
     return lift { $0.skip(first: count) }
   }
 
   /// Suppress last `count` elements generated by the operation.
-  @warn_unused_result
   public func skip(last count: Int) -> Operation<Element, ErrorType> {
     return lift { $0.skip(last: count) }
   }
 
   /// Emit only first `count` elements of the operation and then complete.
-  @warn_unused_result
   public func take(first count: Int) -> Operation<Element, ErrorType> {
     return lift { $0.take(first: count) }
   }
 
   /// Emit only last `count` elements of the operation and then complete.
-  @warn_unused_result
   public func take(last count: Int) -> Operation<Element, ErrorType> {
     return lift { $0.take(last: count) }
   }
 
   /// Throttle operation to emit at most one element per given `seconds` interval.
-  @warn_unused_result
   public func throttle(seconds: TimeValue) -> Operation<Element, ErrorType> {
     return lift { $0.throttle(seconds: seconds) }
   }
@@ -577,7 +539,6 @@ extension OperationType {
 extension OperationType where Element: Equatable {
 
   /// Emit first element and then all elements that are not equal to their predecessor(s).
-  @warn_unused_result
   public func distinct() -> Operation<Element, ErrorType> {
     return lift { $0.distinct() }
   }
@@ -586,7 +547,6 @@ extension OperationType where Element: Equatable {
 public extension OperationType where Element: OptionalType, Element.Wrapped: Equatable {
 
   /// Emit first element and then all elements that are not equal to their predecessor(s).
-  @warn_unused_result
   public func distinct() -> Operation<Element, ErrorType> {
     return lift { $0.distinct() }
   }
@@ -595,7 +555,6 @@ public extension OperationType where Element: OptionalType, Element.Wrapped: Equ
 public extension OperationType where Element: OptionalType {
 
   /// Suppress all `nil`-elements.
-  @warn_unused_result
   public func ignoreNil() -> Operation<Element.Wrapped, ErrorType> {
     return Operation { observer in
       return self.observe { event in
@@ -620,7 +579,6 @@ extension OperationType {
 
   /// Emit a pair of latest elements from each operation. Starts when both operations
   /// emit at least one element, and emits `.Next` when either operation generates an element.
-  @warn_unused_result
   public func combineLatest<O: OperationType where O.ErrorType == ErrorType>(with other: O) -> Operation<(Element, O.Element), ErrorType> {
     return lift {
       return $0.combineLatest(with: other.toOperation()) { myLatestElement, my, theirLatestElement, their, isMy in
@@ -653,20 +611,17 @@ extension OperationType {
   }
 
   /// Merge emissions from both source and `other` into one operation.
-  @warn_unused_result
   public func merge<O: OperationType where O.Element == Element, O.ErrorType == ErrorType>(with other: O) -> Operation<Element, ErrorType> {
     return lift { $0.merge(with: other.rawStream) }
   }
 
   /// Prepend given element to the operation emission.
-  @warn_unused_result
   public func start(with element: Element) -> Operation<Element, ErrorType> {
     return lift { $0.start(with: .Next(element)) }
   }
 
   /// Emit elements from source and `other` in combination. This differs from `combineLatestWith` in
   /// that combinations are produced from elements at same positions.
-  @warn_unused_result
   public func zip<O: OperationType where O.ErrorType == ErrorType>(with other: O) -> Operation<(Element, O.Element), ErrorType> {
     return lift {
       return $0.zip(with: other.toOperation()) { my, their in
@@ -689,7 +644,6 @@ extension OperationType {
   }
 
   /// Combines two operations into an operation of pairs of elements whenever the receiver emits an element with the latest element from the given operation.
-  @warn_unused_result
   public func withLatest<O: OperationType where O.ErrorType == ErrorType>(from other: O) -> Operation<(Element, O.Element), ErrorType> {
     return lift {
       return $0.combineLatest(with: other.toOperation()) { myLatestElement, my, theirLatestElement, their, isMy in
@@ -723,7 +677,6 @@ extension OperationType {
 extension OperationType {
 
   /// Map failure event into another operation and continue with that operation. Also called `catch`.
-  @warn_unused_result
   public func flatMapError<U: OperationType where U.Element == Element>(recover: (ErrorType) -> U) -> Operation<Element, U.ErrorType> {
     return Operation<U.Element, U.ErrorType> { observer in
       let serialDisposable = SerialDisposable(otherDisposable: nil)
@@ -746,7 +699,6 @@ extension OperationType {
   }
 
   /// Map failure event into another operation and continue with that operation. Also called `catch`.
-  @warn_unused_result
   public func flatMapError<S: StreamType where S.Element == Element>(recover: (ErrorType) -> S) -> Stream<Element> {
     return Stream<Element> { observer in
       let serialDisposable = SerialDisposable(otherDisposable: nil)
@@ -769,7 +721,6 @@ extension OperationType {
   }
 
   /// Restart the operation in case of failure at most `times` number of times.
-  @warn_unused_result
   public func retry(times: Int) -> Operation<Element, ErrorType> {
     return lift { $0.retry(times: times) }
   }
@@ -777,8 +728,7 @@ extension OperationType {
 
 extension OperationType where Element: ResultType {
 
-  /// Dematerialize elements of `ResultType` into `.Next` or `.Error` events. 
-  @warn_unused_result
+  /// Dematerialize elements of `ResultType` into `.Next` or `.Error` events.
   public func dematerialize(mapOutterError: (ErrorType) -> Element.ErrorType) -> Operation<Element.Value, Element.ErrorType> {
     return Operation { observer in
       return self.observe { event in
@@ -805,19 +755,16 @@ extension OperationType {
 
   /// Set the execution context in which to execute the operation (i.e. in which to run
   /// the operation's producer).
-  @warn_unused_result
   public func executeIn(_ context: ExecutionContext) -> Operation<Element, ErrorType> {
     return lift { $0.executeIn(context) }
   }
 
   /// Delay stream events for `interval` time.
-  @warn_unused_result
   public func delay(interval: TimeValue, on queue: DispatchQueue) -> Operation<Element, ErrorType> {
     return lift { $0.delay(interval: interval, on: queue) }
   }
 
   /// Do side-effect upon various events.
-  @warn_unused_result
   public func doOn(next: ((Element) -> ())? = nil,
                    failure: ((ErrorType) -> ())? = nil,
                    start: (() -> Void)? = nil,
@@ -845,7 +792,6 @@ extension OperationType {
   }
 
   /// Use `doOn` to log various events.
-  @warn_unused_result
   public func debug(id: String = "Untitled Operation") -> Operation<Element, ErrorType> {
     return doOn(next: { element in
         print("\(id): Next(\(element))")
@@ -861,19 +807,16 @@ extension OperationType {
   }
 
   /// Set the execution context in which to dispatch events (i.e. in which to run observers).
-  @warn_unused_result
   public func observeIn(_ context: ExecutionContext) -> Operation<Element, ErrorType> {
     return lift { $0.observeIn(context) }
   }
 
   /// Supress non-terminal events while last event generated on other stream is `false`.
-  @warn_unused_result
   public func pausable<S: _StreamType where S.Event.Element == Bool>(by other: S) -> Operation<Element, ErrorType> {
     return lift { $0.pausable(by: other) }
   }
 
   /// Error-out if `interval` time passes with no emitted elements.
-  @warn_unused_result
   public func timeout(after interval: TimeValue, with error: ErrorType, on queue: DispatchQueue) -> Operation<Element, ErrorType> {
     return Operation { observer in
       var completed = false
@@ -901,25 +844,21 @@ extension OperationType {
 extension OperationType {
 
   /// Updates the given subject with `true` when the receiver starts and with `false` when the receiver terminates.
-  @warn_unused_result
   public func feedActivity<S: SubjectType where S.Event.Element == Bool>(into listener: S) -> Operation<Element, ErrorType> {
     return doOn(start: { listener.next(true) }, disposed: { listener.next(false) })
   }
 
   /// Updates the given subject with .Next element.
-  @warn_unused_result
   public func feedNext<S: SubjectType where S.Event.Element == Element>(into listener: S) -> Operation<Element, ErrorType> {
     return doOn(next: { e in listener.next(e) })
   }
 
   /// Updates the given subject with mapped .Next element whenever the element satisfies the given constraint.
-  @warn_unused_result
   public func feedNext<S: SubjectType>(into listener: S, when: (Element) -> Bool = { _ in true }, map: (Element) -> S.Event.Element) -> Operation<Element, ErrorType> {
     return doOn(next: { e in if when(e) { listener.next(map(e)) } })
   }
 
   /// Updates the given subject with error from .Failure event is such occurs.
-  @warn_unused_result
   public func feedError<S: SubjectType where S.Event.Element == ErrorType>(into listener: S) -> Operation<Element, ErrorType> {
     return doOn(failure: { e in listener.next(e) })
   }
@@ -930,19 +869,16 @@ extension OperationType {
 extension OperationType {
 
   /// Propagate event only from an operation that starts emitting first.
-  @warn_unused_result
   public func amb<O: OperationType where O.Element == Element, O.ErrorType == ErrorType>(with other: O) -> Operation<Element, ErrorType> {
     return lift { $0.amb(with: other.rawStream) }
   }
 
   /// Collect all elements into an array and emit just that array.
-  @warn_unused_result
   public func collect() -> Operation<[Element], ErrorType> {
     return reduce([], { memo, new in memo + [new] })
   }
 
   /// First emit events from source and then from `other` operation.
-  @warn_unused_result
   public func concat<O: OperationType where O.Element == Element, O.ErrorType == ErrorType>(with other: O) -> Operation<Element, ErrorType> {
     return lift { stream in
       stream.concat(with: other.rawStream)
@@ -950,13 +886,11 @@ extension OperationType {
   }
 
   /// Emit default element is the operation completes without emitting any element.
-  @warn_unused_result
   public func defaultIfEmpty(_ element: Element) -> Operation<Element, ErrorType> {
     return lift { $0.defaultIfEmpty(element) }
   }
 
   /// Reduce elements to a single element by applying given function on each emission.
-  @warn_unused_result
   public func reduce<U>(_ initial: U, _ combine: (U, Element) -> U) -> Operation<U, ErrorType> {
     return Operation<U, ErrorType> { observer in
       observer.next(initial)
@@ -965,7 +899,6 @@ extension OperationType {
   }
 
   /// Par each element with its predecessor. First element is paired with `nil`.
-  @warn_unused_result
   public func zipPrevious() -> Operation<(Element?, Element), ErrorType> {
     return Operation { observer in
       var previous: Element? = nil
@@ -991,7 +924,6 @@ public extension Operation where T: OperationType, T.Event: OperationEventType {
   public typealias InnerError = T.Event.ErrorType
 
   /// Flatten the operation by observing all inner operation and propagate elements from each one as they come.
-  @warn_unused_result
   public func merge(mapError: (ErrorType) -> InnerError) -> Operation<InnerElement, InnerError> {
     return lift {
       $0.merge(unboxEvent: { $0.unbox }, propagateErrorEvent: { event, observer in observer.failure(mapError(event.error!)) })
@@ -999,7 +931,6 @@ public extension Operation where T: OperationType, T.Event: OperationEventType {
   }
 
   /// Flatten the operation by observing and propagating emissions only from the latest inner operation.
-  @warn_unused_result
   public func switchToLatest(mapError: (ErrorType) -> InnerError) -> Operation<InnerElement, InnerError> {
     return lift {
       $0.switchToLatest(unboxEvent: { $0.unbox }, propagateErrorEvent: { event, observer in observer.failure(mapError(event.error!)) })
@@ -1008,7 +939,6 @@ public extension Operation where T: OperationType, T.Event: OperationEventType {
 
   /// Flatten the operation by sequentially observing inner operations in order in
   /// which they arrive, starting next observation only after the previous one completes, cancelling previous one when new one starts.
-  @warn_unused_result
   public func concat(mapError: (ErrorType) -> InnerError) -> Operation<InnerElement, InnerError> {
     return lift {
       $0.concat(unboxEvent: { $0.unbox }, propagateErrorEvent: { event, observer in observer.failure(mapError(event.error!)) })
@@ -1019,20 +949,17 @@ public extension Operation where T: OperationType, T.Event: OperationEventType {
 public extension Operation where T: OperationType, T.Event: OperationEventType, T.Event.ErrorType == E {
 
   /// Flatten the operation by observing all inner operation and propagate elements from each one as they come.
-  @warn_unused_result
   public func merge() -> Operation<InnerElement, E> {
     return merge { $0 }
   }
 
   /// Flatten the operation by observing and propagating emissions only from latest operation.
-  @warn_unused_result
   public func switchToLatest() -> Operation<InnerElement, E> {
     return switchToLatest { $0 }
   }
 
   /// Flatten the operation by sequentially observing inner operations in order in
   /// which they arrive, starting next observation only after previous one completes.
-  @warn_unused_result
   public func concat() -> Operation<InnerElement, E> {
     return concat { $0 }
   }
@@ -1043,20 +970,17 @@ public extension Operation where T: OperationType, T.Event: OperationEventType, 
 extension OperationType {
 
   /// Ensure that all observers see the same sequence of elements. Connectable.
-  @warn_unused_result
   public func replay(_ limit: Int = Int.max) -> ConnectableOperation<Element, ErrorType> {
     return ConnectableOperation(rawConnectableStream: rawStream.replay(limit))
   }
 
   /// Convert the operation to a connectable operation.
-  @warn_unused_result
   public func publish() -> ConnectableOperation<Element, ErrorType> {
     return ConnectableOperation(rawConnectableStream: rawStream.publish())
   }
 
   /// Ensure that all observers see the same sequence of elements.
   /// Shorthand for `replay(limit).refCount()`.
-  @warn_unused_result
   public func shareReplay(_ limit: Int = Int.max) -> Operation<Element, ErrorType> {
     return replay(limit).refCount()
   }
@@ -1065,7 +989,6 @@ extension OperationType {
 // MARK: Functions
 
 /// Combine multiple operations into one. See `mergeWith` for more info.
-@warn_unused_result
 public func combineLatest
   <A: OperationType,
    B: OperationType where
@@ -1075,7 +998,6 @@ public func combineLatest
 }
 
 /// Combine multiple operations into one. See `mergeWith` for more info.
-@warn_unused_result
 public func combineLatest
   <A: OperationType,
    B: OperationType,
@@ -1087,7 +1009,6 @@ public func combineLatest
 }
 
 /// Combine multiple operations into one. See `mergeWith` for more info.
-@warn_unused_result
 public func combineLatest
   <A: OperationType,
    B: OperationType,
@@ -1101,7 +1022,6 @@ public func combineLatest
 }
 
 /// Combine multiple operations into one. See `mergeWith` for more info.
-@warn_unused_result
 public func combineLatest
   <A: OperationType,
    B: OperationType,
@@ -1117,7 +1037,6 @@ public func combineLatest
 }
 
 /// Combine multiple operations into one. See `mergeWith` for more info.
-@warn_unused_result
 public func combineLatest
   <A: OperationType,
    B: OperationType,
@@ -1135,7 +1054,6 @@ public func combineLatest
 }
 
 /// Zip multiple operations into one. See `zipWith` for more info.
-@warn_unused_result
 public func zip
   <A: OperationType,
    B: OperationType where
@@ -1145,7 +1063,6 @@ public func zip
 }
 
 /// Zip multiple operations into one. See `zipWith` for more info.
-@warn_unused_result
 public func zip
   <A: OperationType,
    B: OperationType,
@@ -1157,7 +1074,6 @@ public func zip
 }
 
 /// Zip multiple operations into one. See `zipWith` for more info.
-@warn_unused_result
 public func zip
   <A: OperationType,
    B: OperationType,
@@ -1171,7 +1087,6 @@ public func zip
 }
 
 /// Zip multiple operations into one. See `zipWith` for more info.
-@warn_unused_result
 public func zip
   <A: OperationType,
    B: OperationType,
@@ -1187,7 +1102,6 @@ public func zip
 }
 
 /// Zip multiple operations into one. See `zipWith` for more info.
-@warn_unused_result
 public func zip
   <A: OperationType,
    B: OperationType,
@@ -1222,7 +1136,6 @@ public class ConnectableOperation<T, E: Error>: OperationType, ConnectableStream
 
   /// Register an observer that will receive events from the operation.
   /// Note that the events will not be generated until `connect` is called.
-  @warn_unused_result
   public func observe(observer: (Event) -> Void) -> Disposable {
     return rawConnectableStream.observe(observer: observer)
   }
@@ -1237,7 +1150,6 @@ public extension ConnectableOperation {
 
   /// Convert connectable operation into the ordinary one by calling `connect`
   /// on first subscription and calling dispose when number of observers goes down to zero.
-  @warn_unused_result
   public func refCount() -> Operation<T, E> {
     return Operation(rawStream: self.rawConnectableStream.refCount())
   }
@@ -1265,7 +1177,6 @@ public class PushOperation<T, E: Error>: OperationType, SubjectType {
 extension PushOperation {
 
   /// Convert `PushOperation` to ordinary `Operation`.
-  @warn_unused_result
   public func toOperation() -> Operation<T, E> {
     return Operation(rawStream: rawStream)
   }
