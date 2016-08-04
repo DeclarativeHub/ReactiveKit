@@ -291,8 +291,8 @@ public extension StreamType {
   /// Map each event into an operation and then flatten those operation using
   /// the given flattening strategy.
   @warn_unused_result
-  public func flatMap<U: OperationType>(strategy: FlatMapStrategy, transform: (Element) -> U) -> Operation<U.Element, U.Error> {
-    let transform: (Element) -> Operation<U.Element, U.Error> = { transform($0).toOperation() }
+  public func flatMap<U: OperationType>(strategy: FlatMapStrategy, transform: (Element) -> U) -> Operation<U.Element, U.ErrorType> {
+    let transform: (Element) -> Operation<U.Element, U.ErrorType> = { transform($0).toOperation() }
     switch strategy {
     case .Latest:
       return map(transform).switchToLatest()
@@ -305,19 +305,19 @@ public extension StreamType {
 
   /// Map each event into an operation and then flattens inner operations.
   @warn_unused_result
-  public func flatMapLatest<U: OperationType>(transform: (Element) -> U) -> Operation<U.Element, U.Error> {
+  public func flatMapLatest<U: OperationType>(transform: (Element) -> U) -> Operation<U.Element, U.ErrorType> {
     return flatMap(strategy: .Latest, transform: transform)
   }
 
   /// Map each event into an operation and then flattens inner operations.
   @warn_unused_result
-  public func flatMapMerge<U: OperationType>(transform: (Element) -> U) -> Operation<U.Element, U.Error> {
+  public func flatMapMerge<U: OperationType>(transform: (Element) -> U) -> Operation<U.Element, U.ErrorType> {
     return flatMap(strategy: .Merge, transform: transform)
   }
 
   /// Map each event into an operation and then flattens inner operations.
   @warn_unused_result
-  public func flatMapConcat<U: OperationType>(transform: (Element) -> U) -> Operation<U.Element, U.Error> {
+  public func flatMapConcat<U: OperationType>(transform: (Element) -> U) -> Operation<U.Element, U.ErrorType> {
     return flatMap(strategy: .Concat, transform: transform)
   }
 
@@ -355,13 +355,13 @@ public extension StreamType {
 
   /// Transform each element by applying `transform` on it.
   @warn_unused_result
-  public func tryMap<U, Error>(transform: (Element) -> Result<U, Error>) -> Operation<U, Error> {
+  public func tryMap<U, ErrorType>(transform: (Element) -> Result<U, ErrorType>) -> Operation<U, ErrorType> {
     return toOperation().tryMap(transform)
   }
 
   /// Convert the stream to an operation.
   @warn_unused_result
-  public func toOperation<E: ErrorProtocol>() -> Operation<Element, E> {
+  public func toOperation<E: Error>() -> Operation<Element, E> {
     return Operation { observer in
       return self.observe { event in
         switch event {
@@ -780,7 +780,7 @@ public extension StreamType where Element: StreamType, Element.Event: StreamEven
 
 public extension StreamType where Element: OperationType, Element.Event: OperationEventType {
   public typealias InnerOperationElement = Element.Event.Element
-  public typealias InnerOperationError = Element.Event.Error
+  public typealias InnerOperationError = Element.Event.ErrorType
 
   /// Flatten the stream by observing all inner operation and propagate elements from each one as they come.
   @warn_unused_result

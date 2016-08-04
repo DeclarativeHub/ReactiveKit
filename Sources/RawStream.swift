@@ -65,7 +65,7 @@ extension _StreamType where Event: Errorable {
 
   /// Register an observer that will receive error from `.Error` event of the stream.
   @warn_unused_result
-  public func observeError(observer: (Event.Error) -> Void) -> Disposable {
+  public func observeError(observer: (Event.ErrorType) -> Void) -> Disposable {
     return observe { event in
       if let error = event.error {
         observer(error)
