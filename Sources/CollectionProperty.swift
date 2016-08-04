@@ -199,7 +199,7 @@ public protocol CollectionPropertyType: CollectionType, StreamType, PropertyType
 
 public class CollectionProperty<C: CollectionType>: CollectionPropertyType {
   private let subject = PublishSubject<StreamEvent<CollectionChangeset<C>>>()
-  private let lock = RecursiveLock(name: "ReactiveKit.CollectionProperty")
+  private let lock = NSRecursiveLock(name: "ReactiveKit.CollectionProperty")
   private let disposeBag = DisposeBag()
 
   public var rawStream: RawStream<StreamEvent<CollectionChangeset<C>>> {

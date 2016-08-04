@@ -98,7 +98,7 @@ public struct RawStream<Event: EventType>: RawStreamType {
   @warn_unused_result
   public func observe(observer: (Event) -> Void) -> Disposable {
     let serialDisposable = SerialDisposable(otherDisposable: nil)
-    let lock = RecursiveLock(name: "observe")
+    let lock = NSRecursiveLock(name: "observe")
     var terminated = false
     let observer = Observer<Event> { event in
       lock.atomic {
@@ -492,7 +492,7 @@ extension RawStreamType {
   @warn_unused_result
   public func combineLatest<R: _StreamType, U: EventType>(with other: R, combine: (Event.Element?, Event, R.Event.Element?, R.Event, Bool) -> U?) -> RawStream<U> {
     return RawStream<U> { observer in
-      let lock = RecursiveLock(name: "combineLatestWith")
+      let lock = NSRecursiveLock(name: "combineLatestWith")
 
       var latestMyElement: Event.Element?
       var latestTheirElement: R.Event.Element?
@@ -535,7 +535,7 @@ extension RawStreamType {
   @warn_unused_result
   public func merge<R: _StreamType where R.Event == Event>(with other: R) -> RawStream<Event> {
     return RawStream<Event> { observer in
-      let lock = RecursiveLock(name: "mergeWith")
+      let lock = NSRecursiveLock(name: "mergeWith")
       var numberOfOperations = 2
       let compositeDisposable = CompositeDisposable()
       let onBoth: (Event) -> Void = { event in
@@ -575,7 +575,7 @@ extension RawStreamType {
   @warn_unused_result
   public func zip<R: _StreamType, U: EventType>(with other: R, zip: (Event, R.Event) -> U) -> RawStream<U> {
     return RawStream<U> { observer in
-      let lock = RecursiveLock(name: "zipWith")
+      let lock = NSRecursiveLock(name: "zipWith")
 
       var selfBuffer = Array<Event>()
       var otherBuffer = Array<R.Event>()
@@ -734,7 +734,7 @@ public extension RawStreamType {
   @warn_unused_result
   public func amb<R: RawStreamType where R.Event == Event>(with other: R) -> RawStream<Event> {
     return RawStream { observer in
-      let lock = RecursiveLock(name: "ambWith")
+      let lock = NSRecursiveLock(name: "ambWith")
       var isOtherDispatching = false
       var isSelfDispatching = false
       let d1 = SerialDisposable(otherDisposable: nil)
@@ -822,7 +822,7 @@ public extension RawStreamType where Event.Element: _StreamType {
   @warn_unused_result
   public func merge<U: EventType>(unboxEvent: (InnerEvent) -> U, propagateErrorEvent: (Event, Observer<U>) -> Void) -> RawStream<U> {
     return RawStream<U> { observer in
-      let lock = RecursiveLock(name: "merge")
+      let lock = NSRecursiveLock(name: "merge")
 
       var numberOfOperations = 1
       let compositeDisposable = CompositeDisposable()
@@ -904,7 +904,7 @@ public extension RawStreamType where Event.Element: _StreamType {
   public func concat<U: EventType>(unboxEvent: (InnerEvent) -> U, propagateErrorEvent: (Event, Observer<U>) -> Void) -> RawStream<U> {
     return RawStream<U> { observer in
       typealias Task = Event.Element
-      let lock = RecursiveLock(name: "concat")
+      let lock = NSRecursiveLock(name: "concat")
 
       let serialDisposable = SerialDisposable(otherDisposable: nil)
       let compositeDisposable = CompositeDisposable([serialDisposable])

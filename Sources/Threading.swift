@@ -193,7 +193,7 @@ internal extension Lock {
 }
 
 /// Recursive Lock
-extension RecursiveLock: Lock {
+extension NSRecursiveLock: Lock {
 
   internal convenience init(name: String) {
     self.init()
