@@ -29,11 +29,11 @@ extension NotificationCenter {
   /// Observe notifications using a stream.
   public func rNotification(name: Notification.Name, object: AnyObject?) -> Stream<NSNotification> {
     return Stream { observer in
-      let subscription = NotificationCenter.default().addObserver(forName: name, object: object, queue: nil, using: { notification in
+      let subscription = NotificationCenter.default.addObserver(forName: name, object: object, queue: nil, using: { notification in
         observer.next(notification)
       })
       return BlockDisposable {
-        NotificationCenter.default().removeObserver(subscription)
+        NotificationCenter.default.removeObserver(subscription)
       }
     }
   }
