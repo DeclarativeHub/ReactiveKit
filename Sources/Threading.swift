@@ -96,7 +96,7 @@ public let ImmediateExecutionContext: ExecutionContext = { block in
   public extension DispatchQueue {
 
     public func after(when interval: TimeValue, block: () -> ()) {
-      after(when: DispatchTime.now() + interval, execute: block)
+      asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(Int(interval)), execute: block)
     }
 
     public func disposableAfter(when interval: TimeValue, block: () -> ()) -> Disposable {
