@@ -86,7 +86,7 @@ public let ImmediateExecutionContext: ExecutionContext = { block in
   /// If current thread is main thread, just execute block. Otherwise, do
   /// async dispatch of the block to the main queue (thread).
   public let ImmediateOnMainExecutionContext: ExecutionContext = { block in
-    if Thread.isMainThread() {
+    if Thread.isMainThread {
       block()
     } else {
       DispatchQueue.main.async(execute: block)
