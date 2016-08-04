@@ -58,7 +58,6 @@ public extension NSObject {
   }
 
   /// Create a stream that observes given key path using KVO.
-  @warn_unused_result
   public func rValueForKeyPath<T>(keyPath: String, sendInitial: Bool = true, retainStrongly: Bool = true) -> Stream<T> {
     return RKKeyValueStream(keyPath: keyPath, ofObject: self, sendInitial: sendInitial, retainStrongly: retainStrongly) { (object: AnyObject?) -> T? in
       return object as? T
@@ -66,7 +65,6 @@ public extension NSObject {
   }
 
   /// Create a stream that observes given key path using KVO.
-  @warn_unused_result
   public func rValueForKeyPath<T: OptionalType>(keyPath: String, sendInitial: Bool = true, retainStrongly: Bool = true) -> Stream<T> {
     return RKKeyValueStream(keyPath: keyPath, ofObject: self, sendInitial: sendInitial, retainStrongly: retainStrongly) { (object: AnyObject?) -> T? in
       if object == nil {
