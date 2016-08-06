@@ -175,7 +175,7 @@ class X {
 }
 ```
 
-If your class is a subclass or a descendent of NSObject, ReactiveKit provides the bag as an extension property `rBag` that you can you out of the box.
+If your class is a subclass or a descendent of NSObject, ReactiveKit provides the bag as an extension property `rBag` that you can use out of the box.
 
 ```swift
 class MyViewController: UIViewController {
