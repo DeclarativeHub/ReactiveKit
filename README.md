@@ -517,10 +517,11 @@ Note that **you must use ObjC types as this is ObjC API** in the place of proxie
 
 ## Additional Documentation
 
-* [ReactiveGitter](https://github.com/ReactiveKit/ReactiveGitter) - A ReactiveKit demo application.
+* [ReactiveGitter](https://github.com/ReactiveKit/ReactiveGitter) - A whole app based on ReactiveKit.
 * [ReactiveKit Reference](http://cocoadocs.org/docsets/ReactiveKit/2.0.0) - Code reference on Cocoadocs.
 * [A Different Take on MVVM with Swift](http://rasic.info/a-different-take-on-mvvm-with-swift/) - App architecture example with ReactiveKit.
 * [Implementing Reactive Delegates](http://rasic.info/implementing-reactive-delegates-in-swift-powered-by-objective-c/) - A post about reactive delegates implementation.
+* [ReactiveKit Demo](https://github.com/thedevme/reactiveuikit-demo) - Example app focusing on bindings. Thanks @thedevme!
 
 ## Installation
 
