@@ -583,10 +583,9 @@ extension RawStreamType {
 
       let dispatchIfPossible = {
         while !selfBuffer.isEmpty && !otherBuffer.isEmpty {
-          let event = zip(selfBuffer[0], otherBuffer[0])
+          let event = zip(selfBuffer.removeFirst(), otherBuffer.removeFirst())
           observer.observer(event)
-          selfBuffer.removeFirst()
-          otherBuffer.removeFirst()
+
           if event.isTermination {
             disposable.dispose()
           }
@@ -643,6 +642,79 @@ public extension RawStreamType where Event: Errorable {
         serialDisposable.dispose()
         attempt = nil
       }
+    }
+  }
+}
+
+public extension RawStreamType where Event: Errorable {
+
+  /// Restart the stream in case of failure when the handler emits a next value
+  @warn_unused_result
+  public func retryWhen<R: _StreamType>(handler: Stream<Event.Error> -> R) -> RawStream<Event> {
+    return RawStream { observer in
+      let lock = RecursiveLock(name: "retryWhen")
+      let compositeDisposable = CompositeDisposable()
+      let serialDisposable = SerialDisposable(otherDisposable: nil)
+
+      var nextError: (Event -> ())?
+
+      let handleError: Event -> Disposable = { errorEvent in
+        var lastErrorEvent: Event? = errorEvent
+
+        let errorStream = Stream<Event.Error> { observer in
+          nextError = { event in
+            lock.atomic {
+              lastErrorEvent = event
+            }
+
+            observer.next(event.error!)
+          }
+
+          return NotDisposable
+        }
+
+        let restart = {
+          lastErrorEvent = nil
+          serialDisposable.otherDisposable?.dispose()
+          serialDisposable.otherDisposable = self.observe { event in
+            guard event.error == nil else {
+              nextError?(event)
+              return
+            }
+
+            observer.observer(event)
+          }
+        }
+
+        return handler(errorStream).observe { event in
+          lock.atomic {
+            guard lastErrorEvent != nil else {
+              assertionFailure("handler (\(handler.dynamicType)) stream out of sync with errorStream.")
+              return;
+            }
+
+            if event.isTermination {
+              observer.observer(lastErrorEvent!)
+            } else {
+              restart()
+            }
+          }
+        }
+      }
+
+      compositeDisposable += serialDisposable
+      compositeDisposable += self.observe { event in
+        guard event.error == nil else {
+          compositeDisposable += handleError(event)
+          nextError?(event)
+
+          return
+        }
+
+        observer.observer(event)
+      }
+
+      return compositeDisposable
     }
   }
 }

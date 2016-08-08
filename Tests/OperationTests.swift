@@ -276,6 +276,99 @@ class OperatorsTests: XCTestCase {
     XCTAssertEqual(bob.numberOfRuns, 4)
   }
 
+  func testRetryWhen() {
+    let bob = Scheduler()
+    bob.runRemaining()
+
+    let operation = Operation<Int, TestError>.failure(.Error).executeIn(bob.context)
+    let retry = operation.retryWhen { e in
+      return e.take(3)
+    }
+    retry.expect([.Failure(.Error)])
+
+    XCTAssertEqual(bob.numberOfRuns, 4)
+  }
+
+  func testRetryWhenDelay() {
+    let bob = Scheduler()
+    bob.runRemaining()
+
+    let operation = Operation<Int, TestError> { observer in
+      observer.next(1)
+      observer.failure(.Error)
+
+      return NotDisposable
+    }
+
+    let retry = operation
+      .executeIn(bob.context)
+      .retryWhen { e in
+        return e.delay(0.1, on: Queue.global).take(3)
+      }
+
+    let expectation = expectationWithDescription("completed")
+
+    retry.expect([.Next(1), .Next(1), .Next(1), .Next(1), .Failure(.Error)], expectation: expectation)
+
+    waitForExpectationsWithTimeout(4) { error in
+      XCTAssertEqual(bob.numberOfRuns, 4)
+    }
+  }
+
+  func testRetryWhenFiniteStream() {
+    let bob = Scheduler()
+    bob.runRemaining()
+
+    let operation = Operation<Int, TestError>.failure(.Error).executeIn(bob.context)
+    let retry = operation.retryWhen { e in
+      return e.zipWith(Stream.sequence([1, 2, 3]))
+    }
+    retry.expect([.Failure(.Error)])
+
+    XCTAssertEqual(bob.numberOfRuns, 4)
+  }
+
+  func testRetryWhenNever() {
+    let bob = Scheduler()
+    bob.runRemaining()
+
+    let operation = Operation<Int, TestError>.failure(.Error).executeIn(bob.context)
+    let retry = operation.retryWhen { TestError -> Stream<()> in
+      return Stream.never()
+    }
+    retry.expect([.Failure(.Error)])
+
+    XCTAssertEqual(bob.numberOfRuns, 1)
+  }
+
+  func testRetryWhenComplete() {
+    let bob = Scheduler()
+    bob.runRemaining()
+
+    let operation = Operation<Int, TestError>.failure(.Error).executeIn(bob.context)
+    let retry = operation.retryWhen { TestError -> Stream<()> in
+      return Stream.completed()
+    }
+    retry.expect([.Failure(.Error)])
+
+    XCTAssertEqual(bob.numberOfRuns, 1)
+  }
+
+// TODO: cannot catch assertionFailure
+//  func testRetryWhenOutOfSync() {
+//    let bob = Scheduler()
+//    bob.runRemaining()
+//
+//    let operation = Operation<Int, TestError>.failure(.Error).executeIn(bob.context)
+//    let retry = operation.retryWhen { TestError -> Stream<Int> in
+//      return Stream.sequence([1,2,3])
+//    }
+//
+//    retry.observe { _ in }
+//
+//    XCTAssertEqual(bob.numberOfRuns, 1)
+//  }
+
   func testExecuteIn() {
     let bob = Scheduler()
     bob.runRemaining()
@@ -284,6 +377,16 @@ class OperatorsTests: XCTestCase {
     operation.expectNext([1, 2, 3])
 
     XCTAssertEqual(bob.numberOfRuns, 1)
+  }
+
+  func testDelay() {
+    let stream = Stream.sequence([1,2,3]).delay(0.1, on: Queue.global)
+
+    let expectation = expectationWithDescription("completed")
+
+    stream.expect([.Next(1), .Next(2), .Next(3), .Completed], expectation: expectation)
+
+    waitForExpectationsWithTimeout(1, handler: nil)
   }
 
   // TODO: delay
