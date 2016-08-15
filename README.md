@@ -370,10 +370,14 @@ let numbers = CollectionProperty([2, 3, 1])
 
 When we then do this:
 
-```
-let doubleNumbers = numbers.map { $0 * 2 }
-let evenNumbers = numbers.filter { $0 % 2 == 0 }
-let sortedNumbers = numbers.sort(<)
+```swift
+let doubleNumbers = CollectionProperty([])
+let evenNumbers = CollectionProperty([])
+let sortedNumbers = CollectionProperty([])
+
+numbers.map { $0 * 2 }.bindTo(doubleNumbers)
+numbers.filter { $0 % 2 == 0 }.bindTo(evenNumbers)
+numbers.sort(<).bindTo(sortedNumbers)
 ```
 
 Modifying `numbers` will automatically update all derived arrays:
