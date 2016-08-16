@@ -35,12 +35,12 @@ public protocol Disposable {
 /// A disposable that cannot be disposed.
 private struct _NotDisposable: Disposable {
 
-  private init() {}
+  fileprivate init() {}
 
-  private func dispose() {
+  fileprivate func dispose() {
   }
 
-  private var isDisposed: Bool {
+  fileprivate var isDisposed: Bool {
     return false
   }
 }
@@ -65,10 +65,10 @@ public final class BlockDisposable: Disposable {
     return handler == nil
   }
 
-  private var handler: (() -> ())?
-  private let lock = NSRecursiveLock(name: "ReactiveKit.BlockDisposable")
+  fileprivate var handler: (() -> ())?
+  fileprivate let lock = NSRecursiveLock(name: "ReactiveKit.BlockDisposable")
 
-  public init(_ handler: () -> ()) {
+  public init(_ handler: @escaping () -> ()) {
     self.handler = handler
   }
 
@@ -106,8 +106,8 @@ public class DeinitDisposable: Disposable {
 public final class CompositeDisposable: Disposable {
 
   public private(set) var isDisposed: Bool = false
-  private var disposables: [Disposable] = []
-  private let lock = NSRecursiveLock(name: "ReactiveKit.CompositeDisposable")
+  fileprivate var disposables: [Disposable] = []
+  fileprivate let lock = NSRecursiveLock(name: "ReactiveKit.CompositeDisposable")
 
   public convenience init() {
     self.init([])
@@ -143,7 +143,7 @@ public func += (left: CompositeDisposable, right: Disposable) {
 
 /// A disposable container that will dispose a collection of disposables upon deinit.
 public final class DisposeBag: Disposable {
-  private var disposables: [Disposable] = []
+  fileprivate var disposables: [Disposable] = []
 
   /// This will return true whenever the bag is empty.
   public var isDisposed: Bool {
@@ -180,7 +180,7 @@ public extension Disposable {
 public final class SerialDisposable: Disposable {
 
   public private(set) var isDisposed: Bool = false
-  private let lock = NSRecursiveLock(name: "ReactiveKit.SerialDisposable")
+  fileprivate let lock = NSRecursiveLock(name: "ReactiveKit.SerialDisposable")
 
   /// Will dispose other disposable immediately if self is already disposed.
   public var otherDisposable: Disposable? {

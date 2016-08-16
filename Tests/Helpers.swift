@@ -67,9 +67,9 @@ extension _StreamType {
 }
 
 class Scheduler {
-  private var availableRuns = 0
-  private var scheduledBlocks: [() -> Void] = []
-  private(set) var numberOfRuns = 0
+  fileprivate var availableRuns = 0
+  fileprivate var scheduledBlocks: [() -> Void] = []
+  fileprivate(set) var numberOfRuns = 0
 
   func context(block: () -> Void) {
     self.scheduledBlocks.append(block)
@@ -87,7 +87,7 @@ class Scheduler {
     tryRun()
   }
 
-  private func tryRun() {
+  fileprivate func tryRun() {
     while  availableRuns > 0 && scheduledBlocks.count > 0 {
       let block = scheduledBlocks.removeFirst()
       block()

@@ -56,7 +56,7 @@ public struct CollectionChangeset<C: Collection>: CollectionChangesetType, Custo
 
 public extension CollectionChangeset {
 
-  public init<E: CollectionChangesetType where E.Base == C>(ObservableCollectionEvent: E) {
+  public init<E: CollectionChangesetType>(ObservableCollectionEvent: E) where E.Base == C {
     collection = ObservableCollectionEvent.collection
     inserts = ObservableCollectionEvent.inserts
     deletes = ObservableCollectionEvent.deletes
@@ -198,9 +198,9 @@ public protocol CollectionPropertyType: CollectionType, StreamType, PropertyType
 }
 
 public class CollectionProperty<C: CollectionType>: CollectionPropertyType {
-  private let subject = PublishSubject<StreamEvent<CollectionChangeset<C>>>()
-  private let lock = NSRecursiveLock(name: "ReactiveKit.CollectionProperty")
-  private let disposeBag = DisposeBag()
+  fileprivate let subject = PublishSubject<StreamEvent<CollectionChangeset<C>>>()
+  fileprivate let lock = NSRecursiveLock(name: "ReactiveKit.CollectionProperty")
+  fileprivate let disposeBag = DisposeBag()
 
   public var rawStream: RawStream<StreamEvent<CollectionChangeset<C>>> {
     return subject.toRawStream().startWith(.Next(CollectionChangeset.initial(collection)))

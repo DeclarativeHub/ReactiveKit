@@ -176,13 +176,13 @@ public protocol OperationType: _StreamType {
   /// Register an observer that will receive events from the operation. Registering
   /// an observer starts the operation. Disposing the returned disposable can
   /// be used to cancel the operation.
-  func observe(observer: (OperationEvent<Element, ErrorType>) -> Void) -> Disposable
+  func observe(observer: @escaping (OperationEvent<Element, ErrorType>) -> Void) -> Disposable
 }
 
 public extension OperationType {
 
   /// Transform the operation by transforming underlying raw stream.
-  public func lift<U, E: Error>(transform: (RawStream<OperationEvent<Element, ErrorType>>) -> RawStream<OperationEvent<U, E>>) -> Operation<U, E> {
+  public func lift<U, E: Error>(transform: @escaping (RawStream<OperationEvent<Element, ErrorType>>) -> RawStream<OperationEvent<U, E>>) -> Operation<U, E> {
     return Operation<U, E> { observer in
       return transform(self.rawStream).observe(observer: observer.observer)
     }
@@ -191,7 +191,7 @@ public extension OperationType {
   /// Register an observer that will receive events from a stream. Registering
   /// an observer starts the operation. Disposing the returned disposable can
   /// be used to cancel the operation.
-  public func observe(observer: (OperationEvent<Element, ErrorType>) -> Void) -> Disposable {
+  public func observe(observer: @escaping (OperationEvent<Element, ErrorType>) -> Void) -> Disposable {
     return rawStream.observe(observer: observer)
   }
 }
@@ -232,7 +232,7 @@ public struct Operation<T, E: Error>: OperationType {
   }
 
   /// Create a new operation using a producer.
-  public init(producer: (Observer<OperationEvent<T, E>>) -> Disposable) {
+  public init(producer: @escaping (Observer<OperationEvent<T, E>>) -> Disposable) {
     rawStream = RawStream(producer: producer)
   }
 }
@@ -252,7 +252,7 @@ public extension Operation {
   }
 
   /// Create an operation that emits given sequence of elements and then completes.
-  public static func sequence<S: Sequence where S.Iterator.Element == Element>(_ sequence: S) -> Operation<Element, ErrorType> {
+  public static func sequence<S: Sequence>(_ sequence: S) -> Operation<Element, ErrorType> where S.Iterator.Element == Element {
     return Operation { observer in
       sequence.forEach(observer.next)
       observer.completed()
@@ -322,7 +322,7 @@ public extension OperationType {
 
   /// Map each event into an operation and then flatten those operations using
   /// the given flattening strategy.
-  public func flatMap<U: OperationType where U.Event: OperationEventType, U.Event.ErrorType == ErrorType>(strategy: FlatMapStrategy, transform: (Element) -> U) -> Operation<U.Event.Element, ErrorType> {
+  public func flatMap<U: OperationType>(strategy: FlatMapStrategy, transform: @escaping (Element) -> U) -> Operation<U.Event.Element, ErrorType> where U.Event: OperationEventType, U.Event.ErrorType == ErrorType {
     switch strategy {
     case .Latest:
       return map(transform).switchToLatest()
@@ -334,21 +334,21 @@ public extension OperationType {
   }
 
   /// Map each event into an operation and then flattens inner operations.
-  public func flatMapLatest<U: OperationType where U.Event: OperationEventType, U.Event.ErrorType == ErrorType>(transform: (Element) -> U) -> Operation<U.Event.Element, ErrorType> {
+  public func flatMapLatest<U: OperationType>(transform: @escaping (Element) -> U) -> Operation<U.Event.Element, ErrorType> where U.Event: OperationEventType, U.Event.ErrorType == ErrorType {
     return flatMap(strategy: .Latest, transform: transform)
   }
 
   /// Map each event into an operation and then flattens inner operations.
-  public func flatMapMerge<U: OperationType where U.Event: OperationEventType, U.Event.ErrorType == ErrorType>(transform: (Element) -> U) -> Operation<U.Event.Element, ErrorType> {
+  public func flatMapMerge<U: OperationType>(transform: @escaping (Element) -> U) -> Operation<U.Event.Element, ErrorType> where U.Event: OperationEventType, U.Event.ErrorType == ErrorType {
     return flatMap(strategy: .Merge, transform: transform)
   }
   /// Map each event into an operation and then flattens inner operations.
-  public func flatMapConcat<U: OperationType where U.Event: OperationEventType, U.Event.ErrorType == ErrorType>(transform: (Element) -> U) -> Operation<U.Event.Element, ErrorType> {
+  public func flatMapConcat<U: OperationType>(transform: @escaping (Element) -> U) -> Operation<U.Event.Element, ErrorType> where U.Event: OperationEventType, U.Event.ErrorType == ErrorType {
     return flatMap(strategy: .Concat, transform: transform)
   }
 
   /// Transform each element by applying `transform` on it.
-  public func map<U>(_ transform: (Element) -> U) -> Operation<U, ErrorType> {
+  public func map<U>(_ transform: @escaping (Element) -> U) -> Operation<U, ErrorType> {
     return lift { $0.map { $0.map(transform) } }
   }
 
@@ -358,13 +358,13 @@ public extension OperationType {
   }
 
   /// Transform error by applying `transform` on it.
-  public func mapError<F: Error>(transform: (ErrorType) -> F) -> Operation<Element, F> {
+  public func mapError<F: Error>(transform: @escaping (ErrorType) -> F) -> Operation<Element, F> {
     return lift { $0.map { $0.mapError(transform) }  }
   }
 
   /// Apply `combine` to each element starting with `initial` and emit each
   /// intermediate result. This differs from `reduce` which emits only final result.
-  public func scan<U>(_ initial: U, _ combine: (U, Element) -> U) -> Operation<U, ErrorType> {
+  public func scan<U>(_ initial: U, _ combine: @escaping (U, Element) -> U) -> Operation<U, ErrorType> {
     return lift { stream in
       return stream.scan(.Next(initial)) { memo, new in
         switch new {
@@ -380,7 +380,7 @@ public extension OperationType {
   }
 
   /// Transform each element by applying `transform` on it.
-  public func tryMap<U>(_ transform: (Element) -> Result<U, ErrorType>) -> Operation<U, ErrorType> {
+  public func tryMap<U>(_ transform: @escaping (Element) -> Result<U, ErrorType>) -> Operation<U, ErrorType> {
     return lift { $0.map { $0.tryMap(transform) } }
   }
 
@@ -396,7 +396,7 @@ public extension OperationType {
   }
 
   /// Converts operations into two streams, Element stream and Error stream, and maps error to another type.
-  public func toStream<U>(mapError: (ErrorType) -> U) -> (Stream<Element>, Stream<U>) {
+  public func toStream<U>(mapError: @escaping (ErrorType) -> U) -> (Stream<Element>, Stream<U>) {
     let shared = shareReplay()
     return (shared.toStream(justLogError: false), shared.toErrorStream().map(mapError))
   }
@@ -423,7 +423,7 @@ public extension OperationType {
   }
 
   /// Convert the operation to a stream by feeding the error into a subject.
-  public func toStream<S: SubjectType where S.Event.Element == ErrorType>(feedErrorInto listener: S, logError: Bool = true, completeOnError: Bool = false, file: String = #file, line: Int = #line) -> Stream<Element> {
+  public func toStream<S: SubjectType>(feedErrorInto listener: S, logError: Bool = true, completeOnError: Bool = false, file: String = #file, line: Int = #line) -> Stream<Element> where S.Event.Element == ErrorType {
     return feedError(into: listener).toStream(justLogError: logError, completeOnError: completeOnError, file: file, line: line)
   }
 
@@ -476,7 +476,7 @@ extension OperationType {
   }
 
   /// Emit first element and then all elements that are not equal to their predecessor(s).
-  public func distinct(areDistinct: (Element, Element) -> Bool) -> Operation<Element, ErrorType> {
+  public func distinct(areDistinct: @escaping (Element, Element) -> Bool) -> Operation<Element, ErrorType> {
     return lift { $0.distinct(areDistinct: areDistinct) }
   }
 
@@ -486,7 +486,7 @@ extension OperationType {
   }
 
   /// Emit only elements that pass `include` test.
-  public func filter(include: (Element) -> Bool) -> Operation<Element, ErrorType> {
+  public func filter(include: @escaping (Element) -> Bool) -> Operation<Element, ErrorType> {
     return lift { $0.filter { $0.element.flatMap(include) ?? true } }
   }
 
@@ -579,7 +579,7 @@ extension OperationType {
 
   /// Emit a pair of latest elements from each operation. Starts when both operations
   /// emit at least one element, and emits `.Next` when either operation generates an element.
-  public func combineLatest<O: OperationType where O.ErrorType == ErrorType>(with other: O) -> Operation<(Element, O.Element), ErrorType> {
+  public func combineLatest<O: OperationType>(with other: O) -> Operation<(Element, O.Element), ErrorType> where O.ErrorType == ErrorType {
     return lift {
       return $0.combineLatest(with: other.toOperation()) { myLatestElement, my, theirLatestElement, their, isMy in
         switch (my, their) {
@@ -611,7 +611,7 @@ extension OperationType {
   }
 
   /// Merge emissions from both source and `other` into one operation.
-  public func merge<O: OperationType where O.Element == Element, O.ErrorType == ErrorType>(with other: O) -> Operation<Element, ErrorType> {
+  public func merge<O: OperationType>(with other: O) -> Operation<Element, ErrorType> where O.Element == Element, O.ErrorType == ErrorType {
     return lift { $0.merge(with: other.rawStream) }
   }
 
@@ -622,7 +622,7 @@ extension OperationType {
 
   /// Emit elements from source and `other` in combination. This differs from `combineLatestWith` in
   /// that combinations are produced from elements at same positions.
-  public func zip<O: OperationType where O.ErrorType == ErrorType>(with other: O) -> Operation<(Element, O.Element), ErrorType> {
+  public func zip<O: OperationType>(with other: O) -> Operation<(Element, O.Element), ErrorType> where O.ErrorType == ErrorType {
     return lift {
       return $0.zip(with: other.toOperation()) { my, their in
         switch (my, their) {
@@ -644,7 +644,7 @@ extension OperationType {
   }
 
   /// Combines two operations into an operation of pairs of elements whenever the receiver emits an element with the latest element from the given operation.
-  public func withLatest<O: OperationType where O.ErrorType == ErrorType>(from other: O) -> Operation<(Element, O.Element), ErrorType> {
+  public func withLatest<O: OperationType>(from other: O) -> Operation<(Element, O.Element), ErrorType> where O.ErrorType == ErrorType {
     return lift {
       return $0.combineLatest(with: other.toOperation()) { myLatestElement, my, theirLatestElement, their, isMy in
         switch (my, their) {
@@ -677,7 +677,7 @@ extension OperationType {
 extension OperationType {
 
   /// Map failure event into another operation and continue with that operation. Also called `catch`.
-  public func flatMapError<U: OperationType where U.Element == Element>(recover: (ErrorType) -> U) -> Operation<Element, U.ErrorType> {
+  public func flatMapError<U: OperationType>(recover: @escaping (ErrorType) -> U) -> Operation<Element, U.ErrorType> where U.Element == Element {
     return Operation<U.Element, U.ErrorType> { observer in
       let serialDisposable = SerialDisposable(otherDisposable: nil)
 
@@ -699,7 +699,7 @@ extension OperationType {
   }
 
   /// Map failure event into another operation and continue with that operation. Also called `catch`.
-  public func flatMapError<S: StreamType where S.Element == Element>(recover: (ErrorType) -> S) -> Stream<Element> {
+  public func flatMapError<S: StreamType>(recover: @escaping (ErrorType) -> S) -> Stream<Element> where S.Element == Element {
     return Stream<Element> { observer in
       let serialDisposable = SerialDisposable(otherDisposable: nil)
 
@@ -729,7 +729,7 @@ extension OperationType {
 extension OperationType where Element: ResultType {
 
   /// Dematerialize elements of `ResultType` into `.Next` or `.Error` events.
-  public func dematerialize(mapOutterError: (ErrorType) -> Element.ErrorType) -> Operation<Element.Value, Element.ErrorType> {
+  public func dematerialize(mapOutterError: @escaping (ErrorType) -> Element.ErrorType) -> Operation<Element.Value, Element.ErrorType> {
     return Operation { observer in
       return self.observe { event in
         switch event {
@@ -812,7 +812,7 @@ extension OperationType {
   }
 
   /// Supress non-terminal events while last event generated on other stream is `false`.
-  public func pausable<S: _StreamType where S.Event.Element == Bool>(by other: S) -> Operation<Element, ErrorType> {
+  public func pausable<S: _StreamType>(by other: S) -> Operation<Element, ErrorType> where S.Event.Element == Bool {
     return lift { $0.pausable(by: other) }
   }
 
@@ -844,22 +844,22 @@ extension OperationType {
 extension OperationType {
 
   /// Updates the given subject with `true` when the receiver starts and with `false` when the receiver terminates.
-  public func feedActivity<S: SubjectType where S.Event.Element == Bool>(into listener: S) -> Operation<Element, ErrorType> {
+  public func feedActivity<S: SubjectType>(into listener: S) -> Operation<Element, ErrorType> where S.Event.Element == Bool {
     return doOn(start: { listener.next(true) }, disposed: { listener.next(false) })
   }
 
   /// Updates the given subject with .Next element.
-  public func feedNext<S: SubjectType where S.Event.Element == Element>(into listener: S) -> Operation<Element, ErrorType> {
+  public func feedNext<S: SubjectType>(into listener: S) -> Operation<Element, ErrorType> where S.Event.Element == Element {
     return doOn(next: { e in listener.next(e) })
   }
 
   /// Updates the given subject with mapped .Next element whenever the element satisfies the given constraint.
-  public func feedNext<S: SubjectType>(into listener: S, when: (Element) -> Bool = { _ in true }, map: (Element) -> S.Event.Element) -> Operation<Element, ErrorType> {
+  public func feedNext<S: SubjectType>(into listener: S, when: @escaping (Element) -> Bool = { _ in true }, map: @escaping (Element) -> S.Event.Element) -> Operation<Element, ErrorType> {
     return doOn(next: { e in if when(e) { listener.next(map(e)) } })
   }
 
   /// Updates the given subject with error from .Failure event is such occurs.
-  public func feedError<S: SubjectType where S.Event.Element == ErrorType>(into listener: S) -> Operation<Element, ErrorType> {
+  public func feedError<S: SubjectType>(into listener: S) -> Operation<Element, ErrorType> where S.Event.Element == ErrorType {
     return doOn(failure: { e in listener.next(e) })
   }
 }
@@ -869,7 +869,7 @@ extension OperationType {
 extension OperationType {
 
   /// Propagate event only from an operation that starts emitting first.
-  public func amb<O: OperationType where O.Element == Element, O.ErrorType == ErrorType>(with other: O) -> Operation<Element, ErrorType> {
+  public func amb<O: OperationType>(with other: O) -> Operation<Element, ErrorType> where O.Element == Element, O.ErrorType == ErrorType {
     return lift { $0.amb(with: other.rawStream) }
   }
 
@@ -879,7 +879,7 @@ extension OperationType {
   }
 
   /// First emit events from source and then from `other` operation.
-  public func concat<O: OperationType where O.Element == Element, O.ErrorType == ErrorType>(with other: O) -> Operation<Element, ErrorType> {
+  public func concat<O: OperationType>(with other: O) -> Operation<Element, ErrorType> where O.Element == Element, O.ErrorType == ErrorType {
     return lift { stream in
       stream.concat(with: other.rawStream)
     }
@@ -891,7 +891,7 @@ extension OperationType {
   }
 
   /// Reduce elements to a single element by applying given function on each emission.
-  public func reduce<U>(_ initial: U, _ combine: (U, Element) -> U) -> Operation<U, ErrorType> {
+  public func reduce<U>(_ initial: U, _ combine: @escaping (U, Element) -> U) -> Operation<U, ErrorType> {
     return Operation<U, ErrorType> { observer in
       observer.next(initial)
       return self.scan(initial, combine).observe(observer: observer.observer)
@@ -924,14 +924,14 @@ public extension Operation where T: OperationType, T.Event: OperationEventType {
   public typealias InnerError = T.Event.ErrorType
 
   /// Flatten the operation by observing all inner operation and propagate elements from each one as they come.
-  public func merge(mapError: (ErrorType) -> InnerError) -> Operation<InnerElement, InnerError> {
+  public func merge(mapError: @escaping (ErrorType) -> InnerError) -> Operation<InnerElement, InnerError> {
     return lift {
       $0.merge(unboxEvent: { $0.unbox }, propagateErrorEvent: { event, observer in observer.failure(mapError(event.error!)) })
     }
   }
 
   /// Flatten the operation by observing and propagating emissions only from the latest inner operation.
-  public func switchToLatest(mapError: (ErrorType) -> InnerError) -> Operation<InnerElement, InnerError> {
+  public func switchToLatest(mapError: @escaping (ErrorType) -> InnerError) -> Operation<InnerElement, InnerError> {
     return lift {
       $0.switchToLatest(unboxEvent: { $0.unbox }, propagateErrorEvent: { event, observer in observer.failure(mapError(event.error!)) })
     }
@@ -939,7 +939,7 @@ public extension Operation where T: OperationType, T.Event: OperationEventType {
 
   /// Flatten the operation by sequentially observing inner operations in order in
   /// which they arrive, starting next observation only after the previous one completes, cancelling previous one when new one starts.
-  public func concat(mapError: (ErrorType) -> InnerError) -> Operation<InnerElement, InnerError> {
+  public func concat(mapError: @escaping (ErrorType) -> InnerError) -> Operation<InnerElement, InnerError> {
     return lift {
       $0.concat(unboxEvent: { $0.unbox }, propagateErrorEvent: { event, observer in observer.failure(mapError(event.error!)) })
     }
@@ -991,9 +991,9 @@ extension OperationType {
 /// Combine multiple operations into one. See `mergeWith` for more info.
 public func combineLatest
   <A: OperationType,
-   B: OperationType where
-  A.ErrorType == B.ErrorType>
-  (_ a: A, _ b: B) -> Operation<(A.Element, B.Element), A.ErrorType> {
+   B: OperationType>
+  (_ a: A, _ b: B) -> Operation<(A.Element, B.Element), A.ErrorType> where
+  A.ErrorType == B.ErrorType {
   return a.combineLatest(with: b)
 }
 
@@ -1001,10 +1001,10 @@ public func combineLatest
 public func combineLatest
   <A: OperationType,
    B: OperationType,
-   C: OperationType where
+   C: OperationType>
+  (_ a: A, _ b: B, _ c: C) -> Operation<(A.Element, B.Element, C.Element), A.ErrorType> where
   A.ErrorType == B.ErrorType,
-  A.ErrorType == C.ErrorType>
-  (_ a: A, _ b: B, _ c: C) -> Operation<(A.Element, B.Element, C.Element), A.ErrorType> {
+  A.ErrorType == C.ErrorType {
   return combineLatest(a, b).combineLatest(with: c).map { ($0.0, $0.1, $1) }
 }
 
@@ -1013,11 +1013,11 @@ public func combineLatest
   <A: OperationType,
    B: OperationType,
    C: OperationType,
-   D: OperationType where
+   D: OperationType>
+  (_ a: A, _ b: B, _ c: C, _ d: D) -> Operation<(A.Element, B.Element, C.Element, D.Element), A.ErrorType> where
   A.ErrorType == B.ErrorType,
   A.ErrorType == C.ErrorType,
-  A.ErrorType == D.ErrorType>
-  (_ a: A, _ b: B, _ c: C, _ d: D) -> Operation<(A.Element, B.Element, C.Element, D.Element), A.ErrorType> {
+  A.ErrorType == D.ErrorType {
   return combineLatest(a, b, c).combineLatest(with: d).map { ($0.0, $0.1, $0.2, $1) }
 }
 
@@ -1027,12 +1027,12 @@ public func combineLatest
    B: OperationType,
    C: OperationType,
    D: OperationType,
-   E: OperationType where
+   E: OperationType>
+  (_ a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> Operation<(A.Element, B.Element, C.Element, D.Element, E.Element), A.ErrorType> where
   A.ErrorType == B.ErrorType,
   A.ErrorType == C.ErrorType,
   A.ErrorType == D.ErrorType,
-  A.ErrorType == E.ErrorType>
-  (_ a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> Operation<(A.Element, B.Element, C.Element, D.Element, E.Element), A.ErrorType> {
+  A.ErrorType == E.ErrorType {
   return combineLatest(a, b, c, d).combineLatest(with: e).map { ($0.0, $0.1, $0.2, $0.3, $1) }
 }
 
@@ -1043,22 +1043,22 @@ public func combineLatest
    C: OperationType,
    D: OperationType,
    E: OperationType,
-   F: OperationType where
+   F: OperationType>
+  (_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> Operation<(A.Element, B.Element, C.Element, D.Element, E.Element, F.Element), A.ErrorType> where
   A.ErrorType == B.ErrorType,
   A.ErrorType == C.ErrorType,
   A.ErrorType == D.ErrorType,
   A.ErrorType == E.ErrorType,
-  A.ErrorType == F.ErrorType>
-  (_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> Operation<(A.Element, B.Element, C.Element, D.Element, E.Element, F.Element), A.ErrorType> {
+  A.ErrorType == F.ErrorType {
   return combineLatest(a, b, c, d, e).combineLatest(with: f).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $1) }
 }
 
 /// Zip multiple operations into one. See `zipWith` for more info.
 public func zip
   <A: OperationType,
-   B: OperationType where
-  A.ErrorType == B.ErrorType>
-  (_ a: A, _ b: B) -> Operation<(A.Element, B.Element), A.ErrorType> {
+   B: OperationType>
+  (_ a: A, _ b: B) -> Operation<(A.Element, B.Element), A.ErrorType> where
+  A.ErrorType == B.ErrorType {
   return a.zip(with: b)
 }
 
@@ -1066,10 +1066,10 @@ public func zip
 public func zip
   <A: OperationType,
    B: OperationType,
-   C: OperationType where
+   C: OperationType>
+  (_ a: A, _ b: B, _ c: C) -> Operation<(A.Element, B.Element, C.Element), A.ErrorType> where
   A.ErrorType == B.ErrorType,
-  A.ErrorType == C.ErrorType>
-  (_ a: A, _ b: B, _ c: C) -> Operation<(A.Element, B.Element, C.Element), A.ErrorType> {
+  A.ErrorType == C.ErrorType {
   return zip(a, b).zip(with: c).map { ($0.0, $0.1, $1) }
 }
 
@@ -1078,11 +1078,11 @@ public func zip
   <A: OperationType,
    B: OperationType,
    C: OperationType,
-   D: OperationType where
+   D: OperationType>
+  (_ a: A, _ b: B, _ c: C, _ d: D) -> Operation<(A.Element, B.Element, C.Element, D.Element), A.ErrorType> where
   A.ErrorType == B.ErrorType,
   A.ErrorType == C.ErrorType,
-  A.ErrorType == D.ErrorType>
-  (_ a: A, _ b: B, _ c: C, _ d: D) -> Operation<(A.Element, B.Element, C.Element, D.Element), A.ErrorType> {
+  A.ErrorType == D.ErrorType {
   return zip(a, b, c).zip(with: d).map { ($0.0, $0.1, $0.2, $1) }
 }
 
@@ -1092,12 +1092,12 @@ public func zip
    B: OperationType,
    C: OperationType,
    D: OperationType,
-   E: OperationType where
+   E: OperationType>
+  (_ a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> Operation<(A.Element, B.Element, C.Element, D.Element, E.Element), A.ErrorType> where
   A.ErrorType == B.ErrorType,
   A.ErrorType == C.ErrorType,
   A.ErrorType == D.ErrorType,
-  A.ErrorType == E.ErrorType>
-  (_ a: A, _ b: B, _ c: C, _ d: D, _ e: E) -> Operation<(A.Element, B.Element, C.Element, D.Element, E.Element), A.ErrorType> {
+  A.ErrorType == E.ErrorType {
   return zip(a, b, c, d).zip(with: e).map { ($0.0, $0.1, $0.2, $0.3, $1) }
 }
 
@@ -1108,13 +1108,13 @@ public func zip
    C: OperationType,
    D: OperationType,
    E: OperationType,
-   F: OperationType where
+   F: OperationType>
+  (_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> Operation<(A.Element, B.Element, C.Element, D.Element, E.Element, F.Element), A.ErrorType> where
   A.ErrorType == B.ErrorType,
   A.ErrorType == C.ErrorType,
   A.ErrorType == D.ErrorType,
   A.ErrorType == E.ErrorType,
-  A.ErrorType == F.ErrorType>
-  (_ a: A, _ b: B, _ c: C, _ d: D, _ e: E, _ f: F) -> Operation<(A.Element, B.Element, C.Element, D.Element, E.Element, F.Element), A.ErrorType> {
+  A.ErrorType == F.ErrorType {
   return zip(a, b, c, d, e).zip(with: f).map { ($0.0, $0.1, $0.2, $0.3, $0.4, $1) }
 }
 
@@ -1124,19 +1124,19 @@ public func zip
 public class ConnectableOperation<T, E: Error>: OperationType, ConnectableStreamType {
   public typealias Event = OperationEvent<T, E>
 
-  private let rawConnectableStream: RawConnectableStream<RawStream<Event>>
+  fileprivate let rawConnectableStream: RawConnectableStream<RawStream<Event>>
 
   public var rawStream: RawStream<OperationEvent<T, E>> {
     return rawConnectableStream.toRawStream()
   }
 
-  private init(rawConnectableStream: RawConnectableStream<RawStream<Event>>) {
+  fileprivate init(rawConnectableStream: RawConnectableStream<RawStream<Event>>) {
     self.rawConnectableStream = rawConnectableStream
   }
 
   /// Register an observer that will receive events from the operation.
   /// Note that the events will not be generated until `connect` is called.
-  public func observe(observer: (Event) -> Void) -> Disposable {
+  public func observe(observer: @escaping (Event) -> Void) -> Disposable {
     return rawConnectableStream.observe(observer: observer)
   }
 
@@ -1159,7 +1159,7 @@ public extension ConnectableOperation {
 
 /// Represents an operation that can push events to registered observers at will.
 public class PushOperation<T, E: Error>: OperationType, SubjectType {
-  private let subject = PublishSubject<OperationEvent<T, E>>()
+  fileprivate let subject = PublishSubject<OperationEvent<T, E>>()
 
   public var rawStream: RawStream<OperationEvent<T, E>> {
     return subject.toRawStream()

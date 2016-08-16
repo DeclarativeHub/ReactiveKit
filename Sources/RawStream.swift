@@ -34,13 +34,13 @@ public protocol _StreamType {
   ///
   /// In case of pull-driven streams, e.g. `Stream<T>` or `Operation<T, E>`,
   /// this actually triggers event generation.
-  func observe(observer: (Event) -> Void) -> Disposable
+  func observe(observer: @escaping (Event) -> Void) -> Disposable
 }
 
 extension _StreamType {
 
   /// Register an observer that will receive elements from `.Next` events of the stream.
-  public func observeNext(observer: (Event.Element) -> Void) -> Disposable {
+  public func observeNext(observer: @escaping (Event.Element) -> Void) -> Disposable {
     return observe { event in
       if let element = event.element {
         observer(element)
@@ -49,7 +49,7 @@ extension _StreamType {
   }
 
   /// Register an observer that will be executed on `.Completed` event.
-  public func observeCompleted(observer: () -> Void) -> Disposable {
+  public func observeCompleted(observer: @escaping () -> Void) -> Disposable {
     return observe { event in
       if event.isCompletion {
         observer()
@@ -61,7 +61,7 @@ extension _StreamType {
 extension _StreamType where Event: Errorable {
 
   /// Register an observer that will receive error from `.Error` event of the stream.
-  public func observeError(observer: (Event.ErrorType) -> Void) -> Disposable {
+  public func observeError(observer: @escaping (Event.ErrorType) -> Void) -> Disposable {
     return observe { event in
       if let error = event.error {
         observer(error)
@@ -74,8 +74,7 @@ extension _StreamType where Event: Errorable {
 
 /// Represents an underlying stream generalized over EventType and used by
 /// higher-level implementations like `Stream<T>` or `Operation<T, E>`.
-public protocol RawStreamType: _StreamType {
-}
+public protocol RawStreamType: _StreamType {}
 
 // MARK: - RawStream
 
@@ -83,15 +82,15 @@ public protocol RawStreamType: _StreamType {
 /// higher-level implementations like `Stream<T>` or `Operation<T, E>`.
 public struct RawStream<Event: EventType>: RawStreamType {
 
-  private let producer: (Observer<Event>) -> Disposable
+  fileprivate let producer: (Observer<Event>) -> Disposable
 
   /// Create new `RawStream` given a producer closure.
-  public init(producer: (Observer<Event>) -> Disposable) {
+  public init(producer: @escaping (Observer<Event>) -> Disposable) {
     self.producer = producer
   }
 
   /// Register an observer that will receive events from a stream.
-  public func observe(observer: (Event) -> Void) -> Disposable {
+  public func observe(observer: @escaping (Event) -> Void) -> Disposable {
     let serialDisposable = SerialDisposable(otherDisposable: nil)
     let lock = NSRecursiveLock(name: "observe")
     var terminated = false
@@ -171,7 +170,7 @@ public extension RawStreamType {
   // WONTDO: flatMap
 
   /// Transform each element by applying `transform` on it.
-  public func map<U: EventType>(_ transform: (Event) -> U) -> RawStream<U> {
+  public func map<U: EventType>(_ transform: @escaping (Event) -> U) -> RawStream<U> {
     return RawStream<U> { observer in
       return self.observe { event in
         observer.observer(transform(event))
@@ -181,7 +180,7 @@ public extension RawStreamType {
 
   /// Apply `combine` to each element starting with `initial` and emit each 
   /// intermediate result. This differs from `reduce` which emits only final result.
-  public func scan<U: EventType>(_ initial: U, _ combine: (U, Event) -> U) -> RawStream<U> {
+  public func scan<U: EventType>(_ initial: U, _ combine: @escaping (U, Event) -> U) -> RawStream<U> {
     return RawStream<U> { observer in
       var accumulator = initial
       observer.observer(accumulator)
@@ -225,7 +224,7 @@ public extension RawStreamType {
   }
 
   /// Emit first element and then all elements that are not equal to their predecessor(s).
-  public func distinct(areDistinct: (Event.Element, Event.Element) -> Bool) -> RawStream<Event> {
+  public func distinct(areDistinct: @escaping (Event.Element, Event.Element) -> Bool) -> RawStream<Event> {
     return RawStream { observer in
       var lastElement: Event.Element? = nil
       return self.observe { event in
@@ -261,7 +260,7 @@ public extension RawStreamType {
   }
 
   /// Emit only elements that pass `include` test.
-  public func filter(include: (Event) -> Bool) -> RawStream<Event> {
+  public func filter(include: @escaping (Event) -> Bool) -> RawStream<Event> {
     return RawStream { observer in
       return self.observe { event in
         if include(event) {
@@ -464,7 +463,7 @@ extension RawStreamType {
 
   /// Emit a combination of latest elements from each stream. Starts when both streams emit at least one element,
   /// and emits next when either stream generates an event.
-  public func combineLatest<R: _StreamType, U: EventType>(with other: R, combine: (Event.Element?, Event, R.Event.Element?, R.Event, Bool) -> U?) -> RawStream<U> {
+  public func combineLatest<R: _StreamType, U: EventType>(with other: R, combine: @escaping (Event.Element?, Event, R.Event.Element?, R.Event, Bool) -> U?) -> RawStream<U> {
     return RawStream<U> { observer in
       let lock = NSRecursiveLock(name: "combineLatestWith")
 
@@ -506,7 +505,7 @@ extension RawStreamType {
   }
 
   /// Merge emissions from both source and `other` into one stream.
-  public func merge<R: _StreamType where R.Event == Event>(with other: R) -> RawStream<Event> {
+  public func merge<R: _StreamType>(with other: R) -> RawStream<Event> where R.Event == Event {
     return RawStream<Event> { observer in
       let lock = NSRecursiveLock(name: "mergeWith")
       var numberOfOperations = 2
@@ -544,7 +543,7 @@ extension RawStreamType {
 
   /// Emit elements from source and `other` in combination. This differs from `combineLatestWith` in
   /// that combinations are produced from elements at same positions.
-  public func zip<R: _StreamType, U: EventType>(with other: R, zip: (Event, R.Event) -> U) -> RawStream<U> {
+  public func zip<R: _StreamType, U: EventType>(with other: R, zip: @escaping (Event, R.Event) -> U) -> RawStream<U> {
     return RawStream<U> { observer in
       let lock = NSRecursiveLock(name: "zipWith")
 
@@ -661,7 +660,7 @@ public extension RawStreamType {
   }
 
   /// Supress events while last event generated on other stream is `false`.
-  public func pausable<R: _StreamType where R.Event.Element == Bool>(by: R) -> RawStream<Event> {
+  public func pausable<R: _StreamType>(by: R) -> RawStream<Event> where R.Event.Element == Bool {
     return RawStream { observer in
 
       var allowed: Bool = true
@@ -697,7 +696,7 @@ public extension RawStreamType {
   // WONTDO: all
 
   /// Propagate event only from a stream that starts emitting first.
-  public func amb<R: RawStreamType where R.Event == Event>(with other: R) -> RawStream<Event> {
+  public func amb<R: RawStreamType>(with other: R) -> RawStream<Event> where R.Event == Event {
     return RawStream { observer in
       let lock = NSRecursiveLock(name: "ambWith")
       var isOtherDispatching = false
@@ -769,7 +768,7 @@ public extension RawStreamType {
   }
 
   /// Reduce stream events to a single event by applying given function on each emission.
-  public func reduce<U: EventType>(_ initial: U, _ combine: (U, Event) -> U) -> RawStream<U> {
+  public func reduce<U: EventType>(_ initial: U, _ combine: @escaping (U, Event) -> U) -> RawStream<U> {
     return scan(initial, combine).take(last: 1)
   }
 }
@@ -781,7 +780,7 @@ public extension RawStreamType where Event.Element: _StreamType {
   public typealias InnerEvent = Event.Element.Event
 
   /// Flatten the stream by observing all inner streams and propagate events from each one as they come.
-  public func merge<U: EventType>(unboxEvent: (InnerEvent) -> U, propagateErrorEvent: (Event, Observer<U>) -> Void) -> RawStream<U> {
+  public func merge<U: EventType>(unboxEvent: @escaping (InnerEvent) -> U, propagateErrorEvent: @escaping (Event, Observer<U>) -> Void) -> RawStream<U> {
     return RawStream<U> { observer in
       let lock = NSRecursiveLock(name: "merge")
 
@@ -821,7 +820,7 @@ public extension RawStreamType where Event.Element: _StreamType {
   }
 
   /// Flatten the stream by observing and propagating emissions only from latest stream.
-  public func switchToLatest<U: EventType>(unboxEvent: (InnerEvent) -> U, propagateErrorEvent: (Event, Observer<U>) -> Void) -> RawStream<U> {
+  public func switchToLatest<U: EventType>(unboxEvent: @escaping (InnerEvent) -> U, propagateErrorEvent: @escaping (Event, Observer<U>) -> Void) -> RawStream<U> {
     return RawStream<U> { observer in
       let serialDisposable = SerialDisposable(otherDisposable: nil)
       let compositeDisposable = CompositeDisposable([serialDisposable])
@@ -860,7 +859,7 @@ public extension RawStreamType where Event.Element: _StreamType {
 
   /// Flatten the stream by sequentially observing inner streams in order in which they
   /// arrive, starting next observation only after previous one completes.
-  public func concat<U: EventType>(unboxEvent: (InnerEvent) -> U, propagateErrorEvent: (Event, Observer<U>) -> Void) -> RawStream<U> {
+  public func concat<U: EventType>(unboxEvent: @escaping (InnerEvent) -> U, propagateErrorEvent: @escaping (Event, Observer<U>) -> Void) -> RawStream<U> {
     return RawStream<U> { observer in
       typealias Task = Event.Element
       let lock = NSRecursiveLock(name: "concat")
@@ -955,10 +954,10 @@ public protocol ConnectableStreamType: _StreamType {
 /// Makes a stream connectable through the given subject.
 public final class RawConnectableStream<R: RawStreamType>: ConnectableStreamType {
 
-  private let lock = SpinLock()
-  private let source: R
-  private let subject: AnySubject<R.Event>
-  private var connectionDisposable: Disposable? = nil
+  fileprivate let lock = SpinLock()
+  fileprivate let source: R
+  fileprivate let subject: AnySubject<R.Event>
+  fileprivate var connectionDisposable: Disposable? = nil
 
   public init(source: R, subject: AnySubject<R.Event>) {
     self.source = source
@@ -978,7 +977,7 @@ public final class RawConnectableStream<R: RawStreamType>: ConnectableStreamType
 
   /// Register an observer that will receive events from the stream.
   /// Note that the events will not be generated until `connect` is called.
-  public func observe(observer: (R.Event) -> Void) -> Disposable {
+  public func observe(observer: @escaping (R.Event) -> Void) -> Disposable {
     return subject.observe(observer: observer)
   }
 }

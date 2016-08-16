@@ -26,7 +26,7 @@ class DiffTests: XCTestCase {
     }
   }
 
-  private func encodeDiff<T>(x: [DiffStep<T>]) -> String {
+  fileprivate func encodeDiff<T>(x: [DiffStep<T>]) -> String {
 
     var result = ""
 

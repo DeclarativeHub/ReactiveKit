@@ -30,7 +30,7 @@ import Foundation
 #endif
 
 /// Represents a context that can execute given block.
-public typealias ExecutionContext = (() -> Void) -> Void
+public typealias ExecutionContext = (@escaping () -> Void) -> Void
 
 /// Execute block on current thread or queue.
 public let ImmediateExecutionContext: ExecutionContext = { block in
@@ -95,11 +95,11 @@ public let ImmediateExecutionContext: ExecutionContext = { block in
 
   public extension DispatchQueue {
 
-    public func after(when interval: TimeValue, block: () -> ()) {
+    public func after(when interval: TimeValue, block: @escaping () -> ()) {
       asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(Int(interval)), execute: block)
     }
 
-    public func disposableAfter(when interval: TimeValue, block: () -> ()) -> Disposable {
+    public func disposableAfter(when interval: TimeValue, block: @escaping () -> ()) -> Disposable {
       let disposable = SimpleDisposable()
       after(when: interval) {
         if !disposable.isDisposed {
@@ -182,11 +182,11 @@ public extension DispatchQueue {
 internal protocol Lock {
   func lock()
   func unlock()
-  func atomic<T>(body: @noescape () -> T) -> T
+  func atomic<T>(body: () -> T) -> T
 }
 
 internal extension Lock {
-  func atomic<T>(body: @noescape () -> T) -> T {
+  func atomic<T>(body: () -> T) -> T {
     lock(); defer { unlock() }
     return body()
   }

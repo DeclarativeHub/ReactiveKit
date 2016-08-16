@@ -23,19 +23,19 @@
 //
 
 internal class ObserverRegister<E: EventType> {
-  private typealias Token = Int64
-  private var nextToken: Token = 0
-  private(set) var observers: ContiguousArray<(E) -> Void> = []
+  fileprivate typealias Token = Int64
+  fileprivate var nextToken: Token = 0
+  fileprivate(set) var observers: ContiguousArray<(E) -> Void> = []
   
-  private var observerStorage: [Token: (E) -> Void] = [:] {
+  fileprivate var observerStorage: [Token: (E) -> Void] = [:] {
     didSet {
       observers = ContiguousArray(observerStorage.values)
     }
   }
 
-  private let tokenLock = SpinLock()
+  fileprivate let tokenLock = SpinLock()
 
-  func add(observer: (E) -> Void) -> Disposable {
+  func add(observer: @escaping (E) -> Void) -> Disposable {
     tokenLock.lock()
     let token = nextToken
     nextToken = nextToken + 1
@@ -57,9 +57,9 @@ public protocol RawSubjectType: ObserverType, RawStreamType {
 
 public final class PublishSubject<E: EventType>: ObserverRegister<E>, RawSubjectType {
 
-  private let lock = NSRecursiveLock(name: "ReactiveKit.PublishSubject")
-  private var completed = false
-  private var isUpdating = false
+  fileprivate let lock = NSRecursiveLock(name: "ReactiveKit.PublishSubject")
+  fileprivate var completed = false
+  fileprivate var isUpdating = false
 
   public override init() {
   }
@@ -74,7 +74,7 @@ public final class PublishSubject<E: EventType>: ObserverRegister<E>, RawSubject
     isUpdating = false
   }
 
-  public func observe(observer: (E) -> Void) -> Disposable {
+  public func observe(observer: @escaping (E) -> Void) -> Disposable {
     return add(observer: observer)
   }
 }
@@ -82,9 +82,9 @@ public final class PublishSubject<E: EventType>: ObserverRegister<E>, RawSubject
 public final class ReplaySubject<E: EventType>: ObserverRegister<E>, RawSubjectType {
 
   public let bufferSize: Int
-  private var buffer: ArraySlice<E> = []
-  private let lock = NSRecursiveLock(name: "ReactiveKit.ReplaySubject")
-  private var isUpdating = false
+  fileprivate var buffer: ArraySlice<E> = []
+  fileprivate let lock = NSRecursiveLock(name: "ReactiveKit.ReplaySubject")
+  fileprivate var isUpdating = false
 
   public init(bufferSize: Int = Int.max) {
     if bufferSize < Int.max {
@@ -105,14 +105,14 @@ public final class ReplaySubject<E: EventType>: ObserverRegister<E>, RawSubjectT
     isUpdating = false
   }
 
-  public func observe(observer: (E) -> Void) -> Disposable {
+  public func observe(observer: @escaping (E) -> Void) -> Disposable {
     return lock.atomic {
       buffer.forEach(observer)
       return add(observer: observer)
     }
   }
 
-  private var completed: Bool {
+  fileprivate var completed: Bool {
     if let lastEvent = buffer.last {
       return lastEvent.isTermination
     } else {
@@ -123,9 +123,9 @@ public final class ReplaySubject<E: EventType>: ObserverRegister<E>, RawSubjectT
 
 public final class ReplayOneSubject<E: EventType>: ObserverRegister<E>, RawSubjectType {
 
-  private var event: E? = nil
-  private let lock = NSRecursiveLock(name: "ReactiveKit.ReplayOneSubject")
-  private var isUpdating = false
+  fileprivate var event: E? = nil
+  fileprivate let lock = NSRecursiveLock(name: "ReactiveKit.ReplayOneSubject")
+  fileprivate var isUpdating = false
 
   public override init() {
   }
@@ -140,7 +140,7 @@ public final class ReplayOneSubject<E: EventType>: ObserverRegister<E>, RawSubje
     isUpdating = false
   }
 
-  public func observe(observer: (E) -> Void) -> Disposable {
+  public func observe(observer: @escaping (E) -> Void) -> Disposable {
     return lock.atomic {
       if let event = event {
         observer(event)
@@ -149,7 +149,7 @@ public final class ReplayOneSubject<E: EventType>: ObserverRegister<E>, RawSubje
     }
   }
 
-  private var completed: Bool {
+  fileprivate var completed: Bool {
     if let event = event {
       return event.isTermination
     } else {
@@ -159,10 +159,10 @@ public final class ReplayOneSubject<E: EventType>: ObserverRegister<E>, RawSubje
 }
 
 public final class AnySubject<E: EventType>: RawSubjectType {
-  private let baseObserve: ((E) -> Void) -> Disposable
-  private let baseOn: (E) -> Void
+  fileprivate let baseObserve: (@escaping (E) -> Void) -> Disposable
+  fileprivate let baseOn: (E) -> Void
 
-  public init<S: RawSubjectType where S.Event == E>(base: S) {
+  public init<S: RawSubjectType>(base: S) where S.Event == E {
     baseObserve = base.observe
     baseOn = base.on
   }
@@ -171,7 +171,7 @@ public final class AnySubject<E: EventType>: RawSubjectType {
     return baseOn(event)
   }
 
-  public func observe(observer: (E) -> Void) -> Disposable {
+  public func observe(observer: @escaping (E) -> Void) -> Disposable {
     return baseObserve(observer)
   }
 }

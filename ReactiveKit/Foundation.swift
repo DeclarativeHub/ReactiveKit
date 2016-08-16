@@ -30,7 +30,7 @@ extension NotificationCenter {
   public func rNotification(name: Notification.Name, object: AnyObject?) -> Stream<NSNotification> {
     return Stream { observer in
       let subscription = NotificationCenter.default.addObserver(forName: name, object: object, queue: nil, using: { notification in
-        observer.next(notification)
+        observer.next(notification as NSNotification)
       })
       return BlockDisposable {
         NotificationCenter.default.removeObserver(subscription)
@@ -48,7 +48,7 @@ public extension NSObject {
 
   /// Use this bag to dispose disposables upon the deallocation of the receiver.
   public var rBag: DisposeBag {
-    if let disposeBag: AnyObject = objc_getAssociatedObject(self, &AssociatedKeys.DisposeBagKey) {
+    if let disposeBag: AnyObject = objc_getAssociatedObject(self, &AssociatedKeys.DisposeBagKey) as AnyObject? {
       return disposeBag as! DisposeBag
     } else {
       let disposeBag = DisposeBag()
@@ -80,12 +80,12 @@ public extension NSObject {
   }
 
   /// Bind `stream` to `bindable` and dispose in `rBag` of receiver.
-  func bind<S: StreamType, B: BindableType where S.Element == B.Element>(stream: S, to bindable: B) {
+  func bind<S: StreamType, B: BindableType>(stream: S, to bindable: B) where S.Element == B.Element {
     stream.bindTo(bindable).disposeIn(rBag)
   }
 
   /// Bind `stream` to `bindable` and dispose in `rBag` of receiver.
-  func bind<S: StreamType, B: BindableType where B.Element: OptionalType, S.Element == B.Element.Wrapped>(stream: S, to bindable: B) {
+  func bind<S: StreamType, B: BindableType>(stream: S, to bindable: B) where B.Element: OptionalType, S.Element == B.Element.Wrapped {
     stream.bindTo(bindable).disposeIn(rBag)
   }
 
@@ -109,7 +109,7 @@ public extension NSObject {
         if let set = set {
           set(value)
         } else {
-          if let value = value as? AnyObject {
+          if let value = value as AnyObject? {
             self?.setValue(value, forKey: key)
           } else {
             self?.setValue(nil, forKey: key)
@@ -140,7 +140,7 @@ public extension NSObject {
         if let set = set {
           set(value)
         } else {
-          self?.setValue(value._unbox as! AnyObject?, forKey: key)
+          self?.setValue(value._unbox as AnyObject?, forKey: key)
         }
       }.disposeIn(rBag)
 
@@ -152,16 +152,16 @@ public extension NSObject {
 // MARK: - Implementations
 
 public class RKKeyValueStream<T>: NSObject, StreamType {
-  private var strongObject: NSObject? = nil
-  private weak var object: NSObject? = nil
-  private var context = 0
-  private var keyPath: String
-  private var options: NSKeyValueObservingOptions
-  private let transform: (AnyObject?) -> T?
-  private let subject: AnySubject<StreamEvent<T>>
-  private var numberOfObservers: Int = 0
+  fileprivate var strongObject: NSObject? = nil
+  fileprivate weak var object: NSObject? = nil
+  fileprivate var context = 0
+  fileprivate var keyPath: String
+  fileprivate var options: NSKeyValueObservingOptions
+  fileprivate let transform: @escaping (AnyObject?) -> T?
+  fileprivate let subject: AnySubject<StreamEvent<T>>
+  fileprivate var numberOfObservers: Int = 0
 
-  private init(keyPath: String, ofObject object: NSObject, sendInitial: Bool, retainStrongly: Bool, transform: (AnyObject?) -> T?) {
+  fileprivate init(keyPath: String, ofObject object: NSObject, sendInitial: Bool, retainStrongly: Bool, transform: @escaping (AnyObject?) -> T?) {
     self.keyPath = keyPath
     self.options = sendInitial ? NSKeyValueObservingOptions.new.union(.initial) : .new
     self.transform = transform
@@ -185,9 +185,9 @@ public class RKKeyValueStream<T>: NSObject, StreamType {
     print("deinit")
   }
 
-  public override func observeValue(forKeyPath keyPath: String?, of object: AnyObject?, change: [NSKeyValueChangeKey : AnyObject]?, context: UnsafeMutablePointer<Void>?) {
+  public override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
     if context == &self.context {
-      if let newValue = change?[NSKeyValueChangeKey.newKey] {
+      if let newValue = change?[NSKeyValueChangeKey.newKey] as AnyObject? {
         if let newValue = transform(newValue) {
           subject.next(newValue)
         } else {
@@ -201,14 +201,14 @@ public class RKKeyValueStream<T>: NSObject, StreamType {
     }
   }
 
-  private func increaseNumberOfObservers() {
+  fileprivate func increaseNumberOfObservers() {
     numberOfObservers += 1
     if numberOfObservers == 1 {
       object?.addObserver(self, forKeyPath: keyPath, options: options, context: &self.context)
     }
   }
 
-  private func decreaseNumberOfObservers() {
+  fileprivate func decreaseNumberOfObservers() {
     numberOfObservers -= 1
     if numberOfObservers == 0 {
       object?.removeObserver(self, forKeyPath: self.keyPath)

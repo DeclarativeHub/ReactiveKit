@@ -39,7 +39,7 @@ public struct Observer<Event: EventType>: ObserverType {
   internal let observer: (Event) -> Void
 
   /// Creates an observer that wraps given closure.
-  public init(observer: (Event) -> Void) {
+  public init(observer: @escaping (Event) -> Void) {
     self.observer = observer
   }
 
@@ -77,7 +77,7 @@ public final class ObserverWith<O: AnyObject, T>: ObserverType, BindableType {
   let observer: (O, T) -> Void
   public let disposeBag = DisposeBag()
 
-  public init(_ object: O, observer: (O, T) -> Void) {
+  public init(_ object: O, observer: @escaping (O, T) -> Void) {
     self.object = object
     self.observer = observer
   }
