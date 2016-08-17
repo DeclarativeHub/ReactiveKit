@@ -115,13 +115,13 @@ public protocol StreamType: _StreamType {
   /// Register an observer that will receive events from the stream. Registering
   /// an observer starts the stream. Disposing the returned disposable can
   /// be used to cancel (stop) the stream.
-  func observe(observer: (StreamEvent<Element>) -> Void) -> Disposable
+  func observe(observer: @escaping (StreamEvent<Element>) -> Void) -> Disposable
 }
 
 public extension StreamType {
 
   /// Transform the stream by transforming underlying raw stream.
-  public func lift<U>(transform: (RawStream<StreamEvent<Element>>) -> RawStream<StreamEvent<U>>) -> Stream<U> {
+  public func lift<U>(transform: @escaping (RawStream<StreamEvent<Element>>) -> RawStream<StreamEvent<U>>) -> Stream<U> {
     return Stream<U> { observer in
       return transform(self.rawStream).observe(observer: observer.observer)
     }
@@ -130,7 +130,7 @@ public extension StreamType {
   /// Register an observer that will receive events from the stream. Registering
   /// an observer starts the stream. Disposing the returned disposable can
   /// be used to cancel (stop) the stream.
-  public func observe(observer: (StreamEvent<Element>) -> Void) -> Disposable {
+  public func observe(observer: @escaping (StreamEvent<Element>) -> Void) -> Disposable {
     return rawStream.observe(observer: observer)
   }
 }
@@ -168,7 +168,7 @@ public struct Stream<T>: StreamType {
   }
 
   /// Create a new stream using a producer.
-  public init(producer: (Observer<Event>) -> Disposable) {
+  public init(producer: @escaping (Observer<Event>) -> Disposable) {
     rawStream = RawStream(producer: producer)
   }
 }
@@ -189,7 +189,7 @@ public extension Stream {
   }
 
   /// Create a stream that emits given sequence of elements and then completes.
-  public static func sequence<S: Sequence where S.Iterator.Element == Element>(_ sequence: S) -> Stream<Element> {
+  public static func sequence<S: Sequence>(_ sequence: S) -> Stream<Element> where S.Iterator.Element == Element {
     return Stream { observer in
       sequence.forEach(observer.next)
       observer.completed()
@@ -248,7 +248,7 @@ public extension StreamType {
 
   /// Map each event into a stream and then flatten those streams using
   /// the given flattening strategy.
-  public func flatMap<U: StreamType>(strategy: FlatMapStrategy, transform: (Element) -> U) -> Stream<U.Element> {
+  public func flatMap<U: StreamType>(strategy: FlatMapStrategy, transform: @escaping (Element) -> U) -> Stream<U.Element> {
     let transform: (Element) -> Stream<U.Element> = { transform($0).toStream() }
     switch strategy {
     case .Latest:
@@ -261,23 +261,23 @@ public extension StreamType {
   }
 
   /// Map each event into an stream and then flattens inner streams.
-  public func flatMapLatest<U: StreamType>(transform: (Element) -> U) -> Stream<U.Element> {
+  public func flatMapLatest<U: StreamType>(transform: @escaping (Element) -> U) -> Stream<U.Element> {
     return flatMap(strategy: .Latest, transform: transform)
   }
 
   /// Map each event into an stream and then flattens inner streams.
-  public func flatMapMerge<U: StreamType>(transform: (Element) -> U) -> Stream<U.Element> {
+  public func flatMapMerge<U: StreamType>(transform: @escaping (Element) -> U) -> Stream<U.Element> {
     return flatMap(strategy: .Merge, transform: transform)
   }
 
   /// Map each event into an stream and then flattens inner streams.
-  public func flatMapConcat<U: StreamType>(transform: (Element) -> U) -> Stream<U.Element> {
+  public func flatMapConcat<U: StreamType>(transform: @escaping (Element) -> U) -> Stream<U.Element> {
     return flatMap(strategy: .Concat, transform: transform)
   }
 
   /// Map each event into an operation and then flatten those operation using
   /// the given flattening strategy.
-  public func flatMap<U: OperationType>(strategy: FlatMapStrategy, transform: (Element) -> U) -> Operation<U.Element, U.ErrorType> {
+  public func flatMap<U: OperationType>(strategy: FlatMapStrategy, transform: @escaping (Element) -> U) -> Operation<U.Element, U.ErrorType> {
     let transform: (Element) -> Operation<U.Element, U.ErrorType> = { transform($0).toOperation() }
     switch strategy {
     case .Latest:
@@ -290,22 +290,22 @@ public extension StreamType {
   }
 
   /// Map each event into an operation and then flattens inner operations.
-  public func flatMapLatest<U: OperationType>(transform: (Element) -> U) -> Operation<U.Element, U.ErrorType> {
+  public func flatMapLatest<U: OperationType>(transform: @escaping (Element) -> U) -> Operation<U.Element, U.ErrorType> {
     return flatMap(strategy: .Latest, transform: transform)
   }
 
   /// Map each event into an operation and then flattens inner operations.
-  public func flatMapMerge<U: OperationType>(transform: (Element) -> U) -> Operation<U.Element, U.ErrorType> {
+  public func flatMapMerge<U: OperationType>(transform: @escaping (Element) -> U) -> Operation<U.Element, U.ErrorType> {
     return flatMap(strategy: .Merge, transform: transform)
   }
 
   /// Map each event into an operation and then flattens inner operations.
-  public func flatMapConcat<U: OperationType>(transform: (Element) -> U) -> Operation<U.Element, U.ErrorType> {
+  public func flatMapConcat<U: OperationType>(transform: @escaping (Element) -> U) -> Operation<U.Element, U.ErrorType> {
     return flatMap(strategy: .Concat, transform: transform)
   }
 
   /// Transform each element by applying `transform` on it.
-  public func map<U>(_ transform: (Element) -> U) -> Stream<U> {
+  public func map<U>(_ transform: @escaping (Element) -> U) -> Stream<U> {
     return lift { stream in
       stream.map { event in
         return event.map(transform)
@@ -320,7 +320,7 @@ public extension StreamType {
 
   /// Apply `combine` to each element starting with `initial` and emit each
   /// intermediate result. This differs from `reduce` which emits only final result.
-  public func scan<U>(_ initial: U, _ combine: (U, Element) -> U) -> Stream<U> {
+  public func scan<U>(_ initial: U, _ combine: @escaping (U, Element) -> U) -> Stream<U> {
     return lift { stream in
       return stream.scan(.Next(initial)) { memo, new in
         switch new {
@@ -334,7 +334,7 @@ public extension StreamType {
   }
 
   /// Transform each element by applying `transform` on it.
-  public func tryMap<U, ErrorType>(transform: (Element) -> Result<U, ErrorType>) -> Operation<U, ErrorType> {
+  public func tryMap<U, ErrorType>(transform: @escaping (Element) -> Result<U, ErrorType>) -> Operation<U, ErrorType> {
     return toOperation().tryMap(transform)
   }
 
@@ -373,7 +373,7 @@ extension StreamType {
   }
 
   /// Emit first element and then all elements that are not equal to their predecessor(s).
-  public func distinct(areDistinct: (Element, Element) -> Bool) -> Stream<Element> {
+  public func distinct(areDistinct: @escaping (Element, Element) -> Bool) -> Stream<Element> {
     return lift { $0.distinct(areDistinct: areDistinct) }
   }
 
@@ -383,7 +383,7 @@ extension StreamType {
   }
 
   /// Emit only elements that pass `include` test.
-  public func filter(include: (Element) -> Bool) -> Stream<Element> {
+  public func filter(include: @escaping (Element) -> Bool) -> Stream<Element> {
     return lift { $0.filter { $0.element.flatMap(include) ?? true } }
   }
 
@@ -500,7 +500,7 @@ extension StreamType {
   }
 
   /// Merge emissions from both source and `other` into one stream.
-  public func merge<S: StreamType where S.Element == Element>(with other: S) -> Stream<Element> {
+  public func merge<S: StreamType>(with other: S) -> Stream<Element> where S.Element == Element {
     return lift { $0.merge(with: other.rawStream) }
   }
 
@@ -608,7 +608,7 @@ extension StreamType {
   }
 
   /// Supress non-terminal events while last event generated on other stream is `false`.
-  public func pausable<S: _StreamType where S.Event.Element == Bool>(by other: S) -> Stream<Element> {
+  public func pausable<S: _StreamType>(by other: S) -> Stream<Element> where S.Event.Element == Bool {
     return lift { $0.pausable(by: other) }
   }
 }
@@ -618,17 +618,17 @@ extension StreamType {
 extension StreamType {
 
   /// Updates the given subject with `true` when the receiver starts and with `false` when the receiver terminates.
-  public func feedActivityInto<S: SubjectType where S.Event.Element == Bool>(listener: S) -> Stream<Element> {
+  public func feedActivityInto<S: SubjectType>(listener: S) -> Stream<Element> where S.Event.Element == Bool {
     return doOn(start: { listener.next(true) }, disposed: { listener.next(false) })
   }
 
   /// Updates the given subject with .Next elements.
-  public func feedNextInto<S: SubjectType where S.Event.Element == Element>(listener: S) -> Stream<Element> {
+  public func feedNextInto<S: SubjectType>(listener: S) -> Stream<Element> where S.Event.Element == Element {
     return doOn(next: { e in listener.next(e) })
   }
 
   /// Updates the given subject with mapped .Next element whenever the element satisfies the given constraint.
-  public func feedNextInto<S: SubjectType>(listener: S, when: (Element) -> Bool = { _ in true }, map: (Element) -> S.Event.Element) -> Stream<Element> {
+  public func feedNextInto<S: SubjectType>(listener: S, when: @escaping (Element) -> Bool = { _ in true }, map: @escaping (Element) -> S.Event.Element) -> Stream<Element> {
     return doOn(next: { e in if when(e) { listener.next(map(e)) } })
   }
 }
@@ -638,7 +638,7 @@ extension StreamType {
 extension StreamType {
 
   /// Propagate event only from a stream that starts emitting first.
-  public func amb<S: StreamType where S.Element == Element>(with other: S) -> Stream<Element> {
+  public func amb<S: StreamType>(with other: S) -> Stream<Element> where S.Element == Element {
     return lift { $0.amb(with: other.rawStream) }
   }
 
@@ -648,7 +648,7 @@ extension StreamType {
   }
 
   /// First emit events from source and then from `other` stream.
-  public func concat<S: StreamType where S.Element == Element>(with other: S) -> Stream<Element> {
+  public func concat<S: StreamType>(with other: S) -> Stream<Element> where S.Element == Element {
     return lift { stream in
       stream.concat(with: other.rawStream)
     }
@@ -660,7 +660,7 @@ extension StreamType {
   }
 
   /// Reduce elements to a single element by applying given function on each emission.
-  public func reduce<U>(_ initial: U, _ combine: (U, Element) -> U) -> Stream<U> {
+  public func reduce<U>(_ initial: U, _ combine: @escaping (U, Element) -> U) -> Stream<U> {
     return Stream<U> { observer in
       observer.next(initial)
       return self.scan(initial, combine).observe(observer: observer.observer)
@@ -865,19 +865,19 @@ public func zip
 public class ConnectableStream<T>: StreamType {
   public typealias Event = StreamEvent<T>
 
-  private let rawConnectableStream: RawConnectableStream<RawStream<Event>>
+  fileprivate let rawConnectableStream: RawConnectableStream<RawStream<Event>>
 
   public var rawStream: RawStream<StreamEvent<T>> {
     return rawConnectableStream.toRawStream()
   }
 
-  private init(rawConnectableStream: RawConnectableStream<RawStream<Event>>) {
+  fileprivate init(rawConnectableStream: RawConnectableStream<RawStream<Event>>) {
     self.rawConnectableStream = rawConnectableStream
   }
 
   /// Register an observer that will receive events from the stream.
   /// Note that the events will not be generated until `connect` is called.
-  public func observe(observer: (Event) -> Void) -> Disposable {
+  public func observe(observer: @escaping (Event) -> Void) -> Disposable {
     return rawConnectableStream.observe(observer: observer)
   }
 
@@ -902,8 +902,8 @@ public extension ConnectableStream {
 
 /// Represents a stream that can push events to registered observers at will.
 public class PushStream<T>: StreamType, SubjectType {
-  private let subject = PublishSubject<StreamEvent<T>>()
-  private let disposeBag = DisposeBag()
+  fileprivate let subject = PublishSubject<StreamEvent<T>>()
+  fileprivate let disposeBag = DisposeBag()
 
   public var rawStream: RawStream<StreamEvent<T>> {
     return subject.toRawStream()
@@ -934,7 +934,7 @@ extension StreamType {
   /// Establish a one-way binding between the source and the bindable's observer
   /// and return a disposable that can cancel binding.
   @discardableResult
-  public func bindTo<B: BindableType where B.Element == Element>(_ bindable: B) -> Disposable {
+  public func bindTo<B: BindableType>(_ bindable: B) -> Disposable where B.Element == Element {
     let disposable = SerialDisposable(otherDisposable: nil)
     let observer = bindable.observer(disconnectDisposable: disposable)
     disposable.otherDisposable = observe(observer: observer)
@@ -944,7 +944,7 @@ extension StreamType {
   /// Establish a one-way binding between the source and the bindable's observer
   /// and return a disposable that can cancel binding.
   @discardableResult
-  public func bindTo<B: BindableType where B.Element: OptionalType, B.Element.Wrapped == Element>(_ bindable: B) -> Disposable {
+  public func bindTo<B: BindableType>(_ bindable: B) -> Disposable where B.Element: OptionalType, B.Element.Wrapped == Element {
     let disposable = SerialDisposable(otherDisposable: nil)
     let observer = bindable.observer(disconnectDisposable: disposable)
     disposable.otherDisposable = observe { event in
