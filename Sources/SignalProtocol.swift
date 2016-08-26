@@ -1347,17 +1347,17 @@ extension SignalProtocol where Error == NoError {
   }
 
   /// Map each event into a signal and then flatten inner signals.
-  public func flatMapLatest<O: SignalProtocol>(transform: @escaping (Element) -> O) -> Signal<O.Element, Error> {
+  public func flatMapLatest<O: SignalProtocol>(transform: @escaping (Element) -> O) -> Signal<O.Element, O.Error> {
     return castError().flatMapLatest(transform: transform)
   }
 
   /// Map each event into a signal and then flatten inner signals.
-  public func flatMapMerge<O: SignalProtocol>(transform: @escaping (Element) -> O) -> Signal<O.Element, Error> {
+  public func flatMapMerge<O: SignalProtocol>(transform: @escaping (Element) -> O) -> Signal<O.Element, O.Error> {
     return castError().flatMapMerge(transform: transform)
   }
 
   /// Map each event into a signal and then flatten inner signals.
-  public func flatMapConcat<O: SignalProtocol>(transform: @escaping (Element) -> O) -> Signal<O.Element, Error>  {
+  public func flatMapConcat<O: SignalProtocol>(transform: @escaping (Element) -> O) -> Signal<O.Element, O.Error>  {
     return castError().flatMapConcat(transform: transform)
   }
 }
