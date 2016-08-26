@@ -2,7 +2,7 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:ReactiveKitPlayground.playground">
+      location = "group:Playground.playground">
    </FileRef>
    <FileRef
       location = "group:ReactiveKit.xcodeproj">
