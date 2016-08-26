@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0710"
+   LastUpgradeVersion = "0800"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -34,8 +34,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "ECBCCDD91BEB6B9B00723476"
-               BuildableName = "ReactiveKit-iOSTests.xctest"
-               BlueprintName = "ReactiveKit-iOSTests"
+               BuildableName = "ReactiveKit-Tests.xctest"
+               BlueprintName = "ReactiveKit-Tests"
                ReferencedContainer = "container:ReactiveKit.xcodeproj">
             </BuildableReference>
          </TestableReference>

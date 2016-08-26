@@ -23,75 +23,50 @@
 //
 
 /// Represents a type that receives events.
-public protocol ObserverType {
+public protocol ObserverProtocol {
 
-  /// Type of events being received.
-  associatedtype Event: EventType
+  /// Type of elements being received.
+  associatedtype Element
+
+  associatedtype Error: Swift.Error
 
   /// Sends given event to the observer.
-  func on(event: Event)
+  func on(_ event: Event<Element, Error>)
 }
 
 /// Represents a type that receives events. Observer is just a convenience
-/// wrapper around a closure that accepts an event of EventType.
-public struct Observer<Event: EventType>: ObserverType {
+/// wrapper around a closure that accepts an event.
+public struct Observer<Element, Error: Swift.Error>: ObserverProtocol {
 
-  internal let observer: Event -> Void
+  public let observer: (Event<Element, Error>) -> Void
 
   /// Creates an observer that wraps given closure.
-  public init(observer: Event -> Void) {
+  public init(observer: @escaping (Event<Element, Error>) -> Void) {
     self.observer = observer
   }
 
   /// Calles wrapped closure with given element.
-  public func on(event: Event) {
+  public func on(_ event: Event<Element, Error>) {
     observer(event)
   }
 }
 
 // MARK: - Extensions
 
-public extension ObserverType {
+public extension ObserverProtocol {
 
-  /// Convenience method to send `.Next` event.
-  public func next(element: Event.Element) {
+  /// Convenience method to send `.next` event.
+  public func next(_ element: Element) {
     on(.next(element))
   }
-  
-  /// Convenience method to send `.Completed` event.
+
+  /// Convenience method to send `.failed` event.
+  public func failed(_ error: Error) {
+    on(.failed(error))
+  }
+
+  /// Convenience method to send `.completed` event.
   public func completed() {
-    on(.completed())
-  }
-}
-
-public extension ObserverType where Event: Errorable {
-
-  /// Convenience method to send `.Failure` event.
-  public func failure(error: Event.Error) {
-    on(.failure(error))
-  }
-}
-
-public final class ObserverWith<O: AnyObject, T>: ObserverType, BindableType {
-  weak var object: O?
-  let observer: (O, T) -> Void
-  public let disposeBag = DisposeBag()
-
-  public init(_ object: O, observer: (O, T) -> Void) {
-    self.object = object
-    self.observer = observer
-  }
-
-  public func on(event: StreamEvent<T>) {
-    if case .Next(let element) = event, let object = object {
-      observer(object, element)
-    } else {
-      disposeBag.dispose()
-    }
-  }
-
-  public func observer(disconnectDisposable: Disposable) -> (StreamEvent<T> -> Void) {
-    disconnectDisposable.disposeIn(disposeBag)
-    return self.on
+    on(.completed)
   }
 }

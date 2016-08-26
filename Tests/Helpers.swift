@@ -9,47 +9,50 @@
 import XCTest
 @testable import ReactiveKit
 
-extension EventType {
+extension Event {
 
-  func isEqualTo<E: EventType where E.Element == Element>(event: E) -> Bool {
+  func isEqualTo(_ event: Event<Element, Error>) -> Bool {
 
-    if self.isCompletion && event.isCompletion {
+    switch (self, event) {
+    case (.completed, .completed):
       return true
-    } else if self.isFailure && event.isFailure {
+    case (.failed, .failed):
       return true
-    } else if let left = self.element, right = event.element {
-      if let left = left as? Int, right = right as? Int {
+    case (.next(let left), .next(let right)):
+      if let left = left as? Int, let right = right as? Int {
         return left == right
-      } else if let left = left as? [Int], right = right as? [Int] {
+      } else if let left = left as? [Int], let right = right as? [Int] {
         return left == right
-      } else if let left = left as? (Int?, Int), right = right as? (Int?, Int) {
+      } else if let left = left as? (Int?, Int), let right = right as? (Int?, Int) {
         return left.0 == right.0 && left.1 == right.1
-      } else if let left = left as? String, right = right as? String {
+      } else if let left = left as? String, let right = right as? String {
         return left == right
-      } else if let left = left as? [String], right = right as? [String] {
+      } else if let left = left as? [String], let right = right as? [String] {
         return left == right
-      } else if let left = left as? CollectionChangeset<[Int]>, right = right as? CollectionChangeset<[Int]> {
-        return left.collection == right.collection && left.inserts == right.inserts && left.updates == right.updates && left.deletes == right.deletes
-      } else if let left = left as? CollectionChangeset<[(String, Int)]>, right = right as? CollectionChangeset<[(String, Int)]> {
-        return left.collection == right.collection && left.inserts == right.inserts && left.updates == right.updates && left.deletes == right.deletes
       } else {
         fatalError("Cannot compare that element type. \(left)")
       }
-    } else {
-      return false
+    default:
+        return false
     }
   }
 }
 
-extension _StreamType {
+extension SignalProtocol {
 
-  func expectNext(expectedElements: [Event.Element], @autoclosure _ message: () -> String = "", expectation: XCTestExpectation? = nil, file: StaticString = #file, line: UInt = #line) {
-    expect(expectedElements.map { Event.next($0) } + [Event.completed()], message, expectation: expectation, file: file, line: line)
+  func expectNext(_ expectedElements: [Element],
+                  _ message: @autoclosure () -> String = "",
+                  expectation: XCTestExpectation? = nil,
+                  file: StaticString = #file, line: UInt = #line) {
+    expect(expectedElements.map { .next($0) } + [.completed], message, expectation: expectation, file: file, line: line)
   }
 
-  func expect(expectedEvents: [Event], @autoclosure _ message: () -> String = "", expectation: XCTestExpectation? = nil, file: StaticString = #file, line: UInt = #line) {
+  func expect(_ expectedEvents: [Event<Element, Error>],
+              _ message: @autoclosure () -> String = "",
+              expectation: XCTestExpectation? = nil,
+              file: StaticString = #file, line: UInt = #line) {
     var eventsToProcess = expectedEvents
-    var receivedEvents: [Event] = []
+    var receivedEvents: [Event<Element, Error>] = []
     let message = message()
     let _ = observe { event in
       receivedEvents.append(event)
@@ -59,7 +62,7 @@ extension _StreamType {
       }
       let expected = eventsToProcess.removeFirst()
       XCTAssert(event.isEqualTo(expected), message + "(Got \(receivedEvents) instead of \(expectedEvents))", file: file, line: line)
-      if event.isTermination {
+      if event.isTerminal {
         expectation?.fulfill()
       }
     }
@@ -71,7 +74,7 @@ class Scheduler {
   private var scheduledBlocks: [() -> Void] = []
   private(set) var numberOfRuns = 0
 
-  func context(block: () -> Void) {
+  func context(_ block: @escaping () -> Void) {
     self.scheduledBlocks.append(block)
     tryRun()
   }
@@ -83,12 +86,12 @@ class Scheduler {
   }
 
   func runRemaining() {
-    availableRuns += Int.max
+    availableRuns = Int.max
     tryRun()
   }
 
   private func tryRun() {
-    while  availableRuns > 0 && scheduledBlocks.count > 0 {
+    while availableRuns > 0 && scheduledBlocks.count > 0 {
       let block = scheduledBlocks.removeFirst()
       block()
       numberOfRuns += 1

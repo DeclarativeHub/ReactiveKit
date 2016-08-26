@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0710"
+   LastUpgradeVersion = "0800"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -16,7 +16,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "16C33B231BEFBA0100A0DBE0"
                BuildableName = "ReactiveKit.framework"
-               BlueprintName = "ReactiveKit-OSX"
+               BlueprintName = "ReactiveKit-macOS"
                ReferencedContainer = "container:ReactiveKit.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -47,7 +47,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "16C33B231BEFBA0100A0DBE0"
             BuildableName = "ReactiveKit.framework"
-            BlueprintName = "ReactiveKit-OSX"
+            BlueprintName = "ReactiveKit-macOS"
             ReferencedContainer = "container:ReactiveKit.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -65,7 +65,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "16C33B231BEFBA0100A0DBE0"
             BuildableName = "ReactiveKit.framework"
-            BlueprintName = "ReactiveKit-OSX"
+            BlueprintName = "ReactiveKit-macOS"
             ReferencedContainer = "container:ReactiveKit.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

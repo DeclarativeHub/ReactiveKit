@@ -22,44 +22,44 @@
 //  THE SOFTWARE.
 //
 
-public protocol ResultType {
+public protocol ResultProtocol {
   associatedtype Value
-  associatedtype Error: ErrorType
+  associatedtype Error: Swift.Error
 
   var value: Value? { get }
   var error: Error? { get }
 }
 
 /// An enum representing either a failure or a success.
-public enum Result<T, E: ErrorType>: CustomStringConvertible {
+public enum Result<T, E: Swift.Error>: CustomStringConvertible {
 
-  case Success(T)
-  case Failure(E)
+  case success(T)
+  case failure(E)
 
   /// Constructs a result with a success value.
   public init(value: T) {
-    self = .Success(value)
+    self = .success(value)
   }
 
   /// Constructs a result with an error.
   public init(error: E) {
-    self = .Failure(error)
+    self = .failure(error)
   }
 
   public var description: String {
     switch self {
-    case let .Success(value):
+    case let .success(value):
       return ".Success(\(value))"
-    case let .Failure(error):
+    case let .failure(error):
       return ".Failure(\(error))"
     }
   }
 }
 
-extension Result: ResultType {
+extension Result: ResultProtocol {
 
   public var value: T? {
-    if case .Success(let value) = self {
+    if case .success(let value) = self {
       return value
     } else {
       return nil
@@ -67,7 +67,7 @@ extension Result: ResultType {
   }
 
   public var error: E? {
-    if case .Failure(let error) = self {
+    if case .failure(let error) = self {
       return error
     } else {
       return nil

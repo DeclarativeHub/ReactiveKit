@@ -22,26 +22,25 @@
 //  THE SOFTWARE.
 //
 
-/// Represents a state as a stream of events.
-public protocol PropertyType {
+/// Represents mutable state that can be observed as a signal of events.
+public protocol PropertyProtocol {
   associatedtype ProperyElement
   var value: ProperyElement { get }
 }
 
-/// Represents a state as a stream of events.
-public final class Property<T>: PropertyType, StreamType, SubjectType {
+/// Represents mutable state that can be observed as a signal of events.
+public class Property<Value>: PropertyProtocol, SignalProtocol, SubjectProtocol, BindableProtocol {
 
-  private var _value: T
-  private let subject = PublishSubject<StreamEvent<T>>()
-  private let lock = RecursiveLock(name: "ReactiveKit.Property")
-  private let disposeBag = DisposeBag()
+  private var _value: Value
+  private let subject = PublishSubject<Value, NoError>()
+  private let lock = NSRecursiveLock(name: "ReactiveKit.Property")
 
-  public var rawStream: RawStream<StreamEvent<T>> {
-    return subject.toRawStream().startWith(.Next(value))
+  public var disposeBag: DisposeBag {
+    return subject.disposeBag
   }
 
-  /// Underlying value. Changing it emits `.Next` event with new value.
-  public var value: T {
+  /// Underlying value. Changing it emits `.next` event with new value.
+  public var value: Value {
     get {
       return lock.atomic { _value }
     }
@@ -53,23 +52,33 @@ public final class Property<T>: PropertyType, StreamType, SubjectType {
     }
   }
 
-  public func on(event: StreamEvent<T>) {
-    if let element = event.element {
+  public init(_ value: Value) {
+    _value = value
+  }
+
+  public func on(_ event: Event<Value, NoError>) {
+    if case .next(let element) = event {
       self._value = element
     }
     subject.on(event)
   }
 
-  public var readOnlyView: AnyProperty<T> {
+  public func observe(with observer: @escaping (Event<Value, NoError>) -> Void) -> Disposable {
+    observer(.next(value))
+    return subject.observe(with: observer)
+  }
+
+  public var readOnlyView: AnyProperty<Value> {
     return AnyProperty(property: self)
   }
 
-  public init(_ value: T) {
+  /// Change the underlying value withouth notifying the observers.
+  public func silentUpdate(value: Value) {
     _value = value
   }
 
-  public func silentUpdate(value: T) {
-    _value = value
+  public func bind(signal: Signal<Value, NoError>) -> Disposable {
+    return subject.bind(signal: signal)
   }
 
   deinit {
@@ -77,33 +86,20 @@ public final class Property<T>: PropertyType, StreamType, SubjectType {
   }
 }
 
-public final class AnyProperty<T>: PropertyType, StreamType {
+/// Represents mutable state that can be observed as a signal of events.
+public final class AnyProperty<Value>: PropertyProtocol, SignalProtocol {
 
-  private let property: Property<T>
+  private let property: Property<Value>
 
-  public var value: T {
+  public var value: Value {
     return property.value
   }
 
-  public var rawStream: RawStream<StreamEvent<T>> {
-    return property.rawStream
-  }
-
-  public init(property: Property<T>) {
+  public init(property: Property<Value>) {
     self.property = property
   }
-}
 
-extension Property: BindableType {
-  
-  /// Returns an observer that can be used to dispatch events to the receiver.
-  /// Can accept a disposable that will be disposed on receiver's deinit.
-  public func observer(disconnectDisposable: Disposable) -> StreamEvent<T> -> () {
-    disposeBag.addDisposable(disconnectDisposable)
-    return { [weak self] event in
-      if let value = event.element {
-        self?.value = value
-      }
-    }
+  public func observe(with observer: @escaping (Event<Value, NoError>) -> Void) -> Disposable {
+    return property.observe(with: observer)
   }
 }

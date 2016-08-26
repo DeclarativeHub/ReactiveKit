@@ -1,7 +1,7 @@
 //
 //  The MIT License (MIT)
 //
-//  Copyright (c) 2015 Srdan Rasic (@srdanrasic)
+//  Copyright (c) 2016 Srdan Rasic (@srdanrasic)
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -22,10 +22,15 @@
 //  THE SOFTWARE.
 //
 
-#import <Foundation/Foundation.h>
+public protocol OptionalProtocol {
+  associatedtype Wrapped
+  var _unbox: Optional<Wrapped> { get }
+  init(nilLiteral: ())
+  init(_ some: Wrapped)
+}
 
-//! Project version number for ReactiveKit.
-FOUNDATION_EXPORT double ReactiveKitVersionNumber;
-
-//! Project version string for ReactiveKit.
-FOUNDATION_EXPORT const unsigned char ReactiveKitVersionString[];
+extension Optional: OptionalProtocol {
+  public var _unbox: Optional<Wrapped> {
+    return self
+  }
+}

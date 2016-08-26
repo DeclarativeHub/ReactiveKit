@@ -2,15 +2,34 @@
 
 import ReactiveKit
 
-let numbers = CollectionProperty([2, 3, 1])
-
-let doubleNumbers = numbers.map { $0 * 2 }
-let evenNumbers = numbers.filter { $0 % 2 == 0 }
-let sortedNumbers = numbers.sort(<)
-
-sortedNumbers.observeNext { changeset in
-  print(changeset.collection)
+let s = SafeSignal<Int>.just(22)
+s.observeNext { i in
+  print(i)
 }
 
-numbers.insert(9, atIndex: 1)
-numbers.removeLast()
+//enum MyError: ErrorProtocol {
+//  case error(String)
+//}
+//
+//let i = Signal<Either<Int, MyError>> { observer in
+//  observer.next(1)
+//  observer.next(2)
+//  observer.failure(.error("hahaha"))
+//
+//  return notDisposable
+//}
+//
+//i.observeNext { e in
+//  print(e)
+//}
+//
+//i.observeError { error in
+//  print(error)
+//}
+//
+//i.observe { e in
+//  print(e)
+//}
+
+33
+333

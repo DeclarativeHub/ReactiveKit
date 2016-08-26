@@ -22,69 +22,50 @@
 //  THE SOFTWARE.
 //
 
-internal class ObserverRegister<E: EventType> {
-  private typealias Token = Int64
-  private var nextToken: Token = 0
-  private(set) var observers: ContiguousArray<E -> Void> = []
-  
-  private var observerStorage: [Token: E -> Void] = [:] {
-    didSet {
-      observers = ContiguousArray(observerStorage.values)
-    }
-  }
-
-  private let tokenLock = SpinLock()
-
-  func addObserver(observer: E -> Void) -> Disposable {
-    tokenLock.lock()
-    let token = nextToken
-    nextToken = nextToken + 1
-    tokenLock.unlock()
-
-    observerStorage[token] = observer
-
-    return BlockDisposable { [weak self] in
-      self?.observerStorage.removeValueForKey(token)
-    }
-  }
+/// A type that is both a signal and an observer.
+public protocol SubjectProtocol: SignalProtocol, ObserverProtocol {
 }
 
-public protocol SubjectType: ObserverType, _StreamType {
-}
+/// A type that is both a signal and an observer.
+public final class PublishSubject<Element, Error: Swift.Error>: ObserverRegister<(Event<Element, Error>) -> Void>, SubjectProtocol {
 
-public protocol RawSubjectType: ObserverType, RawStreamType {
-}
+  private let lock = NSRecursiveLock(name: "PublishSubject")
+  private var terminated = false
 
-public final class PublishSubject<E: EventType>: ObserverRegister<E>, RawSubjectType {
-
-  private let lock = RecursiveLock(name: "ReactiveKit.PublishSubject")
-  private var completed = false
-  private var isUpdating = false
+  public let disposeBag = DisposeBag()
 
   public override init() {
   }
 
-  public func on(event: E) {
-    guard !completed else { return }
-    lock.lock(); defer { lock.unlock() }
-    guard !isUpdating else { return }
-    isUpdating = true
-    completed = event.isTermination
-    observers.forEach { $0(event) }
-    isUpdating = false
+  public func on(_ event: Event<Element, Error>) {
+    lock.atomic {
+      guard !terminated else { return }
+      terminated = event.isTerminal
+      forEachObserver { $0(event) }
+    }
   }
 
-  public func observe(observer: E -> Void) -> Disposable {
-    return addObserver(observer)
+  public func observe(with observer: @escaping (Event<Element, Error>) -> Void) -> Disposable {
+    return add(observer: observer)
   }
 }
 
-public final class ReplaySubject<E: EventType>: ObserverRegister<E>, RawSubjectType {
+extension PublishSubject: BindableProtocol {
+  
+  public func bind(signal: Signal<Element, Error>) -> Disposable {
+    return signal.take(until: disposeBag.deallocated).observe(with: self.on)
+  }
+}
+
+public typealias PublishSubject1<Element> = PublishSubject<Element, NoError>
+
+public final class ReplaySubject<Element, Error: Swift.Error>: ObserverRegister<(Event<Element, Error>) -> Void>, SubjectProtocol {
+
+  private var buffer: ArraySlice<Event<Element, Error>> = []
+  private let lock = NSRecursiveLock(name: "ReactiveKit.ReplaySubject")
 
   public let bufferSize: Int
-  private var buffer: ArraySlice<E> = []
-  private let lock = RecursiveLock(name: "ReactiveKit.ReplaySubject")
-  private var isUpdating = false
+  public let disposeBag = DisposeBag()
 
   public init(bufferSize: Int = Int.max) {
     if bufferSize < Int.max {
@@ -94,94 +75,116 @@ public final class ReplaySubject<E: EventType>: ObserverRegister<E>, RawSubjectT
     }
   }
 
-  public func on(event: E) {
-    guard !completed else { return }
-    lock.lock(); defer { lock.unlock() }
-    guard !isUpdating else { return }
-    isUpdating = true
-    buffer.append(event)
-    buffer = buffer.suffix(bufferSize)
-    observers.forEach { $0(event) }
-    isUpdating = false
-  }
-
-  public func observe(observer: E -> Void) -> Disposable {
-    return lock.atomic {
-      buffer.forEach(observer)
-      return addObserver(observer)
+  public func on(_ event: Event<Element, Error>) {
+    lock.atomic {
+      guard !terminated else { return }
+      buffer.append(event)
+      buffer = buffer.suffix(bufferSize)
+      forEachObserver { $0(event) }
     }
   }
 
-  private var completed: Bool {
+  public func observe(with observer: @escaping (Event<Element, Error>) -> Void) -> Disposable {
+    return lock.atomic {
+      buffer.forEach(observer)
+      return add(observer: observer)
+    }
+  }
+
+  private var terminated: Bool {
     if let lastEvent = buffer.last {
-      return lastEvent.isTermination
+      return lastEvent.isTerminal
     } else {
       return false
     }
   }
 }
 
-public final class ReplayOneSubject<E: EventType>: ObserverRegister<E>, RawSubjectType {
+internal class _ReplayOneSubject<Element, Error: Swift.Error>: ObserverRegister<(Event<Element, Error>) -> Void>, SubjectProtocol {
 
-  private var event: E? = nil
-  private var terminatingEvent: E? = nil
-  private let lock = RecursiveLock(name: "ReactiveKit.ReplayOneSubject")
-  private var isUpdating = false
+  private var lastEvent: Event<Element, Error>? = nil
+  private var terminalEvent: Event<Element, Error>? = nil
+  private let lock = NSRecursiveLock(name: "ReplayOneSubject")
 
   public override init() {
   }
 
-  public func on(event: E) {
-    guard !completed else { return }
-    lock.lock(); defer { lock.unlock() }
-    guard !isUpdating else { return }
-    isUpdating = true
-    if event.isTermination {
-      self.terminatingEvent = event
-    } else {
-      self.event = event
+  public func on(_ event: Event<Element, Error>) {
+    lock.atomic {
+      guard terminalEvent == nil else { return }
+      if event.isTerminal {
+        terminalEvent = event
+      } else {
+        lastEvent = event
+      }
+      forEachObserver { $0(event) }
     }
-
-    observers.forEach { $0(event) }
-    isUpdating = false
   }
 
-  public func observe(observer: E -> Void) -> Disposable {
+  public func observe(with observer: @escaping (Event<Element, Error>) -> Void) -> Disposable {
     return lock.atomic {
-      if let event = event {
+      if let event = lastEvent {
         observer(event)
       }
-      if let event = terminatingEvent {
+      if let event = terminalEvent {
         observer(event)
       }
-      return addObserver(observer)
-    }
-  }
-
-  private var completed: Bool {
-    if let event = terminatingEvent {
-      return event.isTermination
-    } else {
-      return false
+      return add(observer: observer)
     }
   }
 }
 
-public final class AnySubject<E: EventType>: RawSubjectType {
-  private let baseObserve: (E -> Void) -> Disposable
-  private let baseOn: E -> Void
+public final class ReplayOneSubject<Element, Error: Swift.Error>: _ReplayOneSubject<Element, Error> {
+  public let disposeBag = DisposeBag()
+}
 
-  public init<S: RawSubjectType where S.Event == E>(base: S) {
+public final class AnySubject<Element, Error: Swift.Error>: SubjectProtocol {
+  private let baseObserve: (@escaping (Event<Element, Error>) -> Void) -> Disposable
+  private let baseOn: (Event<Element, Error>) -> Void
+
+  public let disposeBag = DisposeBag()
+
+  public init<S: SubjectProtocol>(base: S) where S.Element == Element, S.Error == Error {
     baseObserve = base.observe
     baseOn = base.on
   }
 
-  public func on(event: E) {
+  public func on(_ event: Event<Element, Error>) {
     return baseOn(event)
   }
 
-  public func observe(observer: E -> Void) -> Disposable {
+  public func observe(with observer: @escaping (Event<Element, Error>) -> Void) -> Disposable {
     return baseObserve(observer)
   }
 }
 
+// MARK: ObserverRegister
+
+private class ObserverRegister<Observer> {
+  private typealias Token = Int64
+  private var nextToken: Token = 0
+
+  private var observers: [Token: Observer] = [:]
+  private let tokenLock = SpinLock()
+
+  public init() {}
+
+  public func add(observer: Observer) -> Disposable {
+    tokenLock.lock()
+    let token = nextToken
+    nextToken = nextToken + 1
+    tokenLock.unlock()
+
+    observers[token] = observer
+
+    return BlockDisposable { [weak self] in
+      let _ = self?.observers.removeValue(forKey: token)
+    }
+  }
+
+  public func forEachObserver(_ execute: (Observer) -> Void) {
+    for (_, observer) in observers {
+      execute(observer)
+    }
+  }
+}
