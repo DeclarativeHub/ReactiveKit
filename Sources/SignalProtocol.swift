@@ -1327,3 +1327,37 @@ extension SignalProtocol {
     return with(latestFrom: other, combine: { ($0, $1) })
   }
 }
+
+extension SignalProtocol where Error == NoError {
+
+  /// Safe error casting from NoError to some Error type.
+  public func castError<E: Swift.Error>() -> Signal<Element, E> {
+    return Signal { observer in
+      return self.observe { event in
+        switch event {
+        case .next(let element):
+          observer.next(element)
+        case .completed:
+          observer.completed()
+        case .failed: // will never happen because of NoError constraint
+          break
+        }
+      }
+    }
+  }
+
+  /// Map each event into a signal and then flatten inner signals.
+  public func flatMapLatest<O: SignalProtocol>(transform: @escaping (Element) -> O) -> Signal<O.Element, Error> {
+    return castError().flatMapLatest(transform: transform)
+  }
+
+  /// Map each event into a signal and then flatten inner signals.
+  public func flatMapMerge<O: SignalProtocol>(transform: @escaping (Element) -> O) -> Signal<O.Element, Error> {
+    return castError().flatMapMerge(transform: transform)
+  }
+
+  /// Map each event into a signal and then flatten inner signals.
+  public func flatMapConcat<O: SignalProtocol>(transform: @escaping (Element) -> O) -> Signal<O.Element, Error>  {
+    return castError().flatMapConcat(transform: transform)
+  }
+}
