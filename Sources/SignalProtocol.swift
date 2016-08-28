@@ -1119,8 +1119,7 @@ public extension SignalProtocol where Element: SignalProtocol, Element.Error == 
 
 extension SignalProtocol {
 
-  /// Propagate events only from a signal that starts emitting first.
-  public func amb<O: SignalProtocol>(with other: O) -> Signal<Element, Error> where O.Element == Element, O.Error == Error {
+  fileprivate func _amb<O: SignalProtocol>(with other: O) -> Signal<Element, Error> where O.Element == Element, O.Error == Error {
     return Signal { observer in
       let lock = NSRecursiveLock(name: "amb")
       let disposable = (my: SerialDisposable(otherDisposable: nil), other: SerialDisposable(otherDisposable: nil))
@@ -1152,9 +1151,12 @@ extension SignalProtocol {
     }
   }
 
-  /// Emit a combination of latest elements from each signal. Starts when both signals emit at least one element,
-  /// and emits `.next` when either signal generates an element by calling `combine` on the two latest elements.
-  public func combineLatest<O: SignalProtocol, U>(with other: O, combine: @escaping (Element, O.Element) -> U) -> Signal<U, Error> where O.Error == Error {
+  /// Propagate events only from a signal that starts emitting first.
+  public func amb<O: SignalProtocol>(with other: O) -> Signal<Element, Error> where O.Element == Element, O.Error == Error {
+    return _amb(with: other)
+  }
+
+  fileprivate func _combineLatest<O: SignalProtocol, U>(with other: O, combine: @escaping (Element, O.Element) -> U) -> Signal<U, Error> where O.Error == Error {
     return Signal { observer in
       let lock = NSRecursiveLock(name: "combineLatestWith")
 
@@ -1209,10 +1211,16 @@ extension SignalProtocol {
     }
   }
 
+  /// Emit a combination of latest elements from each signal. Starts when both signals emit at least one element,
+  /// and emits `.next` when either signal generates an element by calling `combine` on the two latest elements.
+  public func combineLatest<O: SignalProtocol, U>(with other: O, combine: @escaping (Element, O.Element) -> U) -> Signal<U, Error> where O.Error == Error {
+    return _combineLatest(with: other, combine: combine)
+  }
+
   /// Emit a pair of latest elements from each signal. Starts when both signals emit at least one element,
   /// and emits `.next` when either signal generates an element.
   public func combineLatest<O: SignalProtocol>(with other: O) -> Signal<(Element, O.Element), Error> where O.Error == Error {
-    return combineLatest(with: other, combine: { ($0, $1) })
+    return _combineLatest(with: other, combine: { ($0, $1) })
   }
 
   /// Merge emissions from both the receiver and the other signal into one signal.
@@ -1220,9 +1228,7 @@ extension SignalProtocol {
     return Signal.sequence([self.toSignal(), other.toSignal()]).merge()
   }
 
-  /// Emit elements from the receiver and the other signal in pairs.
-  /// This differs from `combineLatest` in that the combinations are produced from elements at same positions.
-  public func zip<O: SignalProtocol, U>(with other: O, combine: @escaping (Element, O.Element) -> U) -> Signal<U, Error> where O.Error == Error {
+  fileprivate func _zip<O: SignalProtocol, U>(with other: O, combine: @escaping (Element, O.Element) -> U) -> Signal<U, Error> where O.Error == Error {
     return Signal { observer in
       let lock = NSRecursiveLock(name: "zip")
 
@@ -1280,14 +1286,18 @@ extension SignalProtocol {
   }
 
   /// Emit elements from the receiver and the other signal in pairs.
-  /// This differs from `combineLatest` in that the pairs are produced from elements at same positions.
-  public func zip<O: SignalProtocol>(with other: O) -> Signal<(Element, O.Element), Error> where O.Error == Error {
-    return zip(with: other, combine: { ($0, $1) })
+  /// This differs from `combineLatest` in that the combinations are produced from elements at same positions.
+  public func zip<O: SignalProtocol, U>(with other: O, combine: @escaping (Element, O.Element) -> U) -> Signal<U, Error> where O.Error == Error {
+    return _zip(with: other, combine: combine)
   }
 
-  /// Combines the receiver and the other signal into a signal of combinations of elements whenever the
-  /// receiver emits an element with the latest element from the other signal.
-  public func with<O: SignalProtocol, U>(latestFrom other: O, combine: @escaping (Element, O.Element) -> U) -> Signal<U, Error> where O.Error == Error {
+  /// Emit elements from the receiver and the other signal in pairs.
+  /// This differs from `combineLatest` in that the pairs are produced from elements at same positions.
+  public func zip<O: SignalProtocol>(with other: O) -> Signal<(Element, O.Element), Error> where O.Error == Error {
+    return _zip(with: other, combine: { ($0, $1) })
+  }
+
+  fileprivate func _with<O: SignalProtocol, U>(latestFrom other: O, combine: @escaping (Element, O.Element) -> U) -> Signal<U, Error> where O.Error == Error {
     return Signal { observer in
 
       var latest: O.Element? = nil
@@ -1321,10 +1331,16 @@ extension SignalProtocol {
     }
   }
 
+  /// Combines the receiver and the other signal into a signal of combinations of elements whenever the
+  /// receiver emits an element with the latest element from the other signal.
+  public func with<O: SignalProtocol, U>(latestFrom other: O, combine: @escaping (Element, O.Element) -> U) -> Signal<U, Error> where O.Error == Error {
+    return _with(latestFrom: other, combine: combine)
+  }
+
   /// Combines the receiver and the other signal into a signal of pairs of elements whenever the
   /// receiver emits an element with the latest element from the other signal.
   public func with<O: SignalProtocol>(latestFrom other: O) -> Signal<(Element, O.Element), Error> where O.Error == Error {
-    return with(latestFrom: other, combine: { ($0, $1) })
+    return _with(latestFrom: other, combine: { ($0, $1) })
   }
 }
 
@@ -1339,8 +1355,8 @@ extension SignalProtocol where Error == NoError {
           observer.next(element)
         case .completed:
           observer.completed()
-        case .failed: // will never happen because of NoError constraint
-          break
+        case .failed:
+          break // will never happen because of NoError constraint
         }
       }
     }
@@ -1348,16 +1364,83 @@ extension SignalProtocol where Error == NoError {
 
   /// Map each event into a signal and then flatten inner signals.
   public func flatMapLatest<O: SignalProtocol>(transform: @escaping (Element) -> O) -> Signal<O.Element, O.Error> {
-    return castError().flatMapLatest(transform: transform)
+    return castError().map(transform).switchToLatest()
   }
 
   /// Map each event into a signal and then flatten inner signals.
   public func flatMapMerge<O: SignalProtocol>(transform: @escaping (Element) -> O) -> Signal<O.Element, O.Error> {
-    return castError().flatMapMerge(transform: transform)
+    return castError().map(transform).merge()
   }
 
   /// Map each event into a signal and then flatten inner signals.
   public func flatMapConcat<O: SignalProtocol>(transform: @escaping (Element) -> O) -> Signal<O.Element, O.Error>  {
-    return castError().flatMapConcat(transform: transform)
+    return castError().map(transform).concat()
+  }
+
+  /// Transform each element by applying `transform` on it.
+  public func tryMap<U, E: Swift.Error>(transform: @escaping (Element) -> Result<U, E>) -> Signal<U, E> {
+    return Signal { observer in
+      return self.observe { event in
+        switch event {
+        case .next(let element):
+          switch transform(element) {
+          case .success(let value):
+            observer.next(value)
+          case .failure(let error):
+            observer.failed(error)
+          }
+        case .failed:
+          break  // will never happen because of NoError constraint
+        case .completed:
+          observer.completed()
+        }
+      }
+    }
+  }
+
+  /// Propagate events only from a signal that starts emitting first.
+  public func amb<O: SignalProtocol>(with other: O) -> Signal<Element, O.Error> where O.Element == Element {
+    return castError()._amb(with: other)
+  }
+
+  /// Emit a combination of latest elements from each signal. Starts when both signals emit at least one element,
+  /// and emits `.next` when either signal generates an element by calling `combine` on the two latest elements.
+  public func combineLatest<O: SignalProtocol, U>(with other: O, combine: @escaping (Element, O.Element) -> U) -> Signal<U, O.Error> {
+    return castError()._combineLatest(with: other, combine: combine)
+  }
+
+  /// Emit a pair of latest elements from each signal. Starts when both signals emit at least one element,
+  /// and emits `.next` when either signal generates an element.
+  public func combineLatest<O: SignalProtocol>(with other: O) -> Signal<(Element, O.Element), O.Error> {
+    return castError()._combineLatest(with: other, combine: { ($0, $1) })
+  }
+
+  /// Merge emissions from both the receiver and the other signal into one signal.
+  public func merge<O: SignalProtocol>(with other: O) -> Signal<Element, O.Error> where O.Element == Element {
+    return Signal.sequence([toSignal().castError(), other.toSignal()]).merge()
+  }
+
+  /// Emit elements from the receiver and the other signal in pairs.
+  /// This differs from `combineLatest` in that the combinations are produced from elements at same positions.
+  public func zip<O: SignalProtocol, U>(with other: O, combine: @escaping (Element, O.Element) -> U) -> Signal<U, O.Error> {
+    return castError()._zip(with: other, combine: combine)
+  }
+
+  /// Emit elements from the receiver and the other signal in pairs.
+  /// This differs from `combineLatest` in that the pairs are produced from elements at same positions.
+  public func zip<O: SignalProtocol>(with other: O) -> Signal<(Element, O.Element), O.Error> {
+    return castError()._zip(with: other, combine: { ($0, $1) })
+  }
+
+  /// Combines the receiver and the other signal into a signal of combinations of elements whenever the
+  /// receiver emits an element with the latest element from the other signal.
+  public func with<O: SignalProtocol, U>(latestFrom other: O, combine: @escaping (Element, O.Element) -> U) -> Signal<U, O.Error> {
+    return castError()._with(latestFrom: other, combine: combine)
+  }
+
+  /// Combines the receiver and the other signal into a signal of pairs of elements whenever the
+  /// receiver emits an element with the latest element from the other signal.
+  public func with<O: SignalProtocol>(latestFrom other: O) -> Signal<(Element, O.Element), O.Error> {
+    return castError()._with(latestFrom: other, combine: { ($0, $1) })
   }
 }

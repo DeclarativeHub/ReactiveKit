@@ -36,12 +36,14 @@ extension SignalProtocol {
 
   /// Establish a one-way binding between the source and the bindable
   /// and return a disposable that can cancel binding.
+  @discardableResult
   public func bind<B: BindableProtocol>(to bindable: B) -> Disposable where B.Element == Element, B.Error == Error {
     return bindable.bind(signal: filterRecursiveEvents())
   }
 
   /// Establish a one-way binding between the source and the bindable
   /// and return a disposable that can cancel binding.
+  @discardableResult
   public func bind<B: BindableProtocol>(to bindable: B) -> Disposable where B.Element: OptionalProtocol, B.Element.Wrapped == Element, B.Error == Error {
     return self.map { B.Element($0) }.bind(to: bindable)
   }
@@ -51,6 +53,7 @@ extension BindableProtocol where Self: SignalProtocol {
 
   /// Establish a two-way binding between the source and the bindable
   /// and return a disposable that can cancel binding.
+  @discardableResult
   public func bidirectionalBind<B: BindableProtocol >(to bindable: B) -> Disposable where B: SignalProtocol, B.Element == Element, B.Error == Error {
     let d1 = self.bind(to: bindable)
     let d2 = bindable.bind(to: self)
