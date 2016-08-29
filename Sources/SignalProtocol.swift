@@ -42,7 +42,7 @@ public protocol SignalProtocol {
 extension SignalProtocol {
 
   /// Register an observer that will receive elements from `.next` events of the signal.
-  public func observeNext(observer: @escaping (Element) -> Void) -> Disposable {
+  public func observeNext(with observer: @escaping (Element) -> Void) -> Disposable {
     return observe { event in
       if case .next(let element) = event {
         observer(element)
@@ -51,7 +51,7 @@ extension SignalProtocol {
   }
 
   /// Register an observer that will receive elements from `.failed` events of the signal.
-  public func observeFailed(observer: @escaping (Error) -> Void) -> Disposable {
+  public func observeFailed(with observer: @escaping (Error) -> Void) -> Disposable {
     return observe { event in
       if case .failed(let error) = event {
         observer(error)
@@ -60,7 +60,7 @@ extension SignalProtocol {
   }
 
   /// Register an observer that will be executed on `.completed` event.
-  public func observeCompleted(observer: @escaping () -> Void) -> Disposable {
+  public func observeCompleted(with observer: @escaping () -> Void) -> Disposable {
     return observe { event in
       if case .completed = event {
         observer()
