@@ -679,7 +679,7 @@ extension SignalProtocol {
 
   /// Set the execution context in which to execute the signal (i.e. in which to run
   /// the signal's producer).
-  public func executeIn(_ context: ExecutionContext) -> Signal<Element, Error> {
+  public func executeIn(_ context: @escaping ExecutionContext) -> Signal<Element, Error> {
     return Signal { observer in
       let serialDisposable = SerialDisposable(otherDisposable: nil)
       context {
@@ -766,7 +766,7 @@ extension SignalProtocol {
 
   /// Set the execution context in which to dispatch events (i.e. in which to run
   /// observers).
-  public func observeIn(_ context: ExecutionContext) -> Signal<Element, Error> {
+  public func observeIn(_ context: @escaping ExecutionContext) -> Signal<Element, Error> {
     return Signal { observer in
       return self.observe { event in
         context {
