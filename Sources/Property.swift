@@ -22,6 +22,8 @@
 //  THE SOFTWARE.
 //
 
+import Foundation
+
 /// Represents mutable state that can be observed as a signal of events.
 public protocol PropertyProtocol {
   associatedtype ProperyElement

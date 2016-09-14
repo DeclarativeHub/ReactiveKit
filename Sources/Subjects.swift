@@ -22,6 +22,8 @@
 //  THE SOFTWARE.
 //
 
+import Foundation
+
 /// A type that is both a signal and an observer.
 public protocol SubjectProtocol: SignalProtocol, ObserverProtocol {
 }

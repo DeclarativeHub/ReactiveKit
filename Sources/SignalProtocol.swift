@@ -22,6 +22,9 @@
 //  THE SOFTWARE.
 //
 
+import Dispatch
+import Foundation
+
 // MARK: - SignalProtocol
 
 /// A Signal represents a stream of elements.

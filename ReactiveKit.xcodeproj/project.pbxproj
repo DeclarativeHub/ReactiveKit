@@ -15,7 +15,6 @@
 		164189791D2C4E71001D3881 /* Optional.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164189771D2C4E71001D3881 /* Optional.swift */; };
 		1641897A1D2C4E71001D3881 /* Optional.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164189771D2C4E71001D3881 /* Optional.swift */; };
 		1641897B1D2C4E71001D3881 /* Optional.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164189771D2C4E71001D3881 /* Optional.swift */; };
-		1643CA151D6DFFF6002E3AC7 /* SignalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65A0B21CBFEE4D00B41FA7 /* SignalTests.swift */; };
 		165EBE321D27F8BC000E68C8 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 165EBE311D27F8BC000E68C8 /* Event.swift */; };
 		165EBE331D27F8BC000E68C8 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 165EBE311D27F8BC000E68C8 /* Event.swift */; };
 		165EBE341D27F8BC000E68C8 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 165EBE311D27F8BC000E68C8 /* Event.swift */; };
@@ -40,7 +39,6 @@
 		165EBE5C1D2804FF000E68C8 /* Signal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 165EBE5A1D2804FF000E68C8 /* Signal.swift */; };
 		165EBE5D1D2804FF000E68C8 /* Signal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 165EBE5A1D2804FF000E68C8 /* Signal.swift */; };
 		165EBE5E1D2804FF000E68C8 /* Signal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 165EBE5A1D2804FF000E68C8 /* Signal.swift */; };
-		168103461D046388007D1DD4 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168103441D046388007D1DD4 /* Helpers.swift */; };
 		16886A1B1D3168E000D83E39 /* Connectable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16886A191D3168E000D83E39 /* Connectable.swift */; };
 		16886A1C1D3168E000D83E39 /* Connectable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16886A191D3168E000D83E39 /* Connectable.swift */; };
 		16886A1D1D3168E000D83E39 /* Connectable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16886A191D3168E000D83E39 /* Connectable.swift */; };
@@ -74,6 +72,8 @@
 		EC8706671D3CDDAA0068B589 /* Property.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8A99E11CABD9B50042A6AD /* Property.swift */; };
 		ECBCCDD41BEB6B9A00723476 /* ReactiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		ECBCCDDB1BEB6B9B00723476 /* ReactiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ECBCCDD01BEB6B9A00723476 /* ReactiveKit.framework */; };
+		ECD102FF1D89B2530086B6A1 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD102FD1D89B2530086B6A1 /* Helpers.swift */; };
+		ECD103001D89B2530086B6A1 /* SignalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD102FE1D89B2530086B6A1 /* SignalTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -94,7 +94,6 @@
 		165EBE5A1D2804FF000E68C8 /* Signal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Signal.swift; path = Sources/Signal.swift; sourceTree = SOURCE_ROOT; };
 		1671707E1BF4F62A001786CE /* ReactiveKit.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReactiveKit.podspec; sourceTree = SOURCE_ROOT; };
 		1671707F1BF4F64E001786CE /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; lineEnding = 0; path = README.md; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.markdown; };
-		168103441D046388007D1DD4 /* Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Helpers.swift; path = Tests/Helpers.swift; sourceTree = SOURCE_ROOT; };
 		16886A191D3168E000D83E39 /* Connectable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Connectable.swift; path = Sources/Connectable.swift; sourceTree = SOURCE_ROOT; };
 		16886A221D31705500D83E39 /* Bindable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Bindable.swift; path = Sources/Bindable.swift; sourceTree = SOURCE_ROOT; };
 		16C33AF91BEFB72500A0DBE0 /* ReactiveKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -102,7 +101,6 @@
 		16C33B241BEFBA0100A0DBE0 /* ReactiveKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		16F2F5661D6D8A4500B85896 /* Lock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Lock.swift; path = Sources/Lock.swift; sourceTree = SOURCE_ROOT; };
 		16F2F56B1D6D924B00B85896 /* SignalProtocol+Arities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "SignalProtocol+Arities.swift"; path = "Sources/SignalProtocol+Arities.swift"; sourceTree = SOURCE_ROOT; };
-		EC65A0B21CBFEE4D00B41FA7 /* SignalTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SignalTests.swift; path = Tests/SignalTests.swift; sourceTree = SOURCE_ROOT; };
 		EC7A6F881D3CCF5B00F9EF4A /* NoError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NoError.swift; path = Sources/NoError.swift; sourceTree = SOURCE_ROOT; };
 		EC8A99DC1CABD9B50042A6AD /* Disposable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Disposable.swift; path = Sources/Disposable.swift; sourceTree = SOURCE_ROOT; };
 		EC8A99DF1CABD9B50042A6AD /* Observer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Observer.swift; path = Sources/Observer.swift; sourceTree = SOURCE_ROOT; };
@@ -113,8 +111,10 @@
 		ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ReactiveKit.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		ECBCCDD51BEB6B9A00723476 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		ECBCCDDA1BEB6B9B00723476 /* ReactiveKit-Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ReactiveKit-Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		ECBCCDE11BEB6B9B00723476 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		ECCC81C51CDF4D5900019ECF /* Result.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Result.swift; path = Sources/Result.swift; sourceTree = SOURCE_ROOT; };
+		ECD102FD1D89B2530086B6A1 /* Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
+		ECD102FE1D89B2530086B6A1 /* SignalTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalTests.swift; sourceTree = "<group>"; };
+		ECD103011D89B2610086B6A1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = ReactiveKitTests/Info.plist; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -164,7 +164,6 @@
 				1671707E1BF4F62A001786CE /* ReactiveKit.podspec */,
 				162CB7461CB451D200FB6375 /* Package.swift */,
 				ECBCCDD21BEB6B9A00723476 /* ReactiveKit */,
-				ECBCCDDE1BEB6B9B00723476 /* ReactiveKitTests */,
 				ECBCCDD11BEB6B9A00723476 /* Products */,
 			);
 			indentWidth = 2;
@@ -203,16 +202,25 @@
 				ECCC81C51CDF4D5900019ECF /* Result.swift */,
 				164189771D2C4E71001D3881 /* Optional.swift */,
 				EC8A99E11CABD9B50042A6AD /* Property.swift */,
+				ECD102FB1D89B2530086B6A1 /* Tests */,
 			);
 			path = ReactiveKit;
 			sourceTree = "<group>";
 		};
-		ECBCCDDE1BEB6B9B00723476 /* ReactiveKitTests */ = {
+		ECD102FB1D89B2530086B6A1 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
-				EC65A0B21CBFEE4D00B41FA7 /* SignalTests.swift */,
-				168103441D046388007D1DD4 /* Helpers.swift */,
-				ECBCCDE11BEB6B9B00723476 /* Info.plist */,
+				ECD103011D89B2610086B6A1 /* Info.plist */,
+				ECD102FC1D89B2530086B6A1 /* ReactiveKitTests */,
+			);
+			path = Tests;
+			sourceTree = SOURCE_ROOT;
+		};
+		ECD102FC1D89B2530086B6A1 /* ReactiveKitTests */ = {
+			isa = PBXGroup;
+			children = (
+				ECD102FD1D89B2530086B6A1 /* Helpers.swift */,
+				ECD102FE1D89B2530086B6A1 /* SignalTests.swift */,
 			);
 			path = ReactiveKitTests;
 			sourceTree = "<group>";
@@ -529,8 +537,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				168103461D046388007D1DD4 /* Helpers.swift in Sources */,
-				1643CA151D6DFFF6002E3AC7 /* SignalTests.swift in Sources */,
+				ECD102FF1D89B2530086B6A1 /* Helpers.swift in Sources */,
+				ECD103001D89B2530086B6A1 /* SignalTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

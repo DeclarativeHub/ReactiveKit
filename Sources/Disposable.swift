@@ -22,6 +22,8 @@
 //  THE SOFTWARE.
 //
 
+import Foundation
+
 /// Objects conforming to this protocol dispose (cancel) signals and operations.
 public protocol Disposable {
 

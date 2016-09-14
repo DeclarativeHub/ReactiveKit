@@ -22,6 +22,7 @@
 //  THE SOFTWARE.
 //
 
+import Foundation
 import Dispatch
 
 /// Represents a context that can execute given block.
