@@ -80,7 +80,7 @@ public class Property<Value>: PropertyProtocol, SignalProtocol, SubjectProtocol,
   }
 
   public func bind(signal: Signal<Value, NoError>) -> Disposable {
-    return subject.bind(signal: signal)
+    return signal.take(until: disposeBag.deallocated).observe(with: on)
   }
 
   deinit {

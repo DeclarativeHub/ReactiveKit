@@ -55,7 +55,7 @@ public final class PublishSubject<Element, Error: Swift.Error>: ObserverRegister
 extension PublishSubject: BindableProtocol {
   
   public func bind(signal: Signal<Element, Error>) -> Disposable {
-    return signal.take(until: disposeBag.deallocated).observe(with: self.on)
+    return signal.take(until: disposeBag.deallocated).observe(with: on)
   }
 }
 
