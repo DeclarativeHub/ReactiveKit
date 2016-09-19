@@ -557,7 +557,7 @@ extension StreamType {
 
   /// Set the execution context in which to execute the stream (i.e. in which to run
   /// the stream's producer).
-  public func executeIn(_ context: ExecutionContext) -> Stream<Element> {
+  public func executeIn(_ context: @escaping ExecutionContext) -> Stream<Element> {
     return lift { $0.executeIn(context) }
   }
 
@@ -603,7 +603,7 @@ extension StreamType {
   }
 
   /// Set the execution context in which to dispatch events (i.e. in which to run observers).
-  public func observeIn(_ context: ExecutionContext) -> Stream<Element> {
+  public func observeIn(_ context: @escaping ExecutionContext) -> Stream<Element> {
     return lift { $0.observeIn(context) }
   }
 

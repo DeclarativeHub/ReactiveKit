@@ -622,7 +622,7 @@ public extension RawStreamType {
 
   /// Set the execution context in which to execute the stream (i.e. in which to run
   /// stream's producer).
-  public func executeIn(_ context: ExecutionContext) -> RawStream<Event> {
+  public func executeIn(_ context: @escaping ExecutionContext) -> RawStream<Event> {
     return RawStream { observer in
       let serialDisposable = SerialDisposable(otherDisposable: nil)
       context {
@@ -649,7 +649,7 @@ public extension RawStreamType {
 
   /// Set the execution context in which to dispatch events (i.e. in which to run
   /// observers).
-  public func observeIn(_ context: ExecutionContext) -> RawStream<Event> {
+  public func observeIn(_ context: @escaping ExecutionContext) -> RawStream<Event> {
     return RawStream { observer in
       return self.observe { event in
         context {

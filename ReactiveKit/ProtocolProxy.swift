@@ -36,7 +36,7 @@ public class ProtocolProxy: RKProtocolProxyBase {
     return invokers[selector] != nil
   }
 
-  public override func invoke(_ selector: Selector, argumentExtractor: @escaping (Int, UnsafeMutableRawPointer?) -> Swift.Void, setReturnValue: (@escaping (UnsafeMutableRawPointer?) -> Swift.Void)? = nil) {
+  public override func invoke(_ selector: Selector, argumentExtractor: @escaping (Int, UnsafeMutableRawPointer?) -> Swift.Void, setReturnValue: ((UnsafeMutableRawPointer?) -> Swift.Void)? = nil) {
     guard let invoker = invokers[selector] else { return }
     invoker(argumentExtractor, setReturnValue)
   }

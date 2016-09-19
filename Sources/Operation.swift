@@ -755,7 +755,7 @@ extension OperationType {
 
   /// Set the execution context in which to execute the operation (i.e. in which to run
   /// the operation's producer).
-  public func executeIn(_ context: ExecutionContext) -> Operation<Element, ErrorType> {
+  public func executeIn(_ context: @escaping ExecutionContext) -> Operation<Element, ErrorType> {
     return lift { $0.executeIn(context) }
   }
 
@@ -807,7 +807,7 @@ extension OperationType {
   }
 
   /// Set the execution context in which to dispatch events (i.e. in which to run observers).
-  public func observeIn(_ context: ExecutionContext) -> Operation<Element, ErrorType> {
+  public func observeIn(_ context: @escaping ExecutionContext) -> Operation<Element, ErrorType> {
     return lift { $0.observeIn(context) }
   }
 

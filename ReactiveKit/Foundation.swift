@@ -157,7 +157,7 @@ public class RKKeyValueStream<T>: NSObject, StreamType {
   fileprivate var context = 0
   fileprivate var keyPath: String
   fileprivate var options: NSKeyValueObservingOptions
-  fileprivate let transform: @escaping (AnyObject?) -> T?
+  fileprivate let transform: (AnyObject?) -> T?
   fileprivate let subject: AnySubject<StreamEvent<T>>
   fileprivate var numberOfObservers: Int = 0
 
