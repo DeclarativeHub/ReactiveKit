@@ -878,7 +878,7 @@ extension SignalProtocol {
     }
   }
 
-  /// Emit default element is signal completes without emitting any element.
+  /// Emit default element if signal completes without emitting any element.
   public func defaultIfEmpty(_ element: Element) -> Signal<Element, Error> {
     return Signal { observer in
       var didEmitNonTerminal = false

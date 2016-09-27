@@ -54,7 +54,7 @@ extension BindableProtocol where Self: SignalProtocol {
   /// Establish a two-way binding between the source and the bindable
   /// and return a disposable that can cancel binding.
   @discardableResult
-  public func bidirectionalBind<B: BindableProtocol >(to bindable: B) -> Disposable where B: SignalProtocol, B.Element == Element, B.Error == Error {
+  public func bidirectionalBind<B: BindableProtocol & SignalProtocol>(to bindable: B) -> Disposable where B.Element == Element, B.Error == Error {
     let d1 = self.bind(to: bindable)
     let d2 = bindable.bind(to: self)
     return CompositeDisposable([d1, d2])
