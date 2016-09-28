@@ -100,7 +100,7 @@ public class DeinitDisposable: Disposable {
   }
 
   deinit {
-    otherDisposable?.dispose()
+    dispose()
   }
 }
 
