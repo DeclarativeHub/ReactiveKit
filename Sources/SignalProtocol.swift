@@ -655,6 +655,14 @@ public extension SignalProtocol where Element: Equatable {
   }
 }
 
+public extension SignalProtocol where Element: OptionalProtocol, Element.Wrapped: Equatable {
+  
+  /// Emit first element and then all elements that are not equal to their predecessor(s).
+  public func distinct() -> Signal<Element, Error> {
+    return distinct(areDistinct: !=)
+  }
+}
+
 public extension SignalProtocol where Element: OptionalProtocol {
 
   /// Suppress all `nil`-elements.
