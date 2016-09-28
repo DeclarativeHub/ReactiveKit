@@ -80,7 +80,10 @@ public class Property<Value>: PropertyProtocol, SignalProtocol, SubjectProtocol,
   }
 
   public func bind(signal: Signal<Value, NoError>) -> Disposable {
-    return signal.take(until: disposeBag.deallocated).observe(with: on)
+    return signal.take(until: disposeBag.deallocated).observe { [weak self] event in
+      guard let s = self else { return }
+      s.on(event)
+    }
   }
 
   deinit {
