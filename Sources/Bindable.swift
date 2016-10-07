@@ -44,8 +44,8 @@ extension SignalProtocol {
   /// Establish a one-way binding between the source and the bindable
   /// and return a disposable that can cancel binding.
   @discardableResult
-  public func bind<B: BindableProtocol>(to bindable: B) -> Disposable where B.Element: OptionalProtocol, B.Element.Wrapped == Element, B.Error == Error {
-    return self.map { B.Element($0) }.bind(to: bindable)
+  public func bind<B: BindableProtocol>(to bindable: B) -> Disposable where B.Element == Optional<Element>, B.Error == Error {
+    return self.map { Optional.some($0) }.bind(to: bindable)
   }
 }
 
