@@ -1,6 +1,6 @@
 ![](Assets/logo.png)
 
-[![Platform](https://img.shields.io/cocoapods/p/ReactiveKit.svg?style=flat)](http://cocoadocs.org/docsets/ReactiveKit/3.0.0-beta1/)
+[![Platform](https://img.shields.io/cocoapods/p/ReactiveKit.svg?style=flat)](http://cocoadocs.org/docsets/ReactiveKit/3.0.0/)
 [![Build Status](https://travis-ci.org/ReactiveKit/ReactiveKit.svg?branch=master)](https://travis-ci.org/ReactiveKit/ReactiveKit)
 [![Join Us on Gitter](https://img.shields.io/badge/GITTER-join%20chat-blue.svg)](https://gitter.im/ReactiveKit/General)
 [![Twitter](https://img.shields.io/badge/twitter-@srdanrasic-red.svg?style=flat)](https://twitter.com/srdanrasic)
@@ -332,8 +332,8 @@ When you want to receive events on a specific dispatch queue, just use `context`
 ### CocoaPods
 
 ```
-pod 'ReactiveKit', '~> 3.0-beta6'
-pod 'Bond', '~> 5.0-beta9'
+pod 'ReactiveKit', '~> 3.0'
+pod 'Bond', '~> 5.0'
 ```
 
 ### Carthage

@@ -54,11 +54,13 @@ public final class PublishSubject<Element, Error: Swift.Error>: ObserverRegister
 
 extension PublishSubject: BindableProtocol {
   
-  public func bind(signal: Signal<Element, Error>) -> Disposable {
-    return signal.take(until: disposeBag.deallocated).observe { [weak self] event in
-      guard let s = self else { return }
-      s.on(event)
-    }
+  public func bind(signal: Signal<Element, NoError>) -> Disposable {
+    return signal
+      .take(until: disposeBag.deallocated)
+      .observeNext { [weak self] element in
+        guard let s = self else { return }
+        s.on(.next(element))
+      }
   }
 }
 

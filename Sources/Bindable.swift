@@ -26,37 +26,48 @@
 public protocol BindableProtocol {
 
   associatedtype Element
-  associatedtype Error: Swift.Error
 
   /// Accepts a signal that should be observed by the receiver.
-  func bind(signal: Signal<Element, Error>) -> Disposable
+  func bind(signal: Signal<Element, NoError>) -> Disposable
 }
 
-extension SignalProtocol {
+extension SignalProtocol where Error == NoError {
 
   /// Establish a one-way binding between the source and the bindable
   /// and return a disposable that can cancel binding.
   @discardableResult
-  public func bind<B: BindableProtocol>(to bindable: B) -> Disposable where B.Element == Element, B.Error == Error {
-    return bindable.bind(signal: filterRecursiveEvents())
+  public func bind<B: BindableProtocol>(to bindable: B, context: @escaping ExecutionContext = createNonRecursiveContext()) -> Disposable where B.Element == Element {
+    return bindable.bind(signal: observeIn(context: context))
   }
 
   /// Establish a one-way binding between the source and the bindable
   /// and return a disposable that can cancel binding.
   @discardableResult
-  public func bind<B: BindableProtocol>(to bindable: B) -> Disposable where B.Element: OptionalProtocol, B.Element.Wrapped == Element, B.Error == Error {
-    return self.map { B.Element($0) }.bind(to: bindable)
+  public func bind<B: BindableProtocol>(to bindable: B, context: @escaping ExecutionContext = createNonRecursiveContext()) -> Disposable where B.Element: OptionalProtocol, B.Element.Wrapped == Element {
+    return map { B.Element($0) }.observeIn(context: context).bind(to: bindable)
   }
 }
 
-extension BindableProtocol where Self: SignalProtocol {
+extension BindableProtocol where Self: SignalProtocol, Self.Error == NoError {
 
   /// Establish a two-way binding between the source and the bindable
   /// and return a disposable that can cancel binding.
   @discardableResult
-  public func bidirectionalBind<B: BindableProtocol & SignalProtocol>(to bindable: B) -> Disposable where B.Element == Element, B.Error == Error {
-    let d1 = self.bind(to: bindable)
-    let d2 = bindable.bind(to: self)
+  public func bidirectionalBind<B: BindableProtocol & SignalProtocol>(to bindable: B, context: @escaping ExecutionContext = createNonRecursiveContext()) -> Disposable where B.Element == Element, B.Error == Error {
+    let d1 = bind(to: bindable, context: context)
+    let d2 = bindable.bind(to: self, context: context)
     return CompositeDisposable([d1, d2])
+  }
+}
+
+
+/// A context that breaks recursive calls (binding cycles).
+private func createNonRecursiveContext() -> ExecutionContext {
+  var updating = false
+  return { block in
+    guard !updating else { return }
+    updating = true
+    block()
+    updating = false
   }
 }

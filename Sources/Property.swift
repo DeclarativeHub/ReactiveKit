@@ -60,14 +60,13 @@ public class Property<Value>: PropertyProtocol, SubjectProtocol, BindableProtoco
 
   public func on(_ event: Event<Value, NoError>) {
     if case .next(let element) = event {
-      self._value = element
+      _value = element
     }
     subject.on(event)
   }
 
   public func observe(with observer: @escaping (Event<Value, NoError>) -> Void) -> Disposable {
-    observer(.next(value))
-    return subject.observe(with: observer)
+    return subject.start(with: value).observe(with: observer)
   }
 
   public var readOnlyView: AnyProperty<Value> {
@@ -80,10 +79,12 @@ public class Property<Value>: PropertyProtocol, SubjectProtocol, BindableProtoco
   }
 
   public func bind(signal: Signal<Value, NoError>) -> Disposable {
-    return signal.take(until: disposeBag.deallocated).observe { [weak self] event in
-      guard let s = self else { return }
-      s.on(event)
-    }
+    return signal
+      .take(until: disposeBag.deallocated)
+      .observeNext { [weak self] element in
+        guard let s = self else { return }
+        s.on(.next(element))
+      }
   }
 
   deinit {

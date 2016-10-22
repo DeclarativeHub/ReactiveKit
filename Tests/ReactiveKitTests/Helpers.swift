@@ -62,7 +62,7 @@ extension SignalProtocol {
       }
       let expected = eventsToProcess.removeFirst()
       XCTAssert(event.isEqualTo(expected), message + "(Got \(receivedEvents) instead of \(expectedEvents))", file: file, line: line)
-      if event.isTerminal {
+      if eventsToProcess.count == 0 {
         expectation?.fulfill()
       }
     }

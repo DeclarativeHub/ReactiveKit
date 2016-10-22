@@ -775,9 +775,8 @@ extension SignalProtocol {
     })
   }
 
-  /// Set the execution context in which to dispatch events (i.e. in which to run
-  /// observers).
-  public func observeIn(_ context: @escaping ExecutionContext) -> Signal<Element, Error> {
+  /// Set the execution context used to dispatch events (i.e. to run the observers).
+  public func observeIn(context: @escaping ExecutionContext) -> Signal<Element, Error> {
     return Signal { observer in
       return self.observe { event in
         context {
@@ -785,6 +784,11 @@ extension SignalProtocol {
         }
       }
     }
+  }
+
+  /// Set the dispatch queue used to dispatch events (i.e. to run the observers).
+  public func observeOn(queue: DispatchQueue) -> Signal<Element, Error> {
+    return observeIn(context: queue.context)
   }
 
   /// Supress events while last event generated on other signal is `false`.

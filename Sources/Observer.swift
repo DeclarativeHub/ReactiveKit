@@ -69,4 +69,10 @@ public extension ObserverProtocol {
   public func completed() {
     on(.completed)
   }
+
+  /// Convenience method to send `.next` event followed by a `.completed` event.
+  public func completed(with element: Element) {
+    next(element)
+    completed()
+  }
 }
