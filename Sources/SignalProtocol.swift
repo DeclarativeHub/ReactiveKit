@@ -310,16 +310,14 @@ public extension SignalProtocol {
   }
 
   /// Converts signal into non-failable signal by suppressing the error.
-  public func suppressError(logging: Bool, completeOnError: Bool = false, file: String = #file, line: Int = #line) -> Signal<Element, NoError> {
+  public func suppressError(logging: Bool, file: String = #file, line: Int = #line) -> Signal<Element, NoError> {
     return Signal { observer in
       return self.observe { event in
         switch event {
         case .next(let element):
           observer.next(element)
         case .failed(let error):
-          if completeOnError {
-            observer.completed()
-          }
+          observer.completed()
           if logging {
             print("Operation at \(file):\(line) encountered an error: \(error)")
           }
@@ -331,8 +329,8 @@ public extension SignalProtocol {
   }
 
   /// Converts signal into non-failable signal by feeding suppressed error into a subject.
-  public func suppressAndFeedError<S: SubjectProtocol>(into listener: S, logging: Bool = true, completeOnError: Bool = false, file: String = #file, line: Int = #line) -> Signal<Element, NoError> where S.Element == Error {
-    return feedError(into: listener).suppressError(logging: logging, completeOnError: completeOnError, file: file, line: line)
+  public func suppressAndFeedError<S: SubjectProtocol>(into listener: S, logging: Bool = true, file: String = #file, line: Int = #line) -> Signal<Element, NoError> where S.Element == Error {
+    return feedError(into: listener).suppressError(logging: logging, file: file, line: line)
   }
 
   /// Recovers the signal by propagating default element if error happens.
