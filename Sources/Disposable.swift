@@ -68,7 +68,7 @@ public final class BlockDisposable: Disposable {
   }
 
   private var handler: (() -> ())?
-  private let lock = NSRecursiveLock(name: "ReactiveKit.BlockDisposable")
+  private let lock = NSRecursiveLock(name: "com.reactivekit.blockdisposable")
 
   public init(_ handler: @escaping () -> ()) {
     self.handler = handler
@@ -109,7 +109,7 @@ public final class CompositeDisposable: Disposable {
 
   public private(set) var isDisposed: Bool = false
   private var disposables: [Disposable] = []
-  private let lock = NSRecursiveLock(name: "ReactiveKit.CompositeDisposable")
+  private let lock = NSRecursiveLock(name: "com.reactivekit.compositedisposable")
 
   public convenience init() {
     self.init([])
@@ -188,7 +188,7 @@ public extension Disposable {
 public final class SerialDisposable: Disposable {
 
   public private(set) var isDisposed: Bool = false
-  private let lock = NSRecursiveLock(name: "ReactiveKit.SerialDisposable")
+  private let lock = NSRecursiveLock(name: "com.reactivekit.serialdisposable")
 
   /// Will dispose other disposable immediately if self is already disposed.
   public var otherDisposable: Disposable? {

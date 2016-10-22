@@ -22,16 +22,12 @@
 //  THE SOFTWARE.
 //
 
-// MARK: - ConnectableSignalType
-
 /// Represents a signal that is started by calling `connect` on it.
 public protocol ConnectableSignalProtocol: SignalProtocol {
 
   /// Start the signal.
   func connect() -> Disposable
 }
-
-// MARK: - RawConnectableSignal
 
 /// Makes a signal connectable through the given subject.
 public final class ConnectableSignal<O: SignalProtocol>: ConnectableSignalProtocol {

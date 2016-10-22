@@ -28,9 +28,10 @@ public protocol ObserverProtocol {
   /// Type of elements being received.
   associatedtype Element
 
+  /// Type of error that can be received.
   associatedtype Error: Swift.Error
 
-  /// Sends given event to the observer.
+  /// Send the event to the observer.
   func on(_ event: Event<Element, Error>)
 }
 
@@ -38,6 +39,7 @@ public protocol ObserverProtocol {
 /// wrapper around a closure that accepts an event.
 public struct Observer<Element, Error: Swift.Error>: ObserverProtocol {
 
+  /// Underlying observer closure.
   public let observer: (Event<Element, Error>) -> Void
 
   /// Creates an observer that wraps given closure.

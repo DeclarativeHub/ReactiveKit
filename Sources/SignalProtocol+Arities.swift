@@ -26,11 +26,11 @@
 
 // MARK: - Tuple functions
 
-fileprivate func tuple<A, B>(a: A, b: B) -> (A, B) { return (a, b) }
-fileprivate func tuple<A, B, C>(a: A, b: B, c: C) -> (A, B, C) { return (a, b, c) }
-fileprivate func tuple<A, B, C, D>(a: A, b: B, c: C, d: D) -> (A, B, C, D) { return (a, b, c, d) }
-fileprivate func tuple<A, B, C, D, E>(a: A, b: B, c: C, d: D, e: E) -> (A, B, C, D, E) { return (a, b, c, d, e) }
-fileprivate func tuple<A, B, C, D, E, F>(a: A, b: B, c: C, d: D, e: E, f: F) -> (A, B, C, D, E, F) { return (a, b, c, d, e, f) }
+private func tuple<A, B>(a: A, b: B) -> (A, B) { return (a, b) }
+private func tuple<A, B, C>(a: A, b: B, c: C) -> (A, B, C) { return (a, b, c) }
+private func tuple<A, B, C, D>(a: A, b: B, c: C, d: D) -> (A, B, C, D) { return (a, b, c, d) }
+private func tuple<A, B, C, D, E>(a: A, b: B, c: C, d: D, e: E) -> (A, B, C, D, E) { return (a, b, c, d, e) }
+private func tuple<A, B, C, D, E, F>(a: A, b: B, c: C, d: D, e: E, f: F) -> (A, B, C, D, E, F) { return (a, b, c, d, e, f) }
 
 // MARK: Combine Latest
 

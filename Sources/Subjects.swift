@@ -31,7 +31,7 @@ public protocol SubjectProtocol: SignalProtocol, ObserverProtocol {
 /// A type that is both a signal and an observer.
 public final class PublishSubject<Element, Error: Swift.Error>: ObserverRegister<(Event<Element, Error>) -> Void>, SubjectProtocol {
 
-  private let lock = NSRecursiveLock(name: "PublishSubject")
+  private let lock = NSRecursiveLock(name: "com.reactivekit.publishsubject")
   private var terminated = false
 
   public let disposeBag = DisposeBag()
@@ -69,7 +69,7 @@ public typealias PublishSubject1<Element> = PublishSubject<Element, NoError>
 public final class ReplaySubject<Element, Error: Swift.Error>: ObserverRegister<(Event<Element, Error>) -> Void>, SubjectProtocol {
 
   private var buffer: ArraySlice<Event<Element, Error>> = []
-  private let lock = NSRecursiveLock(name: "ReactiveKit.ReplaySubject")
+  private let lock = NSRecursiveLock(name: "com.reactivekit.replaysubject")
 
   public let bufferSize: Int
   public let disposeBag = DisposeBag()
@@ -111,7 +111,7 @@ internal class _ReplayOneSubject<Element, Error: Swift.Error>: ObserverRegister<
 
   private var lastEvent: Event<Element, Error>? = nil
   private var terminalEvent: Event<Element, Error>? = nil
-  private let lock = NSRecursiveLock(name: "ReplayOneSubject")
+  private let lock = NSRecursiveLock(name: "com.reactivekit.replayonesubject")
 
   public override init() {
   }

@@ -37,21 +37,21 @@ public enum Result<T, E: Swift.Error>: CustomStringConvertible {
   case failure(E)
 
   /// Constructs a result with a success value.
-  public init(value: T) {
+  public init(_ value: T) {
     self = .success(value)
   }
 
   /// Constructs a result with an error.
-  public init(error: E) {
+  public init(_ error: E) {
     self = .failure(error)
   }
 
   public var description: String {
     switch self {
     case let .success(value):
-      return ".Success(\(value))"
+      return ".success(\(value))"
     case let .failure(error):
-      return ".Failure(\(error))"
+      return ".failure(\(error))"
     }
   }
 }

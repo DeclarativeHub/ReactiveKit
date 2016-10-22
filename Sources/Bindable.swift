@@ -37,14 +37,14 @@ extension SignalProtocol where Error == NoError {
   /// and return a disposable that can cancel binding.
   @discardableResult
   public func bind<B: BindableProtocol>(to bindable: B, context: @escaping ExecutionContext = createNonRecursiveContext()) -> Disposable where B.Element == Element {
-    return bindable.bind(signal: observeIn(context: context))
+    return bindable.bind(signal: observeIn(context))
   }
 
   /// Establish a one-way binding between the source and the bindable
   /// and return a disposable that can cancel binding.
   @discardableResult
   public func bind<B: BindableProtocol>(to bindable: B, context: @escaping ExecutionContext = createNonRecursiveContext()) -> Disposable where B.Element: OptionalProtocol, B.Element.Wrapped == Element {
-    return map { B.Element($0) }.observeIn(context: context).bind(to: bindable)
+    return map { B.Element($0) }.observeIn(context).bind(to: bindable)
   }
 }
 

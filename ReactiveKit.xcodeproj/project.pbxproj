@@ -62,6 +62,7 @@
 		16F2F56D1D6D924B00B85896 /* SignalProtocol+Arities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F2F56B1D6D924B00B85896 /* SignalProtocol+Arities.swift */; };
 		16F2F56E1D6D924B00B85896 /* SignalProtocol+Arities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F2F56B1D6D924B00B85896 /* SignalProtocol+Arities.swift */; };
 		16F2F56F1D6D924B00B85896 /* SignalProtocol+Arities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F2F56B1D6D924B00B85896 /* SignalProtocol+Arities.swift */; };
+		EC06A8711DBBF8C7006AEA81 /* ResultTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC06A86F1DBBF8A6006AEA81 /* ResultTests.swift */; };
 		EC6C0FC71DB4A78E00C3880B /* PropertyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6C0FC51DB4A76A00C3880B /* PropertyTests.swift */; };
 		EC7A6F891D3CCF5B00F9EF4A /* NoError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7A6F881D3CCF5B00F9EF4A /* NoError.swift */; };
 		EC7A6F8A1D3CCF5B00F9EF4A /* NoError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7A6F881D3CCF5B00F9EF4A /* NoError.swift */; };
@@ -102,6 +103,7 @@
 		16C33B241BEFBA0100A0DBE0 /* ReactiveKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		16F2F5661D6D8A4500B85896 /* Lock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Lock.swift; path = Sources/Lock.swift; sourceTree = SOURCE_ROOT; };
 		16F2F56B1D6D924B00B85896 /* SignalProtocol+Arities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "SignalProtocol+Arities.swift"; path = "Sources/SignalProtocol+Arities.swift"; sourceTree = SOURCE_ROOT; };
+		EC06A86F1DBBF8A6006AEA81 /* ResultTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResultTests.swift; sourceTree = "<group>"; };
 		EC6C0FC51DB4A76A00C3880B /* PropertyTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PropertyTests.swift; sourceTree = "<group>"; };
 		EC7A6F881D3CCF5B00F9EF4A /* NoError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NoError.swift; path = Sources/NoError.swift; sourceTree = SOURCE_ROOT; };
 		EC8A99DC1CABD9B50042A6AD /* Disposable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Disposable.swift; path = Sources/Disposable.swift; sourceTree = SOURCE_ROOT; };
@@ -224,6 +226,7 @@
 				ECD102FD1D89B2530086B6A1 /* Helpers.swift */,
 				ECD102FE1D89B2530086B6A1 /* SignalTests.swift */,
 				EC6C0FC51DB4A76A00C3880B /* PropertyTests.swift */,
+				EC06A86F1DBBF8A6006AEA81 /* ResultTests.swift */,
 			);
 			path = ReactiveKitTests;
 			sourceTree = "<group>";
@@ -542,6 +545,7 @@
 			files = (
 				ECD102FF1D89B2530086B6A1 /* Helpers.swift in Sources */,
 				ECD103001D89B2530086B6A1 /* SignalTests.swift in Sources */,
+				EC06A8711DBBF8C7006AEA81 /* ResultTests.swift in Sources */,
 				EC6C0FC71DB4A78E00C3880B /* PropertyTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

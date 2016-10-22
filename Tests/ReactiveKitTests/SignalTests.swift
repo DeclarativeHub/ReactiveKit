@@ -62,6 +62,24 @@ class SignalTests: XCTestCase {
     operation.expect([.failed(.Error)])
   }
 
+  func testObserveFailed() {
+    var observedError: TestError? = nil
+    let operation = Signal<Int, TestError>.failed(.Error)
+    _ = operation.observeFailed {
+      observedError = $0
+    }
+    XCTAssert(observedError != nil && observedError! == .Error)
+  }
+
+  func testObserveCompleted() {
+    var completed = false
+    let operation = Signal<Int, TestError>.completed()
+    _ = operation.observeCompleted {
+      completed = true
+    }
+    XCTAssert(completed == true)
+  }
+
   func testBuffer() {
     let operation = Signal<Int, TestError>.sequence([1,2,3,4,5])
     let buffered = operation.buffer(size: 2)
