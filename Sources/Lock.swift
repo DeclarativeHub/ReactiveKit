@@ -28,15 +28,6 @@ import Foundation
 public protocol Lock {
   func lock()
   func unlock()
-  func atomic<T>(body: () -> T) -> T
-}
-
-public extension Lock {
-
-  public func atomic<T>(body: () -> T) -> T {
-    lock(); defer { unlock() }
-    return body()
-  }
 }
 
 /// Lock

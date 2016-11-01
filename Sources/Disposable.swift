@@ -75,10 +75,9 @@ public final class BlockDisposable: Disposable {
   }
 
   public func dispose() {
-    lock.atomic {
-      handler?()
-      handler = nil
-    }
+    lock.lock(); defer { lock.unlock() }
+    handler?()
+    handler = nil
   }
 }
 
@@ -120,22 +119,20 @@ public final class CompositeDisposable: Disposable {
   }
 
   public func add(disposable: Disposable) {
-    lock.atomic {
-      if isDisposed {
-        disposable.dispose()
-      } else {
-        disposables.append(disposable)
-        self.disposables = disposables.filter { $0.isDisposed == false }
-      }
+    lock.lock(); defer { lock.unlock() }
+    if isDisposed {
+      disposable.dispose()
+    } else {
+      disposables.append(disposable)
+      self.disposables = disposables.filter { $0.isDisposed == false }
     }
   }
 
   public func dispose() {
-    lock.atomic {
-      isDisposed = true
-      disposables.forEach { $0.dispose() }
-      disposables.removeAll()
-    }
+    lock.lock(); defer { lock.unlock() }
+    isDisposed = true
+    disposables.forEach { $0.dispose() }
+    disposables.removeAll()
   }
 }
 
@@ -193,10 +190,9 @@ public final class SerialDisposable: Disposable {
   /// Will dispose other disposable immediately if self is already disposed.
   public var otherDisposable: Disposable? {
     didSet {
-      lock.atomic {
-        if isDisposed {
-          otherDisposable?.dispose()
-        }
+      lock.lock(); defer { lock.unlock() }
+      if isDisposed {
+        otherDisposable?.dispose()
       }
     }
   }
@@ -206,11 +202,10 @@ public final class SerialDisposable: Disposable {
   }
 
   public func dispose() {
-    lock.atomic {
-      if !isDisposed {
-        isDisposed = true
-        otherDisposable?.dispose()
-      }
+    lock.lock(); defer { lock.unlock() }
+    if !isDisposed {
+      isDisposed = true
+      otherDisposable?.dispose()
     }
   }
 }

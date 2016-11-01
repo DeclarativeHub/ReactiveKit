@@ -44,13 +44,12 @@ public final class ConnectableSignal<O: SignalProtocol>: ConnectableSignalProtoc
 
   /// Start the signal.
   public func connect() -> Disposable {
-    return lock.atomic {
-      if connectionDisposable == nil {
-        connectionDisposable = source.observe(with: subject.on)
-      }
-      
-      return connectionDisposable!
+    lock.lock(); defer { lock.unlock() }
+    if connectionDisposable == nil {
+      connectionDisposable = source.observe(with: subject.on)
     }
+
+    return connectionDisposable!
   }
 
   /// Register an observer that will receive events from the signal.

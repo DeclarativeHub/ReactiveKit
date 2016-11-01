@@ -40,11 +40,10 @@ public final class PublishSubject<Element, Error: Swift.Error>: ObserverRegister
   }
 
   public func on(_ event: Event<Element, Error>) {
-    lock.atomic {
-      guard !terminated else { return }
-      terminated = event.isTerminal
-      forEachObserver { $0(event) }
-    }
+    lock.lock(); defer { lock.unlock() }
+    guard !terminated else { return }
+    terminated = event.isTerminal
+    forEachObserver { $0(event) }
   }
 
   public func observe(with observer: @escaping (Event<Element, Error>) -> Void) -> Disposable {
@@ -83,19 +82,17 @@ public final class ReplaySubject<Element, Error: Swift.Error>: ObserverRegister<
   }
 
   public func on(_ event: Event<Element, Error>) {
-    lock.atomic {
-      guard !terminated else { return }
-      buffer.append(event)
-      buffer = buffer.suffix(bufferSize)
-      forEachObserver { $0(event) }
-    }
+    lock.lock(); defer { lock.unlock() }
+    guard !terminated else { return }
+    buffer.append(event)
+    buffer = buffer.suffix(bufferSize)
+    forEachObserver { $0(event) }
   }
 
   public func observe(with observer: @escaping (Event<Element, Error>) -> Void) -> Disposable {
-    return lock.atomic {
-      buffer.forEach(observer)
-      return add(observer: observer)
-    }
+    lock.lock(); defer { lock.unlock() }
+    buffer.forEach(observer)
+    return add(observer: observer)
   }
 
   private var terminated: Bool {
@@ -117,27 +114,25 @@ internal class _ReplayOneSubject<Element, Error: Swift.Error>: ObserverRegister<
   }
 
   public func on(_ event: Event<Element, Error>) {
-    lock.atomic {
-      guard terminalEvent == nil else { return }
-      if event.isTerminal {
-        terminalEvent = event
-      } else {
-        lastEvent = event
-      }
-      forEachObserver { $0(event) }
+    lock.lock(); defer { lock.unlock() }
+    guard terminalEvent == nil else { return }
+    if event.isTerminal {
+      terminalEvent = event
+    } else {
+      lastEvent = event
     }
+    forEachObserver { $0(event) }
   }
 
   public func observe(with observer: @escaping (Event<Element, Error>) -> Void) -> Disposable {
-    return lock.atomic {
-      if let event = lastEvent {
-        observer(event)
-      }
-      if let event = terminalEvent {
-        observer(event)
-      }
-      return add(observer: observer)
+    lock.lock(); defer { lock.unlock() }
+    if let event = lastEvent {
+      observer(event)
     }
+    if let event = terminalEvent {
+      observer(event)
+    }
+    return add(observer: observer)
   }
 }
 

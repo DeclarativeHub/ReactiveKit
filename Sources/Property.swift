@@ -44,13 +44,13 @@ public class Property<Value>: PropertyProtocol, SubjectProtocol, BindableProtoco
   /// Underlying value. Changing it emits `.next` event with new value.
   public var value: Value {
     get {
-      return lock.atomic { _value }
+      lock.lock(); defer { lock.unlock() }
+      return _value
     }
     set {
-      lock.atomic {
-        _value = newValue
-        subject.next(newValue)
-      }
+      lock.lock(); defer { lock.unlock() }
+      _value = newValue
+      subject.next(newValue)
     }
   }
 

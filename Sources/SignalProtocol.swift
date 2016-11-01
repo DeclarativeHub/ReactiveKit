@@ -292,8 +292,12 @@ public extension SignalProtocol {
 
   /// Convert the receiver to a concrete signal.
   public func toSignal() -> Signal<Element, Error> {
-    return Signal { observer in
-      return self.observe(with: observer.observer)
+    if let signal = self as? Signal<Element, Error> {
+      return signal
+    } else {
+      return Signal { observer in
+        return self.observe(with: observer.observer)
+      }
     }
   }
 
@@ -978,25 +982,25 @@ public extension SignalProtocol where Element: SignalProtocol, Element.Error == 
       compositeDisposable += self.observe { outerEvent in
         switch outerEvent {
         case .next(let innerSignal):
-          lock.atomic {
-            numberOfOperations += 1
-            compositeDisposable += innerSignal.observe { innerEvent in
-              switch innerEvent {
-              case .next(let element):
-                observer.next(element)
-              case .failed(let error):
-                observer.failed(error)
-              case .completed:
-                decrementNumberOfOperations()
-              }
+          lock.lock()
+          numberOfOperations += 1
+          compositeDisposable += innerSignal.observe { innerEvent in
+            switch innerEvent {
+            case .next(let element):
+              observer.next(element)
+            case .failed(let error):
+              observer.failed(error)
+            case .completed:
+              decrementNumberOfOperations()
             }
           }
+          lock.unlock()
         case .failed(let error):
           observer.failed(error)
         case .completed:
-          lock.atomic {
-            decrementNumberOfOperations()
-          }
+          lock.lock()
+          decrementNumberOfOperations()
+          lock.unlock()
         }
       }
 
@@ -1015,34 +1019,34 @@ public extension SignalProtocol where Element: SignalProtocol, Element.Error == 
       compositeDisposable += self.observe { outerEvent in
         switch outerEvent {
         case .next(let innerSignal):
-          lock.atomic {
-            completions.inner = false
-            serialDisposable.otherDisposable?.dispose()
-            serialDisposable.otherDisposable = innerSignal.observe { innerEvent in
-              switch innerEvent {
-              case .next(let element):
-                observer.next(element)
-              case .failed(let error):
-                observer.failed(error)
-              case .completed:
-                lock.atomic {
-                  completions.inner = true
-                  if completions.outer {
-                    observer.completed()
-                  }
-                }
+          lock.lock()
+          completions.inner = false
+          serialDisposable.otherDisposable?.dispose()
+          serialDisposable.otherDisposable = innerSignal.observe { innerEvent in
+            switch innerEvent {
+            case .next(let element):
+              observer.next(element)
+            case .failed(let error):
+              observer.failed(error)
+            case .completed:
+              lock.lock()
+              completions.inner = true
+              if completions.outer {
+                observer.completed()
               }
+              lock.unlock()
             }
           }
+          lock.unlock()
         case .failed(let error):
           observer.failed(error)
         case .completed:
-          lock.atomic {
-            completions.outer = true
-            if completions.inner {
-              observer.completed()
-            }
+          lock.lock()
+          completions.outer = true
+          if completions.inner {
+            observer.completed()
           }
+          lock.unlock()
         }
       }
 
@@ -1073,25 +1077,25 @@ public extension SignalProtocol where Element: SignalProtocol, Element.Error == 
           case .failed(let error):
             observer.failed(error)
           case .completed:
-            lock.atomic {
-              completions.inner = true
-              if !innerSignalQueue.isEmpty {
-                startNextOperation()
-              } else if completions.outer {
-                observer.completed()
-              }
+            lock.lock()
+            completions.inner = true
+            if !innerSignalQueue.isEmpty {
+              startNextOperation()
+            } else if completions.outer {
+              observer.completed()
             }
+            lock.unlock()
           }
         }
       }
 
       func addToQueue(signal: Element) {
-        lock.atomic {
-          innerSignalQueue.append(signal)
-          if completions.inner {
-            startNextOperation()
-          }
+        lock.lock()
+        innerSignalQueue.append(signal)
+        if completions.inner {
+          startNextOperation()
         }
+        lock.unlock()
       }
 
       compositeDisposable += self.observe { outerEvent in
@@ -1101,12 +1105,12 @@ public extension SignalProtocol where Element: SignalProtocol, Element.Error == 
         case .failed(let error):
           observer.failed(error)
         case .completed:
-          lock.atomic {
-            completions.outer = true
-            if completions.inner {
-              observer.completed()
-            }
+          lock.lock()
+          completions.outer = true
+          if completions.inner {
+            observer.completed()
           }
+          lock.unlock()
         }
       }
       
@@ -1126,24 +1130,22 @@ extension SignalProtocol {
       var dispatching = (me: false, other: false)
 
       disposable.my.otherDisposable = self.observe { event in
-        lock.atomic {
-          guard !dispatching.other else { return }
-          dispatching.me = true
-          observer.observer(event)
-          if !disposable.other.isDisposed {
-            disposable.other.dispose()
-          }
+        lock.lock(); defer { lock.unlock() }
+        guard !dispatching.other else { return }
+        dispatching.me = true
+        observer.observer(event)
+        if !disposable.other.isDisposed {
+          disposable.other.dispose()
         }
       }
 
       disposable.other.otherDisposable = other.observe { event in
-        lock.atomic {
-          guard !dispatching.me else { return }
-          dispatching.other = true
-          observer.observer(event)
-          if !disposable.my.isDisposed {
-            disposable.my.dispose()
-          }
+        lock.lock(); defer { lock.unlock() }
+        guard !dispatching.me else { return }
+        dispatching.other = true
+        observer.observer(event)
+        if !disposable.my.isDisposed {
+          disposable.my.dispose()
         }
       }
 
@@ -1178,32 +1180,30 @@ extension SignalProtocol {
       }
 
       compositeDisposable += self.observe { event in
-        lock.atomic {
-          switch event {
-          case .next(let element):
-            elements.my = element
-            onAnyNext()
-          case .failed(let error):
-            observer.failed(error)
-          case .completed:
-            completions.me = true
-            onAnyCompleted()
-          }
+        lock.lock(); defer { lock.unlock() }
+        switch event {
+        case .next(let element):
+          elements.my = element
+          onAnyNext()
+        case .failed(let error):
+          observer.failed(error)
+        case .completed:
+          completions.me = true
+          onAnyCompleted()
         }
       }
 
       compositeDisposable += other.observe { event in
-        lock.atomic {
-          switch event {
-          case .next(let element):
-            elements.other = element
-            onAnyNext()
-          case .failed(let error):
-            observer.failed(error)
-          case .completed:
-            completions.other = true
-            onAnyCompleted()
-          }
+        lock.lock(); defer { lock.unlock() }
+        switch event {
+        case .next(let element):
+          elements.other = element
+          onAnyNext()
+        case .failed(let error):
+          observer.failed(error)
+        case .completed:
+          completions.other = true
+          onAnyCompleted()
         }
       }
 
@@ -1252,32 +1252,30 @@ extension SignalProtocol {
       }
 
       compositeDisposable += self.observe { event in
-        lock.atomic {
-          switch event {
-          case .next(let element):
-            buffers.my.append(element)
-            dispatchIfPossible()
-          case .failed(let error):
-            observer.failed(error)
-          case .completed:
-            completions.me = true
-            completeIfPossible()
-          }
+        lock.lock(); defer { lock.unlock() }
+        switch event {
+        case .next(let element):
+          buffers.my.append(element)
+          dispatchIfPossible()
+        case .failed(let error):
+          observer.failed(error)
+        case .completed:
+          completions.me = true
+          completeIfPossible()
         }
       }
 
       compositeDisposable += other.observe { event in
-        lock.atomic {
-          switch event {
-          case .next(let element):
-            buffers.other.append(element)
-            dispatchIfPossible()
-          case .failed(let error):
-            observer.failed(error)
-          case .completed:
-            completions.other = true
-            completeIfPossible()
-          }
+        lock.lock(); defer { lock.unlock() }
+        switch event {
+        case .next(let element):
+          buffers.other.append(element)
+          dispatchIfPossible()
+        case .failed(let error):
+          observer.failed(error)
+        case .completed:
+          completions.other = true
+          completeIfPossible()
         }
       }
 

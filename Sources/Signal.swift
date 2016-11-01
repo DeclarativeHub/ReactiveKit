@@ -41,7 +41,7 @@ public struct Signal<Element, Error: Swift.Error>: SignalProtocol {
     let lock = NSRecursiveLock(name: "com.reactivekit.signal.observe")
     var terminated = false
     let observer = Observer<Element, Error> { event in
-      lock.atomic {
+      lock.lock(); defer { lock.unlock() }
         guard !serialDisposable.isDisposed && !terminated else { return }
         if event.isTerminal {
           terminated = true
@@ -50,7 +50,6 @@ public struct Signal<Element, Error: Swift.Error>: SignalProtocol {
         } else {
           observer(event)
         }
-      }
     }
     serialDisposable.otherDisposable = producer(observer)
     return serialDisposable
