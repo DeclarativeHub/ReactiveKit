@@ -30,6 +30,14 @@ public protocol Lock {
   func unlock()
 }
 
+public extension Lock {
+
+  public func atomic<T>(body: () -> T) -> T {
+    lock(); defer { unlock() }
+    return body()
+  }
+}
+
 /// Lock
 extension NSLock: Lock {
 
