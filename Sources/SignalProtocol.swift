@@ -204,7 +204,7 @@ public extension SignalProtocol {
         case .completed:
           observer.completed()
         case .failed(let error):
-          serialDisposable.otherDisposable = recover(error).observe(with: observer.observer)
+          serialDisposable.otherDisposable = recover(error).observe(with: observer.on)
         }
       }
 
@@ -296,7 +296,7 @@ public extension SignalProtocol {
       return signal
     } else {
       return Signal { observer in
-        return self.observe(with: observer.observer)
+        return self.observe(with: observer.on)
       }
     }
   }
@@ -720,7 +720,7 @@ extension SignalProtocol {
     return Signal { observer in
       return self.observe { event in
         queue.after(when: interval) {
-          observer.observer(event)
+          observer.on(event)
         }
       }
     }
@@ -743,7 +743,7 @@ extension SignalProtocol {
         case .completed:
           completed?()
         }
-        observer.observer(event)
+        observer.on(event)
       }
       return BlockDisposable {
         disposable.dispose()
@@ -803,7 +803,7 @@ extension SignalProtocol {
 
       compositeDisposable += self.observe { event in
         if event.isTerminal || allowed {
-          observer.observer(event)
+          observer.on(event)
         }
       }
 
@@ -860,7 +860,7 @@ extension SignalProtocol {
       var lastSubscription = timeoutWhenCan()
       return self.observe { event in
         lastSubscription.dispose()
-        observer.observer(event)
+        observer.on(event)
         completed = event.isTerminal
         lastSubscription = timeoutWhenCan()
       }
@@ -1144,7 +1144,7 @@ extension SignalProtocol {
         lock.lock(); defer { lock.unlock() }
         guard !dispatching.other else { return }
         dispatching.me = true
-        observer.observer(event)
+        observer.on(event)
         if !disposable.other.isDisposed {
           disposable.other.dispose()
         }
@@ -1154,7 +1154,7 @@ extension SignalProtocol {
         lock.lock(); defer { lock.unlock() }
         guard !dispatching.me else { return }
         dispatching.other = true
-        observer.observer(event)
+        observer.on(event)
         if !disposable.my.isDisposed {
           disposable.my.dispose()
         }

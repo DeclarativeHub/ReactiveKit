@@ -39,17 +39,44 @@ public protocol ObserverProtocol {
 /// wrapper around a closure that accepts an event.
 public struct Observer<Element, Error: Swift.Error>: ObserverProtocol {
 
-  /// Underlying observer closure.
-  public let observer: (Event<Element, Error>) -> Void
+  private let observer: (Event<Element, Error>) -> Void
 
   /// Creates an observer that wraps given closure.
   public init(observer: @escaping (Event<Element, Error>) -> Void) {
     self.observer = observer
   }
 
-  /// Calles wrapped closure with given element.
+  /// Calles wrapped closure with the given element.
   public func on(_ event: Event<Element, Error>) {
     observer(event)
+  }
+}
+
+/// Observer that ensures events are sent atomically.
+public class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol {
+
+  private let observer: (Event<Element, Error>) -> Void
+  private let disposable: Disposable
+  private let lock = NSRecursiveLock(name: "com.reactivekit.signal.atomicobserver")
+  private var terminated = false
+
+  /// Creates an observer that wraps given closure.
+  public init(disposable: Disposable, observer: @escaping (Event<Element, Error>) -> Void) {
+    self.disposable = disposable
+    self.observer = observer
+  }
+
+  /// Calles wrapped closure with the given element.
+  public func on(_ event: Event<Element, Error>) {
+    lock.lock(); defer { lock.unlock() }
+    guard !disposable.isDisposed && !terminated else { return }
+    if event.isTerminal {
+      terminated = true
+      observer(event)
+      disposable.dispose()
+    } else {
+      observer(event)
+    }
   }
 }
 

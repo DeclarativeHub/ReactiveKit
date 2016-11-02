@@ -27,7 +27,7 @@ import Foundation
 /// A Signal represents a stream of elements.
 public struct Signal<Element, Error: Swift.Error>: SignalProtocol {
 
-  public typealias Producer = (Observer<Element, Error>) -> Disposable
+  public typealias Producer = (AtomicObserver<Element, Error>) -> Disposable
   private let producer: Producer
 
   /// Create new signal given a producer closure.
@@ -38,19 +38,7 @@ public struct Signal<Element, Error: Swift.Error>: SignalProtocol {
   /// Register the observer that will receive events from the signal.
   public func observe(with observer: @escaping (Event<Element, Error>) -> Void) -> Disposable {
     let serialDisposable = SerialDisposable(otherDisposable: nil)
-    let lock = NSRecursiveLock(name: "com.reactivekit.signal.observe")
-    var terminated = false
-    let observer = Observer<Element, Error> { event in
-      lock.lock(); defer { lock.unlock() }
-        guard !serialDisposable.isDisposed && !terminated else { return }
-        if event.isTerminal {
-          terminated = true
-          observer(event)
-          serialDisposable.dispose()
-        } else {
-          observer(event)
-        }
-    }
+    let observer = AtomicObserver(disposable: serialDisposable, observer: observer)
     serialDisposable.otherDisposable = producer(observer)
     return serialDisposable
   }

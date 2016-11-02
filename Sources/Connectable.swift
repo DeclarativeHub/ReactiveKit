@@ -68,7 +68,7 @@ public extension ConnectableSignalProtocol {
     var connectionDisposable: Disposable? = nil
     return Signal { observer in
       count = count + 1
-      let disposable = self.observe(with: observer.observer)
+      let disposable = self.observe(with: observer.on)
       if connectionDisposable == nil {
         connectionDisposable = self.connect()
       }
