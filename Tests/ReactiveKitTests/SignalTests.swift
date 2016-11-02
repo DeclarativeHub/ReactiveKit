@@ -7,13 +7,26 @@
 //
 
 import XCTest
-@testable import ReactiveKit
+import ReactiveKit
 
 enum TestError: Swift.Error {
   case Error
 }
 
 class SignalTests: XCTestCase {
+
+  func testPerformance() {
+    self.measure {
+       (0..<1000).forEach { _ in
+        let signal = ReactiveKit.Signal<Int, NoError> { observer in
+          (0..<100).forEach(observer.next)
+          observer.completed()
+          return NonDisposable.instance
+        }
+        _ = signal.observe { _ in }
+      }
+    }
+  }
 
   func testProductionAndObservation() {
     let bob = Scheduler()

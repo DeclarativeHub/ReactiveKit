@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import ReactiveKit
+import ReactiveKit
 
 extension Event {
 
