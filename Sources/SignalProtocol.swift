@@ -859,6 +859,8 @@ extension SignalProtocol {
 
   /// Restart the operation in case of failure at most `times` number of times.
   public func retry(times: Int) -> Signal<Element, Error> {
+    guard times > 0 else { return toSignal() }
+
     return Signal { observer in
       var remainingAttempts = times
       let serialDisposable = SerialDisposable(otherDisposable: nil)
