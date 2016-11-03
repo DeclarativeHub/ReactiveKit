@@ -689,12 +689,12 @@ public extension SignalProtocol {
   /// Throttle the signal to emit at most one element per given `seconds` interval.
   public func throttle(seconds: Double) -> Signal<Element, Error> {
     return Signal { observer in
-      var lastEventTime: DispatchTime = DispatchTime(uptimeNanoseconds: 0)
+      var lastEventTime: DispatchTime?
       return self.observe { event in
         switch event {
         case .next(let element):
           let now = DispatchTime.now()
-          if now.rawValue > (lastEventTime + seconds).rawValue {
+          if lastEventTime == nil || now.rawValue > (lastEventTime! + seconds).rawValue {
             lastEventTime = now
             observer.next(element)
           }
