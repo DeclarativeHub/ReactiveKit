@@ -55,17 +55,3 @@ extension NSRecursiveLock: Lock {
     self.name = name
   }
 }
-
-/// Spin Lock
-final class SpinLock: Lock {
-
-  private var spinLock = OS_SPINLOCK_INIT
-
-  internal func lock() {
-    OSSpinLockLock(&spinLock)
-  }
-
-  internal func unlock() {
-    OSSpinLockUnlock(&spinLock)
-  }
-}

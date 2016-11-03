@@ -167,7 +167,7 @@ private class ObserverRegister<Observer> {
   private var nextToken: Token = 0
 
   private var observers: [Token: Observer] = [:]
-  private let tokenLock = SpinLock()
+  private let tokenLock = NSRecursiveLock(name: "com.reactivekit.observerregister")
 
   public init() {}
 

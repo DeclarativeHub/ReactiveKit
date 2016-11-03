@@ -33,7 +33,7 @@ public protocol ConnectableSignalProtocol: SignalProtocol {
 public final class ConnectableSignal<O: SignalProtocol>: ConnectableSignalProtocol {
 
   private let source: O
-  private let lock = SpinLock()
+  private let lock = NSRecursiveLock()
   private let subject: AnySubject<O.Element, O.Error>
   private var connectionDisposable: Disposable? = nil
 
