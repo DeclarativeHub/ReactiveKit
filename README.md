@@ -332,14 +332,14 @@ When you want to receive events on a specific dispatch queue, just use `context`
 ### CocoaPods
 
 ```
-pod 'ReactiveKit', '~> 3.0'
+pod 'ReactiveKit', '~> 3.1'
 pod 'Bond', '~> 5.0'
 ```
 
 ### Carthage
 
 ```
-github "ReactiveKit/ReactiveKit" ~> 3.0
+github "ReactiveKit/ReactiveKit" ~> 3.1
 github "ReactiveKit/Bond" ~> 5.0
 ```
 
