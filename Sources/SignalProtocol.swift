@@ -244,6 +244,11 @@ public extension SignalProtocol {
     }
   }
 
+  /// Replace all emitted elements with the given element.
+  public func replace<T>(with element: T) -> Signal<T, Error> {
+    return map { _ in element }
+  }
+
   /// Map elements to Void.
   public func eraseType() -> Signal<Void, Error> {
     return map { _ in }
@@ -373,6 +378,48 @@ public extension SignalProtocol {
   /// Batch each `size` elements into another signal.
   public func window(size: Int) -> Signal<Signal<Element, Error>, Error> {
     return buffer(size: size).map { Signal.sequence($0) }
+  }
+}
+
+extension SignalProtocol where Element: OptionalProtocol {
+
+  /// Apply `transform` to all non-nil elements.
+  public func flatMap<U>(_ transform: @escaping (Element.Wrapped) -> U?) -> Signal<U?, Error> {
+    return Signal { observer in
+      return self.observe { event in
+        switch event {
+        case .next(let element):
+          if let element = element._unbox {
+            observer.next(transform(element))
+          } else {
+            observer.next(nil)
+          }
+        case .failed(let error):
+          observer.failed(error)
+        case .completed:
+          observer.completed()
+        }
+      }
+    }
+  }
+}
+
+extension SignalProtocol where Element: Collection {
+
+  /// Map each emitted array.
+  public func flatMap<U>(_ transform: @escaping (Element.Iterator.Element) -> U) -> Signal<[U], Error> {
+    return Signal { observer in
+      return self.observe { event in
+        switch event {
+        case .next(let element):
+          observer.next(element.map(transform))
+        case .failed(let error):
+          observer.failed(error)
+        case .completed:
+          observer.completed()
+        }
+      }
+    }
   }
 }
 
@@ -942,6 +989,24 @@ extension SignalProtocol {
       }
     }
   }
+
+  /// Wrap events into elements.
+  public func materialize() -> Signal<Event<Element, Error>, NoError> {
+    return Signal { observer in
+      return self.observe { event in
+        switch event {
+        case .next(let element):
+          observer.next(.next(element))
+        case .failed(let error):
+          observer.next(.failed(error))
+          observer.completed()
+        case .completed:
+          observer.next(.completed)
+          observer.completed()
+        }
+      }
+    }
+  }
 }
 
 // MARK: Injections
@@ -1452,3 +1517,62 @@ extension SignalProtocol where Error == NoError {
     return castError()._with(latestFrom: other, combine: { ($0, $1) })
   }
 }
+
+// MARK: Standalone functions
+
+/// Combine an array of signals into one. See `combineLatest(with:)` for more info.
+public func combineLatest<Element, Result, Error: Swift.Error>(_ signals: [Signal<Element, Error>], combine: @escaping ([Element]) -> Result) -> Signal<Result, Error> {
+  return Signal { observer in
+    let disposable = CompositeDisposable()
+    var elements = Array<Element?>(repeating: nil, count: signals.count)
+    var completions = Array(repeating: false, count: signals.count)
+
+    for (idx, signal) in signals.enumerated() {
+      disposable += signal.observe { event in
+        switch event {
+        case .next(let element):
+          elements[idx] = element
+          if elements.reduce(true, { $0 && ($1 != nil) }) {
+            observer.next(combine(elements.map { $0! }))
+          }
+        case .failed(let error):
+          observer.failed(error)
+        case .completed:
+          completions[idx] = true
+          if completions.reduce(true, { $0 && $1 }) {
+            observer.completed()
+          }
+        }
+      }
+    }
+
+    return disposable
+  }
+}
+
+/// Merge an array of signals into one. See `merge(with:)` for more info.
+public func merge<Element, Error: Swift.Error>(_ signals: [Signal<Element, Error>]) -> Signal<Element, Error> {
+  return Signal { observer in
+    let disposable = CompositeDisposable()
+    var completions = Array(repeating: false, count: signals.count)
+
+    for (idx, signal) in signals.enumerated() {
+      disposable += signal.observe { event in
+        switch event {
+        case .next(let element):
+          observer.next(element)
+        case .failed(let error):
+          observer.failed(error)
+        case .completed:
+          completions[idx] = true
+          if completions.reduce(true, { $0 && $1 }) {
+            observer.completed()
+          }
+        }
+      }
+    }
+
+    return disposable
+  }
+}
+
