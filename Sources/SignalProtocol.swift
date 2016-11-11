@@ -120,7 +120,7 @@ public extension SignalProtocol {
   }
 
   /// Create a signal that emits an integer every `interval` time on a given dispatch queue.
-  public static func interval(_ interval: Double, queue: DispatchQueue) -> Signal<Int, Error> {
+  public static func interval(_ interval: Double, queue: DispatchQueue = DispatchQueue(label: "com.reactivekit.interval")) -> Signal<Int, Error> {
     return Signal { observer in
       var number = 0
       var dispatch: (() -> Void)!
@@ -139,7 +139,7 @@ public extension SignalProtocol {
   }
 
   /// Create a signal that emits given element after `time` time on a given queue.
-  public static func timer(element: Element, time: Double, queue: DispatchQueue) -> Signal<Element, Error> {
+  public static func timer(element: Element, time: Double, queue: DispatchQueue = DispatchQueue(label: "com.reactivekit.timer")) -> Signal<Element, Error> {
     return Signal { observer in
       let disposable = SimpleDisposable()
       queue.after(when: time) {
@@ -428,7 +428,7 @@ extension SignalProtocol where Element: Collection {
 public extension SignalProtocol {
 
   /// Emit an element only if `interval` time passes without emitting another element.
-  public func debounce(interval: Double, on queue: DispatchQueue) -> Signal<Element, Error> {
+  public func debounce(interval: Double, on queue: DispatchQueue = DispatchQueue(label: "com.reactivekit.debounce")) -> Signal<Element, Error> {
     return Signal { observer in
       var timerSubscription: Disposable? = nil
       var previousElement: Element? = nil
@@ -537,7 +537,7 @@ public extension SignalProtocol {
   }
 
   /// Periodically sample the signal and emit latest element from each interval.
-  public func sample(interval: Double, on queue: DispatchQueue) -> Signal<Element, Error> {
+  public func sample(interval: Double, on queue: DispatchQueue = DispatchQueue(label: "com.reactivekit.sample")) -> Signal<Element, Error> {
     return Signal { observer in
       let serialDisposable = SerialDisposable(otherDisposable: nil)
       var latestElement: Element? = nil
@@ -762,7 +762,7 @@ extension SignalProtocol {
   }
 
   /// Delay signal events for `interval` time.
-  public func delay(interval: Double, on queue: DispatchQueue) -> Signal<Element, Error> {
+  public func delay(interval: Double, on queue: DispatchQueue = DispatchQueue(label: "com.reactivekit.delay")) -> Signal<Element, Error> {
     return Signal { observer in
       return self.observe { event in
         queue.after(when: interval) {
@@ -894,7 +894,7 @@ extension SignalProtocol {
   }
 
   /// Error-out if `interval` time passes with no emitted elements.
-  public func timeout(after interval: Double, with error: Error, on queue: DispatchQueue) -> Signal<Element, Error> {
+  public func timeout(after interval: Double, with error: Error, on queue: DispatchQueue = DispatchQueue(label: "com.reactivekit.timeout")) -> Signal<Element, Error> {
     return Signal { observer in
       var completed = false
       let timeoutWhenCan: () -> Disposable = {
