@@ -217,25 +217,29 @@ Whenever the observer is registered, the signal producer is executed all over ag
 let sharedCounter = counter.shareReplay()
 ```
 
-### <a name="cancellation"></a> Cancellation
+### <a name="cancellation"></a> Disposing Signals
 
-Observing the signal returns a disposable object. When the disposable object gets disposed, it will notify the producer to stop producing events and disable further event dispatches.
+Signals produce events until they complete with either a `.completed` or `.failed` event. When that event happens, a signal is disposed. Disposing means cleaning up and releasing all of the resources the signal might have been using. 
 
-If you do
+However, some signals might never complete while others might complete when we don't care about them anymore. For example, a signal representing network request that is observed by a view controller might complete after the view controller is dismissed. Such signal can be called a dangling signal. Dangling signals can be dangerous and take up resources that could be put to better use.
+
+So, how do we ensure that all signals are eventually disposed?
+
+A way to ensure that is to leverage a disposable that is returned by any `observe*` method.
 
 ```swift
-let disposable = aSignal.observeNext(...)
+let disposable = aSignal.observeNext { ... }
 ```
 
-and later need to cancel the signal, just call `dispose`.
+Such disposable can then be used to dispose the observed signal. Just call `dispose` on it.
 
 ```swift
 disposable.dispose()
 ```
 
-From that point on the signal will not send any more events and the underlying task will be cancelled.
+From that point on the signal will not send any more events, the underlying task will be cancelled and resources cleaned up.
 
-A general rule is to dispose all observations you make. It's recommended to keep a dispose bag where you should all of your disposables. The bag will automatically dispose all disposables you put in when it is deallocated.
+A general rule is to dispose all observations you make. It's recommended to keep a dispose bag where you can put all of your disposables. The bag will automatically dispose all disposables you put in when it is deallocated.
 
 ```swift
 class X {
@@ -250,7 +254,9 @@ class X {
 }
 ```
 
-> If you are using Bond framework and your class is a subclass or a descendent of NSObject, Bond provides the bag as an extension property `bnd_bag` that you can you out of the box.
+> If you are using Bond framework and your class is a subclass or a descendent of NSObject, Bond provides the bag as an extension property `bnd_bag` that you can use out of the box.
+
+Another way to ensure signal disposition is by using bindings instead of observations where possible. They handle everything automatically so you don't have to manually dispose signals. 
 
 ### Hot Signals
 
