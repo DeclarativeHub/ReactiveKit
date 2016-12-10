@@ -249,7 +249,7 @@ class X {
     ...
     aSignal.observeNext { _ in
       ...
-    }.disposeIn(disposeBag)
+    }.dispose(in: disposeBag)
   }
 }
 ```
