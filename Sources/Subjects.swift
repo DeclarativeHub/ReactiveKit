@@ -51,18 +51,6 @@ public final class PublishSubject<Element, Error: Swift.Error>: ObserverRegister
   }
 }
 
-extension PublishSubject: BindableProtocol {
-  
-  public func bind(signal: Signal<Element, NoError>) -> Disposable {
-    return signal
-      .take(until: disposeBag.deallocated)
-      .observeNext { [weak self] element in
-        guard let s = self else { return }
-        s.on(.next(element))
-      }
-  }
-}
-
 public typealias PublishSubject1<Element> = PublishSubject<Element, NoError>
 
 public final class ReplaySubject<Element, Error: Swift.Error>: ObserverRegister<(Event<Element, Error>) -> Void>, SubjectProtocol {
@@ -104,7 +92,7 @@ public final class ReplaySubject<Element, Error: Swift.Error>: ObserverRegister<
   }
 }
 
-internal class _ReplayOneSubject<Element, Error: Swift.Error>: ObserverRegister<(Event<Element, Error>) -> Void>, SubjectProtocol {
+public class _ReplayOneSubject<Element, Error: Swift.Error>: ObserverRegister<(Event<Element, Error>) -> Void>, SubjectProtocol {
 
   private var lastEvent: Event<Element, Error>? = nil
   private var terminalEvent: Event<Element, Error>? = nil
@@ -187,6 +175,56 @@ private class ObserverRegister<Observer> {
   public func forEachObserver(_ execute: (Observer) -> Void) {
     for (_, observer) in observers {
       execute(observer)
+    }
+  }
+}
+
+// Mark: Bindings
+
+extension PublishSubject: BindableProtocol {
+
+  public func bind(signal: Signal<Element, NoError>) -> Disposable {
+    return signal
+      .take(until: disposeBag.deallocated)
+      .observeNext { [weak self] element in
+        guard let s = self else { return }
+        s.on(.next(element))
+    }
+  }
+}
+
+extension ReplaySubject: BindableProtocol {
+
+  public func bind(signal: Signal<Element, NoError>) -> Disposable {
+    return signal
+      .take(until: disposeBag.deallocated)
+      .observeNext { [weak self] element in
+        guard let s = self else { return }
+        s.on(.next(element))
+    }
+  }
+}
+
+extension ReplayOneSubject: BindableProtocol {
+
+  public func bind(signal: Signal<Element, NoError>) -> Disposable {
+    return signal
+      .take(until: disposeBag.deallocated)
+      .observeNext { [weak self] element in
+        guard let s = self else { return }
+        s.on(.next(element))
+    }
+  }
+}
+
+extension AnySubject: BindableProtocol {
+
+  public func bind(signal: Signal<Element, NoError>) -> Disposable {
+    return signal
+      .take(until: disposeBag.deallocated)
+      .observeNext { [weak self] element in
+        guard let s = self else { return }
+        s.on(.next(element))
     }
   }
 }
