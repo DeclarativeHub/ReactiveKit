@@ -72,6 +72,10 @@
 		EC8706651D3CDCAC0068B589 /* Connectable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16886A191D3168E000D83E39 /* Connectable.swift */; };
 		EC8706661D3CDCE10068B589 /* Bindable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16886A221D31705500D83E39 /* Bindable.swift */; };
 		EC8706671D3CDDAA0068B589 /* Property.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8A99E11CABD9B50042A6AD /* Property.swift */; };
+		EC877A871E019E3400A23B51 /* Reactive.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC877A861E019E3400A23B51 /* Reactive.swift */; };
+		EC877A881E019E3400A23B51 /* Reactive.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC877A861E019E3400A23B51 /* Reactive.swift */; };
+		EC877A891E019E3400A23B51 /* Reactive.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC877A861E019E3400A23B51 /* Reactive.swift */; };
+		EC877A8A1E019E3400A23B51 /* Reactive.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC877A861E019E3400A23B51 /* Reactive.swift */; };
 		ECBCCDD41BEB6B9A00723476 /* ReactiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		ECBCCDDB1BEB6B9B00723476 /* ReactiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ECBCCDD01BEB6B9A00723476 /* ReactiveKit.framework */; };
 		ECD102FF1D89B2530086B6A1 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD102FD1D89B2530086B6A1 /* Helpers.swift */; };
@@ -106,6 +110,7 @@
 		EC06A86F1DBBF8A6006AEA81 /* ResultTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResultTests.swift; sourceTree = "<group>"; };
 		EC6C0FC51DB4A76A00C3880B /* PropertyTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PropertyTests.swift; sourceTree = "<group>"; };
 		EC7A6F881D3CCF5B00F9EF4A /* NoError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NoError.swift; path = Sources/NoError.swift; sourceTree = SOURCE_ROOT; };
+		EC877A861E019E3400A23B51 /* Reactive.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Reactive.swift; path = Sources/Reactive.swift; sourceTree = SOURCE_ROOT; };
 		EC8A99DC1CABD9B50042A6AD /* Disposable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Disposable.swift; path = Sources/Disposable.swift; sourceTree = SOURCE_ROOT; };
 		EC8A99DF1CABD9B50042A6AD /* Observer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Observer.swift; path = Sources/Observer.swift; sourceTree = SOURCE_ROOT; };
 		EC8A99E11CABD9B50042A6AD /* Property.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Property.swift; path = Sources/Property.swift; sourceTree = SOURCE_ROOT; };
@@ -201,6 +206,7 @@
 				EC8A99DF1CABD9B50042A6AD /* Observer.swift */,
 				EC8A99E41CABD9B50042A6AD /* Subjects.swift */,
 				16886A221D31705500D83E39 /* Bindable.swift */,
+				EC877A861E019E3400A23B51 /* Reactive.swift */,
 				EC7A6F881D3CCF5B00F9EF4A /* NoError.swift */,
 				16F2F5661D6D8A4500B85896 /* Lock.swift */,
 				ECCC81C51CDF4D5900019ECF /* Result.swift */,
@@ -467,6 +473,7 @@
 				165EBE331D27F8BC000E68C8 /* Event.swift in Sources */,
 				165EBE5C1D2804FF000E68C8 /* Signal.swift in Sources */,
 				165EBE451D27FE76000E68C8 /* Disposable.swift in Sources */,
+				EC877A881E019E3400A23B51 /* Reactive.swift in Sources */,
 				16299CB81D280C4100C7C570 /* Result.swift in Sources */,
 				165EBE491D27FE8F000E68C8 /* ExecutionContext.swift in Sources */,
 				EC7A6F8A1D3CCF5B00F9EF4A /* NoError.swift in Sources */,
@@ -489,6 +496,7 @@
 				165EBE341D27F8BC000E68C8 /* Event.swift in Sources */,
 				165EBE5D1D2804FF000E68C8 /* Signal.swift in Sources */,
 				165EBE441D27FE76000E68C8 /* Disposable.swift in Sources */,
+				EC877A891E019E3400A23B51 /* Reactive.swift in Sources */,
 				16299CB61D280C4000C7C570 /* Result.swift in Sources */,
 				165EBE481D27FE8E000E68C8 /* ExecutionContext.swift in Sources */,
 				EC7A6F8B1D3CCF5B00F9EF4A /* NoError.swift in Sources */,
@@ -511,6 +519,7 @@
 				165EBE351D27F8BC000E68C8 /* Event.swift in Sources */,
 				165EBE5E1D2804FF000E68C8 /* Signal.swift in Sources */,
 				165EBE431D27FE75000E68C8 /* Disposable.swift in Sources */,
+				EC877A8A1E019E3400A23B51 /* Reactive.swift in Sources */,
 				16299CB51D280C4000C7C570 /* Result.swift in Sources */,
 				165EBE471D27FE8D000E68C8 /* ExecutionContext.swift in Sources */,
 				EC7A6F8C1D3CCF5B00F9EF4A /* NoError.swift in Sources */,
@@ -533,6 +542,7 @@
 				165EBE5B1D2804FF000E68C8 /* Signal.swift in Sources */,
 				165EBE461D27FE76000E68C8 /* Disposable.swift in Sources */,
 				16299CB71D280C4100C7C570 /* Result.swift in Sources */,
+				EC877A871E019E3400A23B51 /* Reactive.swift in Sources */,
 				165EBE4A1D27FE90000E68C8 /* ExecutionContext.swift in Sources */,
 				EC7A6F891D3CCF5B00F9EF4A /* NoError.swift in Sources */,
 				EC8706651D3CDCAC0068B589 /* Connectable.swift in Sources */,
