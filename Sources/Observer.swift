@@ -23,6 +23,13 @@
 //
 
 /// Represents a type that receives events.
+public typealias Observer<Element, Error: Swift.Error> = (Event<Element, Error>) -> Void
+
+/// A convenience alias for observers of non-failable signals.
+public typealias SafeObserver<Element> = (Event<Element, NoError>) -> Void
+
+
+/// Represents a type that receives events.
 public protocol ObserverProtocol {
 
   /// Type of elements being received.
@@ -35,14 +42,15 @@ public protocol ObserverProtocol {
   func on(_ event: Event<Element, Error>)
 }
 
+
 /// Represents a type that receives events. Observer is just a convenience
-/// wrapper around a closure that accepts an event.
-public struct Observer<Element, Error: Swift.Error>: ObserverProtocol {
+/// wrapper around a closure observer `Observer<Element, Error>`.
+public struct AnyObserver<Element, Error: Swift.Error>: ObserverProtocol {
 
-  private let observer: (Event<Element, Error>) -> Void
+  private let observer: Observer<Element, Error>
 
-  /// Creates an observer that wraps given closure.
-  public init(observer: @escaping (Event<Element, Error>) -> Void) {
+  /// Creates an observer that wraps a closure observer.
+  public init(observer: @escaping Observer<Element, Error>) {
     self.observer = observer
   }
 
@@ -51,6 +59,7 @@ public struct Observer<Element, Error: Swift.Error>: ObserverProtocol {
     observer(event)
   }
 }
+
 
 /// Observer that ensures events are sent atomically.
 public class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol {
@@ -80,6 +89,7 @@ public class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol {
   }
 }
 
+
 // MARK: - Extensions
 
 public extension ObserverProtocol {
@@ -103,5 +113,10 @@ public extension ObserverProtocol {
   public func completed(with element: Element) {
     next(element)
     completed()
+  }
+
+  /// Converts the receiver to the Observer closure.
+  public func toObserver() -> Observer<Element, Error> {
+    return on
   }
 }

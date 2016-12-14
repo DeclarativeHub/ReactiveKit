@@ -36,17 +36,16 @@ public struct Signal<Element, Error: Swift.Error>: SignalProtocol {
   }
 
   /// Register the observer that will receive events from the signal.
-  public func observe(with observer: @escaping (Event<Element, Error>) -> Void) -> Disposable {
+  public func observe(with observer: @escaping Observer<Element, Error>) -> Disposable {
     let serialDisposable = SerialDisposable(otherDisposable: nil)
     let observer = AtomicObserver(disposable: serialDisposable, observer: observer)
     serialDisposable.otherDisposable = producer(observer)
     return serialDisposable
   }
-
-  public func toSignal() -> Signal<Element, Error> {
-    return self
-  }
 }
 
 /// A convenience alias for non-failable signals.
+public typealias SafeSignal<Element> = Signal<Element, NoError>
+
+/// Alternative convenience alias for non-failable signals.
 public typealias Signal1<Element> = Signal<Element, NoError>

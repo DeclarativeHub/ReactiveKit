@@ -39,7 +39,7 @@ public protocol SignalProtocol {
   /// Register an observer that will receive events from a signal.
   /// This actually triggers event production. Use the returned disposable
   /// to unsubscribe and cancel event production.
-  func observe(with observer: @escaping (Event<Element, Error>) -> Void) -> Disposable
+  func observe(with observer: @escaping Observer<Element, Error>) -> Disposable
 }
 
 extension SignalProtocol {
