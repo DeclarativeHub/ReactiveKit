@@ -606,6 +606,23 @@ public extension SignalProtocol {
     }
   }
 
+  /// Suppress elements for first `interval` seconds.
+  public func skip(interval: Double) -> Signal<Element, Error> {
+    return Signal { observer in
+      let startTime = Date().addingTimeInterval(interval)
+      return self.observe { event in
+        switch event {
+        case .next:
+          if startTime < Date() {
+            observer.on(event)
+          }
+        case .completed, .failed:
+          observer.on(event)
+        }
+      }
+    }
+  }
+
   /// Emit only first `count` elements of the signal and then complete.
   public func take(first count: Int) -> Signal<Element, Error> {
     return Signal { observer in
@@ -893,6 +910,40 @@ extension SignalProtocol {
     }
   }
 
+  /// Retries the failed signal when other signal produces an element.
+  public func retry<S: SignalProtocol>(when other: S) -> Signal<Element, Error> where S.Error == NoError {
+    return Signal { observer in
+      let serialDisposable = SerialDisposable(otherDisposable: nil)
+      var attempt: (() -> Void)?
+      attempt = {
+        serialDisposable.otherDisposable?.dispose()
+        let compositeDisposable = CompositeDisposable()
+        serialDisposable.otherDisposable = compositeDisposable
+        compositeDisposable += self.observe { event in
+          switch event {
+          case .next(let element):
+            observer.next(element)
+          case .completed:
+            attempt = nil
+            observer.completed()
+          case .failed(let error):
+            compositeDisposable += other.observe { otherEvent in
+              switch otherEvent {
+              case .next:
+                attempt?()
+              case .completed, .failed:
+                attempt = nil
+                observer.failed(error)
+              }
+            }
+          }
+        }
+      }
+      attempt?()
+      return serialDisposable
+    }
+  }
+
   /// Error-out if `interval` time passes with no emitted elements.
   public func timeout(after interval: Double, with error: Error, on queue: DispatchQueue = DispatchQueue(label: "com.reactivekit.timeout")) -> Signal<Element, Error> {
     return Signal { observer in
@@ -962,6 +1013,39 @@ extension SignalProtocol {
   /// Reduce signal events to a single event by applying given function on each emission.
   public func reduce<U>(_ initial: U, _ combine: @escaping (U, Element) -> U) -> Signal<U, Error> {
     return scan(initial, combine).take(last: 1)
+  }
+
+  /// Replays the latest element when other signal fires an element.
+  public func replayLatest<S: SignalProtocol>(when other: S) -> Signal<Element, Error> where S.Error == NoError {
+    return Signal { observer in
+      var latest: Element? = nil
+      let disposable = CompositeDisposable()
+
+      disposable += other.observe { event in
+        switch event {
+        case .next:
+          if let latest = latest {
+            observer.next(latest)
+          }
+        case .failed, .completed:
+          break
+        }
+      }
+
+      disposable += self.observe { event in
+        switch event {
+        case .next(let element):
+          latest = element
+          observer.next(element)
+        case .failed(let error):
+          observer.failed(error)
+        case .completed:
+          observer.completed()
+        }
+      }
+
+      return disposable
+    }
   }
 
   /// Prepend the given element to the signal emission.
