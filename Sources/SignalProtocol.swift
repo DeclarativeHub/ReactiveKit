@@ -1639,6 +1639,12 @@ public func combineLatest<Element, Result, Error: Swift.Error>(_ signals: [Signa
 /// Merge an array of signals into one. See `merge(with:)` for more info.
 public func merge<Element, Error: Swift.Error>(_ signals: [Signal<Element, Error>]) -> Signal<Element, Error> {
   return Signal { observer in
+    
+    guard signals.count > 0 else {
+      observer.completed()
+      return NonDisposable.instance
+    }
+
     let disposable = CompositeDisposable()
     var completions = Array(repeating: false, count: signals.count)
 
