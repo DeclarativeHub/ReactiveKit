@@ -87,7 +87,9 @@ extension SignalProtocol {
 
   /// Ensure that all observers see the same sequence of elements. Connectable.
   public func replay(_ limit: Int = Int.max) -> ConnectableSignal<Self> {
-    if limit == 1 {
+    if limit == 0 {
+      return ConnectableSignal(source: self, subject: AnySubject(base: PublishSubject()))
+    } else if limit == 1 {
       return ConnectableSignal(source: self, subject: AnySubject(base: ReplayOneSubject()))
     } else {
       return ConnectableSignal(source: self, subject: AnySubject(base: ReplaySubject(bufferSize: limit)))
