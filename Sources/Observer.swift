@@ -22,6 +22,8 @@
 //  THE SOFTWARE.
 //
 
+import Foundation
+
 /// Represents a type that receives events.
 public protocol ObserverProtocol {
 
