@@ -22,6 +22,8 @@
 //  THE SOFTWARE.
 //
 
+import Foundation
+
 /// Represents a signal that is started by calling `connect` on it.
 public protocol ConnectableSignalProtocol: SignalProtocol {
 
