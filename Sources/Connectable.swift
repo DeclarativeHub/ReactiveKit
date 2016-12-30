@@ -34,10 +34,10 @@ public final class ConnectableSignal<O: SignalProtocol>: ConnectableSignalProtoc
 
   private let source: O
   private let lock = NSRecursiveLock()
-  private let subject: AnySubject<O.Element, O.Error>
+  private let subject: Subject<O.Element, O.Error>
   private var connectionDisposable: Disposable? = nil
 
-  public init(source: O, subject: AnySubject<O.Element, O.Error>) {
+  public init(source: O, subject: Subject<O.Element, O.Error>) {
     self.source = source
     self.subject = subject
   }
@@ -88,17 +88,17 @@ extension SignalProtocol {
   /// Ensure that all observers see the same sequence of elements. Connectable.
   public func replay(_ limit: Int = Int.max) -> ConnectableSignal<Self> {
     if limit == 0 {
-      return ConnectableSignal(source: self, subject: AnySubject(base: PublishSubject()))
+      return ConnectableSignal(source: self, subject: PublishSubject())
     } else if limit == 1 {
-      return ConnectableSignal(source: self, subject: AnySubject(base: ReplayOneSubject()))
+      return ConnectableSignal(source: self, subject: ReplayOneSubject())
     } else {
-      return ConnectableSignal(source: self, subject: AnySubject(base: ReplaySubject(bufferSize: limit)))
+      return ConnectableSignal(source: self, subject: ReplaySubject(bufferSize: limit))
     }
   }
 
   /// Convert signal to a connectable signal.
   public func publish() -> ConnectableSignal<Self> {
-    return ConnectableSignal(source: self, subject: AnySubject(base: PublishSubject()))
+    return ConnectableSignal(source: self, subject: PublishSubject())
   }
 
   /// Ensure that all observers see the same sequence of elements.

@@ -63,6 +63,10 @@
 		16F2F56E1D6D924B00B85896 /* SignalProtocol+Arities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F2F56B1D6D924B00B85896 /* SignalProtocol+Arities.swift */; };
 		16F2F56F1D6D924B00B85896 /* SignalProtocol+Arities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F2F56B1D6D924B00B85896 /* SignalProtocol+Arities.swift */; };
 		EC06A8711DBBF8C7006AEA81 /* ResultTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC06A86F1DBBF8A6006AEA81 /* ResultTests.swift */; };
+		EC4C28121E167EED0055D256 /* Typealiases.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4C28111E167EED0055D256 /* Typealiases.swift */; };
+		EC4C28131E167EED0055D256 /* Typealiases.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4C28111E167EED0055D256 /* Typealiases.swift */; };
+		EC4C28141E167EED0055D256 /* Typealiases.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4C28111E167EED0055D256 /* Typealiases.swift */; };
+		EC4C28151E167EED0055D256 /* Typealiases.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4C28111E167EED0055D256 /* Typealiases.swift */; };
 		EC6C0FC71DB4A78E00C3880B /* PropertyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6C0FC51DB4A76A00C3880B /* PropertyTests.swift */; };
 		EC7A6F891D3CCF5B00F9EF4A /* NoError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7A6F881D3CCF5B00F9EF4A /* NoError.swift */; };
 		EC7A6F8A1D3CCF5B00F9EF4A /* NoError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7A6F881D3CCF5B00F9EF4A /* NoError.swift */; };
@@ -108,6 +112,7 @@
 		16F2F5661D6D8A4500B85896 /* Lock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Lock.swift; path = Sources/Lock.swift; sourceTree = SOURCE_ROOT; };
 		16F2F56B1D6D924B00B85896 /* SignalProtocol+Arities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "SignalProtocol+Arities.swift"; path = "Sources/SignalProtocol+Arities.swift"; sourceTree = SOURCE_ROOT; };
 		EC06A86F1DBBF8A6006AEA81 /* ResultTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResultTests.swift; sourceTree = "<group>"; };
+		EC4C28111E167EED0055D256 /* Typealiases.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Typealiases.swift; path = Sources/Typealiases.swift; sourceTree = SOURCE_ROOT; };
 		EC6C0FC51DB4A76A00C3880B /* PropertyTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PropertyTests.swift; sourceTree = "<group>"; };
 		EC7A6F881D3CCF5B00F9EF4A /* NoError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NoError.swift; path = Sources/NoError.swift; sourceTree = SOURCE_ROOT; };
 		EC877A861E019E3400A23B51 /* Reactive.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Reactive.swift; path = Sources/Reactive.swift; sourceTree = SOURCE_ROOT; };
@@ -212,6 +217,7 @@
 				ECCC81C51CDF4D5900019ECF /* Result.swift */,
 				164189771D2C4E71001D3881 /* Optional.swift */,
 				EC8A99E11CABD9B50042A6AD /* Property.swift */,
+				EC4C28111E167EED0055D256 /* Typealiases.swift */,
 				ECD102FB1D89B2530086B6A1 /* Tests */,
 			);
 			path = ReactiveKit;
@@ -477,6 +483,7 @@
 				16299CB81D280C4100C7C570 /* Result.swift in Sources */,
 				165EBE491D27FE8F000E68C8 /* ExecutionContext.swift in Sources */,
 				EC7A6F8A1D3CCF5B00F9EF4A /* NoError.swift in Sources */,
+				EC4C28131E167EED0055D256 /* Typealiases.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -500,6 +507,7 @@
 				16299CB61D280C4000C7C570 /* Result.swift in Sources */,
 				165EBE481D27FE8E000E68C8 /* ExecutionContext.swift in Sources */,
 				EC7A6F8B1D3CCF5B00F9EF4A /* NoError.swift in Sources */,
+				EC4C28141E167EED0055D256 /* Typealiases.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -523,6 +531,7 @@
 				16299CB51D280C4000C7C570 /* Result.swift in Sources */,
 				165EBE471D27FE8D000E68C8 /* ExecutionContext.swift in Sources */,
 				EC7A6F8C1D3CCF5B00F9EF4A /* NoError.swift in Sources */,
+				EC4C28151E167EED0055D256 /* Typealiases.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -546,6 +555,7 @@
 				165EBE4A1D27FE90000E68C8 /* ExecutionContext.swift in Sources */,
 				EC7A6F891D3CCF5B00F9EF4A /* NoError.swift in Sources */,
 				EC8706651D3CDCAC0068B589 /* Connectable.swift in Sources */,
+				EC4C28121E167EED0055D256 /* Typealiases.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

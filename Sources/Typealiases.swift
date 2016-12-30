@@ -22,23 +22,17 @@
 //  THE SOFTWARE.
 //
 
-/// A signal represents a sequence of elements.
-public struct Signal<Element, Error: Swift.Error>: SignalProtocol {
+public typealias Signal1<Element> = Signal<Element, NoError>
+public typealias SafeSignal<Element> = Signal<Element, NoError>
 
-  public typealias Producer = (AtomicObserver<Element, Error>) -> Disposable
+public typealias Observer1<Element> = (Event<Element, NoError>) -> Void
+public typealias SafeObserver<Element> = (Event<Element, NoError>) -> Void
 
-  private let producer: Producer
+public typealias PublishSubject1<Element> = PublishSubject<Element, NoError>
+public typealias SafePublishSubject<Element> = PublishSubject<Element, NoError>
 
-  /// Create new signal given a producer closure.
-  public init(producer: @escaping Producer) {
-    self.producer = producer
-  }
+public typealias ReplaySubject1<Element> = ReplaySubject<Element, NoError>
+public typealias SafeReplaySubject<Element> = ReplaySubject<Element, NoError>
 
-  /// Register the observer that will receive events from the signal.
-  public func observe(with observer: @escaping Observer<Element, Error>) -> Disposable {
-    let serialDisposable = SerialDisposable(otherDisposable: nil)
-    let observer = AtomicObserver(disposable: serialDisposable, observer: observer)
-    serialDisposable.otherDisposable = producer(observer)
-    return serialDisposable
-  }
-}
+public typealias ReplayOneSubject1<Element> = ReplayOneSubject<Element, NoError>
+public typealias SafeReplayOneSubject<Element> = ReplayOneSubject<Element, NoError>

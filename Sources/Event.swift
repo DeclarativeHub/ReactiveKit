@@ -22,7 +22,7 @@
 //  THE SOFTWARE.
 //
 
-/// Represents an event of a Signal.
+/// Represents an event of a signal.
 public enum Event<Element, Error: Swift.Error> {
   case next(Element)
   case failed(Error)

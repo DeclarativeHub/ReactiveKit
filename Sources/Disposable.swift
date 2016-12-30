@@ -41,8 +41,7 @@ public struct NonDisposable: Disposable {
 
   private init() {}
 
-  public func dispose() {
-  }
+  public func dispose() {}
 
   public var isDisposed: Bool {
     return false
@@ -140,47 +139,6 @@ public func += (left: CompositeDisposable, right: Disposable) {
   left.add(disposable: right)
 }
 
-/// A disposable container that will dispose a collection of disposables upon deinit.
-public final class DisposeBag: Disposable {
-  private var disposables: [Disposable] = []
-  private let subject = _ReplayOneSubject<Void, NoError>()
-
-  /// This will return true whenever the bag is empty.
-  public var isDisposed: Bool {
-    return disposables.count == 0
-  }
-
-  public init() {
-  }
-
-  /// Adds the given disposable to the bag.
-  /// Disposable will be disposed when the bag is deinitialized.
-  public func add(disposable: Disposable) {
-    disposables.append(disposable)
-  }
-
-  /// Disposes all disposables that are currenty in the bag.
-  public func dispose() {
-    disposables.forEach { $0.dispose() }
-    disposables.removeAll()
-  }
-  
-  public var deallocated: Signal1<Void> {
-    return subject.toSignal()
-  }
-
-  deinit {
-    dispose()
-    subject.completed()
-  }
-}
-
-public extension Disposable {
-  public func disposeIn(_ disposeBag: DisposeBag) {
-    disposeBag.add(disposable: self)
-  }
-}
-
 /// A disposable that disposes other disposable.
 public final class SerialDisposable: Disposable {
 
@@ -210,7 +168,60 @@ public final class SerialDisposable: Disposable {
   }
 }
 
-/// A type that provides dispose bag.
-public protocol DisposeBagProvider: class {
-  var disposeBag: DisposeBag { get }
+/// A container of disposables that will dispose the disposables upon deinit.
+public protocol DisposeBagProtocol: Disposable {
+  func add(disposable: Disposable)
+}
+
+/// A container of disposables that will dispose the disposables upon deinit.
+public final class DisposeBag: DisposeBagProtocol {
+  private var disposables: [Disposable] = []
+  private var subject: ReplayOneSubject<Void, NoError>?
+  private lazy var lock = NSRecursiveLock(name: "com.reactivekit.disposebag")
+
+  /// This will return true whenever the bag is empty.
+  public var isDisposed: Bool {
+    return disposables.count == 0
+  }
+
+  public init() {
+  }
+
+  /// Adds the given disposable to the bag.
+  /// Disposable will be disposed when the bag is deinitialized.
+  public func add(disposable: Disposable) {
+    disposables.append(disposable)
+  }
+
+  /// Disposes all disposables that are currenty in the bag.
+  public func dispose() {
+    disposables.forEach { $0.dispose() }
+    disposables.removeAll()
+  }
+
+  public var deallocated: Signal1<Void> {
+    lock.lock()
+    if subject == nil {
+      subject = ReplayOneSubject()
+    }
+    lock.unlock()
+    return subject!.toSignal()
+  }
+
+  deinit {
+    dispose()
+    subject?.completed()
+  }
+}
+
+public extension Disposable {
+
+  public func dispose(in disposeBag: DisposeBagProtocol) {
+    disposeBag.add(disposable: self)
+  }
+
+  @available(*, deprecated, renamed: "dispose(in:)")
+  public func disposeIn(_ disposeBag: DisposeBag) {
+    disposeBag.add(disposable: self)
+  }
 }

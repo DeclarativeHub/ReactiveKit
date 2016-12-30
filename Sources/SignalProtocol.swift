@@ -44,6 +44,12 @@ public protocol SignalProtocol {
 
 extension SignalProtocol {
 
+  /// Register an observer that will receive events from a signal.
+  public func observe<O: ObserverProtocol>(with observer: O) -> Disposable
+    where O.Element == Element, O.Error == Error {
+    return observe(with: observer.on)
+  }
+
   /// Register an observer that will receive elements from `.next` events of the signal.
   public func observeNext(with observer: @escaping (Element) -> Void) -> Disposable {
     return observe { event in

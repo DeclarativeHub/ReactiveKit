@@ -25,10 +25,6 @@
 /// Represents a type that receives events.
 public typealias Observer<Element, Error: Swift.Error> = (Event<Element, Error>) -> Void
 
-/// A convenience alias for observers of non-failable signals.
-public typealias SafeObserver<Element> = (Event<Element, NoError>) -> Void
-
-
 /// Represents a type that receives events.
 public protocol ObserverProtocol {
 
@@ -41,7 +37,6 @@ public protocol ObserverProtocol {
   /// Send the event to the observer.
   func on(_ event: Event<Element, Error>)
 }
-
 
 /// Represents a type that receives events. Observer is just a convenience
 /// wrapper around a closure observer `Observer<Element, Error>`.
@@ -59,7 +54,6 @@ public struct AnyObserver<Element, Error: Swift.Error>: ObserverProtocol {
     observer(event)
   }
 }
-
 
 /// Observer that ensures events are sent atomically.
 public class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol {
@@ -88,7 +82,6 @@ public class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol {
     }
   }
 }
-
 
 // MARK: - Extensions
 
