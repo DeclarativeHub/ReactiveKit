@@ -132,7 +132,13 @@ class SignalTests: XCTestCase {
   func testRecover() {
     let operation = Signal<Int, TestError>.failed(.Error)
     let signal = operation.recover(with: 1)
-    signal.expectNext([1])
+    signal.expect([.next(1), .completed])
+  }
+
+  func testRecoverAndContinueAfterFailure() {
+    let operation = Signal<Int, TestError>.failed(.Error)
+    let signal = operation.recover(with: 1, completeOnError: false)
+    signal.expect([.next(1)])
   }
 
   func testWindow() {
