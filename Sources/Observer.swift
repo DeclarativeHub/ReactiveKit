@@ -60,13 +60,13 @@ public struct AnyObserver<Element, Error: Swift.Error>: ObserverProtocol {
 /// Observer that ensures events are sent atomically.
 public class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol {
 
-  private let observer: (Event<Element, Error>) -> Void
+  private let observer: Observer<Element, Error>
   private let disposable: Disposable
   private let lock = NSRecursiveLock(name: "com.reactivekit.signal.atomicobserver")
   private var terminated = false
 
   /// Creates an observer that wraps given closure.
-  public init(disposable: Disposable, observer: @escaping (Event<Element, Error>) -> Void) {
+  public init(disposable: Disposable, observer: @escaping Observer<Element, Error>) {
     self.disposable = disposable
     self.observer = observer
   }

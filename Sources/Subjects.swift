@@ -53,13 +53,13 @@ open class Subject<Element, Error: Swift.Error>: SubjectProtocol {
     forEachObserver { $0(event) }
   }
 
-  open func observe(with observer: @escaping (Event<Element, Error>) -> Void) -> Disposable {
+  open func observe(with observer: @escaping Observer<Element, Error>) -> Disposable {
     lock.lock(); defer { lock.unlock() }
     willAdd(observer: observer)
     return add(observer: observer)
   }
 
-  open func willAdd(observer: @escaping (Event<Element, Error>) -> Void) {
+  open func willAdd(observer: @escaping Observer<Element, Error>) {
   }
 
   private func add(observer: @escaping Observer<Element, Error>) -> Disposable {
@@ -115,7 +115,7 @@ public final class ReplaySubject<Element, Error: Swift.Error>: Subject<Element, 
     super.send(event)
   }
 
-  public override func willAdd(observer: @escaping (Event<Element, Error>) -> Void) {
+  public override func willAdd(observer: @escaping Observer<Element, Error>) {
     buffer.forEach(observer)
   }
 }
@@ -135,7 +135,7 @@ public final class ReplayOneSubject<Element, Error: Swift.Error>: Subject<Elemen
     super.send(event)
   }
 
-  public override func willAdd(observer: @escaping (Event<Element, Error>) -> Void) {
+  public override func willAdd(observer: @escaping Observer<Element, Error>) {
     if let event = lastEvent {
       observer(event)
     }
@@ -148,8 +148,8 @@ public final class ReplayOneSubject<Element, Error: Swift.Error>: Subject<Elemen
 
 @available(*, deprecated, message: "All subjects now inherit 'Subject' that can be used in place of 'AnySubject'.")
 public final class AnySubject<Element, Error: Swift.Error>: SubjectProtocol {
-  private let baseObserve: (@escaping (Event<Element, Error>) -> Void) -> Disposable
-  private let baseOn: (Event<Element, Error>) -> Void
+  private let baseObserve: (@escaping Observer<Element, Error>) -> Disposable
+  private let baseOn: Observer<Element, Error>
 
   public let disposeBag = DisposeBag()
 
@@ -162,7 +162,7 @@ public final class AnySubject<Element, Error: Swift.Error>: SubjectProtocol {
     return baseOn(event)
   }
 
-  public func observe(with observer: @escaping (Event<Element, Error>) -> Void) -> Disposable {
+  public func observe(with observer: @escaping Observer<Element, Error>) -> Disposable {
     return baseObserve(observer)
   }
 }
