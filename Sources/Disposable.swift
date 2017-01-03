@@ -199,7 +199,7 @@ public final class DisposeBag: DisposeBagProtocol {
     disposables.removeAll()
   }
 
-  public var deallocated: Signal1<Void> {
+  public var deallocated: SafeSignal<Void> {
     lock.lock()
     if subject == nil {
       subject = ReplayOneSubject()

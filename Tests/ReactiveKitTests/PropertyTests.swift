@@ -38,7 +38,7 @@ class PropertyTests: XCTestCase {
 
     property.value = 5
     property.value = 10
-    Signal1.sequence([20, 30]).bind(to: property)
+    SafeSignal.sequence([20, 30]).bind(to: property)
     property.value = 40
 
     weak var weakProperty = property
@@ -66,7 +66,7 @@ class PropertyTests: XCTestCase {
 
     property.value = 5
     property.value = 10
-    Signal1.sequence([20, 30]).bind(to: property)
+    SafeSignal.sequence([20, 30]).bind(to: property)
     property.value = 40
 
     XCTAssert(readOnlyView.value == 40)
