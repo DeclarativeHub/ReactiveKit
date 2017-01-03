@@ -349,7 +349,7 @@ public extension SignalProtocol {
   }
 
   /// Recovers the signal by propagating default element if error happens.
-  public func recover(with element: Element) -> Signal<Element, NoError> {
+  public func recover(with element: Element, completeOnError: Bool = true) -> Signal<Element, NoError> {
     return Signal { observer in
       return self.observe { event in
         switch event {
@@ -357,7 +357,9 @@ public extension SignalProtocol {
           observer.next(element)
         case .failed:
           observer.next(element)
-          observer.completed()
+          if completeOnError {
+            observer.completed()
+          }
         case .completed:
           observer.completed()
         }
