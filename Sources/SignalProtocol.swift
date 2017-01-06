@@ -469,10 +469,11 @@ public extension SignalProtocol {
       return self.observe { event in
         switch event {
         case .next(let element):
-          if lastElement == nil || areDistinct(lastElement!, element) {
+          let prevLastElement = lastElement
+          lastElement = element
+          if prevLastElement == nil || areDistinct(prevLastElement!, element) {
             observer.next(element)
           }
-          lastElement = element
         default:
           observer.on(event)
         }
