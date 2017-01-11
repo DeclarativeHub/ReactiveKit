@@ -1072,8 +1072,9 @@ extension SignalProtocol {
       return self.observe { event in
         switch event {
         case .next(let element):
-          observer.next((previous, element))
+          let lastPrevious = previous
           previous = element
+          observer.next((lastPrevious, element))
         case .failed(let error):
           observer.failed(error)
         case .completed:
