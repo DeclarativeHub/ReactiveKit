@@ -183,6 +183,25 @@ public extension SignalProtocol {
     }
   }
 
+  /// Maps each element into an optional type and propagates unwrapped .some results.
+  /// Shorthand for ```map().ignoreNil()```.
+  public func flatMap<U>(_ transform: @escaping (Element) -> U?) -> Signal<U, Error> {
+    return Signal { observer in
+      return self.observe { event in
+        switch event {
+        case .next(let element):
+          if let element = transform(element) {
+            observer.next(element)
+          }
+        case .failed(let error):
+          observer.failed(error)
+        case .completed:
+          observer.completed()
+        }
+      }
+    }
+  }
+
   /// Map each event into a signal and then flatten inner signals.
   public func flatMapLatest<O: SignalProtocol>(transform: @escaping (Element) -> O) -> Signal<O.Element, Error> where O.Error == Error {
     return map(transform).switchToLatest()
@@ -410,9 +429,9 @@ extension SignalProtocol where Element: OptionalProtocol {
   }
 }
 
-extension SignalProtocol where Element: Collection {
+extension SignalProtocol where Element: Sequence {
 
-  /// Map each emitted array.
+  /// Map each emitted sequence.
   public func flatMap<U>(_ transform: @escaping (Element.Iterator.Element) -> U) -> Signal<[U], Error> {
     return Signal { observer in
       return self.observe { event in
@@ -423,6 +442,22 @@ extension SignalProtocol where Element: Collection {
           observer.failed(error)
         case .completed:
           observer.completed()
+        }
+      }
+    }
+  }
+
+  /// Unwraps elements from each emitted sequence into an events of their own.
+  public func unwrap() -> Signal<Element.Iterator.Element, Error> {
+    return Signal { observer in
+      return self.observe { event in
+        switch event {
+        case .next(let sequence):
+          sequence.forEach(observer.next)
+        case .completed:
+          observer.completed()
+        case .failed(let error):
+          observer.failed(error)
         }
       }
     }
