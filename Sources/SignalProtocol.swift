@@ -1450,7 +1450,7 @@ extension SignalProtocol {
       }
 
       func completeIfPossible() {
-        if completions.me && completions.other {
+        if completions.me || completions.other {
           observer.completed()
         }
       }

@@ -281,7 +281,18 @@ class SignalTests: XCTestCase {
     let operationA = Signal<Int, TestError>.sequence([1, 2, 3])
     let operationB = Signal<String, TestError>.sequence(["A", "B"])
     let combined = operationA.zip(with: operationB).map { "\($0)\($1)" }
-    combined.expectNext(["1A", "2B"])
+    let exp = expectation(description: "completed")
+    combined.expectNext(["1A", "2B"], expectation: exp)
+    waitForExpectations(timeout: 1, handler: nil)
+  }
+  
+  func testZipWithWhenNotComplete() {
+    let operationA = Signal<Int, TestError>.sequence([1, 2, 3]).ignoreTerminal()
+    let operationB = Signal<String, TestError>.sequence(["A", "B"])
+    let combined = operationA.zip(with: operationB).map { "\($0)\($1)" }
+    let exp = expectation(description: "completed")
+    combined.expectNext(["1A", "2B"], expectation: exp)
+    waitForExpectations(timeout: 1, handler: nil)
   }
 
   func testFlatMapError() {
