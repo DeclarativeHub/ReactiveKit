@@ -281,18 +281,23 @@ class SignalTests: XCTestCase {
     let operationA = Signal<Int, TestError>.sequence([1, 2, 3])
     let operationB = Signal<String, TestError>.sequence(["A", "B"])
     let combined = operationA.zip(with: operationB).map { "\($0)\($1)" }
-    let exp = expectation(description: "completed")
-    combined.expectNext(["1A", "2B"], expectation: exp)
-    waitForExpectations(timeout: 1, handler: nil)
+    combined.expectNext(["1A", "2B"], expectation: nil)
   }
   
   func testZipWithWhenNotComplete() {
     let operationA = Signal<Int, TestError>.sequence([1, 2, 3]).ignoreTerminal()
     let operationB = Signal<String, TestError>.sequence(["A", "B"])
     let combined = operationA.zip(with: operationB).map { "\($0)\($1)" }
+    combined.expectNext(["1A", "2B"], expectation: nil)
+  }
+  
+  func testZipWithAsyncSignal() {
+    let operationA = Signal<Int, TestError>.interval(0.5).take(first: 4)  // Takes just 2 secs to emit 4 nexts.
+    let operationB = Signal<Int, TestError>.interval(1.0).take(first: 10) // Takes 4 secs to emit 4 nexts.
+    let combined = operationA.zip(with: operationB).map { $0 + $1 } // Completes after 4 nexts due to operationA and takes 4 secs due to operationB
     let exp = expectation(description: "completed")
-    combined.expectNext(["1A", "2B"], expectation: exp)
-    waitForExpectations(timeout: 1, handler: nil)
+    combined.expectNext([0, 2, 4, 6], expectation: exp)
+    waitForExpectations(timeout: 5.0, handler: nil)
   }
 
   func testFlatMapError() {
