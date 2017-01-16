@@ -57,7 +57,7 @@ extension SignalProtocol {
     let _ = observe { event in
       receivedEvents.append(event)
       if eventsToProcess.count == 0 {
-        XCTFail("Got more events then expected.")
+        XCTFail("Got more events than expected.")
         return
       }
       let expected = eventsToProcess.removeFirst()

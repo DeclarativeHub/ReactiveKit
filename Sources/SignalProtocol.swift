@@ -1450,7 +1450,7 @@ extension SignalProtocol {
       }
 
       func completeIfPossible() {
-        if completions.me && completions.other {
+        if (buffers.my.isEmpty && completions.me) || (buffers.other.isEmpty && completions.other) {
           observer.completed()
         }
       }
@@ -1460,13 +1460,13 @@ extension SignalProtocol {
         switch event {
         case .next(let element):
           buffers.my.append(element)
-          dispatchIfPossible()
         case .failed(let error):
           observer.failed(error)
         case .completed:
           completions.me = true
-          completeIfPossible()
         }
+        dispatchIfPossible()
+        completeIfPossible()
       }
 
       compositeDisposable += other.observe { event in
@@ -1474,13 +1474,13 @@ extension SignalProtocol {
         switch event {
         case .next(let element):
           buffers.other.append(element)
-          dispatchIfPossible()
         case .failed(let error):
           observer.failed(error)
         case .completed:
           completions.other = true
-          completeIfPossible()
         }
+        dispatchIfPossible()
+        completeIfPossible()
       }
 
       return compositeDisposable
