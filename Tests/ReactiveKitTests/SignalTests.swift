@@ -512,6 +512,17 @@ class SignalTests: XCTestCase {
     replayed.expectNext([2, 3])
     XCTAssertEqual(bob.numberOfRuns, 1)
   }
+  
+  func testConnectedReplay() {
+    let bag = DisposeBag()
+    
+    let sink = SafePublishSubject<Int>()
+    let signal: SafeSignal<Int> = sink.connectedReplay(limit: 1, bag: bag)
+    
+    sink.next(1)
+    
+    signal.expectNext([1])
+  }
 
   func testPublish() {
     let bob = Scheduler()
