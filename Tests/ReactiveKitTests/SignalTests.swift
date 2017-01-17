@@ -291,6 +291,13 @@ class SignalTests: XCTestCase {
     combined.expectNext(["1A", "2B"])
   }
   
+  func testZipWithWhenNotComplete2() {
+    let operationA = Signal<Int, TestError>.sequence([1, 2, 3])
+    let operationB = Signal<String, TestError>.sequence(["A", "B"]).ignoreTerminal()
+    let combined = operationA.zip(with: operationB).map { "\($0)\($1)" }
+    combined.expect([.next("1A"), .next("2B")])
+  }
+  
   func testZipWithAsyncSignal() {
     let operationA = Signal<Int, TestError>.interval(0.5).take(first: 4)  // Takes just 2 secs to emit 4 nexts.
     let operationB = Signal<Int, TestError>.interval(1.0).take(first: 10) // Takes 4 secs to emit 4 nexts.
