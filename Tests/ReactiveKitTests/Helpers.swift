@@ -41,19 +41,16 @@ extension Event {
 extension SignalProtocol {
 
   func expectNext(_ expectedElements: [Element],
-                  _ message: @autoclosure () -> String = "",
                   expectation: XCTestExpectation? = nil,
                   file: StaticString = #file, line: UInt = #line) {
-    expect(expectedElements.map { .next($0) } + [.completed], message, expectation: expectation, file: file, line: line)
+    expect(expectedElements.map { .next($0) } + [.completed], expectation: expectation, file: file, line: line)
   }
 
   func expect(_ expectedEvents: [Event<Element, Error>],
-              _ message: @autoclosure () -> String = "",
               expectation: XCTestExpectation? = nil,
               file: StaticString = #file, line: UInt = #line) {
     var eventsToProcess = expectedEvents
     var receivedEvents: [Event<Element, Error>] = []
-    let message = message()
     let _ = observe { event in
       receivedEvents.append(event)
       if eventsToProcess.count == 0 {
@@ -61,7 +58,7 @@ extension SignalProtocol {
         return
       }
       let expected = eventsToProcess.removeFirst()
-      XCTAssert(event.isEqualTo(expected), message + "(Got \(receivedEvents) instead of \(expectedEvents))", file: file, line: line)
+      XCTAssert(event.isEqualTo(expected), "(Got \(receivedEvents) instead of \(expectedEvents))", file: file, line: line)
       if eventsToProcess.count == 0 {
         expectation?.fulfill()
       }
