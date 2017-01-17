@@ -41,8 +41,8 @@ extension Event {
 extension SignalProtocol {
   
   // Synchronous test
-  func expectNext(_ expectedElements: [Element],
-                  file: StaticString = #file, line: UInt = #line) {
+  func expectComplete(after expectedElements: [Element],
+                      file: StaticString = #file, line: UInt = #line) {
     expect(expectedElements.map { .next($0) } + [.completed], file: file, line: line)
   }
 

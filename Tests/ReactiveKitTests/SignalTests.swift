@@ -34,8 +34,8 @@ class SignalTests: XCTestCase {
 
     let operation = Signal<Int, TestError>.sequence([1, 2, 3]).executeIn(bob.context)
 
-    operation.expectNext([1, 2, 3])
-    operation.expectNext([1, 2, 3])
+    operation.expectComplete(after: [1, 2, 3])
+    operation.expectComplete(after: [1, 2, 3])
     XCTAssertEqual(bob.numberOfRuns, 2)
   }
 
@@ -52,17 +52,17 @@ class SignalTests: XCTestCase {
 
   func testJust() {
     let operation = Signal<Int, TestError>.just(1)
-    operation.expectNext([1])
+    operation.expectComplete(after: [1])
   }
 
   func testSequence() {
     let operation = Signal<Int, TestError>.sequence([1, 2, 3])
-    operation.expectNext([1, 2, 3])
+    operation.expectComplete(after: [1, 2, 3])
   }
 
   func testCompleted() {
     let operation = Signal<Int, TestError>.completed()
-    operation.expectNext([])
+    operation.expectComplete(after: [])
   }
 
   func testNever() {
@@ -96,99 +96,99 @@ class SignalTests: XCTestCase {
   func testBuffer() {
     let operation = Signal<Int, TestError>.sequence([1,2,3,4,5])
     let buffered = operation.buffer(size: 2)
-    buffered.expectNext([[1, 2], [3, 4]])
+    buffered.expectComplete(after: [[1, 2], [3, 4]])
   }
 
   func testMap() {
     let operation = Signal<Int, TestError>.sequence([1, 2, 3])
     let mapped = operation.map { $0 * 2 }
-    mapped.expectNext([2, 4, 6])
+    mapped.expectComplete(after: [2, 4, 6])
   }
 
   func testScan() {
     let operation = Signal<Int, TestError>.sequence([1, 2, 3])
     let scanned = operation.scan(0, +)
-    scanned.expectNext([0, 1, 3, 6])
+    scanned.expectComplete(after: [0, 1, 3, 6])
   }
 
   func testToSignal() {
     let operation = Signal<Int, TestError>.sequence([1, 2, 3])
     let operation2 = operation.toSignal()
-    operation2.expectNext([1, 2, 3])
+    operation2.expectComplete(after: [1, 2, 3])
   }
 
   func testSuppressError() {
     let operation = Signal<Int, TestError>.sequence([1, 2, 3])
     let signal = operation.suppressError(logging: false)
-    signal.expectNext([1, 2, 3])
+    signal.expectComplete(after: [1, 2, 3])
   }
 
   func testSuppressError2() {
     let operation = Signal<Int, TestError>.failed(.Error)
     let signal = operation.suppressError(logging: false)
-    signal.expectNext([])
+    signal.expectComplete(after: [])
   }
 
   func testRecover() {
     let operation = Signal<Int, TestError>.failed(.Error)
     let signal = operation.recover(with: 1)
-    signal.expectNext([1])
+    signal.expectComplete(after: [1])
   }
 
   func testWindow() {
     let operation = Signal<Int, TestError>.sequence([1, 2, 3])
     let window = operation.window(size: 2)
-    window.merge().expectNext([1, 2])
+    window.merge().expectComplete(after: [1, 2])
   }
 
   //  func testDebounce() {
   //    let operation = Signal<Int, TestError>.interval(0.1, queue: Queue.global).take(first: 3)
   //    let distinct = operation.debounce(interval: 0.3, on: Queue.global)
   //    let exp = expectation(withDescription: "completed")
-  //    distinct.expectNext([2], expectation: exp)
+  //    distinct.expectComplete(after: [2], expectation: exp)
   //    waitForExpectations(withTimeout: 1, handler: nil)
   //  }
 
   func testDistinct() {
     let operation = Signal<Int, TestError>.sequence([1, 2, 2, 3])
     let distinct = operation.distinct { a, b in a != b }
-    distinct.expectNext([1, 2, 3])
+    distinct.expectComplete(after: [1, 2, 3])
   }
 
   func testDistinct2() {
     let operation = Signal<Int, TestError>.sequence([1, 2, 2, 3])
     let distinct = operation.distinct()
-    distinct.expectNext([1, 2, 3])
+    distinct.expectComplete(after: [1, 2, 3])
   }
 
   func testElementAt() {
     let operation = Signal<Int, TestError>.sequence([1, 2, 3])
     let elementAt1 = operation.element(at: 1)
-    elementAt1.expectNext([2])
+    elementAt1.expectComplete(after: [2])
   }
 
   func testFilter() {
     let operation = Signal<Int, TestError>.sequence([1, 2, 3])
     let filtered = operation.filter { $0 % 2 != 0 }
-    filtered.expectNext([1, 3])
+    filtered.expectComplete(after: [1, 3])
   }
 
   func testFirst() {
     let operation = Signal<Int, TestError>.sequence([1, 2, 3])
     let first = operation.first()
-    first.expectNext([1])
+    first.expectComplete(after: [1])
   }
 
   func testIgnoreElement() {
     let operation = Signal<Int, TestError>.sequence([1, 2, 3])
     let ignoreElements = operation.ignoreElements()
-    ignoreElements.expectNext([])
+    ignoreElements.expectComplete(after: [])
   }
 
   func testLast() {
     let operation = Signal<Int, TestError>.sequence([1, 2, 3])
     let first = operation.last()
-    first.expectNext([3])
+    first.expectComplete(after: [3])
   }
 
   // TODO: sample
@@ -196,39 +196,39 @@ class SignalTests: XCTestCase {
   func testSkip() {
     let operation = Signal<Int, TestError>.sequence([1, 2, 3])
     let skipped1 = operation.skip(first: 1)
-    skipped1.expectNext([2, 3])
+    skipped1.expectComplete(after: [2, 3])
   }
 
   func testSkipLast() {
     let operation = Signal<Int, TestError>.sequence([1, 2, 3])
     let skippedLast1 = operation.skip(last: 1)
-    skippedLast1.expectNext([1, 2])
+    skippedLast1.expectComplete(after: [1, 2])
   }
 
   func testTake() {
     let operation = Signal<Int, TestError>.sequence([1, 2, 3])
     let taken2 = operation.take(first: 2)
-    taken2.expectNext([1, 2])
+    taken2.expectComplete(after: [1, 2])
   }
 
   func testTakeLast() {
     let operation = Signal<Int, TestError>.sequence([1, 2, 3])
     let takenLast2 = operation.take(last: 2)
-    takenLast2.expectNext([2, 3])
+    takenLast2.expectComplete(after: [2, 3])
   }
 
 //  func testThrottle() {
 //    let operation = Signal<Int, TestError>.interval(0.4, queue: Queue.global).take(5)
 //    let distinct = operation.throttle(1)
 //    let exp = expectation(withDescription: "completed")
-//    distinct.expectNext([0, 3], expectation: exp)
+//    distinct.expectComplete(after: [0, 3], expectation: exp)
 //    waitForExpectationsWithTimeout(3, handler: nil)
 //  }
 
   func testIgnoreNil() {
     let operation = Signal<Int?, TestError>.sequence(Array<Int?>([1, nil, 3]))
     let unwrapped = operation.ignoreNil()
-    unwrapped.expectNext([1, 3])
+    unwrapped.expectComplete(after: [1, 3])
   }
 
   func testCombineLatestWith() {
@@ -274,21 +274,21 @@ class SignalTests: XCTestCase {
   func testStartWith() {
     let operation = Signal<Int, TestError>.sequence([1, 2, 3])
     let startWith4 = operation.start(with: 4)
-    startWith4.expectNext([4, 1, 2, 3])
+    startWith4.expectComplete(after: [4, 1, 2, 3])
   }
 
   func testZipWith() {
     let operationA = Signal<Int, TestError>.sequence([1, 2, 3])
     let operationB = Signal<String, TestError>.sequence(["A", "B"])
     let combined = operationA.zip(with: operationB).map { "\($0)\($1)" }
-    combined.expectNext(["1A", "2B"])
+    combined.expectComplete(after: ["1A", "2B"])
   }
   
   func testZipWithWhenNotComplete() {
     let operationA = Signal<Int, TestError>.sequence([1, 2, 3]).ignoreTerminal()
     let operationB = Signal<String, TestError>.sequence(["A", "B"])
     let combined = operationA.zip(with: operationB).map { "\($0)\($1)" }
-    combined.expectNext(["1A", "2B"])
+    combined.expectComplete(after: ["1A", "2B"])
   }
   
   func testZipWithWhenNotComplete2() {
@@ -310,13 +310,13 @@ class SignalTests: XCTestCase {
   func testFlatMapError() {
     let operation = Signal<Int, TestError>.failed(.Error)
     let recovered = operation.flatMapError { error in Signal<Int, TestError>.just(1) }
-    recovered.expectNext([1])
+    recovered.expectComplete(after: [1])
   }
 
   func testFlatMapError2() {
     let operation = Signal<Int, TestError>.failed(.Error)
     let recovered = operation.flatMapError { error in Signal<Int, NoError>.just(1) }
-    recovered.expectNext([1])
+    recovered.expectComplete(after: [1])
   }
 
   func testRetry() {
@@ -335,7 +335,7 @@ class SignalTests: XCTestCase {
     bob.runRemaining()
 
     let operation = Signal<Int, TestError>.sequence([1, 2, 3]).executeIn(bob.context)
-    operation.expectNext([1, 2, 3])
+    operation.expectComplete(after: [1, 2, 3])
 
     XCTAssertEqual(bob.numberOfRuns, 1)
   }
@@ -365,7 +365,7 @@ class SignalTests: XCTestCase {
     bob.runRemaining()
 
     let operation = Signal<Int, TestError>.sequence([1, 2, 3]).observeIn(bob.context)
-    operation.expectNext([1, 2, 3])
+    operation.expectComplete(after: [1, 2, 3])
 
     XCTAssertEqual(bob.numberOfRuns, 4) // 3 elements + completion
   }
@@ -421,7 +421,7 @@ class SignalTests: XCTestCase {
   func testCollect() {
     let operation = Signal<Int, TestError>.sequence([1, 2, 3])
     let collected = operation.collect()
-    collected.expectNext([[1, 2, 3]])
+    collected.expectComplete(after: [[1, 2, 3]])
   }
 
   func testConcatWith() {
@@ -446,19 +446,19 @@ class SignalTests: XCTestCase {
   func testDefaultIfEmpty() {
     let operation = Signal<Int, TestError>.sequence([])
     let defaulted = operation.defaultIfEmpty(1)
-    defaulted.expectNext([1])
+    defaulted.expectComplete(after: [1])
   }
 
   func testReduce() {
     let operation = Signal<Int, TestError>.sequence([1, 2, 3])
     let reduced = operation.reduce(0, +)
-    reduced.expectNext([6])
+    reduced.expectComplete(after: [6])
   }
 
   func testZipPrevious() {
     let operation = Signal<Int, TestError>.sequence([1, 2, 3])
     let zipped = operation.zipPrevious()
-    zipped.expectNext([(nil, 1), (1, 2), (2, 3)])
+    zipped.expectComplete(after: [(nil, 1), (1, 2), (2, 3)])
   }
 
   func testFlatMapMerge() {
@@ -530,9 +530,9 @@ class SignalTests: XCTestCase {
     let operation = Signal<Int, TestError>.sequence([1, 2, 3]).executeIn(bob.context)
     let replayed = operation.replay(2)
 
-    operation.expectNext([1, 2, 3])
+    operation.expectComplete(after: [1, 2, 3])
     let _ = replayed.connect()
-    replayed.expectNext([2, 3])
+    replayed.expectComplete(after: [2, 3])
     XCTAssertEqual(bob.numberOfRuns, 2)
   }
 
@@ -543,7 +543,7 @@ class SignalTests: XCTestCase {
     let operation = Signal<Int, TestError>.sequence([1, 2, 3]).executeIn(bob.context)
     let published = operation.publish()
 
-    operation.expectNext([1, 2, 3])
+    operation.expectComplete(after: [1, 2, 3])
     let _ = published.connect()
     published.expectNoEvent()
 
