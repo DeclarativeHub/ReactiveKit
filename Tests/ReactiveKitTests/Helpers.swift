@@ -75,9 +75,9 @@ extension SignalProtocol {
   }
   
   // Asynchronous test
-  func expectNextAsync(_ expectedElements: [Element],
-                       expectation: XCTestExpectation,
-                       file: StaticString = #file, line: UInt = #line) {
+  func expectAsyncComplete(after expectedElements: [Element],
+                           expectation: XCTestExpectation,
+                           file: StaticString = #file, line: UInt = #line) {
     expectAsync(expectedElements.map { .next($0) } + [.completed], expectation: expectation, file: file, line: line)
   }
   
