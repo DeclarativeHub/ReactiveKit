@@ -87,8 +87,7 @@ extension SignalProtocol {
     XCTAssert(!expectedEvents.isEmpty, "Use expectEmptyAsync for waiting empty signal")
     var eventsToProcess = expectedEvents
     var receivedEvents: [Event<Element, Error>] = []
-    let disposeOnSuccess = DisposeBag()
-    observe { event in
+    let _ = observe { event in
       receivedEvents.append(event)
       if eventsToProcess.count == 0 {
         XCTFail("Got more events than expected.")
@@ -98,9 +97,8 @@ extension SignalProtocol {
       XCTAssert(event.isEqualTo(expected), "(Got \(receivedEvents) instead of \(expectedEvents))", file: file, line: line)
       if eventsToProcess.count == 0 {
         expectation.fulfill()
-        disposeOnSuccess.dispose()
       }
-    }.dispose(in: disposeOnSuccess)
+    }
   }
 }
 

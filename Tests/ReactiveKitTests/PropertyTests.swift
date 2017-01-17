@@ -84,8 +84,8 @@ class PropertyTests: XCTestCase {
   func testBidirectionalBind() {
     let target = Property(100)
 
-    target.debug("target").expectAsync([.next(100), .next(0), .next(50), .next(60)], expectation: expectation(description: "nexts"))
-    property.debug("property").expectAsync([.next(0), .next(0), .next(50), .next(60)], expectation: expectation(description: "nexts"))
+    target.ignoreTerminal().expectAsync([.next(100), .next(0), .next(50), .next(60)], expectation: expectation(description: "nexts"))
+    property.ignoreTerminal().expectAsync([.next(0), .next(0), .next(50), .next(60)], expectation: expectation(description: "nexts"))
 
     property.bidirectionalBind(to: target)
     property.value = 50
