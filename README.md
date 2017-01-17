@@ -7,10 +7,7 @@
 
 __ReactiveKit__ is a Swift framework for reactive and functional reactive programming.
 
-The framework is best used in a combination with the following extensions:
-
-* [Bond](https://github.com/ReactiveKit/Bond) - UIKit and AppKit bindings, reactive delegates, data sources.
-* [ReactiveAlamofire](https://github.com/ReactiveKit/ReactiveAlamofire) - Reactive extensions for Alamofire framework.
+The framework is best used in a combination with [Bond](https://github.com/ReactiveKit/Bond) that provides UIKit and AppKit bindings, reactive delegates and data sources.
 
 ## Reactive Programming
 
