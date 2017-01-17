@@ -43,10 +43,10 @@ extension SignalProtocol {
   // Synchronous test
   func expectComplete(after expectedElements: [Element],
                       file: StaticString = #file, line: UInt = #line) {
-    expect(expectedElements.map { .next($0) } + [.completed], file: file, line: line)
+    expect(events: expectedElements.map { .next($0) } + [.completed], file: file, line: line)
   }
 
-  func expect(_ expectedEvents: [Event<Element, Error>],
+  func expect(events expectedEvents: [Event<Element, Error>],
               file: StaticString = #file, line: UInt = #line) {
     var eventsToProcess = expectedEvents
     var receivedEvents: [Event<Element, Error>] = []
@@ -78,10 +78,10 @@ extension SignalProtocol {
   func expectAsyncComplete(after expectedElements: [Element],
                            expectation: XCTestExpectation,
                            file: StaticString = #file, line: UInt = #line) {
-    expectAsync(expectedElements.map { .next($0) } + [.completed], expectation: expectation, file: file, line: line)
+    expectAsync(events: expectedElements.map { .next($0) } + [.completed], expectation: expectation, file: file, line: line)
   }
   
-  func expectAsync(_ expectedEvents: [Event<Element, Error>],
+  func expectAsync(events expectedEvents: [Event<Element, Error>],
                    expectation: XCTestExpectation,
                    file: StaticString = #file, line: UInt = #line) {
     XCTAssert(!expectedEvents.isEmpty, "Use expectEmptyAsync for waiting empty signal")

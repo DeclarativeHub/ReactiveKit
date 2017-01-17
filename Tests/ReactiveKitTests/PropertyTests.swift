@@ -24,7 +24,7 @@ class PropertyTests: XCTestCase {
   }
 
   func testEvents() {
-    property.expectAsync(
+    property.expectAsync(events: 
       [
       .next(0),
       .next(5),
@@ -52,7 +52,7 @@ class PropertyTests: XCTestCase {
     var readOnlyView: AnyProperty<Int>! = property.readOnlyView
     XCTAssert(readOnlyView.value == 0)
 
-    readOnlyView.expectAsync(
+    readOnlyView.expectAsync(events: 
       [
         .next(0),
         .next(5),
@@ -84,8 +84,8 @@ class PropertyTests: XCTestCase {
   func testBidirectionalBind() {
     let target = Property(100)
 
-    target.ignoreTerminal().expectAsync([.next(100), .next(0), .next(50), .next(60)], expectation: expectation(description: "nexts"))
-    property.ignoreTerminal().expectAsync([.next(0), .next(0), .next(50), .next(60)], expectation: expectation(description: "nexts"))
+    target.ignoreTerminal().expectAsync(events: [.next(100), .next(0), .next(50), .next(60)], expectation: expectation(description: "nexts"))
+    property.ignoreTerminal().expectAsync(events: [.next(0), .next(0), .next(50), .next(60)], expectation: expectation(description: "nexts"))
 
     property.bidirectionalBind(to: target)
     property.value = 50

@@ -72,7 +72,7 @@ class SignalTests: XCTestCase {
 
   func testFailed() {
     let operation = Signal<Int, TestError>.failed(.Error)
-    operation.expect([.failed(.Error)])
+    operation.expect(events: [.failed(.Error)])
   }
 
   func testObserveFailed() {
@@ -295,7 +295,7 @@ class SignalTests: XCTestCase {
     let operationA = Signal<Int, TestError>.sequence([1, 2, 3])
     let operationB = Signal<String, TestError>.sequence(["A", "B"]).ignoreTerminal()
     let combined = operationA.zip(with: operationB).map { "\($0)\($1)" }
-    combined.expect([.next("1A"), .next("2B")])
+    combined.expect(events: [.next("1A"), .next("2B")])
   }
   
   func testZipWithAsyncSignal() {
@@ -325,7 +325,7 @@ class SignalTests: XCTestCase {
 
     let operation = Signal<Int, TestError>.failed(.Error).executeIn(bob.context)
     let retry = operation.retry(times: 3)
-    retry.expect([.failed(.Error)])
+    retry.expect(events: [.failed(.Error)])
 
     XCTAssertEqual(bob.numberOfRuns, 4)
   }
@@ -396,7 +396,7 @@ class SignalTests: XCTestCase {
 
   func testTimeoutFailure() {
     let exp = expectation(description: "completed")
-    Signal<Int, TestError>.never().timeout(after: 0.5, with: .Error, on: DispatchQueue.main).expectAsync([.failed(.Error)], expectation: exp)
+    Signal<Int, TestError>.never().timeout(after: 0.5, with: .Error, on: DispatchQueue.main).expectAsync(events: [.failed(.Error)], expectation: exp)
     waitForExpectations(timeout: 1, handler: nil)
   }
 
