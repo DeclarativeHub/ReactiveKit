@@ -64,6 +64,31 @@ extension SignalProtocol {
       }
     }
   }
+  
+  func expectNextAsync(_ expectedElements: [Element],
+                       expectation: XCTestExpectation,
+                       file: StaticString = #file, line: UInt = #line) {
+    expectAsync(expectedElements.map { .next($0) } + [.completed], expectation: expectation, file: file, line: line)
+  }
+  
+  func expectAsync(_ expectedEvents: [Event<Element, Error>],
+                   expectation: XCTestExpectation,
+                   file: StaticString = #file, line: UInt = #line) {
+    var eventsToProcess = expectedEvents
+    var receivedEvents: [Event<Element, Error>] = []
+    let _ = observe { event in
+      receivedEvents.append(event)
+      if eventsToProcess.count == 0 {
+        XCTFail("Got more events than expected.")
+        return
+      }
+      let expected = eventsToProcess.removeFirst()
+      XCTAssert(event.isEqualTo(expected), "(Got \(receivedEvents) instead of \(expectedEvents))", file: file, line: line)
+      if eventsToProcess.count == 0 {
+        expectation.fulfill()
+      }
+    }
+  }
 }
 
 class Scheduler {
