@@ -78,7 +78,8 @@ extension SignalProtocol {
                    file: StaticString = #file, line: UInt = #line) {
     var eventsToProcess = expectedEvents
     var receivedEvents: [Event<Element, Error>] = []
-    let _ = observe { event in
+    let disposeBag = DisposeBag()
+    observe { event in
       receivedEvents.append(event)
       if eventsToProcess.count == 0 {
         XCTFail("Got more events than expected.")
@@ -88,8 +89,9 @@ extension SignalProtocol {
       XCTAssert(event.isEqualTo(expected), "(Got \(receivedEvents) instead of \(expectedEvents))", file: file, line: line)
       if eventsToProcess.count == 0 {
         expectation.fulfill()
+        disposeBag.dispose()
       }
-    }
+    }.dispose(in: disposeBag)
   }
 }
 

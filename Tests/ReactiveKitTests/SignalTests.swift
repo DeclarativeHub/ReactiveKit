@@ -240,7 +240,7 @@ class SignalTests: XCTestCase {
     let combined = operationA.combineLatest(with: operationB).map { "\($0)\($1)" }
 
     let exp = expectation(description: "completed")
-    combined.expectNext(["1A", "1B", "2B", "3B", "3C"], expectation: exp)
+    combined.expectNextAsync(["1A", "1B", "2B", "3B", "3C"], expectation: exp)
 
     bob.runOne()
     eve.runOne()
@@ -259,7 +259,7 @@ class SignalTests: XCTestCase {
     let merged = operationA.merge(with: operationB)
 
     let exp = expectation(description: "completed")
-    merged.expectNext([1, 4, 5, 2, 6, 3], expectation: exp)
+    merged.expectNextAsync([1, 4, 5, 2, 6, 3], expectation: exp)
 
     bob.runOne()
     eve.runOne()
@@ -281,14 +281,14 @@ class SignalTests: XCTestCase {
     let operationA = Signal<Int, TestError>.sequence([1, 2, 3])
     let operationB = Signal<String, TestError>.sequence(["A", "B"])
     let combined = operationA.zip(with: operationB).map { "\($0)\($1)" }
-    combined.expectNext(["1A", "2B"], expectation: nil)
+    combined.expectNext(["1A", "2B"])
   }
   
   func testZipWithWhenNotComplete() {
     let operationA = Signal<Int, TestError>.sequence([1, 2, 3]).ignoreTerminal()
     let operationB = Signal<String, TestError>.sequence(["A", "B"])
     let combined = operationA.zip(with: operationB).map { "\($0)\($1)" }
-    combined.expectNext(["1A", "2B"], expectation: nil)
+    combined.expectNext(["1A", "2B"])
   }
   
   func testZipWithAsyncSignal() {
@@ -296,7 +296,7 @@ class SignalTests: XCTestCase {
     let operationB = Signal<Int, TestError>.interval(1.0).take(first: 10) // Takes 4 secs to emit 4 nexts.
     let combined = operationA.zip(with: operationB).map { $0 + $1 } // Completes after 4 nexts due to operationA and takes 4 secs due to operationB
     let exp = expectation(description: "completed")
-    combined.expectNext([0, 2, 4, 6], expectation: exp)
+    combined.expectNextAsync([0, 2, 4, 6], expectation: exp)
     waitForExpectations(timeout: 5.0, handler: nil)
   }
 
@@ -369,7 +369,7 @@ class SignalTests: XCTestCase {
     let paused = operation.shareReplay().pausable(by: controller)
 
     let exp = expectation(description: "completed")
-    paused.expectNext([1, 3], expectation: exp)
+    paused.expectNextAsync([1, 3], expectation: exp)
 
     operation.next(1)
     controller.next(false)
@@ -383,13 +383,13 @@ class SignalTests: XCTestCase {
 
   func testTimeoutNoFailure() {
     let exp = expectation(description: "completed")
-    Signal<Int, TestError>.just(1).timeout(after: 0.2, with: .Error, on: DispatchQueue.main).expectNext([1], expectation: exp)
+    Signal<Int, TestError>.just(1).timeout(after: 0.2, with: .Error, on: DispatchQueue.main).expectNextAsync([1], expectation: exp)
     waitForExpectations(timeout: 1, handler: nil)
   }
 
   func testTimeoutFailure() {
     let exp = expectation(description: "completed")
-    Signal<Int, TestError>.never().timeout(after: 0.5, with: .Error, on: DispatchQueue.main).expect([.failed(.Error)], expectation: exp)
+    Signal<Int, TestError>.never().timeout(after: 0.5, with: .Error, on: DispatchQueue.main).expectAsync([.failed(.Error)], expectation: exp)
     waitForExpectations(timeout: 1, handler: nil)
   }
 
@@ -402,7 +402,7 @@ class SignalTests: XCTestCase {
     let ambdWith = operationA.amb(with: operationB)
 
     let exp = expectation(description: "completed")
-    ambdWith.expectNext([3, 4], expectation: exp)
+    ambdWith.expectNextAsync([3, 4], expectation: exp)
 
     eve.runOne()
     bob.runRemaining()
@@ -426,7 +426,7 @@ class SignalTests: XCTestCase {
     let merged = operationA.concat(with: operationB)
     
     let exp = expectation(description: "completed")
-    merged.expectNext([1, 2, 3, 4], expectation: exp)
+    merged.expectNextAsync([1, 2, 3, 4], expectation: exp)
 
     bob.runOne()
     eve.runOne()
@@ -464,7 +464,7 @@ class SignalTests: XCTestCase {
     }
 
     let exp = expectation(description: "completed")
-    merged.expectNext([5, 10, 12, 6], expectation: exp)
+    merged.expectNextAsync([5, 10, 12, 6], expectation: exp)
 
     bob.runOne()
     eves[0].runOne()
@@ -485,7 +485,7 @@ class SignalTests: XCTestCase {
     }
 
     let exp = expectation(description: "completed")
-    merged.expectNext([5, 10, 12], expectation: exp)
+    merged.expectNextAsync([5, 10, 12], expectation: exp)
 
     bob.runOne()
     eves[0].runOne()
@@ -506,7 +506,7 @@ class SignalTests: XCTestCase {
     }
 
     let exp = expectation(description: "completed")
-    merged.expectNext([5, 6, 10, 12], expectation: exp)
+    merged.expectNextAsync([5, 6, 10, 12], expectation: exp)
 
     bob.runRemaining()
     eves[1].runOne()
