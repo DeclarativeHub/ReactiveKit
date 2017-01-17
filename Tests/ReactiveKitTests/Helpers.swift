@@ -39,21 +39,18 @@ extension Event {
 }
 
 extension SignalProtocol {
-
-  func expectNext(_ expectedElements: [Element],
-                  _ message: @autoclosure () -> String = "",
-                  expectation: XCTestExpectation? = nil,
-                  file: StaticString = #file, line: UInt = #line) {
-    expect(expectedElements.map { .next($0) } + [.completed], message, expectation: expectation, file: file, line: line)
+  
+  // Synchronous test
+  func expectComplete(after expectedElements: [Element],
+                      file: StaticString = #file, line: UInt = #line) {
+    expect(events: expectedElements.map { .next($0) } + [.completed], file: file, line: line)
   }
 
-  func expect(_ expectedEvents: [Event<Element, Error>],
-              _ message: @autoclosure () -> String = "",
-              expectation: XCTestExpectation? = nil,
+  func expect(events expectedEvents: [Event<Element, Error>],
               file: StaticString = #file, line: UInt = #line) {
     var eventsToProcess = expectedEvents
     var receivedEvents: [Event<Element, Error>] = []
-    let message = message()
+    var matchedAll = false
     let _ = observe { event in
       receivedEvents.append(event)
       if eventsToProcess.count == 0 {
@@ -61,9 +58,45 @@ extension SignalProtocol {
         return
       }
       let expected = eventsToProcess.removeFirst()
-      XCTAssert(event.isEqualTo(expected), message + "(Got \(receivedEvents) instead of \(expectedEvents))", file: file, line: line)
+      XCTAssert(event.isEqualTo(expected), "(Got \(receivedEvents) instead of \(expectedEvents))", file: file, line: line)
       if eventsToProcess.count == 0 {
-        expectation?.fulfill()
+        matchedAll = true
+      }
+    }
+    if !matchedAll {
+      XCTFail("Got only first \(receivedEvents.count) events of expected \(expectedEvents))", file: file, line: line)
+    }
+  }
+  
+  func expectNoEvent(file: StaticString = #file, line: UInt = #line) {
+    let _ = observe { event in
+      XCTFail("Got a \(event) when expected empty", file: file, line: line)
+    }
+  }
+  
+  // Asynchronous test
+  func expectAsyncComplete(after expectedElements: [Element],
+                           expectation: XCTestExpectation,
+                           file: StaticString = #file, line: UInt = #line) {
+    expectAsync(events: expectedElements.map { .next($0) } + [.completed], expectation: expectation, file: file, line: line)
+  }
+  
+  func expectAsync(events expectedEvents: [Event<Element, Error>],
+                   expectation: XCTestExpectation,
+                   file: StaticString = #file, line: UInt = #line) {
+    XCTAssert(!expectedEvents.isEmpty, "Use expectEmptyAsync for waiting empty signal")
+    var eventsToProcess = expectedEvents
+    var receivedEvents: [Event<Element, Error>] = []
+    let _ = observe { event in
+      receivedEvents.append(event)
+      if eventsToProcess.count == 0 {
+        XCTFail("Got more events than expected.")
+        return
+      }
+      let expected = eventsToProcess.removeFirst()
+      XCTAssert(event.isEqualTo(expected), "(Got \(receivedEvents) instead of \(expectedEvents))", file: file, line: line)
+      if eventsToProcess.count == 0 {
+        expectation.fulfill()
       }
     }
   }
