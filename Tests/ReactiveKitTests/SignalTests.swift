@@ -67,7 +67,7 @@ class SignalTests: XCTestCase {
 
   func testNever() {
     let operation = Signal<Int, TestError>.never()
-    operation.expectNext([])
+    operation.expectNoEvent()
   }
 
   func testFailed() {
@@ -523,10 +523,10 @@ class SignalTests: XCTestCase {
     let operation = Signal<Int, TestError>.sequence([1, 2, 3]).executeIn(bob.context)
     let replayed = operation.replay(2)
 
-    replayed.expectNext([1, 2, 3])
+    operation.expectNext([1, 2, 3])
     let _ = replayed.connect()
     replayed.expectNext([2, 3])
-    XCTAssertEqual(bob.numberOfRuns, 1)
+    XCTAssertEqual(bob.numberOfRuns, 2)
   }
 
   func testPublish() {
@@ -536,10 +536,10 @@ class SignalTests: XCTestCase {
     let operation = Signal<Int, TestError>.sequence([1, 2, 3]).executeIn(bob.context)
     let published = operation.publish()
 
-    published.expectNext([1, 2, 3])
+    operation.expectNext([1, 2, 3])
     let _ = published.connect()
-    published.expectNext([])
+    published.expectNoEvent()
 
-    XCTAssertEqual(bob.numberOfRuns, 1)
+    XCTAssertEqual(bob.numberOfRuns, 2)
   }
 }

@@ -39,7 +39,8 @@ extension Event {
 }
 
 extension SignalProtocol {
-
+  
+  // Synchronous test
   func expectNext(_ expectedElements: [Element],
                   file: StaticString = #file, line: UInt = #line) {
     expect(expectedElements.map { .next($0) } + [.completed], file: file, line: line)
@@ -67,6 +68,13 @@ extension SignalProtocol {
     }
   }
   
+  func expectNoEvent(file: StaticString = #file, line: UInt = #line) {
+    let _ = observe { event in
+      XCTFail("Got a \(event) when expected empty", file: file, line: line)
+    }
+  }
+  
+  // Asynchronous test
   func expectNextAsync(_ expectedElements: [Element],
                        expectation: XCTestExpectation,
                        file: StaticString = #file, line: UInt = #line) {
@@ -76,9 +84,10 @@ extension SignalProtocol {
   func expectAsync(_ expectedEvents: [Event<Element, Error>],
                    expectation: XCTestExpectation,
                    file: StaticString = #file, line: UInt = #line) {
+    XCTAssert(!expectedEvents.isEmpty, "Use expectEmptyAsync for waiting empty signal")
     var eventsToProcess = expectedEvents
     var receivedEvents: [Event<Element, Error>] = []
-    let disposeBag = DisposeBag()
+    let disposeOnSuccess = DisposeBag()
     observe { event in
       receivedEvents.append(event)
       if eventsToProcess.count == 0 {
@@ -89,9 +98,9 @@ extension SignalProtocol {
       XCTAssert(event.isEqualTo(expected), "(Got \(receivedEvents) instead of \(expectedEvents))", file: file, line: line)
       if eventsToProcess.count == 0 {
         expectation.fulfill()
-        disposeBag.dispose()
+        disposeOnSuccess.dispose()
       }
-    }.dispose(in: disposeBag)
+    }.dispose(in: disposeOnSuccess)
   }
 }
 
