@@ -41,16 +41,15 @@ extension Event {
 extension SignalProtocol {
 
   func expectNext(_ expectedElements: [Element],
-                  expectation: XCTestExpectation? = nil,
                   file: StaticString = #file, line: UInt = #line) {
-    expect(expectedElements.map { .next($0) } + [.completed], expectation: expectation, file: file, line: line)
+    expect(expectedElements.map { .next($0) } + [.completed], file: file, line: line)
   }
 
   func expect(_ expectedEvents: [Event<Element, Error>],
-              expectation: XCTestExpectation? = nil,
               file: StaticString = #file, line: UInt = #line) {
     var eventsToProcess = expectedEvents
     var receivedEvents: [Event<Element, Error>] = []
+    var matchedAll = false
     let _ = observe { event in
       receivedEvents.append(event)
       if eventsToProcess.count == 0 {
@@ -60,8 +59,11 @@ extension SignalProtocol {
       let expected = eventsToProcess.removeFirst()
       XCTAssert(event.isEqualTo(expected), "(Got \(receivedEvents) instead of \(expectedEvents))", file: file, line: line)
       if eventsToProcess.count == 0 {
-        expectation?.fulfill()
+        matchedAll = true
       }
+    }
+    if !matchedAll {
+      XCTFail("Got only first \(receivedEvents.count) events of expected \(expectedEvents))", file: file, line: line)
     }
   }
   
