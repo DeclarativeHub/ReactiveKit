@@ -73,7 +73,7 @@ public class Property<Value>: PropertyProtocol, SubjectProtocol, BindableProtoco
     return AnyProperty(property: self)
   }
 
-  /// Change the underlying value withouth notifying the observers.
+  /// Change the underlying value without notifying the observers.
   public func silentUpdate(value: Value) {
     _value = value
   }
