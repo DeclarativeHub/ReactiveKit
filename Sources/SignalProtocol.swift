@@ -818,6 +818,26 @@ public extension SignalProtocol where Element: OptionalProtocol {
       }
     }
   }
+
+  /// Replace all `nil`-elements with the provided replacement.
+  public func replaceNil(with replacement: Element.Wrapped) -> Signal<Element.Wrapped, Error> {
+    return Signal { observer in
+      return self.observe { event in
+        switch event {
+        case .next(let element):
+          if let element = element._unbox {
+            observer.next(element)
+          } else {
+            observer.next(replacement)
+          }
+        case .failed(let error):
+          observer.failed(error)
+        case .completed:
+          observer.completed()
+        }
+      }
+    }
+  }
 }
 
 //  MARK: Utilities
