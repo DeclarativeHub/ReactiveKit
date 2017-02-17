@@ -231,6 +231,12 @@ class SignalTests: XCTestCase {
     unwrapped.expectComplete(after: [1, 3])
   }
 
+  func testReplaceNil() {
+    let operation = Signal<Int?, TestError>.sequence(Array<Int?>([1, nil, 3, nil]))
+    let unwrapped = operation.replaceNil(with: 7)
+    unwrapped.expectComplete(after: [1, 7, 3, 7])
+  }
+
   func testCombineLatestWith() {
     let bob = Scheduler()
     let eve = Scheduler()
