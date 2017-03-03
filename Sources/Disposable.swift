@@ -214,6 +214,10 @@ public final class DisposeBag: DisposeBagProtocol {
   }
 }
 
+public func += (left: DisposeBag, right: Disposable) {
+  left.add(disposable: right)
+}
+
 public extension Disposable {
 
   public func dispose(in disposeBag: DisposeBagProtocol) {
