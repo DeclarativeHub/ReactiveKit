@@ -469,30 +469,22 @@ extension SignalProtocol where Element: Sequence {
 public extension SignalProtocol {
 
   /// Emit an element only if `interval` time passes without emitting another element.
-  public func debounce(interval: Double, on queue: DispatchQueue = DispatchQueue(label: "com.reactivekit.debounce")) -> Signal<Element, Error> {
+  public func debounce(seconds: Double, on queue: DispatchQueue = DispatchQueue(label: "com.reactivekit.debounce")) -> Signal<Element, Error> {
     return Signal { observer in
-      var timerSubscription: Disposable? = nil
-      var previousElement: Element? = nil
+      var lastEventTime: DispatchTime? = nil
       return self.observe { event in
-        timerSubscription?.dispose()
-        switch event {
-        case .next(let element):
-          previousElement = element
-          timerSubscription = queue.disposableAfter(when: interval) {
-            if let _element = previousElement {
-              observer.next(_element)
-              previousElement = nil
+        let now = DispatchTime.now()
+        queue.async {
+          switch event {
+          case .next(let element):
+            if lastEventTime == nil || now.rawValue > (lastEventTime! + seconds).rawValue {
+              lastEventTime = now
+              observer.next(element)
             }
-          }
-        case .failed(let error):
-          observer.failed(error)
-        case .completed:
-          if let previousElement = previousElement {
-            observer.next(previousElement)
-            observer.completed()
+          default:
+            observer.on(event)
           }
         }
-
       }
     }
   }

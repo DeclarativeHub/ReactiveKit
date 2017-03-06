@@ -141,13 +141,32 @@ class SignalTests: XCTestCase {
     window.merge().expectComplete(after: [1, 2])
   }
 
-  //  func testDebounce() {
-  //    let operation = Signal<Int, TestError>.interval(0.1, queue: Queue.global).take(first: 3)
-  //    let distinct = operation.debounce(interval: 0.3, on: Queue.global)
-  //    let exp = expectation(withDescription: "completed")
-  //    distinct.expectComplete(after: [2], expectation: exp)
-  //    waitForExpectations(withTimeout: 1, handler: nil)
-  //  }
+  func testDebounce() {
+    /*
+     * event 0        @ 0.0s - return 0
+     * debounce begin @ 0.0s
+     * event 1        @ 0.4s - debounced
+     * event 2        @ 0.8s - debounced
+     * event 3        @ 1.2s - debounced
+     * debounce ended @ 1.5s
+     * event 4        @ 1.6s - return 4
+     * debounce begin @ 1.6s
+     * event 5        @ 2.0s - debounced
+     * event 6        @ 2.4s - debounced
+     * event 7        @ 2.8s - debounced
+     * debounce ended @ 3.1s
+     * event 8        @ 3.2s - return 8
+     * event 9        @ 3.6s - debounced
+     * completed      @ 3.6s
+     */
+    let operation = Signal<Int, TestError>.interval(0.4, queue: DispatchQueue.global()).take(first: 10)
+    let throttled = operation.debounce(seconds: 1.5)
+
+    let exp = expectation(description: "completed")
+    throttled.expectAsyncComplete(after: [0, 4, 8], expectation: exp)
+
+    waitForExpectations(timeout: 6, handler: nil)
+  }
 
   func testDistinct() {
     let operation = Signal<Int, TestError>.sequence([1, 2, 2, 3])
