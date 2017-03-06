@@ -764,19 +764,31 @@ public extension SignalProtocol {
   }
 
   /// Throttle the signal to emit at most one element per given `seconds` interval.
-  public func throttle(seconds: Double) -> Signal<Element, Error> {
+  public func throttle(seconds: Double, on queue: DispatchQueue = DispatchQueue(label: "com.reactivekit.throttle")) -> Signal<Element, Error> {
     return Signal { observer in
-      var lastEventTime: DispatchTime?
+      var throttledSubscription: Disposable? = nil
+      var lastElement: Element? = nil
       return self.observe { event in
-        switch event {
-        case .next(let element):
-          let now = DispatchTime.now()
-          if lastEventTime == nil || now.rawValue > (lastEventTime! + seconds).rawValue {
-            lastEventTime = now
-            observer.next(element)
+        queue.async {
+          switch event {
+          case .next(let element):
+            lastElement = element
+            guard throttledSubscription == nil else { return }
+            throttledSubscription = queue.disposableAfter(when: seconds) {
+              if let element = lastElement {
+                observer.next(element)
+                lastElement = nil
+              }
+              throttledSubscription = nil
+            }
+          case .failed(let error):
+            observer.failed(error)
+          case .completed:
+            if let lastElement = lastElement {
+              observer.next(lastElement)
+            }
+            observer.completed()
           }
-        default:
-          observer.on(event)
         }
       }
     }

@@ -217,13 +217,30 @@ class SignalTests: XCTestCase {
     takenLast2.expectComplete(after: [2, 3])
   }
 
-//  func testThrottle() {
-//    let operation = Signal<Int, TestError>.interval(0.4, queue: Queue.global).take(5)
-//    let distinct = operation.throttle(1)
-//    let exp = expectation(withDescription: "completed")
-//    distinct.expectComplete(after: [0, 3], expectation: exp)
-//    waitForExpectationsWithTimeout(3, handler: nil)
-//  }
+  func testThrottle() {
+    /*
+     * event 0            @ 0.0s - throttled
+     * event 1            @ 0.4s - throttled
+     * event 2            @ 0.8s - throttled
+     * event 3            @ 1.2s - throttled
+     * throttle timesup   @ 1.5s - return 3
+     * event 4            @ 1.6s - throttled
+     * event 5            @ 2.0s - throttled
+     * event 6            @ 2.4s - throttled
+     * event 7            @ 2.8s - throttled
+     * throttle timesup   @ 3.0s - return 7
+     * event 8            @ 3.2s - throttled
+     * event 9            @ 3.6s - throttled
+     * completed          @ 3.6s - return 9
+     */
+    let operation = Signal<Int, TestError>.interval(0.4, queue: DispatchQueue.global()).take(first: 10)
+    let throttled = operation.throttle(seconds: 1.5)
+
+    let exp = expectation(description: "completed")
+    throttled.expectAsyncComplete(after: [3, 7, 9], expectation: exp)
+
+    waitForExpectations(timeout: 6, handler: nil)
+  }
 
   func testIgnoreNil() {
     let operation = Signal<Int?, TestError>.sequence(Array<Int?>([1, nil, 3]))
