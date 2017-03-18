@@ -146,6 +146,36 @@ __Observing the signal actually starts the production of events.__ In other word
 
 > Observers will be by default invoked on the thread (queue) on which the producer generates events. You can change that behaviour by passing another [execution context](#threading) using the `observeOn` method.
 
+### Inline Bindings
+
+Most of the time you should be able to replace an observation with a binding. Consider the following example. Say we have a signal of users
+
+```swift
+let presentUserProfile: Signal<User, NoError> = ...
+```
+
+and we would like to present a profile screen when a user is sent on the signal. Usually we would do something like:
+
+```swift
+presentUserProfile.observeOn(.main).observeNext { [weak self] user in
+  let profileViewController = ProfileViewController(user: user)
+  self?.present(profileViewController, animated: true)
+}.dispose(in: bag)
+```
+
+But that's ugly! We have to dispatch everything to the main queue, be cautious not to create a retain cycle and ensure that the disposable we get from the observation is handled.
+
+Thankfully there is a better way. We can create an inline binding instead of the observation. Just do the following
+
+```swift
+presentUserProfile.bind(to: self) { me, user in
+  let profileViewController = ProfileViewController(user: user)
+  me.present(profileViewController, animated: true)
+}
+```
+
+and stop worrying about threading, retain cycles and disposing because bindings take care of all that automatically. Just bind the signal to the target responsible for performing side effects (in our example, to the object responsible for presenting a profile view controller). The closure you provide will be called whenever the signal emits an event with both the target and the sent element as arguments.
+
 ### Transforming Signals
 
 Signals can be transformed into another signals. Methods that transform signals are often called _operators_. For example, to convert our signal of positive integers into a signal of positive even integers we can do
