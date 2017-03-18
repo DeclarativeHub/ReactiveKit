@@ -22,15 +22,17 @@
 //  THE SOFTWARE.
 //
 
+import Foundation
+
 /// A proxy protocol for reactive extensions.
 ///
-/// To provide reactive extensions on type X, do
+/// To provide reactive extensions on type `X`, do
 ///
-/// extension ReactiveExtensions where Base == X {
-///   var y: Signal<Int, NoError> { ... }
-/// }
+///     extension ReactiveExtensions where Base == X {
+///       var y: SafeSignal<Int> { ... }
+///     }
 ///
-/// where X conforms to ReactiveExtensionsProvider.
+/// where `X` conforms to `ReactiveExtensionsProvider`.
 public protocol ReactiveExtensions {
   associatedtype Base
   var base: Base { get }
@@ -48,11 +50,27 @@ public protocol ReactiveExtensionsProvider: class {}
 
 public extension ReactiveExtensionsProvider {
 
+  /// Reactive extensions of `self`.
   public var reactive: Reactive<Self> {
     return Reactive(self)
   }
 
+  /// Reactive extensions of `Self`.
   public static var reactive: Reactive<Self>.Type {
     return Reactive<Self>.self
   }
 }
+
+extension NSObject: ReactiveExtensionsProvider {}
+
+#if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
+
+  extension ReactiveExtensions where Base: NSObject {
+
+    /// A signal that fires completion event when the object is deallocated.
+    public var deallocated: SafeSignal<Void> {
+      return base.bag.deallocated
+    }
+  }
+
+#endif

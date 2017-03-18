@@ -63,6 +63,10 @@
 		16F2F56E1D6D924B00B85896 /* SignalProtocol+Arities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F2F56B1D6D924B00B85896 /* SignalProtocol+Arities.swift */; };
 		16F2F56F1D6D924B00B85896 /* SignalProtocol+Arities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F2F56B1D6D924B00B85896 /* SignalProtocol+Arities.swift */; };
 		EC06A8711DBBF8C7006AEA81 /* ResultTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC06A86F1DBBF8A6006AEA81 /* ResultTests.swift */; };
+		EC31EE0D1E7BF97C00857946 /* Deallocatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC31EE0C1E7BF97C00857946 /* Deallocatable.swift */; };
+		EC31EE0E1E7BF97C00857946 /* Deallocatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC31EE0C1E7BF97C00857946 /* Deallocatable.swift */; };
+		EC31EE0F1E7BF97C00857946 /* Deallocatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC31EE0C1E7BF97C00857946 /* Deallocatable.swift */; };
+		EC31EE101E7BF97C00857946 /* Deallocatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC31EE0C1E7BF97C00857946 /* Deallocatable.swift */; };
 		EC4C28121E167EED0055D256 /* Typealiases.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4C28111E167EED0055D256 /* Typealiases.swift */; };
 		EC4C28131E167EED0055D256 /* Typealiases.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4C28111E167EED0055D256 /* Typealiases.swift */; };
 		EC4C28141E167EED0055D256 /* Typealiases.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4C28111E167EED0055D256 /* Typealiases.swift */; };
@@ -112,6 +116,7 @@
 		16F2F5661D6D8A4500B85896 /* Lock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Lock.swift; path = Sources/Lock.swift; sourceTree = SOURCE_ROOT; };
 		16F2F56B1D6D924B00B85896 /* SignalProtocol+Arities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "SignalProtocol+Arities.swift"; path = "Sources/SignalProtocol+Arities.swift"; sourceTree = SOURCE_ROOT; };
 		EC06A86F1DBBF8A6006AEA81 /* ResultTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResultTests.swift; sourceTree = "<group>"; };
+		EC31EE0C1E7BF97C00857946 /* Deallocatable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Deallocatable.swift; path = Sources/Deallocatable.swift; sourceTree = SOURCE_ROOT; };
 		EC4C28111E167EED0055D256 /* Typealiases.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Typealiases.swift; path = Sources/Typealiases.swift; sourceTree = SOURCE_ROOT; };
 		EC6C0FC51DB4A76A00C3880B /* PropertyTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PropertyTests.swift; sourceTree = "<group>"; };
 		EC7A6F881D3CCF5B00F9EF4A /* NoError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NoError.swift; path = Sources/NoError.swift; sourceTree = SOURCE_ROOT; };
@@ -208,6 +213,7 @@
 				EC8A99E61CABD9B50042A6AD /* ExecutionContext.swift */,
 				16886A191D3168E000D83E39 /* Connectable.swift */,
 				EC8A99DC1CABD9B50042A6AD /* Disposable.swift */,
+				EC31EE0C1E7BF97C00857946 /* Deallocatable.swift */,
 				EC8A99DF1CABD9B50042A6AD /* Observer.swift */,
 				EC8A99E41CABD9B50042A6AD /* Subjects.swift */,
 				16886A221D31705500D83E39 /* Bindable.swift */,
@@ -468,6 +474,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				16A205081D3236EC0054484B /* Property.swift in Sources */,
+				EC31EE0E1E7BF97C00857946 /* Deallocatable.swift in Sources */,
 				16F2F5681D6D8A4500B85896 /* Lock.swift in Sources */,
 				16886A1F1D31699F00D83E39 /* Subjects.swift in Sources */,
 				16F2F56D1D6D924B00B85896 /* SignalProtocol+Arities.swift in Sources */,
@@ -492,6 +499,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				16A205071D3236EC0054484B /* Property.swift in Sources */,
+				EC31EE0F1E7BF97C00857946 /* Deallocatable.swift in Sources */,
 				16F2F5691D6D8A4500B85896 /* Lock.swift in Sources */,
 				16886A201D31699F00D83E39 /* Subjects.swift in Sources */,
 				16F2F56E1D6D924B00B85896 /* SignalProtocol+Arities.swift in Sources */,
@@ -516,6 +524,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				16A205061D3236EC0054484B /* Property.swift in Sources */,
+				EC31EE101E7BF97C00857946 /* Deallocatable.swift in Sources */,
 				16F2F56A1D6D8A4500B85896 /* Lock.swift in Sources */,
 				16886A1E1D31699E00D83E39 /* Subjects.swift in Sources */,
 				16F2F56F1D6D924B00B85896 /* SignalProtocol+Arities.swift in Sources */,
@@ -540,6 +549,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EC8706671D3CDDAA0068B589 /* Property.swift in Sources */,
+				EC31EE0D1E7BF97C00857946 /* Deallocatable.swift in Sources */,
 				16F2F5671D6D8A4500B85896 /* Lock.swift in Sources */,
 				EC8706661D3CDCE10068B589 /* Bindable.swift in Sources */,
 				16F2F56C1D6D924B00B85896 /* SignalProtocol+Arities.swift in Sources */,

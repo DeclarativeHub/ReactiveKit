@@ -25,15 +25,23 @@
 import Foundation
 import Dispatch
 
-/// Represents a context that can execute given block.
+/// Execution context is an abstraction over a thread or a dispatch queue.
+/// It is just a function that executes other function.
+///
+///     let context = DispatchQueue.background.context
+///
+///     context {
+///       print("Printing on background queue.")
+///     }
+///
 public typealias ExecutionContext = (@escaping () -> Void) -> Void
 
-/// Execute block on current thread or queue.
+/// Executes on current thread or queue.
 public let ImmediateExecutionContext: ExecutionContext = { block in
   block()
 }
 
-/// If current thread is main thread, just execute block. Otherwise, do
+/// If current thread is main thread, just executes the block. Otherwise, do
 /// async dispatch of the block to the main queue (thread).
 public let ImmediateOnMainExecutionContext: ExecutionContext = { block in
   if Thread.isMainThread {

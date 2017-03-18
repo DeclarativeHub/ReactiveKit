@@ -110,7 +110,7 @@ public extension SignalProtocol {
     }
   }
 
-  /// Create a signal that just terminates with the give error.
+  /// Create a signal that just terminates with the given error.
   public static func failed(_ error: Error) -> Signal<Element, Error> {
     return Signal { observer in
       observer.failed(error)
@@ -118,7 +118,7 @@ public extension SignalProtocol {
     }
   }
 
-  /// Create an signal that never completes.
+  /// Create a signal that never completes.
   public static func never() -> Signal<Element, Error> {
     return Signal { observer in
       return NonDisposable.instance
