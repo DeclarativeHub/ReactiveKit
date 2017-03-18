@@ -22,6 +22,8 @@
 //  THE SOFTWARE.
 //
 
+import Foundation
+
 /// Bindable is like an observer, but knows to manage the subscription by itself.
 public protocol BindableProtocol {
 
