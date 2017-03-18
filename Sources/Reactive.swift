@@ -71,6 +71,11 @@ extension NSObject: ReactiveExtensionsProvider {}
     public var deallocated: SafeSignal<Void> {
       return base.bag.deallocated
     }
+
+    /// A `DisposeBag` that can be used to dispose observations and bindings.
+    public var bag: DisposeBag {
+      return base.bag
+    }
   }
 
 #endif

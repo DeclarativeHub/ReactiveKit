@@ -51,6 +51,7 @@ extension DisposeBagProvider {
       static var DisposeBagKey = "DisposeBagKey"
     }
 
+    /// A `DisposeBag` that can be used to dispose observations and bindings.
     public var bag: DisposeBag {
       if let disposeBag = objc_getAssociatedObject(self, &NSObject.AssociatedKeys.DisposeBagKey) {
         return disposeBag as! DisposeBag
