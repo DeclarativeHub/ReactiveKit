@@ -277,7 +277,7 @@ class X {
 }
 ```
 
-> If you are using Bond framework and your class is a subclass or a descendent of NSObject, Bond provides the bag as an extension property `reactive.bag` that you can use out of the box.
+> If your class is a subclass or a descendent of NSObject, ReactiveKit provides the bag as an extension property `.bag` that you can use out of the box.
 
 Another way to ensure signal disposition is by using bindings instead of observations where possible. They handle everything automatically so you don't have to manually dispose signals. 
 
