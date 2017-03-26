@@ -165,26 +165,26 @@ Our observer we introduced earlier is basically the method `on(_:)`. ReactiveKit
 ```swift
 public extension ObserverProtocol {
 
-	/// Convenience method to send `.next` event.
-	public func next(_ element: Element) {
-		on(.next(element))
-	}
+  /// Convenience method to send `.next` event.
+  public func next(_ element: Element) {
+    on(.next(element))
+  }
 
-	/// Convenience method to send `.failed` event.
-	public func failed(_ error: Error) {
-		on(.failed(error))
- 	}
+  /// Convenience method to send `.failed` event.
+  public func failed(_ error: Error) {
+    on(.failed(error))
+   }
 
-	/// Convenience method to send `.completed` event.
-	public func completed() {
-		on(.completed)
-	}
+  /// Convenience method to send `.completed` event.
+  public func completed() {
+    on(.completed)
+  }
 
-	/// Convenience method to send `.next` event followed by a `.completed` event.
-	public func completed(with element: Element) {
-		next(element)
-		completed()
-	}
+  /// Convenience method to send `.next` event followed by a `.completed` event.
+  public func completed(with element: Element) {
+    next(element)
+    completed()
+  }
 }
 ```
 
@@ -472,9 +472,9 @@ For example, if we try
 
 ```swift
 let signal = Signal<Int, NoError> { observer in 
-	...
-	observer.failed(/* What do I send here? */)
-	...
+  ...
+  observer.failed(/* What do I send here? */)
+  ...
 }
 ``` 
 
@@ -572,15 +572,15 @@ class Example {
     let bag = DisposeBag()
 
     init() {
- 		...
-    	someSignal
-    	    .observe { ... }
-    	    .dispose(in: bag)
-    	
-    	anotherSignal
-    	    .observe { ... }
-    	    .dispose(in: bag)
-    	...
+     ...
+      someSignal
+          .observe { ... }
+          .dispose(in: bag)
+      
+      anotherSignal
+          .observe { ... }
+          .dispose(in: bag)
+      ...
     }
 ```
 
@@ -604,11 +604,11 @@ For example, if we have a signal that is created like
 
 ```swift
 let someImage = SafeSignal<UIImage> { observer in
-	...
-	DispatchQueue.background.async {
-	    observer.next(someImage)
-	}
-	...
+  ...
+  DispatchQueue.background.async {
+      observer.next(someImage)
+  }
+  ...
 }
 ```
 
@@ -616,10 +616,10 @@ and if we use it to update the image view
 
 ```swift
 someImage
-	.observeNext { image in 
-		imageView.image = image // called on background queue
-	}
-	.dispose(in: bag)
+  .observeNext { image in 
+    imageView.image = image // called on background queue
+  }
+  .dispose(in: bag)
 ```
 
 we will end up with a weird behaviour. We will be setting image from the background queue on an instance of `UIImageView` that is not thread safe - just like the rest of UIKit.
@@ -628,21 +628,21 @@ We could set the image in another async dispatch to main queue, but there is a b
 
 ```swift
 someImage
-	.observeOn(.main)
-  	.observeNext { image in 
-		imageView.image = image // called on main queue
-	}
-	.dispose(in: bag)
+  .observeOn(.main)
+    .observeNext { image in 
+    imageView.image = image // called on main queue
+  }
+  .dispose(in: bag)
 ```
 
 There is also another side to this. You might have a signal that does some slow synchronous work on whatever thread or queue it is observed on.
 
 ```swift
 let someData = SafeSignal<Data> { observer in
-	...
-	let data = // synchronously load large file
-	observer.next(data)
-	...
+  ...
+  let data = // synchronously load large file
+  observer.next(data)
+  ...
 }
 ```
 
@@ -650,22 +650,22 @@ We, however, do not want observing that signal to block the UI.
 
 ```swift
 someData
-  	.observeNext { data in // blocks current thread
-		display(data)
-	}
-	.dispose(in: bag)
+    .observeNext { data in // blocks current thread
+    display(data)
+  }
+  .dispose(in: bag)
 ```
 
 We would like to do the loading on another queue. We could dispatch async the loading, but what if we cannot change the signal producer closure because it is defined in a framework or there is another reason we cannot change it. That is when the operator `executeOn` saves the day.
 
 ```swift
 someData
-	.executeOn(.background)
-	.observeOn(.main)
-  	.observeNext { data in // does not block current thread
-		display(data)
-	}
-	.dispose(in: bag)
+  .executeOn(.background)
+  .observeOn(.main)
+    .observeNext { data in // does not block current thread
+    display(data)
+  }
+  .dispose(in: bag)
 ```
 
 By applying `executeOn` we define where the signal producer gets executed. We usually use it in a combination with `observeOn` to define where the observer receives events.
@@ -709,8 +709,8 @@ Objects that conform to `Deallocatable` provide a signal that can tell us when t
 ```swift
 public protocol Deallocatable: class {
 
-	/// A signal that fires `completed` event when the receiver is deallocated.
-	var deallocated: SafeSignal<Void> { get }
+  /// A signal that fires `completed` event when the receiver is deallocated.
+  var deallocated: SafeSignal<Void> { get }
 }
 ```
 
@@ -721,8 +721,8 @@ Protocol `BindingExecutionContextProvider` provides the execution context on whi
 ```swift
 public protocol BindingExecutionContextProvider {
 
-	/// An execution context used to deliver binding events.
- 	var bindingExecutionContext: ExecutionContext { get }
+  /// An execution context used to deliver binding events.
+   var bindingExecutionContext: ExecutionContext { get }
 }
 ```
 
@@ -731,9 +731,9 @@ public protocol BindingExecutionContextProvider {
 ```swift
 extension NSObject: BindingExecutionContextProvider {
 
-	public var bindingExecutionContext: ExecutionContext {
-		return .immediateOnMain
-	}
+  public var bindingExecutionContext: ExecutionContext {
+    return .immediateOnMain
+  }
 }
 ```
 
@@ -748,15 +748,15 @@ How do you conform to `Deallocatable`? The simplest way is conforming to `Dispos
 /// `DisposeBagProvider` conforms to `Deallocatable` out of the box.
 public protocol DisposeBagProvider: Deallocatable {
 
-	/// A `DisposeBag` that can be used to dispose observations and bindings.
-	var bag: DisposeBag { get }
+  /// A `DisposeBag` that can be used to dispose observations and bindings.
+  var bag: DisposeBag { get }
 }
 
 extension DisposeBagProvider {
 
-	public var deallocated: SafeSignal<Void> {
-		return bag.deallocated
-	}
+  public var deallocated: SafeSignal<Void> {
+    return bag.deallocated
+  }
 }
 ```
 
@@ -767,18 +767,18 @@ Now we can peek into the binding implementation.
 ```swift
 extension SignalProtocol where Error == NoError {
 
-	@discardableResult
-	public func bind<Target: Deallocatable>(to target: Target, setter: @escaping (Target, Element) -> Void) -> Disposable
-	where Target: BindingExecutionContextProvider
-	{
-		return take(until: target.deallocated)
-			.observeIn(target.bindingExecutionContext)
-			.observeNext { [weak target] element in
-				if let target = target {
-					setter(target, element)
-				}
-			}
-	}
+  @discardableResult
+  public func bind<Target: Deallocatable>(to target: Target, setter: @escaping (Target, Element) -> Void) -> Disposable
+  where Target: BindingExecutionContextProvider
+  {
+    return take(until: target.deallocated)
+      .observeIn(target.bindingExecutionContext)
+      .observeNext { [weak target] element in
+        if let target = target {
+          setter(target, element)
+        }
+      }
+  }
 }
 ```
 
@@ -790,7 +790,7 @@ Ok, that was binding to an object, but what about binding to a property? Would i
 
 ```swift
 name.bind(to: label) { label, name in 
-	label.text = name
+  label.text = name
 }
 ```
 
@@ -849,16 +849,16 @@ Could we have implemented signal differently? Let us try making another kind of 
 ```swift
 open class Subject<Element, Error: Swift.Error>: SignalProtocol, ObserverProtocol {
 
-	private var observers: [Observer<Element, Error>] = []
+  private var observers: [Observer<Element, Error>] = []
     
-	open func on(_ event: Event<Element, Error>) {
-		observers.forEach { $0(event) }
-	}
+  open func on(_ event: Event<Element, Error>) {
+    observers.forEach { $0(event) }
+  }
 
-	open func observe(with observer: @escaping Observer<Element, Error>) -> Disposable {
-		observers.append(observer)
-		return /* a disposable that removes the observer from the array */
-	}
+  open func observe(with observer: @escaping Observer<Element, Error>) -> Disposable {
+    observers.append(observer)
+    return /* a disposable that removes the observer from the array */
+  }
 }
 ```
 
@@ -888,12 +888,12 @@ Subjects are useful when we need convert actions from imperative world into sign
 ```swift
 class MyViewController: UIViewController {
 
-	fileprivate let _viewDidAppear = PublishSubject<Void, NoError>()
-	
-	override viewDidAppear(_ animated: Bool) {
-		super.viewDidAppear(animated)
-		_viewDidAppear.next()
-	}
+  fileprivate let _viewDidAppear = PublishSubject<Void, NoError>()
+  
+  override viewDidAppear(_ animated: Bool) {
+    super.viewDidAppear(animated)
+    _viewDidAppear.next()
+  }
 }
 ```
 
@@ -903,9 +903,9 @@ We could have exposed subject publicly, but then anyone would be able to send ev
 ```swift
 extension ReactiveExtensions where Base: MyViewController {
 
-	var viewDidAppear: SafeSignal<Void> {
-		return base._viewDidAppear.toSignal() // convert Subject to Signal
-	}
+  var viewDidAppear: SafeSignal<Void> {
+    return base._viewDidAppear.toSignal() // convert Subject to Signal
+  }
 }
 ```
 
@@ -913,7 +913,7 @@ We can then use our signal like:
 
 ```swift
 myViewController.reactive.viewDidAppear.observeNext {
-	print("view did appear")
+  print("view did appear")
 }
 ```
 
@@ -924,17 +924,17 @@ As you could have inferred from the implementation, observing a subject gives us
 ```swift
 public final class ReplaySubject<Element, Error: Swift.Error>: Subject<Element, Error> {
 
-	private var buffer: [Event<Element, Error>] = []
+  private var buffer: [Event<Element, Error>] = []
 
-	public override func on(_ event: Event<Element, Error>) {
-		events.append(event)
-		super.on(event)
-	}
+  public override func on(_ event: Event<Element, Error>) {
+    events.append(event)
+    super.on(event)
+  }
 
-	public func observe(with observer: @escaping Observer<Element, Error>) -> Disposable {
-		buffer.forEach { observer($0) }
-		return super.observe(with: observer)
-	}
+  public func observe(with observer: @escaping Observer<Element, Error>) -> Disposable {
+    buffer.forEach { observer($0) }
+    return super.observe(with: observer)
+  }
 }
 ```
 
@@ -952,8 +952,8 @@ We have see two kinds of signals so far. A `Signal` that produces events only if
 /// Represents a signal that is started by calling `connect` on it.
 public protocol ConnectableSignalProtocol: SignalProtocol {
 
-	/// Start the signal.
-	func connect() -> Disposable
+  /// Start the signal.
+  func connect() -> Disposable
 }
 ```
 
@@ -962,21 +962,21 @@ We will build a connectable signal as a wrapper over any other kind of signal. W
 ```swift
 public final class ConnectableSignal<Source: SignalProtocol>: ConnectableSignalProtocol {
 
-	private let source: Source
-	private let subject: Subject<Source.Element, Source.Error>
+  private let source: Source
+  private let subject: Subject<Source.Element, Source.Error>
 
-	public init(source: Source, subject: Subject<Source.Element, Source.Error>) {
-		self.source = source
-		self.subject = subject
-	}
+  public init(source: Source, subject: Subject<Source.Element, Source.Error>) {
+    self.source = source
+    self.subject = subject
+  }
 
-	public func connect() -> Disposable {
-		return source.observe(with: subject)
-	}
+  public func connect() -> Disposable {
+    return source.observe(with: subject)
+  }
 
-	public func observe(with observer: @escaping Observer<Source.Element, Source.Error>) -> Disposable {
-		return subject.observe(with: observer)
-	}
+  public func observe(with observer: @escaping Observer<Source.Element, Source.Error>) -> Disposable {
+    return subject.observe(with: observer)
+  }
 }
 ```
 
@@ -989,10 +989,10 @@ We now have all parts to implement `shareReplay(limit:)`. Let us start with `rep
 ```swift
 extension SignalProtocol {
 
-	/// Ensure that all observers see the same sequence of elements. Connectable.
-	public func replay(_ limit: Int = Int.max) -> ConnectableSignal<Self> {
-		return ConnectableSignal(source: self, subject: ReplaySubject(bufferSize: limit))
-	}
+  /// Ensure that all observers see the same sequence of elements. Connectable.
+  public func replay(_ limit: Int = Int.max) -> ConnectableSignal<Self> {
+    return ConnectableSignal(source: self, subject: ReplaySubject(bufferSize: limit))
+  }
 }
 ```
 
@@ -1005,11 +1005,11 @@ In order to do this, we will keep a reference count. With each new observer, the
 ```swift
 public extension ConnectableSignalProtocol {
 
-	/// Convert connectable signal into the ordinary signal by calling `connect`
-	/// on the first observation and calling dispose when number of observers goes down to zero.
-	public func refCount() -> Signal<Element, Error> {
-		// check out: https://github.com/ReactiveKit/ReactiveKit/blob/e781e1d0ce398259ca38cc0d5d0ed6b56d8eab39/Sources/Connectable.swift#L68-L85
- 	}
+  /// Convert connectable signal into the ordinary signal by calling `connect`
+  /// on the first observation and calling dispose when number of observers goes down to zero.
+  public func refCount() -> Signal<Element, Error> {
+    // check out: https://github.com/ReactiveKit/ReactiveKit/blob/e781e1d0ce398259ca38cc0d5d0ed6b56d8eab39/Sources/Connectable.swift#L68-L85
+   }
 }
 ```
 
@@ -1020,7 +1020,7 @@ Now that we know about subjects and connectable signals, we can implement the op
 ```swift
 /// Ensure that all observers see the same sequence of elements.
 public func shareReplay(limit: Int = Int.max) -> Signal<Element, Error> {
-	return replay(limit).refCount()
+  return replay(limit).refCount()
 }
 ```
 
@@ -1069,25 +1069,25 @@ Sometimes you will want to handle all your signal errors in same way. Say you ar
 ```swift
 class ViewModel {
 
-	let errors = SafePublishSubject<MyError>() // typealias for PublishSubject<MyError, NoError>
-	
-	...
-	
-	someRequest
-		.suppressAndFeedError(into: errors) // returns `SafeSignal`
-		.observeNext {}
-	
-	...
-	
-	otherRequest
-		.suppressAndFeedError(into: errors) // returns `SafeSignal`
-		.bind(to: ...)
-	
-	...
-	
-	errors.bind(to: viewController) { vc, error in 
-		vc.display(error)
-	}
+  let errors = SafePublishSubject<MyError>() // typealias for PublishSubject<MyError, NoError>
+  
+  ...
+  
+  someRequest
+    .suppressAndFeedError(into: errors) // returns `SafeSignal`
+    .observeNext {}
+  
+  ...
+  
+  otherRequest
+    .suppressAndFeedError(into: errors) // returns `SafeSignal`
+    .bind(to: ...)
+  
+  ...
+  
+  errors.bind(to: viewController) { vc, error in 
+    vc.display(error)
+  }
 }
 ```
 
@@ -1104,25 +1104,25 @@ Just like with the errors, you might want to track state of signals in a general
 ```swift
 class ViewModel {
 
-	let activity = SafePublishSubject<Bool>() // typealias for PublishSubject<Bool, NoError>
-	
-	...
-	
-	someRequest
-		.feedActivity(into: activity)
-		.observeNext {}
-	
-	...
-	
-	otherRequest
-		.feedActivity(into: activity)
-		.bind(to: ...)
-	
-	...
-	
-	activity.bind(to: UIApplication.shared) { application, isActive in 
-		application.isNetworkActivityIndicatorVisible = isActive
-	}
+  let activity = SafePublishSubject<Bool>() // typealias for PublishSubject<Bool, NoError>
+  
+  ...
+  
+  someRequest
+    .feedActivity(into: activity)
+    .observeNext {}
+  
+  ...
+  
+  otherRequest
+    .feedActivity(into: activity)
+    .bind(to: ...)
+  
+  ...
+  
+  activity.bind(to: UIApplication.shared) { application, isActive in 
+    application.isNetworkActivityIndicatorVisible = isActive
+  }
 }
 ```
 
@@ -1136,8 +1136,8 @@ Create a type that will represent signal state.
 
 ```swift
 enum State<T> {
-	case inProgress
-	case done(T)
+  case inProgress
+  case done(T)
 }
 ```
 
@@ -1145,9 +1145,9 @@ Then wrap the signal elements into this type and start with the case `inProgress
 
 ```swift
 let loggedIn = login.flatMapLatest { username, passoword in 
-	return apiClient.login(username, password)
-		.map { State.done($0) }
-		.start(with: .inProgress)
+  return apiClient.login(username, password)
+    .map { State.done($0) }
+    .start(with: .inProgress)
 }
 ```
 
@@ -1155,13 +1155,13 @@ You can then bind that signal to your view controller and update the button acco
 
 ```swift
 loggedIn.bind(to: vc) { vc, state in 
-	switch state {
-		case .inProgress:
-			vc.loginButton.startSpinner()
-		case .done(let user):
-			vc.loginButton.stopSpinner()
-			vc.presentProfileViewController(for: user)
-	}
+  switch state {
+    case .inProgress:
+      vc.loginButton.startSpinner()
+    case .done(let user):
+      vc.loginButton.stopSpinner()
+      vc.presentProfileViewController(for: user)
+  }
 }
 ```
 
@@ -1209,7 +1209,7 @@ The signal will send `.next` event whenever the button is tapped. We would like 
 
 ```swift
 let photo = reload.flatMapLatest { _ in 
-	return apiClient().loadPhoto() // returns Signal<UIImage, NetworkError>
+  return apiClient().loadPhoto() // returns Signal<UIImage, NetworkError>
 }
 ```
 
@@ -1217,8 +1217,8 @@ let photo = reload.flatMapLatest { _ in
 
 ```swift
 photo
-	.suppressError(logging: true)	// we can bind only safe signals
-	.bind(to: imageView.reactive.image) // using Bond framework 
+  .suppressError(logging: true)  // we can bind only safe signals
+  .bind(to: imageView.reactive.image) // using Bond framework 
 ```
 
 What will happen is that whenever the button is tapped a new photo request will be made and the image view's image will be updated.
@@ -1238,7 +1238,7 @@ let username = usernameLabel.reactive.text
 let password = passwordLabel.reactive.text
 
 let canLogIn = combineLatest(username, password) { username, password in
-	return !username.isEmpty && !password.isEmpty
+  return !username.isEmpty && !password.isEmpty
 }
 
 canLogIn.bind(to: loginButton.reactive.isEnabled)
