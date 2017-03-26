@@ -107,9 +107,11 @@ class Scheduler {
   private var scheduledBlocks: [() -> Void] = []
   private(set) var numberOfRuns = 0
 
-  func context(_ block: @escaping () -> Void) {
-    self.scheduledBlocks.append(block)
-    tryRun()
+  var context: ExecutionContext {
+    return ExecutionContext { block in
+      self.scheduledBlocks.append(block)
+      self.tryRun()
+    }
   }
 
   func runOne() {

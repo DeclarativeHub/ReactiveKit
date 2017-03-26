@@ -534,7 +534,7 @@ class SignalTests: XCTestCase {
     bob.runRemaining()
 
     let operation = Signal<Int, TestError>.sequence([1, 2, 3]).executeIn(bob.context)
-    let replayed = operation.replay(2)
+    let replayed = operation.replay(limit: 2)
 
     operation.expectComplete(after: [1, 2, 3])
     let _ = replayed.connect()
