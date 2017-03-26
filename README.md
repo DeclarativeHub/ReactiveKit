@@ -1092,11 +1092,7 @@ class ViewModel {
 }
 ```
 
-<<<<<<< HEAD
 We used `suppressAndFeedError` operator to propagate all errors into a subject. We then worked with the subject to handle the errors.
-=======
-> If your class is a subclass or a descendent of NSObject, ReactiveKit provides the bag as an extension property `.bag` that you can use out of the box.
->>>>>>> dcf72aa8ce421fb4326b9c0ca7123820a887fdcb
 
 ### Tracking signal state
 
