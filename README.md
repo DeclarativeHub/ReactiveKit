@@ -569,19 +569,20 @@ Handling disposables can be cumbersome when doing multiple observation. To simpl
 ```swift
 class Example {
 
-    let bag = DisposeBag()
+  let bag = DisposeBag()
 
-    init() {
-     ...
-      someSignal
-          .observe { ... }
-          .dispose(in: bag)
-      
-      anotherSignal
-          .observe { ... }
-          .dispose(in: bag)
-      ...
-    }
+  init() {
+    ...
+    someSignal
+      .observe { ... }
+      .dispose(in: bag)
+
+    anotherSignal
+      .observe { ... }
+      .dispose(in: bag)
+    ...
+  }
+}
 ```
 
 In the example, instead of handling the disposables, we just put them into a bag by calling `dispose(in:)` method on them. They will then get disposed automatically when the bag gets deallocated. Note that you can also call `dispose()` on the bag to dispose its contents at will.
@@ -590,7 +591,7 @@ ReactiveKit provides a bag on `NSObject` and its subclasses out of the box. If y
 
 ```swift
 extension NSObject {
-    public var bag: DisposeBag { get }
+  public var bag: DisposeBag { get }
 }
 ```
 
@@ -606,7 +607,7 @@ For example, if we have a signal that is created like
 let someImage = SafeSignal<UIImage> { observer in
   ...
   DispatchQueue.background.async {
-      observer.next(someImage)
+    observer.next(someImage)
   }
   ...
 }
@@ -629,7 +630,7 @@ We could set the image in another async dispatch to main queue, but there is a b
 ```swift
 someImage
   .observeOn(.main)
-    .observeNext { image in 
+  .observeNext { image in 
     imageView.image = image // called on main queue
   }
   .dispose(in: bag)
@@ -650,7 +651,7 @@ We, however, do not want observing that signal to block the UI.
 
 ```swift
 someData
-    .observeNext { data in // blocks current thread
+  .observeNext { data in // blocks current thread
     display(data)
   }
   .dispose(in: bag)
@@ -662,7 +663,7 @@ We would like to do the loading on another queue. We could dispatch async the lo
 someData
   .executeOn(.background)
   .observeOn(.main)
-    .observeNext { data in // does not block current thread
+  .observeNext { data in // does not block current thread
     display(data)
   }
   .dispose(in: bag)
@@ -722,7 +723,7 @@ Protocol `BindingExecutionContextProvider` provides the execution context on whi
 public protocol BindingExecutionContextProvider {
 
   /// An execution context used to deliver binding events.
-   var bindingExecutionContext: ExecutionContext { get }
+  var bindingExecutionContext: ExecutionContext { get }
 }
 ```
 
@@ -810,8 +811,8 @@ Whenever we observe a signal, we execute its producer. Consider the following si
 
 ```swift
 let user = Signal { observer in 
-    print("Fetching user...")
-    ...
+  print("Fetching user...")
+  ...
 }
 ```
 
