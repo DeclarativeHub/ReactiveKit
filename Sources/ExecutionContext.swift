@@ -70,6 +70,7 @@ public struct ExecutionContext {
   }
 
   /// Execution context bound to global dispatch queue.
+  @available(macOS 10.10, *)
   public static func global(qos: DispatchQoS.QoSClass = .default) -> ExecutionContext {
     return DispatchQueue.global(qos: qos).context
   }
