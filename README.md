@@ -11,6 +11,8 @@ The framework is best used in a combination with [Bond](https://github.com/React
 
 This document will introduce the framework by going through its implementation. By end you should be equipped with pretty good understanding how it is implemented and what are the best ways of using it.
 
+## Summary
+
 * [Introduction](#introduction)
 * [Signals](#signals)
 * [Wrapping asynchronous calls into signals](#wrapping-asynchronous-calls-into-signals)
