@@ -81,6 +81,7 @@ public class Property<Value>: PropertyProtocol, SubjectProtocol, BindableProtoco
   public func bind(signal: Signal<Value, NoError>) -> Disposable {
     return signal
       .take(until: disposeBag.deallocated)
+      .observeIn(.nonRecursive())
       .observeNext { [weak self] element in
         guard let s = self else { return }
         s.on(.next(element))

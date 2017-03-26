@@ -26,36 +26,75 @@ import Foundation
 import Dispatch
 
 /// Execution context is an abstraction over a thread or a dispatch queue.
-/// It is just a function that executes other function.
 ///
-///     let context = DispatchQueue.background.context
+///     let context = ExecutionContext.main
 ///
-///     context {
-///       print("Printing on background queue.")
+///     context.execute {
+///       print("Printing on main queue.")
 ///     }
 ///
-public typealias ExecutionContext = (@escaping () -> Void) -> Void
+public struct ExecutionContext {
 
-/// Executes on current thread or queue.
-public let ImmediateExecutionContext: ExecutionContext = { block in
-  block()
-}
+  private let context: (@escaping () -> Void) -> Void
 
-/// If current thread is main thread, just executes the block. Otherwise, do
-/// async dispatch of the block to the main queue (thread).
-public let ImmediateOnMainExecutionContext: ExecutionContext = { block in
-  if Thread.isMainThread {
-    block()
-  } else {
-    DispatchQueue.main.async(execute: block)
+  /// Execution context is just a function that executes other function.
+  public init(_ context: @escaping (@escaping () -> Void) -> Void) {
+    self.context = context
+  }
+
+  /// Execute given block in the context.
+  public func execute(_ block: @escaping () -> Void) {
+    context(block)
+  }
+
+  /// Execution context that executes immediately and synchronously on current thread or queue.
+  public static var immediate: ExecutionContext {
+    return ExecutionContext { block in block () }
+  }
+
+  /// Executes immediately and synchronously if current thread is main thread. Otherwise executes
+  /// asynchronously on main dispatch queue (main thread).
+  public static var immediateOnMain: ExecutionContext {
+    return ExecutionContext { block in
+      if Thread.isMainThread {
+        block()
+      } else {
+        DispatchQueue.main.async(execute: block)
+      }
+    }
+  }
+
+  /// Execution context bound to main dispatch queue.
+  public static var main: ExecutionContext {
+    return DispatchQueue.main.context
+  }
+
+  /// Execution context bound to global dispatch queue.
+  public static func global(qos: DispatchQoS.QoSClass = .default) -> ExecutionContext {
+    return DispatchQueue.global(qos: qos).context
+  }
+
+  /// Execution context that breaks recursive class by ingoring them.
+  public static func nonRecursive() -> ExecutionContext {
+    var updating: Bool = false
+    return ExecutionContext { block in
+      guard !updating else { return }
+      updating = true
+      block()
+      updating = false
+    }
   }
 }
 
 public extension DispatchQueue {
 
-  /// Context that executes blocks on this queue.
-  public func context(_ block: @escaping () -> Void) {
-    self.async(execute: block)
+  /// Creates ExecutionContext from the queue.
+  public var context: ExecutionContext {
+    return ExecutionContext(context)
+  }
+
+  private func context(_ block: @escaping () -> Void) {
+    async(execute: block)
   }
 
   /// Schedule given block for execution after given interval passes.
@@ -75,3 +114,11 @@ public extension DispatchQueue {
     return disposable
   }
 }
+
+// MARK: Compatibility
+
+@available(*, deprecated, message: "Use ExecutionContext.immediate instead.")
+public let ImmediateExecutionContext: ExecutionContext = .immediate
+
+@available(*, deprecated, message: "Use ExecutionContext.immediateOnMain instead.")
+public let ImmediateOnMainExecutionContext: ExecutionContext = .immediateOnMain

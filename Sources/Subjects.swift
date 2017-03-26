@@ -85,6 +85,7 @@ extension Subject: BindableProtocol {
   public func bind(signal: Signal<Element, NoError>) -> Disposable {
     return signal
       .take(until: disposeBag.deallocated)
+      .observeIn(.nonRecursive())
       .observeNext { [weak self] element in
         guard let s = self else { return }
         s.on(.next(element))

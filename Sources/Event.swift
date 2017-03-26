@@ -22,10 +22,16 @@
 //  THE SOFTWARE.
 //
 
-/// Represents an event of a signal.
+/// An event of a sequence.
 public enum Event<Element, Error: Swift.Error> {
+
+  /// An event that carries next element.
   case next(Element)
+
+  /// An event that represents failure. Carries an error.
   case failed(Error)
+
+  /// An event that marks the completion of a sequence.
   case completed
 }
 
