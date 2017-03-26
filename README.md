@@ -11,6 +11,38 @@ The framework is best used in a combination with [Bond](https://github.com/React
 
 This document will introduce the framework by going through its implementation. By end you should be equipped with pretty good understanding how it is implemented and what are the best ways of using it.
 
+* [Introduction](#introduction)
+* [Signals](#signals)
+* [Wrapping asynchronous calls into signals](#wrapping-asynchronous-calls-into-signals)
+* [Disposing signals](#disposing-signals)
+* [Transforming signals](#transforming-signals)
+* [More about errors](#more-about-errors)
+* [Creating simple signals](#creating-simple-signals)
+* [Disposing in a bag](#disposing-in-a-bag)
+* [Threading](#threading)
+* [Bindings](#bindings)
+  * [Binding targets](#binding-targets)
+  * [Binding to a property](#binding-to-a-property)
+* [Sharing sequences of events](#sharing-sequences-of-events)
+* [Subjects](#subjects)
+* [Connectable signals](#connectable-signals)
+  * [Implementing shareReplay operator](#implementing-sharereplay-operator)
+* [Handling signal errors](#handling-signal-errors)
+  * [Generalized error handling](#generalized-error-handling)
+* [Tracking signal state](#tracking-signal-state)
+  * [Single signal state tracking](#single-signal-state-tracking)
+* [Property](#property)
+* [Other common patterns](#other-common-patterns)
+  * [Performing an action on .next event](#performing-an-action-on-next-event)
+  * [Combining multiple signals](#combining-multiple-signals)
+* [Requirements](#requirements)
+* [Installation](#installation)
+  * [CocoaPods](#cocoapods)
+  * [Carthage](#carthage)
+* [Communication](#communication)
+* [Additional Documentation](#additional-documentation)
+* [License](#license)
+
 ## Introduction
 
 Consider how text of a text field changes as user enters his name. Each entered letter gives us a new state.
