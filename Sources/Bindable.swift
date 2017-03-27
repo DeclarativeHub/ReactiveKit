@@ -115,18 +115,8 @@ extension SignalProtocol where Error == NoError {
 }
 
 /// Provides an execution context used to deliver binding events.
-///
-/// `NSObject` conforms to this protocol be providing `ImmediateOnMainExecutionContext`
-/// as binding execution context. Specific subclasses can override the context if needed.
 public protocol BindingExecutionContextProvider {
 
   /// An execution context used to deliver binding events.
   var bindingExecutionContext: ExecutionContext { get }
-}
-
-extension NSObject: BindingExecutionContextProvider {
-
-  public var bindingExecutionContext: ExecutionContext {
-    return .immediateOnMain
-  }
 }

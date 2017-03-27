@@ -751,31 +751,6 @@ public protocol Deallocatable: class {
 
 ReactiveKit provides conformance to this protocol for `NSObject` and its subclasses out of the box.
 
-Protocol `BindingExecutionContextProvider` provides the execution context on which the object can be updated. Execution context is just a wrapper over dispatch queue or a thread. You can see how it is implemented [here](https://github.com/ReactiveKit/ReactiveKit/blob/master/Sources/ExecutionContext.swift).
-
-```swift
-public protocol BindingExecutionContextProvider {
-
-  /// An execution context used to deliver binding events.
-  var bindingExecutionContext: ExecutionContext { get }
-}
-```
-
-`NSObject` conforms to this protocol by providing `.immediateOnMain` context.
-
-```swift
-extension NSObject: BindingExecutionContextProvider {
-
-  public var bindingExecutionContext: ExecutionContext {
-    return .immediateOnMain
-  }
-}
-```
-
-`ExecutionContext.immediateOnMain` executes synchronously if the current thread is main, otherwise it makes asynchronous dispatch to main queue.
-
-If your type is a subclass of `NSObject`, you can always override `bindingExecutionContext` property to provide another context. On the other hand, if your type is not a subclass of `NSObject` all you need to do is conform to `BindingExecutionContextProvider`.
-
 How do you conform to `Deallocatable`? The simplest way is conforming to `DisposeBagProvider` instead.
 
 ```swift
@@ -796,6 +771,33 @@ extension DisposeBagProvider {
 ```
 
 As you can see, `DisposeBagProvider` inherits `Deallocatable` and implements is by taking the deallocated signal from the bag. So all that you need to do is provide a `bag` property.
+
+`BindingExecutionContextProvider` protocol provides the execution context in which the object should be updated. Execution context is just a wrapper over a dispatch queue or a thread. You can see how it is implemented [here](https://github.com/ReactiveKit/ReactiveKit/blob/master/Sources/ExecutionContext.swift).
+
+```swift
+public protocol BindingExecutionContextProvider {
+
+  /// An execution context used to deliver binding events.
+  var bindingExecutionContext: ExecutionContext { get }
+}
+```
+
+> Bond framework provides `BindingExecutionContextProvider` conformance to various UIKit objects so they can be seamlessly bound to while ensuring the main thread. 
+
+You can conform to this protocol by providing execution context.
+
+```swift
+extension MyViewModel: BindingExecutionContextProvider {
+
+  public var bindingExecutionContext: ExecutionContext {
+    return .immediateOnMain
+  }
+}
+```
+
+`ExecutionContext.immediateOnMain` executes synchronously if the current thread is main, otherwise it makes asynchronous dispatch to main queue. If you want to bind on background queue, you can return `.background` instead. 
+
+> Note that updating UIKit or AppKit objects must always happen from the main thread or queue.
 
 Now we can peek into the binding implementation.
 
