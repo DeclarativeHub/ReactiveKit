@@ -9,7 +9,7 @@ __ReactiveKit__ is a lightweight Swift framework for reactive and functional rea
 
 The framework is best used in a combination with [Bond](https://github.com/ReactiveKit/Bond) that provides UIKit and AppKit bindings, reactive delegates and data sources.
 
-This document will introduce the framework by going through its implementation. By end you should be equipped with pretty good understanding how it is implemented and what are the best ways of using it.
+This document will introduce the framework by going through its implementation. By the end you should be equipped with a pretty good understanding of how is the framework implemented and what are the best ways to use it.
 
 ## Summary
 
@@ -63,7 +63,7 @@ The idea behind reactive programming is that everything can be represented as a 
 
 Outcome of a network request is a response. Although we have only one response, we can still think of it as a sequence. An array of one element is still an array.
 
-Arrays are finite so they have a property that we call size. It is a measure of how much memory the array occupies. When we talk about sequences over time, we do not know how many events will they generate during their lifetime. We do not know how many letters will the user enter. However, we would still like to know when the sequence is done generating the events. 
+Arrays are finite so they have a property that we call size. It is a measure of how much memory the array occupies. When we talk about sequences over time, we do not know how many events will they generate during their lifetime. We do not know how many letters will the user enter. However, we would still like to know when the sequence is done generating the events.
 
 To get that information, we can introduce a special kind of event - a completion event. It is an event that marks the end of a sequence. No event shall follow the completion event.
 
@@ -83,7 +83,7 @@ Unfortunately, the universe is not governed by the order, rather by the chaos. U
 
 In order to represent errors in our sequences, we will introduce yet another kind of event. We will call it a failure event. Failure event will be generated when something unexpected happens. Just like the completion event, failure event will also represent the end of a sequence. No event shall follow the failure event.
 
-Let us see how the event is defined in ReactiveKit. 
+Let us see how the event is defined in ReactiveKit.
 
 ```swift
 /// An event of a sequence.
@@ -91,10 +91,10 @@ public enum Event<Element, Error: Swift.Error> {
 
   /// An event that carries next element.
   case next(Element)
-  
+
   /// An event that represents failure. Carries an error.
   case failed(Error)
-  
+
   /// An event that marks the completion of a sequence.
   case completed
 }
@@ -121,17 +121,16 @@ public protocol SignalProtocol {
 }
 ```
 
-A signal represents the sequence of events. The most important thing you can do on the sequence is observe the events it generates. Events are received by the *observer*. Observer is nothing more than a function that accepts an event.
+A signal represents the sequence of events. The most important thing you can do on the sequence is observe the events it generates. Events are received by the *observer*. An observer is nothing more than a function that accepts an event.
 
 ```swift
 /// Represents a type that receives events.
 public typealias Observer<Element, Error: Swift.Error> = (Event<Element, Error>) -> Void
 ```
- 
+
 ## Signals
 
 We have seen the protocol that defines signals, but what about the implementation? Let us implement a basic signal type!
-
 
 ```swift
 public struct Signal<Element, Error: Swift.Error>: SignalProtocol {
@@ -150,7 +149,7 @@ public struct Signal<Element, Error: Swift.Error>: SignalProtocol {
 
 We have defined our signal as a struct of one property - a producer. As you can see, producer is just a function that takes the observer as an argument. When we start observing the signal, what we do is basically execute the producer with the given observer. That is how simple signals are!
 
-> Signal is ReactiveKit is implemented almost like what we have shown here. It has few additions that give us some guarantees we will talk about later.
+> Signal in ReactiveKit is implemented almost like what we have shown here. It has few additions that give us some guarantees that we will talk about later.
 
 Let us create an instance of the signal that sends first three positive integers to the observer and then completes.
 
@@ -160,7 +159,7 @@ Visually that would look like:
 ---[1]---[2]---[3]---|--->
 ```
 
-While in the code, we do this:
+While in the code, we would do:
 
 ```swift
 let counter = Signal<Int, NoError> { observer in
@@ -194,7 +193,7 @@ public protocol ObserverProtocol {
 }
 ```
 
-Our observer we introduced earlier is basically the method `on(_:)`. ReactiveKit also provides this extensions on the observer:
+Our observer we introduced earlier is basically the `on(_:)` method. ReactiveKit also provides this extensions on the observer:
 
 ```swift
 public extension ObserverProtocol {
@@ -256,20 +255,20 @@ completed
 
 ### Wrapping asynchronous calls into signals
 
-We can easily wrap asynchronous calls into signals because of the way we implemented our `Signal` type. Let us say that we have an asynchronous function that fetches the user. 
+We can easily wrap asynchronous calls into signals because of the way we implemented our `Signal` type. Let us say that we have an asynchronous function that fetches the user.
 
 ```swift
 func getUser(completion: (Result<User, ClientError>) -> Void) -> URLSessionTask
 
 ```
 
-The function communicates fetch result through a completion closure and a `Result` type that will contain either a user or an error. To wrap this into a signal, all we need to do is call that function within our signal initializer's producer closure and sent relevant events as they happen.
+The function communicates fetch result through a completion closure and a `Result` type whose instance will contain either a user or an error. To wrap this into a signal, all we need to do is call that function within our signal initializer's producer closure and send relevant events as they happen.
 
 
 ```swift
 func getUser() -> Signal<User, ClientError> {
-  return Signal { observer in 
-    getUser(completion: { result in 
+  return Signal { observer in
+    getUser(completion: { result in
       switch result {
       case .success(let user):
         observer.next(user)
@@ -281,7 +280,7 @@ func getUser() -> Signal<User, ClientError> {
 }
 ```
 
-If we now observe this signal, we will get either the user and a completion event
+If we now observe this signal, we will get either a user and a completion event
 
 ```
 ---[User]---|--->
@@ -298,24 +297,24 @@ In code, getting the user would look like:
 ```swift
 let user = getUser()
 
-user.observe { event in 
+user.observe { event in
   print(event) // prints ".next(user), .completed" in case of successful response
 }
 ```
 
 Let me ask you one important question here. When is the request to get the user executed, i.e. when is the asynchronous function `getUser(completion:)` called? Think about it.
 
-We call `getUser(completion:)` within our producer closure that we pass to the signal initializer. That closure however is not executed when the signal is created. That means that the code `let user = getUser()` does not trigger the request. It merely creates a signal that knows how to execute a request.
+We call `getUser(completion:)` within our producer closure that we pass to the signal initializer. That closure however is not executed when the signal is created. That means that the code `let user = getUser()` does not trigger the request. It merely creates a signal that knows how to execute the request.
 
 Request is made when we call the `observe(with:)` method because that is the point when our producer closure gets executed. It also means that if we call the `observe(with:)` method more than once, we will call the producer more than once, so we will execute the request more than once. This is a very powerful aspect of signals and we will get back to it later when we will talk about [sharing sequences of events](#sharing-sequences-of-events). For now just remember that each call to `observe(with:)` means that events get produced all over again.
 
 ### Disposing signals
 
-Our example function `getUser(completion:)` returns a `URLSessionTask` object. We often do not think about it, but HTTP requests can be cancelled. When the screen gets dismissed, we should probably cancel any ongoing requests. A way to do that is to call `cancel()` on `URLSessionTask` that we used to make requests. How do we handle that with signals?
+Our example function `getUser(completion:)` returns a `URLSessionTask` object. We often do not think about it, but HTTP requests can be cancelled. When the screen gets dismissed, we should probably cancel any ongoing requests. A way to do that is to call `cancel()` on `URLSessionTask` that we used to make the request. How do we handle that with signals?
 
 If you have been reading the code examples carefully, you have probably noticed that we did not correctly conform our `Signal` to `SignalProtocol`. The protocol specifies that the `observe(with:)` method returns something called `Disposable`. A disposable is an object that can cancel the signal observation and any underlying tasks.
 
-Let me give you the definition of disposable from ReactiveKit.
+Let me give you the definition of a disposable from ReactiveKit.
 
 ```swift
 public protocol Disposable {
@@ -328,7 +327,7 @@ public protocol Disposable {
 }
 ```
 
-It has a method to cancel the observation and a property that can tell us if it is disposed or not. Cancelling the observation is also referred to as *disposing the signal*.
+It has a method to cancel the observation and a property that can tell us if it has been disposed or not. Cancelling the observation is also referred to as *disposing the signal*.
 
 There are various implementations of `Disposable`, but let us focus on the one that is most commonly used in signal creation. When the signal gets disposed, we often want to perform some action to clean up the resources or stop underlying tasks. What a better way to do that then to execute a closure when the the signal gets disposed. Let us implement a disposable that executes a given closure when it gets disposed. We will call it `BlockDisposable`.
 
@@ -336,7 +335,7 @@ There are various implementations of `Disposable`, but let us focus on the one t
 public final class BlockDisposable: Disposable {
 
   private var handler: (() -> Void)?
-  
+
   public var isDisposed: Bool {
     return handler == nil
   }
@@ -354,7 +353,7 @@ public final class BlockDisposable: Disposable {
 
 Simple enough. It just executes the given closure when the `dispose()` method is called. How do we use such disposable? Well, we will need to improve our signal implementation.
 
-Who should create the disposable? Since the disposable is a way to communicate the signal cancellation, it is obviously the one who created the signal that should also provide a disposable that can cancel the signal. To do that we will refactor the signal producer to return a disposable. Additionally, we will return that disposable from the `observe(with:)` method so that whoever will be observing the signal can cancel the observation.
+Who should create the disposable? Since the disposable represents a way to communicate the signal cancellation, it is obviously the one who created the signal that should also provide a disposable that can cancel the signal. To do that we will refactor the signal producer to return a disposable. Additionally, we will return that disposable from the `observe(with:)` method so that whoever will be observing the signal can cancel the observation.
 
 ```swift
 public struct Signal<Element, Error: Swift.Error>: SignalProtocol {
@@ -375,8 +374,8 @@ This means that when we are creating a signal, we also have to provide a disposa
 
 ```swift
 func getUser() -> Signal<User, ClientError> {
-  return Signal { observer in 
-    let task = getUser(completion: { result in 
+  return Signal { observer in
+    let task = getUser(completion: { result in
       switch result {
       case .success(let user):
         observer.next(user)
@@ -384,23 +383,23 @@ func getUser() -> Signal<User, ClientError> {
       case .failure(let error):
         observer.failed(error)
     })
-    
+
     return BlockDisposable {
       task.cancel()
     }
   }
 }
-``` 
+```
 
 We just return an instance of `BlockDisposable` that cancels the task when it gets disposed. We can then get that disposable when observing the signal.
 
 ```swift
-let disposable = getUser().observe { event in 
+let disposable = getUser().observe { event in
   print(event)
 }
 ```
 
-When we are no longer interested into the signal events, we can just dispose it. It will cancel the observation and cancel network task.
+When we are no longer interested in signal events, we can just dispose the disposable. It will cancel the observation and cancel network task.
 
 ```swift
 disposable.dispose()
@@ -409,7 +408,6 @@ disposable.dispose()
 > In actual implementation of `Signal` in ReactiveKit there are additional mechanisms that prevent events from being sent when the signal is disposed so there is a guarantee that no events will be received after the signal is disposed. Any events sent from the producer after the signal is disposed are ignored.
 
 > In ReactiveKit, signals are automatically disposed when they terminate with either a `.completed` or `.failed` event.
-
 
 ### Transforming signals
 
@@ -448,17 +446,17 @@ extension SignalProtocol {
 }
 ```
 
-We have basically written an extension method on the `SignalProtocol` in which we create a signal. In the created signal's producer we observe *self* - the signal we are filtering - and propagate `.next` events that pass the test. We also propagate completion and failure events in the `default` case.
+We have written an extension method on the `SignalProtocol` in which we create a signal. In the created signal's producer we observe *self* - the signal we are filtering - and propagate `.next` events that pass the test. We also propagate completion and failure events in the `default` case.
 
 We use the operator by calling it on a signal.
 
 ```swift
-cities.filter { $0.hasPrefix("P") }.observe { event in 
+cities.filter { $0.hasPrefix("P") }.observe { event in
   print(event) // prints .next("Paris"), .next("Porto"), .completed
 }
 ```
 
-There are many operators on signals. ReactiveKit is basically a collection of signal operators. Let us see another common one. 
+There are many operators on signals. ReactiveKit is basically a collection of signal operators. Let us see another common one.
 
 When observing signals we often do not care about terminal events, all we care about is the elements in `.next` events. We could write an operator that gives us just that.
 
@@ -476,17 +474,17 @@ extension SignalProtocol {
 }
 ```
 
-It should be pretty straightforward - just propagate the elements from `.next` event and ignore everything else. Now we can do
+It should be pretty straightforward - just propagate the elements from `.next` event and ignore everything else. Now we can do:
 
 ```swift
-cities.filter { $0.hasPrefix("P") }.observeNext { name in 
+cities.filter { $0.hasPrefix("P") }.observeNext { name in
   print(name) // prints "Paris", "Porto"
 }
 ```
 
 > ReactiveKit also provides `observeFailed` and `observeCompleted` operators when you are interested only in those events.
 
-Writing operators on signals is as simple as writing an extension method. When you need something that is not provided by the framework, just write your own! ReactiveKit is written to be simple to understand. Whenever you are stuck, just look [into the implementation](https://github.com/ReactiveKit/ReactiveKit/blob/master/Sources/SignalProtocol.swift).
+Writing operators on signals is as simple as writing an extension method. When you need something that is not provided by the framework, just write it by yourself! ReactiveKit is written to be simple to understand. Whenever you are stuck, just look [into the implementation](https://github.com/ReactiveKit/ReactiveKit/blob/master/Sources/SignalProtocol.swift).
 
 ### More about errors
 
@@ -505,16 +503,16 @@ An enum with no cases that conforms to `Swift.Error` protocol. Since it has no c
 For example, if we try
 
 ```swift
-let signal = Signal<Int, NoError> { observer in 
+let signal = Signal<Int, NoError> { observer in
   ...
   observer.failed(/* What do I send here? */)
   ...
 }
-``` 
+```
 
 we will hit the wall because we cannot create an instance of `NoError` so we cannot send `.failed` event. This is a very powerful and important feature because whenever you see a signal whose errors are specialized to `NoError` type you can safely assume that signal will not fail - because it cannot.
 
-Signals that do not fail are very common so ReactiveKit defines a typealias to make their usage simpler and consistent.
+Signals that do not fail are very common so ReactiveKit defines a typealias to make their usage simple and consistent.
 
 ```swift
 public typealias SafeSignal<Element> = Signal<Element, NoError>
@@ -539,7 +537,7 @@ That will give you following signal:
 ---5-|--->
 ```
 
-If you want a signal that fires multiple elements and then completes, you can convert any `Sequence` to a signal with static method `sequence`.
+If you need a signal that fires multiple elements and then completes, you can convert any `Sequence` to a signal with static method `sequence`.
 
 ```swift
 let signal = SafeSignal.sequence([1, 2, 3])
@@ -577,7 +575,7 @@ let signal = SafeSignal.never()
 ------>
 ```
 
-Sometimes you will need a signal that sends specific element after certain amount of time has passed:
+Sometimes you will need a signal that sends specific element after certain amount of time passes:
 
 ```swift
 let signal = SafeSignal.timer(element: 5, time: 60)
@@ -598,7 +596,7 @@ let signal = SafeSignal.interval(5)
 
 ### Disposing in a bag
 
-Handling disposables can be cumbersome when doing multiple observation. To simplify it, ReactiveKit provides a type called `DisposeBag`. It is a container into which you can put your disposables. The bag will dispose all disposables that were put into it when it gets deallocated. 
+Handling disposables can be cumbersome when doing multiple observation. To simplify it, ReactiveKit provides a type called `DisposeBag`. It is a container into which you can put your disposables. The bag will dispose all disposables that were put into it when it gets deallocated.
 
 ```swift
 class Example {
@@ -619,9 +617,9 @@ class Example {
 }
 ```
 
-In the example, instead of handling the disposables, we just put them into a bag by calling `dispose(in:)` method on them. They will then get disposed automatically when the bag gets deallocated. Note that you can also call `dispose()` on the bag to dispose its contents at will.
+In the example, instead of handling the disposables, we just put them into a bag by calling `dispose(in:)` method on the disposable. Disposables will then get disposed automatically when the bag gets deallocated. Note that you can also call `dispose()` on the bag to dispose its contents at will.
 
-ReactiveKit provides a bag on `NSObject` and its subclasses out of the box. If you are doing iOS or Mac development you will get a free `bag` on your view controllers and other UIKit objects since all of them are `NSObject` subclasses. 
+ReactiveKit provides a bag on `NSObject` and its subclasses out of the box. If you are doing iOS or Mac development you will get a free `bag` on your view controllers and other UIKit objects since all of them are `NSObject` subclasses.
 
 ```swift
 extension NSObject {
@@ -651,7 +649,7 @@ and if we use it to update the image view
 
 ```swift
 someImage
-  .observeNext { image in 
+  .observeNext { image in
     imageView.image = image // called on background queue
   }
   .dispose(in: bag)
@@ -664,7 +662,7 @@ We could set the image in another async dispatch to main queue, but there is a b
 ```swift
 someImage
   .observeOn(.main)
-  .observeNext { image in 
+  .observeNext { image in
     imageView.image = image // called on main queue
   }
   .dispose(in: bag)
@@ -705,6 +703,8 @@ someData
 
 By applying `executeOn` we define where the signal producer gets executed. We usually use it in a combination with `observeOn` to define where the observer receives events.
 
+Note that there are also operators `observeIn` and `executeIn`. Those operators are similar to the ones we described with the difference that they work with execution contexts instead of with dispatch queues. Execution context is a simple abstraction over a thread or a queue. You can see how it is implemented [here](https://github.com/ReactiveKit/ReactiveKit/blob/master/Sources/ExecutionContext.swift).
+
 ### Bindings
 
 Bindings are observations with perks. Most of the time you should be able to replace observation with a binding. Consider the following example. Say we have a signal of users
@@ -737,7 +737,9 @@ and stop worrying about threading, retain cycles and disposing because bindings 
 
 #### Binding targets
 
-You can only bind to the targets that conform both to `Deallocatable` and `BindingExecutionContextProvider` protocols.
+You can bind to targets that conform both to `Deallocatable` and `BindingExecutionContextProvider` protocols.
+
+> You can actually bind to targets that conform only to `Deallocatable` protocol, but then you have to pass the execution context in which to update the target by calling `bind(to:context:setter)`.
 
 Objects that conform to `Deallocatable` provide a signal that can tell us when the object gets deallocated.
 
@@ -770,7 +772,7 @@ extension DisposeBagProvider {
 }
 ```
 
-As you can see, `DisposeBagProvider` inherits `Deallocatable` and implements is by taking the deallocated signal from the bag. So all that you need to do is provide a `bag` property.
+As you can see, `DisposeBagProvider` inherits `Deallocatable` and implements it by taking the deallocated signal from the bag. So all that you need to do is provide a `bag` property on your type.
 
 `BindingExecutionContextProvider` protocol provides the execution context in which the object should be updated. Execution context is just a wrapper over a dispatch queue or a thread. You can see how it is implemented [here](https://github.com/ReactiveKit/ReactiveKit/blob/master/Sources/ExecutionContext.swift).
 
@@ -782,7 +784,7 @@ public protocol BindingExecutionContextProvider {
 }
 ```
 
-> Bond framework provides `BindingExecutionContextProvider` conformance to various UIKit objects so they can be seamlessly bound to while ensuring the main thread. 
+> Bond framework provides `BindingExecutionContextProvider` conformance to various UIKit objects so they can be seamlessly bound to while ensuring the main thread.
 
 You can conform to this protocol by providing execution context.
 
@@ -795,7 +797,7 @@ extension MyViewModel: BindingExecutionContextProvider {
 }
 ```
 
-`ExecutionContext.immediateOnMain` executes synchronously if the current thread is main, otherwise it makes asynchronous dispatch to main queue. If you want to bind on background queue, you can return `.background` instead. 
+`ExecutionContext.immediateOnMain` executes synchronously if the current thread is main, otherwise it makes asynchronous dispatch to main queue. If you want to bind on background queue, you can return `.background` instead.
 
 > Note that updating UIKit or AppKit objects must always happen from the main thread or queue.
 
@@ -821,12 +823,14 @@ extension SignalProtocol where Error == NoError {
 
 First of all, notice `@discardableResult` annotation. It is there because we can safely ignore the returned disposable. The binding will automatically be disposed when the target gets deallocated. That is ensured by the `take(until:)` operator. It propagates events from self until the given signal completes - in our case until `target.deallocated` signal completes. We then just observe in the right context and on each next element update the target using the provided `setter` closure.
 
+> Note also that bindings are implemented only on non-failable signals.
+
 #### Binding to a property
 
 Ok, that was binding to an object, but what about binding to a property? Would it not be easier that instead of doing
 
 ```swift
-name.bind(to: label) { label, name in 
+name.bind(to: label) { label, name in
   label.text = name
 }
 ```
@@ -846,7 +850,7 @@ Bond provides a type called `Bond` that acts as a binding target that we can use
 Whenever we observe a signal, we execute its producer. Consider the following signal:
 
 ```swift
-let user = Signal { observer in 
+let user = Signal { observer in
   print("Fetching user...")
   ...
 }
@@ -859,7 +863,7 @@ user.observe { ... } // prints: Fetching user...
 user.observe { ... } // prints: Fetching user...
 ```
 
-the producer will be called twice and the user will be fetched twice. Same behaviour might go unnoticed in the code like:
+the producer will be called twice and the user will be fetched twice. Same behaviour might sneak by unnoticed in the code like:
 
 ```swift
 user.map { $0.name }.observe { ... } // prints: Fetching user...
@@ -875,11 +879,11 @@ user.map { $0.name }.observe { ... } // prints: Fetching user...
 user.map { $0.email }.observe { ... } // Does not print anything, but still gets the user :)
 ```
 
-Argument `limit` specifies how many events should be replayed to the observer. One is often all that we need. Operator `shareReplay(limit:)` is a combination of two operators. In order to understand it, we will introduce two interesting concepts: subjects and connectable signals.
+Argument `limit` specifies how many elements (`.next` events) should be replayed to the observer. Terminal events are always replayed. One element is often all we need. Operator `shareReplay(limit:)` is a combination of two operators. In order to understand it, we will introduce two interesting concepts: subjects and connectable signals.
 
 ### Subjects
 
-At the beginning of the document, we defined signal with the protocol `SignalProtocol`. We then implemented a concrete type  `Signal` that conforms to that protocol by executing the producer closure for each observation. Producer would sends events to the observer given to the method `observe(with:)`.
+At the beginning of the document, we defined signal with the `SignalProtocol` protocol. We then implemented a concrete `Signal` type that conformed to that protocol by executing the producer closure for each observation. Producer would sends events to the observer given to the method `observe(with:)`.
 
 Could we have implemented signal differently? Let us try making another kind of a signal - one that is also an observer. We will call it `Subject`. What follows is the simplified implementation of `Subject`  provided by ReactiveKit.
 
@@ -887,7 +891,7 @@ Could we have implemented signal differently? Let us try making another kind of 
 open class Subject<Element, Error: Swift.Error>: SignalProtocol, ObserverProtocol {
 
   private var observers: [Observer<Element, Error>] = []
-    
+
   open func on(_ event: Event<Element, Error>) {
     observers.forEach { $0(event) }
   }
@@ -910,23 +914,23 @@ name.observeNext { name in print("Hi \(name)!") }
 
 name.on(.next("Jim")) // prints: Hi Jim!
 
-// ReactiveKit provides few extension to the ObserverProtocol so we can also do:
+// ReactiveKit provides few extension toon the ObserverProtocol so we can also do:
 name.next("Kathryn") // prints: Hi Kathryn!
 
 name.completed()
 ```
 
-> Note: When using ReactiveKit you should actually use `PublishSubject` instead. It has the same behaviour and interface as `Subject` we defined here - just a different name in order to be consistent with ReactiveX API. 
+> Note: When using ReactiveKit you should actually use `PublishSubject` instead. It has the same behaviour and interface as `Subject` we defined here - just a different name in order to be consistent with ReactiveX API.
 
 As you can see, we do not have a producer closure, rather we send events to the subject itself. The subject then propagates those events to its own observers.
 
-Subjects are useful when we need convert actions from imperative world into signals in reactive world. For example, say we needed view controller appearance events as a signal. We would make a subject property and then send events to it from `viewDidAppear` override. Such subject would then represent a signal of view controller appearance events.
+Subjects are useful when we need to convert actions from imperative world into signals in reactive world. For example, say we needed view controller appearance events as a signal. We can make a subject property and then send events to it from `viewDidAppear` override. Such subject would then represent a signal of view controller appearance events.
 
 ```swift
 class MyViewController: UIViewController {
 
   fileprivate let _viewDidAppear = PublishSubject<Void, NoError>()
-  
+
   override viewDidAppear(_ animated: Bool) {
     super.viewDidAppear(animated)
     _viewDidAppear.next()
@@ -934,7 +938,7 @@ class MyViewController: UIViewController {
 }
 ```
 
-We could have exposed subject publicly, but then anyone would be able to send events on it. Better approach is to make it fileprivate as we did and then expose it publicly as a signal. It is recommended to put all reactive extensions into an extension of `ReactiveExtensions` type provided by ReactiveKit. Here is how yo do it:
+We could have exposed subject publicly, but then anyone would be able to send events on it. Better approach is to make it fileprivate as we did and then expose it publicly as a signal. It is recommended to put all reactive extensions into an extension of `ReactiveExtensions` type provided by ReactiveKit. Here is how you do it:
 
 
 ```swift
@@ -954,7 +958,7 @@ myViewController.reactive.viewDidAppear.observeNext {
 }
 ```
 
-Subjects represent kind of signals that are called *hot signals*. They are called hot because they "send" events regardless if there are observer registered or no. On the other hand, type `Signal` represents kind of signals that are called *cold signal*. Signals of that kind do not produce events until we give them an observer that will receive events.
+Subjects represent kind of signals that are called *hot signals*. They are called hot because they "send" events regardless if there are observer registered or no. On the other hand, `Signal` type represents kind of signals that are called *cold signal*. Signals of that kind do not produce events until we give them an observer that will receive events.
 
 As you could have inferred from the implementation, observing a subject gives us only the events that are sent after the observer is registered. Any events that might have been sent before the observer became registered will not be received by the observer. Is there a way to solve this? Well, we could buffer the received events and then replay them to new observers. Let us do that in a subclass.
 
@@ -975,15 +979,15 @@ public final class ReplaySubject<Element, Error: Swift.Error>: Subject<Element, 
 }
 ```
 
-Again, this is simplified version of the `ReplaySubject` provided by ReactiveKit, but it has everything needed to explain the concept. Whenever the event is received, we put it in the buffer. When the observer gets registered, we then *replay* all events that we have in the buffer. Any future events will be propagated just like in `Subject`.
+Again, this is simplified version of the `ReplaySubject` provided by ReactiveKit, but it has everything needed to explain the concept. Whenever an event is received, we put it in the buffer. When the observer gets registered, we then *replay* all events that we have in the buffer. Any future events will be propagated just like in `Subject`.
 
 > Note: `ReplaySubject` provided by ReactiveKit supports limiting the buffer to certain size so it does not grow forever. Usually it will be enough to limit it to just one event by instantiating it with `ReplaySubject(bufferSize: 1)`. Buffer always keeps the latest event and removes older ones.
 
-At this point you might have the idea how to achieve the behaviour of the `shareReplay` operator. We could observe original signal with the replay subject and than observe that subject multiple times. But in order to implement that as an operator and make it opaque to the user, we need to learn about connectable signals.
+At this point you might have the idea how to achieve the behaviour of the `shareReplay` operator. We could observe original signal with the replay subject and then observe that subject multiple times. But in order to implement that as an operator and make it opaque to the user, we need to learn about connectable signals.
 
 ### Connectable signals
 
-We have see two kinds of signals so far. A `Signal` that produces events only if the observer is registered and a `Subject` that produces events regardless if there are any observers registered. A connectable signals will be third kind of a signal we will implement. This one will start producing events when we wall `connect()` on it. Let us define a protocol first.
+We have see two kinds of signals so far. A `Signal` that produces events only if the observer is registered and a `Subject` that produces events regardless if there are any observers registered. A connectable signals will be third kind of a signal we will implement. This one will start producing events when we call `connect()` on it. Let us define a protocol first.
 
 ```swift
 /// Represents a signal that is started by calling `connect` on it.
@@ -994,7 +998,7 @@ public protocol ConnectableSignalProtocol: SignalProtocol {
 }
 ```
 
-We will build a connectable signal as a wrapper over any other kind of signal. We will leverage subjects for the implementation.
+We will build a connectable signal as a wrapper over any other kind of a signal. We will leverage subjects for the implementation.
 
 ```swift
 public final class ConnectableSignal<Source: SignalProtocol>: ConnectableSignalProtocol {
@@ -1019,7 +1023,7 @@ public final class ConnectableSignal<Source: SignalProtocol>: ConnectableSignalP
 
 We need two things here: a source signal that we are wrapping into a connectable one and a subject that will propagate events from the source to the connectable signal's observers. We will require them in the initializer and save them as properties.
 
-Observing the connectable signal actually means observing the underlying subject. Starting the signal is now trivial - all we need to do is start observing the source signal with the subject. That will make events flow from the source into the observers registered to the subject.
+Observing the connectable signal actually means observing the underlying subject. Starting the signal is now trivial - all we need to do is start observing the source signal with the subject (remember - subject is also an observer). That will make events flow from the source into the observers registered to the subject.
 
 We now have all parts to implement `shareReplay(limit:)`. Let us start with `replay(limit:)`.
 
@@ -1033,7 +1037,7 @@ extension SignalProtocol {
 }
 ```
 
-Trivial enough. Creating a `ConnectableSignal` with `ReplaySubject` ensures all observers get the same sequence of events and that the source signal is observed only once. The only problem is that the returned signal is a connectable signal so we have to call `connect()` on it in order to start events. 
+Trivial enough. Creating a `ConnectableSignal` with `ReplaySubject` ensures that all observers get the same sequence of events and that the source signal is observed only once. The only problem is that the returned signal is a connectable signal so we have to call `connect()` on it in order to start events.
 
 We somehow need to convert connectable signal into a non-connectable one. In order to do that, we need to call connect at the right time and dispose at the right time. What are the right times? It is only reasonable - right time to connect is on the first observation and right time to dispose is when the last observation is disposed.
 
@@ -1052,7 +1056,7 @@ public extension ConnectableSignalProtocol {
 
 #### Implementing shareReplay operator
 
-Now that we know about subjects and connectable signals, we can implement the operator `shareReplay(limit:)`. It is quite simple: 
+Now that we know about subjects and connectable signals, we can implement the operator `shareReplay(limit:)`. It is quite simple:
 
 ```swift
 /// Ensure that all observers see the same sequence of elements.
@@ -1063,9 +1067,9 @@ public func shareReplay(limit: Int = Int.max) -> Signal<Element, Error> {
 
 ### Handling signal errors
 
-You might ignore them and delay, but at one point you need to handle the errors that the signal can fail with.
+You might ignore them and delay, but at one point you will need to handle the errors that the signal can fail with.
 
-If the signal has potential of recovering by retrying the original producer, you can use `retry` operator.
+If the signal has the potential of recovering by retrying the original producer, you can use `retry` operator.
 
 ```swift
 let image /*: Signal<UIImage, NetworkError> */ = getImage().retry(3)
@@ -1089,9 +1093,9 @@ Alternative way to get safe signal is to ignore - suppress - the error. You woul
 let image /*: SafeSignal<UIImage> */ = getImage().suppressError(logging: true)
 ```
 
-It still a good idea to log the error.
+It is always a good idea to log the error.
 
-If you need to do alternative logic in case of an error, you would flat map it into some other signal.
+If you need to do alternative logic in case of an error, you would flat map it onto some other signal.
 
 ```swift
 let image = getImage().flatMapError { error in
@@ -1101,28 +1105,28 @@ let image = getImage().flatMapError { error in
 
 #### Generalized error handling
 
-Sometimes you will want to handle all your signal errors in same way. Say you are implementing a view model component where you make multiple requests and want to present error message to the user if any of them fails. To do that, you can make use of publish subjects.
+Sometimes you will want to handle all your signal errors in the same way. Say you are implementing a view model component where you make multiple requests and want to present error message to the user if any of them fails. To do that, you can make use of publish subjects.
 
 ```swift
 class ViewModel {
 
   let errors = SafePublishSubject<MyError>() // typealias for PublishSubject<MyError, NoError>
-  
+
   ...
-  
+
   someRequest
     .suppressAndFeedError(into: errors) // returns `SafeSignal`
     .observeNext {}
-  
+
   ...
-  
+
   otherRequest
     .suppressAndFeedError(into: errors) // returns `SafeSignal`
     .bind(to: ...)
-  
+
   ...
-  
-  errors.bind(to: viewController) { vc, error in 
+
+  errors.bind(to: viewController) { vc, error in
     vc.display(error)
   }
 }
@@ -1138,32 +1142,32 @@ Just like with the errors, you might want to track state of signals in a general
 class ViewModel {
 
   let activity = SafePublishSubject<Bool>() // typealias for PublishSubject<Bool, NoError>
-  
+
   ...
-  
+
   someRequest
     .feedActivity(into: activity)
     .observeNext {}
-  
+
   ...
-  
+
   otherRequest
     .feedActivity(into: activity)
     .bind(to: ...)
-  
+
   ...
-  
-  activity.bind(to: UIApplication.shared) { application, isActive in 
+
+  activity.bind(to: UIApplication.shared) { application, isActive in
     application.isNetworkActivityIndicatorVisible = isActive
   }
 }
 ```
 
-All you need to do is use operator `feedActivity(into:)` to feed the activity into a boolean subject. When signal starts the operator will send `true` to the subject. When the signal completes, it will send `false`.
+All you need to do is use operator `feedActivity(into:)` to feed the activity into a boolean subject. When the signal starts the operator will send `true` to the subject. When the signal completes, it will send `false`.
 
 #### Single signal state tracking
 
-Say that you have a login button and want to show the spinner in the button while login request is in progress. You could have a subject that tracks state of the login signal, but there is a better way.
+Say that you have a login button and want to show the spinner in the button while login request is in progress. You could have a subject that tracks the state of the login signal, but there is a better way.
 
 Create a type that will represent signal state.
 
@@ -1174,10 +1178,10 @@ enum State<T> {
 }
 ```
 
-Then wrap the signal elements into this type and start with the case `inProgress`.
+Then wrap signal elements into this type and start with the case `inProgress`.
 
 ```swift
-let loggedIn = login.flatMapLatest { username, passoword in 
+let loggedIn = login.flatMapLatest { username, passoword in
   return apiClient.login(username, password)
     .map { State.done($0) }
     .start(with: .inProgress)
@@ -1187,7 +1191,7 @@ let loggedIn = login.flatMapLatest { username, passoword in
 You can then bind that signal to your view controller and update the button accordingly:
 
 ```swift
-loggedIn.bind(to: vc) { vc, state in 
+loggedIn.bind(to: vc) { vc, state in
   switch state {
     case .inProgress:
       vc.loginButton.startSpinner()
@@ -1232,7 +1236,7 @@ name.value = "Jim Kirk" // Prints: Hi Jim Kirk!
 
 #### Performing an action on .next event
 
-Say that you have a button that (re)loads the photo in your app. How to implement that in reactive world? First we will need a signal that represents buttons taps. With [Bond](https://github.com/ReactiveKit/Bond) framework you can get that signal just like this:
+Say that you have a button that (re)loads a photo in your app. How to implement that in reactive world? First we will need a signal that represents buttons taps. With [Bond](https://github.com/ReactiveKit/Bond) framework you can get that signal just like this:
 
 ```swift
 let reload /*: SafeSignal<Void> */ = button.reactive.tap
@@ -1241,7 +1245,7 @@ let reload /*: SafeSignal<Void> */ = button.reactive.tap
 The signal will send `.next` event whenever the button is tapped. We would like to load the photo on each such event. In order to do so, we will flat map the reload signal into photo requests.
 
 ```swift
-let photo = reload.flatMapLatest { _ in 
+let photo = reload.flatMapLatest { _ in
   return apiClient().loadPhoto() // returns Signal<UIImage, NetworkError>
 }
 ```
@@ -1251,12 +1255,12 @@ let photo = reload.flatMapLatest { _ in
 ```swift
 photo
   .suppressError(logging: true)  // we can bind only safe signals
-  .bind(to: imageView.reactive.image) // using Bond framework 
+  .bind(to: imageView.reactive.image) // using Bond framework
 ```
 
 What will happen is that whenever the button is tapped a new photo request will be made and the image view's image will be updated.
 
-There are two other operators that flat map signals: `flatMapConcat` and `flatMapMerge`. The difference between the three is in the way they handle propagation of events from the inner signals in case when there are more then one inner signals active. For example, say that user taps reload button before the previous request is finished. What happens?
+There are two other operators that flat map signals: `flatMapConcat` and `flatMapMerge`. The difference between the three is in the way they handle propagation of events from the inner signals in case when there are more than one inner signals active. For example, say that user taps reload button before the previous request is finished. What happens?
 
 * `flatMapLatest` will dispose previous signal and start the new one.
 * `flatMapConcat` will start new signal, but it will not propagate its events until the previous signal completes.
@@ -1264,7 +1268,7 @@ There are two other operators that flat map signals: `flatMapConcat` and `flatMa
 
 #### Combining multiple signals
 
-Say you had a username and password signals and you would like a signal that tell you if they are both entered so that you can enable a login button. You can use `combineLatest` operator to achieve that.
+Say you had a username and password signals and you would like a signal that tells you if they are both entered so that you can enable a login button. You can use `combineLatest` operator to achieve that.
 
 ```swift
 let username = usernameLabel.reactive.text
@@ -1279,7 +1283,7 @@ canLogIn.bind(to: loginButton.reactive.isEnabled)
 
 All you have to provide to the operator is the signals and a closure that maps the latest elements from those signals to a new element.
 
-> Reactive extensions are provided by Bond framework. 
+> Reactive extensions are provided by Bond framework.
 
 ## Requirements
 
