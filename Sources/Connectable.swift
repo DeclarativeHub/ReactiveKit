@@ -79,6 +79,7 @@ public extension ConnectableSignalProtocol {
         count = count - 1
         if count == 0 {
           connectionDisposable?.dispose()
+          connectionDisposable = nil
         }
       }
     }
