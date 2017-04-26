@@ -37,7 +37,6 @@ public final class ConnectableSignal<Source: SignalProtocol>: ConnectableSignalP
   private let source: Source
   private let lock = NSRecursiveLock()
   private let subject: Subject<Source.Element, Source.Error>
-  private var connectionDisposable: Disposable? = nil
 
   public init(source: Source, subject: Subject<Source.Element, Source.Error>) {
     self.source = source
@@ -47,11 +46,7 @@ public final class ConnectableSignal<Source: SignalProtocol>: ConnectableSignalP
   /// Start the signal.
   public func connect() -> Disposable {
     lock.lock(); defer { lock.unlock() }
-    if connectionDisposable == nil {
-      connectionDisposable = source.observe(with: subject)
-    }
-
-    return connectionDisposable!
+    return source.observe(with: subject)
   }
 
   /// Register an observer that will receive events from the signal.
