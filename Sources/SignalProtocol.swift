@@ -254,7 +254,7 @@ public extension SignalProtocol {
   }
 
   /// Transform error by applying `transform` on it.
-  public func mapError<F: Swift.Error>(_ transform: @escaping (Error) -> F) -> Signal<Element, F> {
+  public func mapError<F>(_ transform: @escaping (Error) -> F) -> Signal<Element, F> {
     return Signal { observer in
       return self.observe { event in
         switch event {
@@ -1607,7 +1607,7 @@ extension SignalProtocol {
 extension SignalProtocol where Error == NoError {
 
   /// Safe error casting from NoError to some Error type.
-  public func castError<E: Swift.Error>() -> Signal<Element, E> {
+  public func castError<E>() -> Signal<Element, E> {
     return Signal { observer in
       return self.observe { event in
         switch event {
@@ -1638,7 +1638,7 @@ extension SignalProtocol where Error == NoError {
   }
 
   /// Transform each element by applying `transform` on it.
-  public func tryMap<U, E: Swift.Error>(_ transform: @escaping (Element) -> Result<U, E>) -> Signal<U, E> {
+  public func tryMap<U, E>(_ transform: @escaping (Element) -> Result<U, E>) -> Signal<U, E> {
     return Signal { observer in
       return self.observe { event in
         switch event {
@@ -1708,7 +1708,7 @@ extension SignalProtocol where Error == NoError {
 // MARK: Standalone functions
 
 /// Combine an array of signals into one. See `combineLatest(with:)` for more info.
-public func combineLatest<Element, Result, Error: Swift.Error>(_ signals: [Signal<Element, Error>], combine: @escaping ([Element]) -> Result) -> Signal<Result, Error> {
+public func combineLatest<Element, Result, Error>(_ signals: [Signal<Element, Error>], combine: @escaping ([Element]) -> Result) -> Signal<Result, Error> {
   return Signal { observer in
     let disposable = CompositeDisposable()
     var elements = Array<Element?>(repeating: nil, count: signals.count)
@@ -1738,7 +1738,7 @@ public func combineLatest<Element, Result, Error: Swift.Error>(_ signals: [Signa
 }
 
 /// Merge an array of signals into one. See `merge(with:)` for more info.
-public func merge<Element, Error: Swift.Error>(_ signals: [Signal<Element, Error>]) -> Signal<Element, Error> {
+public func merge<Element, Error>(_ signals: [Signal<Element, Error>]) -> Signal<Element, Error> {
   return Signal { observer in
     
     guard signals.count > 0 else {
