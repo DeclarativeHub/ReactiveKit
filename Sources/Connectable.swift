@@ -104,4 +104,11 @@ extension SignalProtocol {
   public func shareReplay(limit: Int = Int.max) -> Signal<Element, Error> {
     return replay(limit: limit).refCount()
   }
+  
+  /// Connect to replay events (disposing in given bag) and deliver events on returned Signal
+  public func connectedReplay(limit: Int = Int.max, bag: DisposeBagProtocol) -> Signal<Element, Error>{
+    let replayer = self.replay(limit)
+    replayer.connect().dispose(in: bag)
+    return replayer.toSignal()
+  }
 }
