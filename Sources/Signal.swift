@@ -39,6 +39,6 @@ public struct Signal<Element, Error: Swift.Error>: SignalProtocol {
     let serialDisposable = SerialDisposable(otherDisposable: nil)
     let observer = AtomicObserver(disposable: serialDisposable, observer: observer)
     serialDisposable.otherDisposable = producer(observer)
-    return serialDisposable
+    return observer.disposable
   }
 }
