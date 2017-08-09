@@ -34,7 +34,8 @@ open class Subject<Element, Error: Swift.Error>: SubjectProtocol {
   private typealias Token = Int64
   private var nextToken: Token = 0
 
-  private var observers: [Token: Observer<Element, Error>] = [:]
+  private var observers: [(Token, Observer<Element, Error>)] = []
+
   private var terminated = false
 
   public let lock = NSRecursiveLock(name: "com.reactivekit.subject")
@@ -66,10 +67,12 @@ open class Subject<Element, Error: Swift.Error>: SubjectProtocol {
     let token = nextToken
     nextToken = nextToken + 1
 
-    observers[token] = observer
+    observers.append((token, observer))
 
     return BlockDisposable { [weak self] in
-      let _ = self?.observers.removeValue(forKey: token)
+      guard let me = self else { return }
+      guard let index = me.observers.index(where: { $0.0 == token }) else { return }
+      me.observers.remove(at: index)
     }
   }
 
