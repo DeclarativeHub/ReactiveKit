@@ -2,5 +2,10 @@
 import PackageDescription
 
 let package = Package(
-    name: "ReactiveKit"
+    name: "ReactiveKit",
+    targets: [
+        .target(name: "ReactiveKit", dependencies: []),
+        .testTarget(name: "ReactiveKitTests", dependencies: ["ReactiveKit"])
+    ],
+	swiftLanguageVersions: [4]
 )
