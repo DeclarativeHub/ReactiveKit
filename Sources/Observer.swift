@@ -60,27 +60,30 @@ public struct AnyObserver<Element, Error: Swift.Error>: ObserverProtocol {
 /// Observer that ensures events are sent atomically.
 public class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol {
 
-  private let observer: Observer<Element, Error>
-  private let disposable: Disposable
+  private var observer: Observer<Element, Error>?
   private let lock = NSRecursiveLock(name: "com.reactivekit.signal.atomicobserver")
-  private var terminated = false
+  private let parentDisposable: Disposable
+
+  public private(set) var disposable: Disposable!
 
   /// Creates an observer that wraps given closure.
   public init(disposable: Disposable, observer: @escaping Observer<Element, Error>) {
-    self.disposable = disposable
     self.observer = observer
+    self.parentDisposable = disposable
+    self.disposable = BlockDisposable { [weak self] in
+      self?.observer = nil
+      disposable.dispose()
+    }
   }
 
   /// Calles wrapped closure with the given element.
   public func on(_ event: Event<Element, Error>) {
     lock.lock(); defer { lock.unlock() }
-    guard !disposable.isDisposed && !terminated else { return }
-    if event.isTerminal {
-      terminated = true
+    if let observer = observer {
       observer(event)
-      disposable.dispose()
-    } else {
-      observer(event)
+      if event.isTerminal {
+        disposable.dispose()
+      }
     }
   }
 }
