@@ -46,7 +46,11 @@ public final class ConnectableSignal<Source: SignalProtocol>: ConnectableSignalP
   /// Start the signal.
   public func connect() -> Disposable {
     lock.lock(); defer { lock.unlock() }
-    return source.observe(with: subject)
+    if !subject.isTerminated {
+      return source.observe(with: subject)
+    } else {
+      return SimpleDisposable(isDisposed: true)
+    }
   }
 
   /// Register an observer that will receive events from the signal.
