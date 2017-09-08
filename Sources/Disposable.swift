@@ -65,7 +65,9 @@ public final class SimpleDisposable: Disposable {
     isDisposed = true
   }
 
-  public init() {}
+  public init(isDisposed: Bool = false) {
+    self.isDisposed = isDisposed
+  }
 }
 
 /// A disposable that executes the given block upon disposing.

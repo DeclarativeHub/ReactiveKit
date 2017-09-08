@@ -36,7 +36,7 @@ open class Subject<Element, Error: Swift.Error>: SubjectProtocol {
 
   private var observers: [(Token, Observer<Element, Error>)] = []
 
-  private var terminated = false
+  public private(set) var isTerminated = false
 
   public let lock = NSRecursiveLock(name: "com.reactivekit.subject")
   public let disposeBag = DisposeBag()
@@ -45,8 +45,8 @@ open class Subject<Element, Error: Swift.Error>: SubjectProtocol {
 
   public func on(_ event: Event<Element, Error>) {
     lock.lock(); defer { lock.unlock() }
-    guard !terminated else { return }
-    terminated = event.isTerminal
+    guard !isTerminated else { return }
+    isTerminated = event.isTerminal
     send(event)
   }
 
