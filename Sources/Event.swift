@@ -46,4 +46,14 @@ extension Event {
       return true
     }
   }
+
+  /// Return `true` in case of `.failure` event.
+  public var isFailure: Bool {
+    switch self {
+    case .failed:
+      return true
+    default:
+      return false
+    }
+  }
 }
