@@ -555,4 +555,10 @@ class SignalTests: XCTestCase {
 
     XCTAssertEqual(bob.numberOfRuns, 2)
   }
+
+  func testNot() {
+    let operation = Signal<Bool, NoError>.sequence([true, false, true])
+    let signal = operation.not()
+    signal.expectComplete(after: [false, true, false])
+  }
 }

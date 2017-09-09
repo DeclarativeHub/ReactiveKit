@@ -20,7 +20,7 @@ extension Event {
       return true
     case (.next(let left), .next(let right)):
       if let left = left as? Int, let right = right as? Int {
-        return left == right
+          return left == right
       } else if let left = left as? [Int], let right = right as? [Int] {
         return left == right
       } else if let left = left as? (Int?, Int), let right = right as? (Int?, Int) {
@@ -28,6 +28,8 @@ extension Event {
       } else if let left = left as? String, let right = right as? String {
         return left == right
       } else if let left = left as? [String], let right = right as? [String] {
+        return left == right
+      } else if let left = left as? Bool, let right = right as? Bool {
         return left == right
       } else {
         fatalError("Cannot compare that element type. \(left)")

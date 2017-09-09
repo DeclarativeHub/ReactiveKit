@@ -1705,6 +1705,16 @@ extension SignalProtocol where Error == NoError {
   }
 }
 
+public extension SignalProtocol where Element == Bool {
+
+  /// Inverts the boolean value contained within the signal.
+  ///
+  /// - Returns: If the incoming value is `true`, emits `false` and vice versa.
+  public func not() -> Signal<Bool, Error> {
+    return map { $0 == false }
+  }
+}
+
 // MARK: Standalone functions
 
 /// Combine an array of signals into one. See `combineLatest(with:)` for more info.
