@@ -1288,7 +1288,7 @@ All you have to provide to the operator is the signals and a closure that maps t
 ## Requirements
 
 * iOS 8.0+ / macOS 10.9+ / tvOS 9.0+ / watchOS 2.0+
-* Xcode 8
+* Xcode 8 or 9
 
 ## Installation
 
