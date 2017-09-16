@@ -638,7 +638,7 @@ For example, if we have a signal that is created like
 ```swift
 let someImage = SafeSignal<UIImage> { observer in
   ...
-  DispatchQueue.global(qos: .background).async {
+  DispatchQueue.background.async {
     observer.next(someImage)
   }
   ...
@@ -693,7 +693,7 @@ We would like to do the loading on another queue. We could dispatch async the lo
 
 ```swift
 someData
-  .executeOn(DispatchQueue.global(qos: .background))
+  .executeOn(.background)
   .observeOn(.main)
   .observeNext { data in // does not block current thread
     display(data)
@@ -1288,7 +1288,7 @@ All you have to provide to the operator is the signals and a closure that maps t
 ## Requirements
 
 * iOS 8.0+ / macOS 10.9+ / tvOS 9.0+ / watchOS 2.0+
-* Xcode 9
+* Xcode 8
 
 ## Installation
 
