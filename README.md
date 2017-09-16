@@ -638,7 +638,7 @@ For example, if we have a signal that is created like
 ```swift
 let someImage = SafeSignal<UIImage> { observer in
   ...
-  DispatchQueue.background.async {
+  DispatchQueue.global(qos: .background).async {
     observer.next(someImage)
   }
   ...
@@ -693,7 +693,7 @@ We would like to do the loading on another queue. We could dispatch async the lo
 
 ```swift
 someData
-  .executeOn(.background)
+  .executeOn(.global(qos: .background))
   .observeOn(.main)
   .observeNext { data in // does not block current thread
     display(data)
@@ -797,7 +797,7 @@ extension MyViewModel: BindingExecutionContextProvider {
 }
 ```
 
-`ExecutionContext.immediateOnMain` executes synchronously if the current thread is main, otherwise it makes asynchronous dispatch to main queue. If you want to bind on background queue, you can return `.background` instead.
+`ExecutionContext.immediateOnMain` executes synchronously if the current thread is main, otherwise it makes asynchronous dispatch to main queue. If you want to bind on background queue, you can return `.global(qos: .background)` instead.
 
 > Note that updating UIKit or AppKit objects must always happen from the main thread or queue.
 
@@ -1288,7 +1288,7 @@ All you have to provide to the operator is the signals and a closure that maps t
 ## Requirements
 
 * iOS 8.0+ / macOS 10.9+ / tvOS 9.0+ / watchOS 2.0+
-* Xcode 8
+* Xcode 9
 
 ## Installation
 
