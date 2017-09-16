@@ -1294,6 +1294,8 @@ All you have to provide to the operator is the signals and a closure that maps t
 
 Bond framework is optional, but recommended for Cocoa / Cocoa touch development.
 
+> Note: Since v3.7, ReactiveKit is using Swift 4 syntax that compiles under Xcode 9. If you are still using Xcode 8, please do not update to v3.7 and stay on the latest v3.6.x version.
+
 ### CocoaPods
 
 ```
