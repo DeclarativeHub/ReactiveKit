@@ -1703,6 +1703,20 @@ extension SignalProtocol where Error == NoError {
   public func with<O: SignalProtocol>(latestFrom other: O) -> Signal<(Element, O.Element), O.Error> {
     return castError()._with(latestFrom: other, combine: { ($0, $1) })
   }
+
+  /// Returns an observable sequence containing only the unwrapped elements from `.next` events.
+  /// Usually used on the Signal resulting from `materialize()`.
+  /// - SeeAlso: `errors()`, `materialize()`
+  public func elements<U, E>() -> Signal<U, NoError> where Element == Event<U, E> {
+    return flatMap { $0.element }
+  }
+
+  /// Returns an observable sequence containing only the unwrapped errors from `.failed` events.
+  /// Usually used on the Signal resulting from `materialize()`.
+  /// - SeeAlso: `elements()`, `materialize()`
+  public func errors<U, E>() -> Signal<E, NoError> where Element == Event<U, E> {
+    return flatMap { $0.error }
+  }
 }
 
 // MARK: Standalone functions
