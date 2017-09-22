@@ -46,4 +46,26 @@ extension Event {
       return true
     }
   }
+
+  /// Returns the next element, or nil if the event is not `.next`
+  public var element: Element? {
+    switch self {
+    case .next(let element):
+      return element
+
+    default:
+      return nil
+    }
+  }
+
+  /// Return the failed error, or nil if the event is not `.failed`
+  public var error: Error? {
+    switch self {
+    case .failed(let error):
+      return error
+
+    default:
+      return nil
+    }
+  }
 }
