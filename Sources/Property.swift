@@ -31,13 +31,18 @@ public protocol PropertyProtocol {
 }
 
 /// Represents mutable state that can be observed as a signal of events.
-public class Property<Value>: PropertyProtocol, SubjectProtocol, BindableProtocol {
+public class Property<Value>: PropertyProtocol, SubjectProtocol, BindableProtocol, DisposeBagProvider {
 
   private var _value: Value
   private let subject = PublishSubject<Value, NoError>()
   private let lock = NSRecursiveLock(name: "com.reactivekit.property")
 
+  @available(*, deprecated, renamed: "bag")
   public var disposeBag: DisposeBag {
+    return subject.disposeBag
+  }
+
+  public var bag: DisposeBag {
     return subject.disposeBag
   }
 
@@ -80,7 +85,7 @@ public class Property<Value>: PropertyProtocol, SubjectProtocol, BindableProtoco
 
   public func bind(signal: Signal<Value, NoError>) -> Disposable {
     return signal
-      .take(until: disposeBag.deallocated)
+      .take(until: bag.deallocated)
       .observeIn(.nonRecursive())
       .observeNext { [weak self] element in
         guard let s = self else { return }
