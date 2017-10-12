@@ -1011,7 +1011,9 @@ extension SignalProtocol {
   }
 
   /// Retries the failed signal when other signal produces an element.
-  public func retry<S: SignalProtocol>(when other: S) -> Signal<Element, Error> where S.Error == NoError {
+  /// - parameter other: Signal that triggers a retry attempt.
+  /// - parameter shouldRetry: Retries only if this returns true for a given error. Defaults to always returning true.
+  public func retry<S: SignalProtocol>(when other: S, if shouldRetry: @escaping (Error) -> Bool = { _ in true }) -> Signal<Element, Error> where S.Error == NoError {
     return Signal { observer in
       let serialDisposable = SerialDisposable(otherDisposable: nil)
       var attempt: (() -> Void)?
@@ -1027,14 +1029,18 @@ extension SignalProtocol {
             attempt = nil
             observer.completed()
           case .failed(let error):
-            compositeDisposable += other.observe { otherEvent in
-              switch otherEvent {
-              case .next:
-                attempt?()
-              case .completed, .failed:
-                attempt = nil
-                observer.failed(error)
+            if shouldRetry(error) {
+              compositeDisposable += other.observe { otherEvent in
+                switch otherEvent {
+                case .next:
+                  attempt?()
+                case .completed, .failed:
+                  attempt = nil
+                  observer.failed(error)
+                }
               }
+            } else {
+              observer.failed(error)
             }
           }
         }
