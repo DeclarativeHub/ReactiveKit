@@ -827,7 +827,7 @@ First of all, notice `@discardableResult` annotation. It is there because we can
 
 #### Binding to a property
 
-Ok, that was binding to an object, but what about binding to a property? Would it not be easier that instead of doing
+Given a string signal `name`, we know that we can bind it to a label by doing
 
 ```swift
 name.bind(to: label) { label, name in
@@ -835,13 +835,19 @@ name.bind(to: label) { label, name in
 }
 ```
 
-we can do something like:
+but would it not be great if we could make it a one-liner? With Swift 4 key paths we can! Just do
+
+```swift
+name.bind(to: label, keyPath: \.text)
+```
+
+where the target is the same target as in previous example and `keyPath` is a key path to the property that should be updated with each new element sent on the signal!
+
+If you opt-in for a [Bond framework](https://github.com/ReactiveKit/Bond), things get even simpler:
 
 ```swift
 name.bind(to: label.reactive.text)
 ```
-
-And, of course, we can - by using the [Bond framework](https://github.com/ReactiveKit/Bond)!
 
 Bond provides a type called `Bond` that acts as a binding target that we can use to make reactive extensions for various properties. Check out its documentation for more info.
 

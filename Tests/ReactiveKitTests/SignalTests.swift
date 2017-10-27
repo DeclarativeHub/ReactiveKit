@@ -555,4 +555,24 @@ class SignalTests: XCTestCase {
 
     XCTAssertEqual(bob.numberOfRuns, 2)
   }
+
+  func testBindTo() {
+
+    class User: NSObject, BindingExecutionContextProvider {
+
+      var age: Int = 0
+
+      var bindingExecutionContext: ExecutionContext {
+        return .immediate
+      }
+    }
+
+    let user = User()
+
+    SafeSignal.just(20).bind(to: user) { (object, value) in object.age = value }
+    XCTAssertEqual(user.age, 20)
+
+    SafeSignal.just(30).bind(to: user, keyPath: \.age)
+    XCTAssertEqual(user.age, 30)
+  }
 }
