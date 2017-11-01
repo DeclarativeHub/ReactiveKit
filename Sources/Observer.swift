@@ -118,3 +118,13 @@ public extension ObserverProtocol {
     return on
   }
 }
+
+public extension ObserverProtocol where Element == Void {
+
+  /// Convenience method to send `.next` event.
+  /// Overloaded to not require sending an instance of Void when calling.
+  public func next() {
+    next(())
+  }
+
+}
