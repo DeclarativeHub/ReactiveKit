@@ -223,9 +223,20 @@ public final class DisposeBag: DisposeBagProtocol {
     disposables.append(disposable)
   }
 
+  /// Add the given disposables to the bag.
+  /// Disposables will be disposed when the bag is deallocated.
+  public func add(disposables: [Disposable]) {
+    disposables.forEach(add)
+  }
+
   /// Add a disposable to a dispose bag.
   public static func += (left: DisposeBag, right: Disposable) {
     left.add(disposable: right)
+  }
+
+  /// Add multiple disposables to a dispose bag.
+  public static func += (left: DisposeBag, right: [Disposable]) {
+    left.add(disposables: right)
   }
 
   /// Disposes all disposables that are currenty in the bag.
