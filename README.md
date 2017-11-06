@@ -1,4 +1,4 @@
-![](Assets/logo.png)
+<img src="Assets/logo.png" alt="ReactiveKit" width="479" height="80">
 
 [![Platform](https://img.shields.io/cocoapods/p/ReactiveKit.svg?style=flat)](http://cocoadocs.org/docsets/ReactiveKit/)
 [![Build Status](https://travis-ci.org/ReactiveKit/ReactiveKit.svg?branch=master)](https://travis-ci.org/ReactiveKit/ReactiveKit)
