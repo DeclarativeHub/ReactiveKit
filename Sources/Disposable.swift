@@ -86,8 +86,10 @@ public final class BlockDisposable: Disposable {
 
   public func dispose() {
     lock.lock(); defer { lock.unlock() }
-    handler?()
-    handler = nil
+    if let handler = handler {
+      self.handler = nil
+      handler()
+    }
   }
 }
 

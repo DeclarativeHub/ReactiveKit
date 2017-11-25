@@ -79,6 +79,7 @@ public class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol {
   /// Calles wrapped closure with the given element.
   public func on(_ event: Event<Element, Error>) {
     lock.lock(); defer { lock.unlock() }
+    guard !disposable.isDisposed else { return }
     if let observer = observer {
       observer(event)
       if event.isTerminal {
