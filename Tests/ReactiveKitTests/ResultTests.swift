@@ -18,10 +18,20 @@ class ResultTests: XCTestCase {
     XCTAssert(result.value != nil && result.value! == 5)
   }
 
-  func testFailured() {
+  func testFailure() {
     let result = Result<Int, TestError>(.Error)
 
     XCTAssert(result.error != nil && result.error! == .Error)
     XCTAssert(result.value == nil)
+  }
+}
+
+extension ResultTests {
+
+  static var allTests : [(String, (ResultTests) -> () -> Void)] {
+    return [
+      ("testSuccess", testSuccess),
+      ("testFailure", testFailure)
+    ]
   }
 }

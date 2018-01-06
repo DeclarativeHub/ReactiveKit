@@ -94,3 +94,15 @@ class PropertyTests: XCTestCase {
     waitForExpectations(timeout: 2, handler: nil)
   }
 }
+
+extension PropertyTests {
+
+  static var allTests : [(String, (PropertyTests) -> () -> Void)] {
+    return [
+      ("testValue", testValue),
+      ("testEvents", testEvents),
+      ("testReadOnlyView", testReadOnlyView),
+      ("testBidirectionalBind", testBidirectionalBind)
+    ]
+  }
+}

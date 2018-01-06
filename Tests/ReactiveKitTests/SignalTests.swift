@@ -8,6 +8,7 @@
 
 import XCTest
 import ReactiveKit
+import Dispatch
 
 enum TestError: Swift.Error {
   case Error
@@ -556,6 +557,10 @@ class SignalTests: XCTestCase {
     XCTAssertEqual(bob.numberOfRuns, 2)
   }
 
+  #if os(Linux)
+    // TODO
+  #else
+
   func testBindTo() {
 
     class User: NSObject, BindingExecutionContextProvider {
@@ -574,5 +579,73 @@ class SignalTests: XCTestCase {
 
     SafeSignal.just(30).bind(to: user, keyPath: \.age)
     XCTAssertEqual(user.age, 30)
+  }
+#endif
+
+}
+
+extension SignalTests {
+
+  static var allTests : [(String, (SignalTests) -> () -> Void)] {
+    return [
+      ("testPerformance", testPerformance),
+      ("testProductionAndObservation", testProductionAndObservation),
+      ("testDisposing", testDisposing),
+      ("testJust", testJust),
+      ("testSequence", testSequence),
+      ("testCompleted", testCompleted),
+      ("testNever", testNever),
+      ("testFailed", testFailed),
+      ("testObserveFailed", testObserveFailed),
+      ("testObserveCompleted", testObserveCompleted),
+      ("testBuffer", testBuffer),
+      ("testMap", testMap),
+      ("testScan", testScan),
+      ("testToSignal", testToSignal),
+      ("testSuppressError", testSuppressError),
+      ("testSuppressError2", testSuppressError2),
+      ("testRecover", testRecover),
+      ("testWindow", testWindow),
+      ("testDistinct", testDistinct),
+      ("testDistinct2", testDistinct2),
+      ("testElementAt", testElementAt),
+      ("testFilter", testFilter),
+      ("testFirst", testFirst),
+      ("testIgnoreElement", testIgnoreElement),
+      ("testLast", testLast),
+      ("testSkip", testSkip),
+      ("testSkipLast", testSkipLast),
+      ("testTake", testTake),
+      ("testTakeLast", testTakeLast),
+      ("testIgnoreNil", testIgnoreNil),
+      ("testReplaceNil", testReplaceNil),
+      ("testCombineLatestWith", testCombineLatestWith),
+      ("testMergeWith", testMergeWith),
+      ("testStartWith", testStartWith),
+      ("testZipWith", testZipWith),
+      ("testZipWithWhenNotComplete", testZipWithWhenNotComplete),
+      ("testZipWithWhenNotComplete2", testZipWithWhenNotComplete2),
+      ("testZipWithAsyncSignal", testZipWithAsyncSignal),
+      ("testFlatMapError", testFlatMapError),
+      ("testFlatMapError2", testFlatMapError2),
+      ("testRetry", testRetry),
+      ("testexecuteIn", testexecuteIn),
+      ("testDoOn", testDoOn),
+      ("testobserveIn", testobserveIn),
+      ("testPausable", testPausable),
+      ("testTimeoutNoFailure", testTimeoutNoFailure),
+      ("testTimeoutFailure", testTimeoutFailure),
+      ("testAmbWith", testAmbWith),
+      ("testCollect", testCollect),
+      ("testConcatWith", testConcatWith),
+      ("testDefaultIfEmpty", testDefaultIfEmpty),
+      ("testReduce", testReduce),
+      ("testZipPrevious", testZipPrevious),
+      ("testFlatMapMerge", testFlatMapMerge),
+      ("testFlatMapLatest", testFlatMapLatest),
+      ("testFlatMapConcat", testFlatMapConcat),
+      ("testReplay", testReplay),
+      ("testPublish", testPublish),
+    ]
   }
 }

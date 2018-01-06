@@ -118,6 +118,7 @@
 		EC06A86F1DBBF8A6006AEA81 /* ResultTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResultTests.swift; sourceTree = "<group>"; };
 		EC31EE0C1E7BF97C00857946 /* Deallocatable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Deallocatable.swift; path = Sources/Deallocatable.swift; sourceTree = SOURCE_ROOT; };
 		EC4C28111E167EED0055D256 /* Typealiases.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Typealiases.swift; path = Sources/Typealiases.swift; sourceTree = SOURCE_ROOT; };
+		EC4E7A6D200173DE002BAEEC /* LinuxMain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinuxMain.swift; sourceTree = "<group>"; };
 		EC6C0FC51DB4A76A00C3880B /* PropertyTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PropertyTests.swift; sourceTree = "<group>"; };
 		EC7A6F881D3CCF5B00F9EF4A /* NoError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NoError.swift; path = Sources/NoError.swift; sourceTree = SOURCE_ROOT; };
 		EC877A861E019E3400A23B51 /* Reactive.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Reactive.swift; path = Sources/Reactive.swift; sourceTree = SOURCE_ROOT; };
@@ -233,6 +234,7 @@
 			isa = PBXGroup;
 			children = (
 				ECD103011D89B2610086B6A1 /* Info.plist */,
+				EC4E7A6D200173DE002BAEEC /* LinuxMain.swift */,
 				ECD102FC1D89B2530086B6A1 /* ReactiveKitTests */,
 			);
 			path = Tests;
