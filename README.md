@@ -1297,6 +1297,10 @@ All you have to provide to the operator is the signals and a closure that maps t
 * iOS 8.0+ / macOS 10.9+ / tvOS 9.0+ / watchOS 2.0+
 * Xcode 9
 
+or
+
+* Linux + Swift 4.0 
+
 ## Installation
 
 Bond framework is optional, but recommended for Cocoa / Cocoa touch development.
@@ -1353,7 +1357,7 @@ let package = Package(
 
 The MIT License (MIT)
 
-Copyright (c) 2015-2017 Srdan Rasic (@srdanrasic)
+Copyright (c) 2015-2018 Srdan Rasic (@srdanrasic)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
