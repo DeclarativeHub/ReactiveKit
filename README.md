@@ -7,7 +7,7 @@
 
 __ReactiveKit__ is a lightweight Swift framework for reactive and functional reactive programming. With just over 2000 lines of code it enables you to get into reactive world today.
 
-The framework is best used in a combination with [Bond](https://github.com/ReactiveKit/Bond) that provides UIKit and AppKit bindings, reactive delegates and data sources.
+The framework is compatible with all Apple platforms and Linux. If you are developing an iOS or macOS app, make sure to also check out [Bond](https://github.com/ReactiveKit/Bond) framework that provides UIKit and AppKit bindings, reactive delegates and data sources.
 
 This document will introduce the framework by going through its implementation. By the end you should be equipped with a pretty good understanding of how is the framework implemented and what are the best ways to use it.
 
@@ -39,8 +39,9 @@ This document will introduce the framework by going through its implementation. 
   * [Combining multiple signals](#combining-multiple-signals)
 * [Requirements](#requirements)
 * [Installation](#installation)
-  * [CocoaPods](#cocoapods)
   * [Carthage](#carthage)
+  * [CocoaPods](#cocoapods)
+  * [Swift Package Manager](#swift-package-manager)
 * [Communication](#communication)
 * [Additional Documentation](#additional-documentation)
 * [License](#license)
@@ -1302,6 +1303,13 @@ Bond framework is optional, but recommended for Cocoa / Cocoa touch development.
 
 > Note: Since v3.7, ReactiveKit is using Swift 4 syntax that compiles under Xcode 9. If you are still using Xcode 8, please do not update to v3.7 and stay on the latest v3.6.x version.
 
+### Carthage
+
+```
+github "ReactiveKit/ReactiveKit"
+github "ReactiveKit/Bond"
+```
+
 ### CocoaPods
 
 ```
@@ -1309,11 +1317,22 @@ pod 'ReactiveKit'
 pod 'Bond'
 ```
 
-### Carthage
+### Swift Package Manager
 
 ```
-github "ReactiveKit/ReactiveKit"
-github "ReactiveKit/Bond"
+// swift-tools-version:4.0
+
+import PackageDescription
+
+let package = Package(
+  name: "MyApp",
+  dependencies: [
+    .package(url: "https://github.com/ReactiveKit/ReactiveKit.git", from: "3.8.3")
+  ],
+  targets: [
+    .target(name: "MyApp", dependencies: ["ReactiveKit"])
+  ]
+)
 ```
 
 ## Communication
