@@ -162,8 +162,13 @@ public extension SignalProtocol {
 
 public extension SignalProtocol {
 
-  /// Batch the elements into arrays of given size.
+  @available(*, deprecated, renamed: "buffer(ofSize:)")
   public func buffer(size: Int) -> Signal<[Element], Error> {
+    return buffer(ofSize: size)
+  }
+
+  /// Batch the elements into arrays of given size.
+  public func buffer(ofSize size: Int) -> Signal<[Element], Error> {
     return Signal { observer in
       var buffer: [Element] = []
       return self.observe { event in
@@ -410,9 +415,14 @@ public extension SignalProtocol {
     }
   }
 
-  /// Batch each `size` elements into another signal.
+  @available(*, deprecated, renamed: "window(ofSize:)")
   public func window(size: Int) -> Signal<Signal<Element, Error>, Error> {
-    return buffer(size: size).map { Signal.sequence($0) }
+    return window(ofSize: size)
+  }
+
+  /// Batch each `size` elements into another signal.
+  public func window(ofSize size: Int) -> Signal<Signal<Element, Error>, Error> {
+    return buffer(ofSize: size).map { Signal.sequence($0) }
   }
 }
 
@@ -975,12 +985,12 @@ extension SignalProtocol {
   }
 
   /// Supress events while last event generated on other signal is `false`.
-  public func pausable<O: SignalProtocol>(by: O) -> Signal<Element, Error> where O.Element == Bool {
+  public func pausable<O: SignalProtocol>(by other: O) -> Signal<Element, Error> where O.Element == Bool {
     return Signal { observer in
       var allowed: Bool = true
       let compositeDisposable = CompositeDisposable()
 
-      compositeDisposable += by.observeNext { value in
+      compositeDisposable += other.observeNext { value in
         allowed = value
       }
 
@@ -1839,4 +1849,3 @@ public func merge<Element, Error>(_ signals: [Signal<Element, Error>]) -> Signal
     return disposable
   }
 }
-
