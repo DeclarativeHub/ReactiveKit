@@ -183,9 +183,14 @@ public extension SignalProtocol {
     }
   }
 
+  @available(*, deprecated, renamed: "compactMap(_:)")
+  public func flatMap<U>(_ transform: @escaping (Element) -> U?) -> Signal<U, Error> {
+    return compactMap(transform)
+  }
+
   /// Maps each element into an optional type and propagates unwrapped .some results.
   /// Shorthand for ```map().ignoreNil()```.
-  public func flatMap<U>(_ transform: @escaping (Element) -> U?) -> Signal<U, Error> {
+  public func compactMap<U>(_ transform: @escaping (Element) -> U?) -> Signal<U, Error> {
     return Signal { observer in
       return self.observe { event in
         switch event {
@@ -203,18 +208,23 @@ public extension SignalProtocol {
   }
 
   /// Map each event into a signal and then flatten inner signals.
+  public func flatMap<O: SignalProtocol>(_ strategy: FlattenStrategy, _ transform: @escaping (Element) -> O) -> Signal<O.Element, Error> where O.Error == Error {
+    return map(transform).flatten(strategy)
+  }
+
+  /// Map each event into a signal and then flatten inner signals.
   public func flatMapLatest<O: SignalProtocol>(_ transform: @escaping (Element) -> O) -> Signal<O.Element, Error> where O.Error == Error {
-    return map(transform).switchToLatest()
+    return flatMap(.latest, transform)
   }
 
   /// Map each event into a signal and then flatten inner signals.
   public func flatMapMerge<O: SignalProtocol>(_ transform: @escaping (Element) -> O) -> Signal<O.Element, Error> where O.Error == Error {
-    return map(transform).merge()
+    return flatMap(.merge, transform)
   }
 
   /// Map each event into a signal and then flatten inner signals.
   public func flatMapConcat<O: SignalProtocol>(_ transform: @escaping (Element) -> O) -> Signal<O.Element, Error> where O.Error == Error {
-    return map(transform).concat()
+    return flatMap(.concat, transform)
   }
 
   /// Map failure event into another operation and continue with that operation. Also called `catch`.
@@ -408,8 +418,13 @@ public extension SignalProtocol {
 
 extension SignalProtocol where Element: OptionalProtocol {
 
-  /// Apply `transform` to all non-nil elements.
+  @available(*, deprecated, renamed: "mapWrapped(_:)")
   public func flatMap<U>(_ transform: @escaping (Element.Wrapped) -> U?) -> Signal<U?, Error> {
+    return mapWrapped(transform)
+  }
+
+  /// Apply `transform` to all non-nil elements.
+  public func mapWrapped<U>(_ transform: @escaping (Element.Wrapped) -> U?) -> Signal<U?, Error> {
     return Signal { observer in
       return self.observe { event in
         switch event {
@@ -431,8 +446,13 @@ extension SignalProtocol where Element: OptionalProtocol {
 
 extension SignalProtocol where Element: Sequence {
 
-  /// Map each emitted sequence.
+  @available(*, deprecated, renamed: "mapElement(_:)")
   public func flatMap<U>(_ transform: @escaping (Element.Iterator.Element) -> U) -> Signal<[U], Error> {
+    return mapElement(transform)
+  }
+
+  /// Map each emitted sequence.
+  public func mapElement<U>(_ transform: @escaping (Element.Iterator.Element) -> U) -> Signal<[U], Error> {
     return Signal { observer in
       return self.observe { event in
         switch event {
@@ -1229,11 +1249,37 @@ extension SignalProtocol {
 
 // MARK: Signals that emit other signals
 
+public enum FlattenStrategy {
+
+  /// Flatten the signal by observing and propagating emissions only from latest signal.
+  /// Previous signal observation gets disposed is such exists.
+  case latest
+
+  /// Flatten the signal by sequentially observing inner signals in order in which they
+  /// arrive, starting next observation only after previous one completes.
+  case concat
+
+  /// Flatten the signal by observing all inner signals and propagating events from each one as they arrive.
+  case merge
+}
+
 public extension SignalProtocol where Element: SignalProtocol, Element.Error == Error {
 
   public typealias InnerElement = Element.Element
 
-  /// Flatten the signal by observing all inner signals and propagate events from each one as they come.
+  /// Flatten the signal with the given strategy.
+  public func flatten(_ strategy: FlattenStrategy) -> Signal<InnerElement, Error> {
+    switch strategy {
+    case .merge:
+      return merge()
+    case .latest:
+      return switchToLatest()
+    case .concat:
+      return concat()
+    }
+  }
+
+  /// Flatten the signal by observing all inner signals and propagating events from each one as they arrive.
   public func merge() -> Signal<InnerElement, Error> {
     return Signal { observer in
       let lock = NSRecursiveLock(name: "com.reactivekit.merge")
@@ -1629,18 +1675,23 @@ extension SignalProtocol where Error == NoError {
   }
 
   /// Map each event into a signal and then flatten inner signals.
+  public func flatMap<O: SignalProtocol>(_ strategy: FlattenStrategy, _ transform: @escaping (Element) -> O) -> Signal<O.Element, O.Error> {
+    return castError().map(transform).flatten(strategy)
+  }
+
+  /// Map each event into a signal and then flatten inner signals.
   public func flatMapLatest<O: SignalProtocol>(_ transform: @escaping (Element) -> O) -> Signal<O.Element, O.Error> {
-    return castError().map(transform).switchToLatest()
+    return flatMap(.latest, transform)
   }
 
   /// Map each event into a signal and then flatten inner signals.
   public func flatMapMerge<O: SignalProtocol>(_ transform: @escaping (Element) -> O) -> Signal<O.Element, O.Error> {
-    return castError().map(transform).merge()
+    return flatMap(.merge, transform)
   }
 
   /// Map each event into a signal and then flatten inner signals.
   public func flatMapConcat<O: SignalProtocol>(_ transform: @escaping (Element) -> O) -> Signal<O.Element, O.Error>  {
-    return castError().map(transform).concat()
+    return flatMap(.concat, transform)
   }
 
   /// Transform each element by applying `transform` on it.
@@ -1714,14 +1765,14 @@ extension SignalProtocol where Error == NoError {
   /// Usually used on the Signal resulting from `materialize()`.
   /// - SeeAlso: `errors()`, `materialize()`
   public func elements<U, E>() -> Signal<U, NoError> where Element == Event<U, E> {
-    return flatMap { $0.element }
+    return compactMap { $0.element }
   }
 
   /// Returns an observable sequence containing only the unwrapped errors from `.failed` events.
   /// Usually used on the Signal resulting from `materialize()`.
   /// - SeeAlso: `elements()`, `materialize()`
   public func errors<U, E>() -> Signal<E, NoError> where Element == Event<U, E> {
-    return flatMap { $0.error }
+    return compactMap { $0.error }
   }
 }
 
