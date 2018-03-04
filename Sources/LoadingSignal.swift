@@ -61,7 +61,7 @@ extension LoadingStateProtocol {
   }
 }
 
-/// Represents loading state of a value. Element of LoadingSignal.
+/// Represents loading state of an asynchronous action. Element of LoadingSignal.
 public enum LoadingState<LoadingValue, LoadingError: Error>: LoadingStateProtocol {
 
   /// Value is loading.
@@ -353,49 +353,89 @@ public protocol LoadingStateListener: class {
 
   /// Consume observed loading state.
   func setLoadingState<LoadingValue, LoadingError>(_ state: ObservedLoadingState<LoadingValue, LoadingError>)
+
+  var loadingStateListenerNeedsWeakReference: Bool { get }
+}
+
+extension LoadingStateListener {
+
+  public var loadingStateListenerNeedsWeakReference: Bool {
+    return true
+  }
 }
 
 extension SignalProtocol where Element: ObservedLoadingStateProtocol, Error == NoError {
 
-  /// Consume loading state by the listener and return SafeSignal of loaded values.
-  public func updatingLoadingState(of listener: (LoadingStateListener & BindingExecutionContextProvider)) -> SafeSignal<LoadingValue> {
-    return updatingLoadingState(of: listener, context: listener.bindingExecutionContext)
+  /// Update loading state of the listener on each `.next` (loading state) event.
+  public func updateLoadingState(of listener: (LoadingStateListener & BindingExecutionContextProvider)) -> Signal<ObservedLoadingState<LoadingValue, LoadingError>, NoError> {
+    return updateLoadingState(of: listener, context: listener.bindingExecutionContext)
   }
 
-  /// Consume loading state by the listener and return SafeSignal of loaded values.
-  public func updatingLoadingState(of listener: LoadingStateListener, context: ExecutionContext) -> SafeSignal<LoadingValue> {
-    return Signal { [weak listener] observer in
-      return self.observe { [weak listener] event in
-        switch event {
-        case .next(let anyObservedLoadingState):
-          let observedLoadingState = anyObservedLoadingState.asObservedLoadingState
-          if let listener = listener {
-            context.execute {
-              listener.setLoadingState(observedLoadingState)
-            }
+  /// Update loading state of the listener on each `.next` (loading state) event.
+  public func updateLoadingState(of listener: LoadingStateListener, context: ExecutionContext) -> Signal<ObservedLoadingState<LoadingValue, LoadingError>, NoError> {
+
+    let _observe = { (listener: LoadingStateListener?, event: Event<Element, Error>, observer: AtomicObserver<ObservedLoadingState<LoadingValue, LoadingError>, NoError>) in
+      switch event {
+      case .next(let anyObservedLoadingState):
+        let observedLoadingState = anyObservedLoadingState.asObservedLoadingState
+        if let listener = listener {
+          context.execute {
+            listener.setLoadingState(observedLoadingState)
           }
-          if let value = observedLoadingState.value {
-            observer.next(value)
-          }
-        case .completed:
-          observer.completed()
-        case .failed:
-          break // NoError
+        }
+        observer.next(observedLoadingState)
+      case .completed:
+        observer.completed()
+      case .failed:
+        break // NoError
+      }
+    }
+
+    if listener.loadingStateListenerNeedsWeakReference {
+      return Signal { [weak listener] observer in
+        return self.observe { [weak listener] event in
+          _observe(listener, event, observer)
+        }
+      }
+    } else {
+      return Signal { observer in
+        return self.observe { event in
+          _observe(listener, event, observer)
         }
       }
     }
+  }
+
+  /// Consume loading state by the listener and return SafeSignal of loaded values.
+  public func consumeLoadingState(by listener: (LoadingStateListener & BindingExecutionContextProvider)) -> SafeSignal<LoadingValue> {
+    return updateLoadingState(of: listener, context: listener.bindingExecutionContext).value()
+  }
+
+  /// Consume loading state by the listener and return SafeSignal of loaded values.
+  public func consumeLoadingState(by listener: LoadingStateListener, context: ExecutionContext) -> SafeSignal<LoadingValue> {
+    return updateLoadingState(of: listener, context: context).value()
   }
 }
 
 extension SignalProtocol where Element: LoadingStateProtocol, Error == NoError {
 
-  /// Consume loading state by the listener and return SafeSignal of loaded values.
-  public func updatingLoadingState(of listener: (LoadingStateListener & BindingExecutionContextProvider)) -> SafeSignal<LoadingValue> {
-    return deriveObservedLoadingState().updatingLoadingState(of: listener, context: listener.bindingExecutionContext)
+  /// Update loading state of the listener on each `.next` (loading state) event.
+  public func updateLoadingState(of listener: (LoadingStateListener & BindingExecutionContextProvider)) -> LoadingSignal<LoadingValue, LoadingError> {
+    return deriveObservedLoadingState().updateLoadingState(of: listener).map { $0.asLoadingState }
+  }
+
+  /// Update loading state of the listener on each `.next` (loading state) event.
+  public func updateLoadingState(of listener: LoadingStateListener, context: ExecutionContext) -> LoadingSignal<LoadingValue, LoadingError> {
+    return deriveObservedLoadingState().updateLoadingState(of: listener, context: context).map { $0.asLoadingState }
   }
 
   /// Consume loading state by the listener and return SafeSignal of loaded values.
-  public func updatingLoadingState(of listener: LoadingStateListener, context: ExecutionContext) -> SafeSignal<LoadingValue> {
-    return deriveObservedLoadingState().updatingLoadingState(of: listener, context: context)
+  public func consumeLoadingState(by listener: (LoadingStateListener & BindingExecutionContextProvider)) -> SafeSignal<LoadingValue> {
+    return deriveObservedLoadingState().consumeLoadingState(by: listener)
+  }
+
+  /// Consume loading state by the listener and return SafeSignal of loaded values.
+  public func consumeLoadingState(by listener: LoadingStateListener, context: ExecutionContext) -> SafeSignal<LoadingValue> {
+    return deriveObservedLoadingState().consumeLoadingState(by: listener, context: context)
   }
 }
