@@ -34,6 +34,9 @@ This document will introduce the framework by going through its implementation. 
 * [Tracking signal state](#tracking-signal-state)
   * [Single signal state tracking](#single-signal-state-tracking)
 * [Property](#property)
+* [Loading signals](#loading-signals)
+  * [Consuming loading state](#consuming-loading-state)
+  * [Loading property](#loading-property)
 * [Other common patterns](#other-common-patterns)
   * [Performing an action on .next event](#performing-an-action-on-next-event)
   * [Combining multiple signals](#combining-multiple-signals)
@@ -1110,110 +1113,11 @@ let image = getImage().flatMapError { error in
 }
 ```
 
-#### Generalized error handling
-
-Sometimes you will want to handle all your signal errors in the same way. Say you are implementing a view model component where you make multiple requests and want to present error message to the user if any of them fails. To do that, you can make use of publish subjects.
-
-```swift
-class ViewModel {
-
-  let errors = SafePublishSubject<MyError>() // typealias for PublishSubject<MyError, NoError>
-
-  ...
-
-  someRequest
-    .suppressAndFeedError(into: errors) // returns `SafeSignal`
-    .observeNext {}
-
-  ...
-
-  otherRequest
-    .suppressAndFeedError(into: errors) // returns `SafeSignal`
-    .bind(to: ...)
-
-  ...
-
-  errors.bind(to: viewController) { vc, error in
-    vc.display(error)
-  }
-}
-```
-
-We used `suppressAndFeedError` operator to propagate all errors into a subject. We then worked with the subject to handle the errors.
-
-### Tracking signal state
-
-Just like with the errors, you might want to track state of signals in a generalized way. Say you wanted to show network activity indicator whenever there is a request in progress. Here is how you would do it:
-
-```swift
-class ViewModel {
-
-  let activity = SafePublishSubject<Bool>() // typealias for PublishSubject<Bool, NoError>
-
-  ...
-
-  someRequest
-    .feedActivity(into: activity)
-    .observeNext {}
-
-  ...
-
-  otherRequest
-    .feedActivity(into: activity)
-    .bind(to: ...)
-
-  ...
-
-  activity.bind(to: UIApplication.shared) { application, isActive in
-    application.isNetworkActivityIndicatorVisible = isActive
-  }
-}
-```
-
-All you need to do is use operator `feedActivity(into:)` to feed the activity into a boolean subject. When the signal starts the operator will send `true` to the subject. When the signal completes, it will send `false`.
-
-#### Single signal state tracking
-
-Say that you have a login button and want to show the spinner in the button while login request is in progress. You could have a subject that tracks the state of the login signal, but there is a better way.
-
-Create a type that will represent signal state.
-
-```swift
-enum State<T> {
-  case inProgress
-  case done(T)
-}
-```
-
-Then wrap signal elements into this type and start with the case `inProgress`.
-
-```swift
-let loggedIn = login.flatMapLatest { username, passoword in
-  return apiClient.login(username, password)
-    .map { State.done($0) }
-    .start(with: .inProgress)
-}
-```
-
-You can then bind that signal to your view controller and update the button accordingly:
-
-```swift
-loggedIn.bind(to: vc) { vc, state in
-  switch state {
-    case .inProgress:
-      vc.loginButton.startSpinner()
-    case .done(let user):
-      vc.loginButton.stopSpinner()
-      vc.presentProfileViewController(for: user)
-  }
-}
-```
-
 ### Property
 
 Property wraps mutable state into an object that enables observation of that state. Whenever the state changes, an observer will be notified. Just like the `PublishSubject`, it represents a bridge into the imperative world.
 
-To create the property, just initialize it with the initial value.
+To create a property, just initialize it with the initial value.
 
 ```swift
 let name = Property("Jim")
@@ -1231,12 +1135,142 @@ name.observeNext { value in
 }
 ```
 
-> When you register an observer, it will be immediately invoked with the current value of the property so that snippet will print "Hi Jim!".
+> When you register an observer, it will be immediately invoked with the current value of the property so the snippet will print "Hi Jim!".
 
 To change value of the property afterwards, just set the `value` property.
 
 ```swift
 name.value = "Jim Kirk" // Prints: Hi Jim Kirk!
+```
+
+### Loading signals
+
+Signals usually represent asynchronous actions, network calls for example. Any good app will display some kind of a loading indicator to the user while the call is in progress and an error dialog when the call fails, probably with an option to retry. To facilitate those use cases, ReactiveKit provides `LoadingSignal` and `LoadingProperty` types.
+
+An action or a work can be in one of the three states: loading, loaded, loading failed. RectiveKit defines those states with the enum `LoadingState`:
+
+```swift
+/// Represents loading state of an asynchronous action.
+public enum LoadingState<LoadingValue, LoadingError: Error>: LoadingStateProtocol {
+
+  /// Value is loading.
+  case loading
+
+  /// Value is loaded.
+  case loaded(LoadingValue)
+
+  /// Value loading failed with the given error.
+  case failed(LoadingError)
+}
+```
+
+A signal with elements of `LoadingState` type is typealiased as `LoadingSignal`:
+
+```swift
+public typealias LoadingSignal<LoadingValue, LoadingError: Error> = SafeSignal<LoadingState<LoadingValue, LoadingError>>
+```
+
+Notice that loading signal is a safe signal. Signal itself can never fail, but errors can be emitted as `.failed` loading state. This means that the error does not terminate the signal - new events can be received after the error.
+
+How does one convert regular signals into loading signals? It is as simple as applying `toLoadingSignal` operator. Say that we have a signal that represents some resource fetching operation:
+
+```swift
+let fetchImage: Signal<UIImage, ApplicationError> = ...
+```
+
+We can then convert that signal into a loading signal by applying `toLoadingSignal` operator.
+
+```swift
+fetchImage
+    .toLoadingSignal()
+    .observeNext { loadingState in
+        switch loadingState {
+        case .loading:
+            // display loading indicator
+        case .loaded(let image):
+            // hide loading indicator
+            // display image
+        case .failed(let error)
+            // hide loading indicator
+            // display error message
+        }
+    }
+```
+
+Observing next element now gives us the loading state of the signal. We will receive `.loading` state as soon as we start the observation. When the resource loading completes, we will receive either the resource in the `.loaded` state or the error in the `.failed` state.
+
+#### Consuming loading state
+
+Loading signal looks great, but it is not fun to manually update the loading state of each view we are loading the data for. Thankfully there is a better way - `LoadingStateListener` protocol:
+
+```swift
+/// A consumer of loading state.
+public protocol LoadingStateListener: class {
+
+    /// Consume observed loading state.
+    func setLoadingState<LoadingValue, LoadingError>(_ state: ObservedLoadingState<LoadingValue, LoadingError>)
+}
+```
+
+This protocol could be implemented by anything that updates its appearance based on the loading state of the data it displays. On iOS, a good candidate would be UIViewController or UIView. For example:
+
+```swift
+extension UIViewController: LoadingStateListener {
+
+    public func setLoadingState<LoadingValue, LoadingError>(_ state: ObservedLoadingState<LoadingValue, LoadingError>) {
+        switch state {
+        case .loading:
+            // display loading indicator
+        case .reloading:
+            // display reloading indicator
+        case .loaded(let value):
+            // hide loading indicator
+            // display value
+        case .failed(let error):
+            // hide loading indicator
+            // display error
+        }
+    }
+}
+```
+
+Notice that `LoadingStateListener` gets `ObservedLoadingState` instead of `LoadingState`. The difference between the two is that the former has one additional state: `.reloading`. ReactiveKit will automatically convert subsequent `.loading` states into `.reloading` states so that you can potentially act differently in those two cases. 
+
+Now that we have a loading state listener, we can convert any loading signal into a regular safe signal by consuming its loading state by the listener:
+
+```swift
+fetchImage
+    .toLoadingSignal()
+    .consumeLoadingState(by: viewController)
+    .bind(to: viewController.imageView) { imageView, image in
+        imageView.image = image
+    }
+```
+
+Exciting! Operator `consumeLoadingState` takes the loading state listener and updates it each time a state is produced by the loading signal. It returns a safe signal of loading values, i.e. it unwraps the underlying value from the `.loaded` state. In our example that would be `SafeSignal<UIImage>` which we can then bind to our image view and update its content. 
+
+#### Loading property
+
+We often need a way to store a result of an asynchronous operation and way to refresh (reload) it. To do that we can use `LoadingProperty` type. It is similar to the regular `Property`, but instead of initializing it with a value, we initialize it with a closure that provides a loading signal - a closure that can do some work. `LoadingProperty` can then be used as any other `LoadingSignal`. It will load its value, i.e. perform the work, when we observe (or bind) it for the first time. It also provides a way to reload the value by performing the work again.
+
+Here is an example of how we could use `LoadingProperty` to implement a simple user service:
+
+```swift
+class UserService {
+
+    let user: LoadingProperty<User, ApplicationError>
+
+    init(_ api: API) {
+        
+        user = LoadingProperty {
+            api.fetchUser()
+        }
+    }
+
+    func refresh() -> LoadingSignal<User, ApplicationError> {
+        return user.reload()
+    }
+}
 ```
 
 ### Other common patterns
