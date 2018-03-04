@@ -36,6 +36,7 @@ This document will introduce the framework by going through its implementation. 
 * [Property](#property)
 * [Loading signals](#loading-signals)
   * [Consuming loading state](#consuming-loading-state)
+  * [Transforming loading signals](#transforming-loading-signals)
   * [Loading property](#loading-property)
 * [Other common patterns](#other-common-patterns)
   * [Performing an action on .next event](#performing-an-action-on-next-event)
@@ -1248,6 +1249,19 @@ fetchImage
 ```
 
 Exciting! Operator `consumeLoadingState` takes the loading state listener and updates it each time a state is produced by the loading signal. It returns a safe signal of loading values, i.e. it unwraps the underlying value from the `.loaded` state. In our example that would be `SafeSignal<UIImage>` which we can then bind to our image view and update its content. 
+
+#### Transforming loading signals
+
+ReactiveKit provides a number of operators specific to loading signals like `value`, `mapValue`, `mapLoadingError`, `dematerializeLoadingState` and `flatMapValue`. You can, however, apply regular signal operators to loading signals that operate on their values. To do that, use `liftValue` operator. For example, to skip first three values and delay them for a second, do the following:
+
+```swift
+aLoadingSignal.liftValue {
+    $0.skip(first: 3).delay(interval: 1)
+}
+```
+
+`liftValue` accepts a closure that is given a regular signal that you can then transform using regular signal operators.
+
 
 #### Loading property
 
