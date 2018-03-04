@@ -1365,7 +1365,7 @@ import PackageDescription
 let package = Package(
   name: "MyApp",
   dependencies: [
-    .package(url: "https://github.com/ReactiveKit/ReactiveKit.git", from: "3.8.3")
+    .package(url: "https://github.com/ReactiveKit/ReactiveKit.git", from: "3.9.0")
   ],
   targets: [
     .target(name: "MyApp", dependencies: ["ReactiveKit"])

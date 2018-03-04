@@ -96,7 +96,7 @@ class SignalTests: XCTestCase {
 
   func testBuffer() {
     let operation = Signal<Int, TestError>.sequence([1,2,3,4,5])
-    let buffered = operation.buffer(size: 2)
+    let buffered = operation.buffer(ofSize: 2)
     buffered.expectComplete(after: [[1, 2], [3, 4]])
   }
 
@@ -138,7 +138,7 @@ class SignalTests: XCTestCase {
 
   func testWindow() {
     let operation = Signal<Int, TestError>.sequence([1, 2, 3])
-    let window = operation.window(size: 2)
+    let window = operation.window(ofSize: 2)
     window.merge().expectComplete(after: [1, 2])
   }
 
