@@ -84,10 +84,14 @@
 		EC877A881E019E3400A23B51 /* Reactive.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC877A861E019E3400A23B51 /* Reactive.swift */; };
 		EC877A891E019E3400A23B51 /* Reactive.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC877A861E019E3400A23B51 /* Reactive.swift */; };
 		EC877A8A1E019E3400A23B51 /* Reactive.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC877A861E019E3400A23B51 /* Reactive.swift */; };
-		EC966F10204B35810016B4FC /* LoadingSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC966F0F204B35810016B4FC /* LoadingSignal.swift */; };
-		EC966F11204B35810016B4FC /* LoadingSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC966F0F204B35810016B4FC /* LoadingSignal.swift */; };
-		EC966F12204B35810016B4FC /* LoadingSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC966F0F204B35810016B4FC /* LoadingSignal.swift */; };
-		EC966F13204B35810016B4FC /* LoadingSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC966F0F204B35810016B4FC /* LoadingSignal.swift */; };
+		EC966F1A204B43DF0016B4FC /* LoadingProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC966F19204B43DF0016B4FC /* LoadingProperty.swift */; };
+		EC966F1B204B43DF0016B4FC /* LoadingProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC966F19204B43DF0016B4FC /* LoadingProperty.swift */; };
+		EC966F1C204B43DF0016B4FC /* LoadingProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC966F19204B43DF0016B4FC /* LoadingProperty.swift */; };
+		EC966F1D204B43DF0016B4FC /* LoadingProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC966F19204B43DF0016B4FC /* LoadingProperty.swift */; };
+		EC966F1F204B43FA0016B4FC /* LoadingSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC966F1E204B43FA0016B4FC /* LoadingSignal.swift */; };
+		EC966F20204B43FA0016B4FC /* LoadingSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC966F1E204B43FA0016B4FC /* LoadingSignal.swift */; };
+		EC966F21204B43FA0016B4FC /* LoadingSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC966F1E204B43FA0016B4FC /* LoadingSignal.swift */; };
+		EC966F22204B43FA0016B4FC /* LoadingSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC966F1E204B43FA0016B4FC /* LoadingSignal.swift */; };
 		ECBCCDD41BEB6B9A00723476 /* ReactiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		ECBCCDDB1BEB6B9B00723476 /* ReactiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ECBCCDD01BEB6B9A00723476 /* ReactiveKit.framework */; };
 		ECD102FF1D89B2530086B6A1 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD102FD1D89B2530086B6A1 /* Helpers.swift */; };
@@ -131,7 +135,8 @@
 		EC8A99E11CABD9B50042A6AD /* Property.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Property.swift; path = Sources/Property.swift; sourceTree = SOURCE_ROOT; };
 		EC8A99E41CABD9B50042A6AD /* Subjects.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Subjects.swift; path = Sources/Subjects.swift; sourceTree = SOURCE_ROOT; };
 		EC8A99E61CABD9B50042A6AD /* ExecutionContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ExecutionContext.swift; path = Sources/ExecutionContext.swift; sourceTree = SOURCE_ROOT; };
-		EC966F0F204B35810016B4FC /* LoadingSignal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingSignal.swift; sourceTree = "<group>"; };
+		EC966F19204B43DF0016B4FC /* LoadingProperty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LoadingProperty.swift; path = Sources/LoadingProperty.swift; sourceTree = SOURCE_ROOT; };
+		EC966F1E204B43FA0016B4FC /* LoadingSignal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LoadingSignal.swift; path = Sources/LoadingSignal.swift; sourceTree = SOURCE_ROOT; };
 		ECBCCDD01BEB6B9A00723476 /* ReactiveKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ReactiveKit.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		ECBCCDD51BEB6B9A00723476 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -216,7 +221,6 @@
 				165EBE5A1D2804FF000E68C8 /* Signal.swift */,
 				165EBE501D280028000E68C8 /* SignalProtocol.swift */,
 				16F2F56B1D6D924B00B85896 /* SignalProtocol+Arities.swift */,
-				EC966F0F204B35810016B4FC /* LoadingSignal.swift */,
 				EC8A99E61CABD9B50042A6AD /* ExecutionContext.swift */,
 				16886A191D3168E000D83E39 /* Connectable.swift */,
 				EC8A99DC1CABD9B50042A6AD /* Disposable.swift */,
@@ -231,6 +235,8 @@
 				164189771D2C4E71001D3881 /* Optional.swift */,
 				EC8A99E11CABD9B50042A6AD /* Property.swift */,
 				EC4C28111E167EED0055D256 /* Typealiases.swift */,
+				EC966F1E204B43FA0016B4FC /* LoadingSignal.swift */,
+				EC966F19204B43DF0016B4FC /* LoadingProperty.swift */,
 				ECD102FB1D89B2530086B6A1 /* Tests */,
 			);
 			path = ReactiveKit;
@@ -483,6 +489,7 @@
 			files = (
 				16A205081D3236EC0054484B /* Property.swift in Sources */,
 				EC31EE0E1E7BF97C00857946 /* Deallocatable.swift in Sources */,
+				EC966F20204B43FA0016B4FC /* LoadingSignal.swift in Sources */,
 				16F2F5681D6D8A4500B85896 /* Lock.swift in Sources */,
 				16886A1F1D31699F00D83E39 /* Subjects.swift in Sources */,
 				16F2F56D1D6D924B00B85896 /* SignalProtocol+Arities.swift in Sources */,
@@ -496,7 +503,7 @@
 				165EBE451D27FE76000E68C8 /* Disposable.swift in Sources */,
 				EC877A881E019E3400A23B51 /* Reactive.swift in Sources */,
 				16299CB81D280C4100C7C570 /* Result.swift in Sources */,
-				EC966F11204B35810016B4FC /* LoadingSignal.swift in Sources */,
+				EC966F1B204B43DF0016B4FC /* LoadingProperty.swift in Sources */,
 				165EBE491D27FE8F000E68C8 /* ExecutionContext.swift in Sources */,
 				EC7A6F8A1D3CCF5B00F9EF4A /* NoError.swift in Sources */,
 				EC4C28131E167EED0055D256 /* Typealiases.swift in Sources */,
@@ -509,6 +516,7 @@
 			files = (
 				16A205071D3236EC0054484B /* Property.swift in Sources */,
 				EC31EE0F1E7BF97C00857946 /* Deallocatable.swift in Sources */,
+				EC966F21204B43FA0016B4FC /* LoadingSignal.swift in Sources */,
 				16F2F5691D6D8A4500B85896 /* Lock.swift in Sources */,
 				16886A201D31699F00D83E39 /* Subjects.swift in Sources */,
 				16F2F56E1D6D924B00B85896 /* SignalProtocol+Arities.swift in Sources */,
@@ -522,7 +530,7 @@
 				165EBE441D27FE76000E68C8 /* Disposable.swift in Sources */,
 				EC877A891E019E3400A23B51 /* Reactive.swift in Sources */,
 				16299CB61D280C4000C7C570 /* Result.swift in Sources */,
-				EC966F12204B35810016B4FC /* LoadingSignal.swift in Sources */,
+				EC966F1C204B43DF0016B4FC /* LoadingProperty.swift in Sources */,
 				165EBE481D27FE8E000E68C8 /* ExecutionContext.swift in Sources */,
 				EC7A6F8B1D3CCF5B00F9EF4A /* NoError.swift in Sources */,
 				EC4C28141E167EED0055D256 /* Typealiases.swift in Sources */,
@@ -535,6 +543,7 @@
 			files = (
 				16A205061D3236EC0054484B /* Property.swift in Sources */,
 				EC31EE101E7BF97C00857946 /* Deallocatable.swift in Sources */,
+				EC966F22204B43FA0016B4FC /* LoadingSignal.swift in Sources */,
 				16F2F56A1D6D8A4500B85896 /* Lock.swift in Sources */,
 				16886A1E1D31699E00D83E39 /* Subjects.swift in Sources */,
 				16F2F56F1D6D924B00B85896 /* SignalProtocol+Arities.swift in Sources */,
@@ -548,7 +557,7 @@
 				165EBE431D27FE75000E68C8 /* Disposable.swift in Sources */,
 				EC877A8A1E019E3400A23B51 /* Reactive.swift in Sources */,
 				16299CB51D280C4000C7C570 /* Result.swift in Sources */,
-				EC966F13204B35810016B4FC /* LoadingSignal.swift in Sources */,
+				EC966F1D204B43DF0016B4FC /* LoadingProperty.swift in Sources */,
 				165EBE471D27FE8D000E68C8 /* ExecutionContext.swift in Sources */,
 				EC7A6F8C1D3CCF5B00F9EF4A /* NoError.swift in Sources */,
 				EC4C28151E167EED0055D256 /* Typealiases.swift in Sources */,
@@ -561,6 +570,7 @@
 			files = (
 				EC8706671D3CDDAA0068B589 /* Property.swift in Sources */,
 				EC31EE0D1E7BF97C00857946 /* Deallocatable.swift in Sources */,
+				EC966F1F204B43FA0016B4FC /* LoadingSignal.swift in Sources */,
 				16F2F5671D6D8A4500B85896 /* Lock.swift in Sources */,
 				EC8706661D3CDCE10068B589 /* Bindable.swift in Sources */,
 				16F2F56C1D6D924B00B85896 /* SignalProtocol+Arities.swift in Sources */,
@@ -574,7 +584,7 @@
 				16299CB71D280C4100C7C570 /* Result.swift in Sources */,
 				EC877A871E019E3400A23B51 /* Reactive.swift in Sources */,
 				165EBE4A1D27FE90000E68C8 /* ExecutionContext.swift in Sources */,
-				EC966F10204B35810016B4FC /* LoadingSignal.swift in Sources */,
+				EC966F1A204B43DF0016B4FC /* LoadingProperty.swift in Sources */,
 				EC7A6F891D3CCF5B00F9EF4A /* NoError.swift in Sources */,
 				EC8706651D3CDCAC0068B589 /* Connectable.swift in Sources */,
 				EC4C28121E167EED0055D256 /* Typealiases.swift in Sources */,
