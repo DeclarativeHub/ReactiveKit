@@ -821,6 +821,8 @@ public extension SignalProtocol where Element: Equatable {
   }
 }
 
+#if swift(>=4.1)
+#else
 public extension SignalProtocol where Element: OptionalProtocol, Element.Wrapped: Equatable {
   
   /// Emit first element and then all elements that are not equal to their predecessor(s).
@@ -828,6 +830,7 @@ public extension SignalProtocol where Element: OptionalProtocol, Element.Wrapped
     return distinct(areDistinct: !=)
   }
 }
+#endif
 
 public extension SignalProtocol where Element: OptionalProtocol {
 
