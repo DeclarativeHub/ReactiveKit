@@ -499,30 +499,22 @@ extension SignalProtocol where Element: Sequence {
 public extension SignalProtocol {
 
   /// Emit an element only if `interval` time passes without emitting another element.
-  public func debounce(interval: Double, on queue: DispatchQueue = DispatchQueue(label: "com.reactivekit.debounce")) -> Signal<Element, Error> {
+  public func debounce(seconds: Double, on queue: DispatchQueue = DispatchQueue(label: "com.reactivekit.debounce")) -> Signal<Element, Error> {
     return Signal { observer in
-      var timerSubscription: Disposable? = nil
-      var previousElement: Element? = nil
+      var lastEventTime: DispatchTime? = nil
       return self.observe { event in
-        timerSubscription?.dispose()
-        switch event {
-        case .next(let element):
-          previousElement = element
-          timerSubscription = queue.disposableAfter(when: interval) {
-            if let _element = previousElement {
-              observer.next(_element)
-              previousElement = nil
+        let now = DispatchTime.now()
+        queue.async {
+          switch event {
+          case .next(let element):
+            if lastEventTime == nil || now.rawValue > (lastEventTime! + seconds).rawValue {
+              lastEventTime = now
+              observer.next(element)
             }
-          }
-        case .failed(let error):
-          observer.failed(error)
-        case .completed:
-          if let previousElement = previousElement {
-            observer.next(previousElement)
-            observer.completed()
+          default:
+            observer.on(event)
           }
         }
-
       }
     }
   }
@@ -794,19 +786,31 @@ public extension SignalProtocol {
   }
 
   /// Throttle the signal to emit at most one element per given `seconds` interval.
-  public func throttle(seconds: Double) -> Signal<Element, Error> {
+  public func throttle(seconds: Double, on queue: DispatchQueue = DispatchQueue(label: "com.reactivekit.throttle")) -> Signal<Element, Error> {
     return Signal { observer in
-      var lastEventTime: DispatchTime?
+      var throttledSubscription: Disposable? = nil
+      var lastElement: Element? = nil
       return self.observe { event in
-        switch event {
-        case .next(let element):
-          let now = DispatchTime.now()
-          if lastEventTime == nil || now.rawValue > (lastEventTime! + seconds).rawValue {
-            lastEventTime = now
-            observer.next(element)
+        queue.async {
+          switch event {
+          case .next(let element):
+            lastElement = element
+            guard throttledSubscription == nil else { return }
+            throttledSubscription = queue.disposableAfter(when: seconds) {
+              if let element = lastElement {
+                observer.next(element)
+                lastElement = nil
+              }
+              throttledSubscription = nil
+            }
+          case .failed(let error):
+            observer.failed(error)
+          case .completed:
+            if let lastElement = lastElement {
+              observer.next(lastElement)
+            }
+            observer.completed()
           }
-        default:
-          observer.on(event)
         }
       }
     }
