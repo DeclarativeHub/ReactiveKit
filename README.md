@@ -1,7 +1,7 @@
 <img src="Assets/logo.png" alt="ReactiveKit" width="479" height="80">
 
 [![Platform](https://img.shields.io/cocoapods/p/ReactiveKit.svg?style=flat)](http://cocoadocs.org/docsets/ReactiveKit/)
-[![Build Status](https://travis-ci.org/ReactiveKit/ReactiveKit.svg?branch=master)](https://travis-ci.org/ReactiveKit/ReactiveKit)
+[![Build Status](https://travis-ci.org/ReactiveKit/ReactiveKit.svg?branch=master)](https://travis-ci.org/DeclarativeHub/ReactiveKit)
 [![Join Us on Gitter](https://img.shields.io/badge/GITTER-join%20chat-blue.svg)](https://gitter.im/ReactiveKit/General)
 [![Twitter](https://img.shields.io/badge/twitter-@srdanrasic-red.svg?style=flat)](https://twitter.com/srdanrasic)
 
