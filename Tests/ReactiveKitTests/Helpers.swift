@@ -9,6 +9,13 @@
 import XCTest
 import ReactiveKit
 
+func dumpEquality<T>(lhs: T, rhs: T) -> Bool {
+  var (lhsDump, rhsDump) = ("", "")
+  dump(lhs, to: &lhsDump)
+  dump(rhs, to: &rhsDump)
+  return lhsDump == rhsDump
+}
+
 extension Event {
 
   func isEqualTo(_ event: Event<Element, Error>) -> Bool {
@@ -19,19 +26,7 @@ extension Event {
     case (.failed, .failed):
       return true
     case (.next(let left), .next(let right)):
-      if let left = left as? Int, let right = right as? Int {
-        return left == right
-      } else if let left = left as? [Int], let right = right as? [Int] {
-        return left == right
-      } else if let left = left as? (Int?, Int), let right = right as? (Int?, Int) {
-        return left.0 == right.0 && left.1 == right.1
-      } else if let left = left as? String, let right = right as? String {
-        return left == right
-      } else if let left = left as? [String], let right = right as? [String] {
-        return left == right
-      } else {
-        fatalError("Cannot compare that element type. \(left)")
-      }
+      return dumpEquality(lhs: left, rhs: right)
     default:
         return false
     }
@@ -132,16 +127,6 @@ class Scheduler {
       numberOfRuns += 1
       availableRuns -= 1
     }
-  }
-}
-
-func ==(lhs: [(String, Int)], rhs: [(String, Int)]) -> Bool {
-  if lhs.count != rhs.count {
-    return false
-  }
-
-  return zip(lhs, rhs).reduce(true) { memo, new in
-    memo && new.0.0 == new.1.0 && new.0.1 == new.1.1
   }
 }
 
