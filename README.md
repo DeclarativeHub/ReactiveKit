@@ -281,7 +281,7 @@ func getUser() -> Signal<User, ClientError> {
       case .failure(let error):
         observer.failed(error)
     })
-    return SimpleDisposable()
+    // return disposable, continue reading
   }
 }
 ```
