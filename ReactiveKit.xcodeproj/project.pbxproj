@@ -399,7 +399,7 @@
 			attributes = {
 				LastSwiftUpdateCheck = 0730;
 				LastUpgradeCheck = 0900;
-				ORGANIZATIONNAME = "Srdan Rasic";
+				ORGANIZATIONNAME = DeclarativeHub;
 				TargetAttributes = {
 					16C33AF81BEFB72500A0DBE0 = {
 						CreatedOnToolsVersion = 7.1;

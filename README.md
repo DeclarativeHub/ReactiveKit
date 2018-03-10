@@ -7,7 +7,7 @@
 
 __ReactiveKit__ is a lightweight Swift framework for reactive and functional reactive programming. With just over 2000 lines of code it enables you to get into reactive world today.
 
-The framework is compatible with all Apple platforms and Linux. If you are developing an iOS or macOS app, make sure to also check out [Bond](https://github.com/ReactiveKit/Bond) framework that provides UIKit and AppKit bindings, reactive delegates and data sources.
+The framework is compatible with all Apple platforms and Linux. If you are developing an iOS or macOS app, make sure to also check out [Bond](https://github.com/DeclarativeHub/Bond) framework that provides UIKit and AppKit bindings, reactive delegates and data sources.
 
 This document will introduce the framework by going through its implementation. By the end you should be equipped with a pretty good understanding of how is the framework implemented and what are the best ways to use it.
 
@@ -490,7 +490,7 @@ cities.filter { $0.hasPrefix("P") }.observeNext { name in
 
 > ReactiveKit also provides `observeFailed` and `observeCompleted` operators when you are interested only in those events.
 
-Writing operators on signals is as simple as writing an extension method. When you need something that is not provided by the framework, just write it by yourself! ReactiveKit is written to be simple to understand. Whenever you are stuck, just look [into the implementation](https://github.com/ReactiveKit/ReactiveKit/blob/master/Sources/SignalProtocol.swift).
+Writing operators on signals is as simple as writing an extension method. When you need something that is not provided by the framework, just write it by yourself! ReactiveKit is written to be simple to understand. Whenever you are stuck, just look [into the implementation](https://github.com/DeclarativeHub/ReactiveKit/blob/master/Sources/SignalProtocol.swift).
 
 ### More about errors
 
@@ -709,7 +709,7 @@ someData
 
 By applying `executeOn` we define where the signal producer gets executed. We usually use it in a combination with `observeOn` to define where the observer receives events.
 
-Note that there are also operators `observeIn` and `executeIn`. Those operators are similar to the ones we described with the difference that they work with execution contexts instead of with dispatch queues. Execution context is a simple abstraction over a thread or a queue. You can see how it is implemented [here](https://github.com/ReactiveKit/ReactiveKit/blob/master/Sources/ExecutionContext.swift).
+Note that there are also operators `observeIn` and `executeIn`. Those operators are similar to the ones we described with the difference that they work with execution contexts instead of with dispatch queues. Execution context is a simple abstraction over a thread or a queue. You can see how it is implemented [here](https://github.com/DeclarativeHub/ReactiveKit/blob/master/Sources/ExecutionContext.swift).
 
 ### Bindings
 
@@ -780,7 +780,7 @@ extension DisposeBagProvider {
 
 As you can see, `DisposeBagProvider` inherits `Deallocatable` and implements it by taking the deallocated signal from the bag. So all that you need to do is provide a `bag` property on your type.
 
-`BindingExecutionContextProvider` protocol provides the execution context in which the object should be updated. Execution context is just a wrapper over a dispatch queue or a thread. You can see how it is implemented [here](https://github.com/ReactiveKit/ReactiveKit/blob/master/Sources/ExecutionContext.swift).
+`BindingExecutionContextProvider` protocol provides the execution context in which the object should be updated. Execution context is just a wrapper over a dispatch queue or a thread. You can see how it is implemented [here](https://github.com/DeclarativeHub/ReactiveKit/blob/master/Sources/ExecutionContext.swift).
 
 ```swift
 public protocol BindingExecutionContextProvider {
@@ -849,7 +849,7 @@ name.bind(to: label, keyPath: \.text)
 
 where the target is the same target as in previous example and `keyPath` is a key path to the property that should be updated with each new element sent on the signal!
 
-If you opt-in for a [Bond framework](https://github.com/ReactiveKit/Bond), things get even simpler:
+If you opt-in for a [Bond framework](https://github.com/DeclarativeHub/Bond), things get even simpler:
 
 ```swift
 name.bind(to: label.reactive.text)
@@ -1292,7 +1292,7 @@ class UserService {
 
 #### Performing an action on .next event
 
-Say that you have a button that (re)loads a photo in your app. How to implement that in reactive world? First we will need a signal that represents buttons taps. With [Bond](https://github.com/ReactiveKit/Bond) framework you can get that signal just like this:
+Say that you have a button that (re)loads a photo in your app. How to implement that in reactive world? First we will need a signal that represents buttons taps. With [Bond](https://github.com/DeclarativeHub/Bond) framework you can get that signal just like this:
 
 ```swift
 let reload /*: SafeSignal<Void> */ = button.reactive.tap
@@ -1359,8 +1359,8 @@ Bond framework is optional, but recommended for Cocoa / Cocoa touch development.
 ### Carthage
 
 ```
-github "ReactiveKit/ReactiveKit"
-github "ReactiveKit/Bond"
+github "DeclarativeHub/ReactiveKit"
+github "DeclarativeHub/Bond"
 ```
 
 ### CocoaPods
@@ -1380,7 +1380,7 @@ import PackageDescription
 let package = Package(
   name: "MyApp",
   dependencies: [
-    .package(url: "https://github.com/ReactiveKit/ReactiveKit.git", from: "3.9.0")
+    .package(url: "https://github.com/DeclarativeHub/ReactiveKit.git", from: "3.9.0")
   ],
   targets: [
     .target(name: "MyApp", dependencies: ["ReactiveKit"])
@@ -1398,7 +1398,6 @@ let package = Package(
 
 ## Additional Documentation
 
-* [ReactiveGitter](https://github.com/ReactiveKit/ReactiveGitter) - A ReactiveKit demo application.
 * [ReactiveKit Reference](http://cocoadocs.org/docsets/ReactiveKit) - Code reference on Cocoadocs.
 
 
