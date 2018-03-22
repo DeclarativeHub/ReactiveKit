@@ -71,6 +71,7 @@ open class Subject<Element, Error: Swift.Error>: SubjectProtocol {
 
     return BlockDisposable { [weak self] in
       guard let me = self else { return }
+      me.lock.lock(); defer { me.lock.unlock() }
       guard let index = me.observers.index(where: { $0.0 == token }) else { return }
       me.observers.remove(at: index)
     }
