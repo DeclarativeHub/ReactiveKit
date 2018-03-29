@@ -774,9 +774,7 @@ public extension SignalProtocol {
     return Signal { observer in
       let disposable = CompositeDisposable()
 
-      disposable += signal.observe { event in
-        observer.completed()
-      }
+      disposable += signal.observeCompleted { observer.completed() }
 
       disposable += self.observe { event in
         switch event {
