@@ -217,6 +217,28 @@ class SignalTests: XCTestCase {
     let takenLast2 = operation.take(last: 2)
     takenLast2.expectComplete(after: [2, 3])
   }
+  
+  func testTakeUntil() {
+    let bob = Scheduler()
+    let eve = Scheduler()
+    
+    let operation = Signal<Int, TestError>.sequence([1, 2, 3, 4]).observeIn(bob.context)
+    let interrupt = Signal<String, TestError>.sequence(["A", "B"]).observeIn(eve.context)
+    
+    let takeuntil = operation.take(until: interrupt)
+    
+    let exp = expectation(description: "completed")
+    takeuntil.expectAsyncComplete(after: [1, 2], expectation: exp)
+    
+    bob.runOne()                // Sends 1.
+    bob.runOne()                // Sends 2.
+    eve.runOne()                // Sends A, effectively stopping the receiver.
+    bob.runOne()                // Ignored.
+    eve.runRemaining()          // Ignored. Sends B, with termination.
+    bob.runRemaining()          // Ignored.
+    
+    waitForExpectations(timeout: 1, handler: nil)
+  }
 
 //  func testThrottle() {
 //    let operation = Signal<Int, TestError>.interval(0.4, queue: Queue.global).take(5)

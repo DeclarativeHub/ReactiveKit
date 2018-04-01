@@ -769,12 +769,13 @@ public extension SignalProtocol {
     }
   }
 
-  /// Emit elements of the reciver until given signal completes and then complete the receiver.
+  /// Emit elements of the receiver until the given signal sends an event (of any kind)
+  /// and then completes the receiver (subsequent events on the receiver are ignored).
   public func take<S: SignalProtocol>(until signal: S) -> Signal<Element, Error> {
     return Signal { observer in
       let disposable = CompositeDisposable()
-
-      disposable += signal.observe { event in
+      
+      disposable += signal.observe { _ in
         observer.completed()
       }
 
