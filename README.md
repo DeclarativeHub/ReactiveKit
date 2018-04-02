@@ -999,7 +999,7 @@ At this point you might have the idea how to achieve the behaviour of the `share
 
 ### Connectable signals
 
-We have see two kinds of signals so far. A `Signal` that produces events only if the observer is registered and a `Subject` that produces events regardless if there are any observers registered. A connectable signals will be third kind of a signal we will implement. This one will start producing events when we call `connect()` on it. Let us define a protocol first.
+We have seen two kinds of signals so far. A `Signal` that produces events only if the observer is registered and a `Subject` that produces events regardless if there are any observers registered. A connectable signal will be the third kind of a signal we will implement. This one will start producing events when we call `connect()` on it. Let us define a protocol first.
 
 ```swift
 /// Represents a signal that is started by calling `connect` on it.
