@@ -1192,7 +1192,7 @@ fetchImage
         case .loaded(let image):
             // hide loading indicator
             // display image
-        case .failed(let error)
+        case .failed(let error):
             // hide loading indicator
             // display error message
         }
