@@ -110,6 +110,11 @@ public final class AnyProperty<Value>: PropertyProtocol, SignalProtocol {
   public init(property: Property<Value>) {
     self.property = property
   }
+  
+  public init(inital: Value, then: SafeSignal<Value>) {
+    self.property = Property(inital)
+    then.bind(to: property)
+  }
 
   public func observe(with observer: @escaping (Event<Value, NoError>) -> Void) -> Disposable {
     return property.observe(with: observer)
