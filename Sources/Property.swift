@@ -31,7 +31,7 @@ public protocol PropertyProtocol {
 }
 
 /// Represents mutable state that can be observed as a signal of events.
-public class Property<Value>: PropertyProtocol, SubjectProtocol, BindableProtocol, DisposeBagProvider {
+public class Property<Value : Codable>: PropertyProtocol, SubjectProtocol, BindableProtocol, DisposeBagProvider, Codable {
 
   private var _value: Value
   private let subject = PublishSubject<Value, NoError>()
@@ -58,6 +58,18 @@ public class Property<Value>: PropertyProtocol, SubjectProtocol, BindableProtoco
       subject.next(newValue)
     }
   }
+  
+  public required convenience init(from decoder: Decoder) throws {
+    let container = try decoder.singleValueContainer()
+    let value = try container.decode(Value.self)
+    self.init(value)
+  }
+  
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.singleValueContainer()
+    try container.encode(_value)
+  }
+
 
   public init(_ value: Value) {
     _value = value
@@ -99,7 +111,7 @@ public class Property<Value>: PropertyProtocol, SubjectProtocol, BindableProtoco
 }
 
 /// Represents mutable state that can be observed as a signal of events.
-public final class AnyProperty<Value>: PropertyProtocol, SignalProtocol {
+public final class AnyProperty<Value : Codable>: PropertyProtocol, SignalProtocol {
 
   private let property: Property<Value>
 
