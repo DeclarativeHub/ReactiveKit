@@ -93,6 +93,26 @@ class PropertyTests: XCTestCase {
     
     waitForExpectations(timeout: 2, handler: nil)
   }
+  
+  func testCodableProtocol() {
+    struct Container : Codable {
+      var valueA: Property<Int>
+      var valueB: Property<Float>
+    }
+    
+    let original = Container(valueA: Property(412), valueB: Property(35.5))
+
+    let data = try? JSONEncoder().encode(original)
+    XCTAssert(data != nil)
+    if let data = data {
+      let output = try? JSONDecoder().decode(Container.self, from: data)
+      XCTAssert(output != nil)
+      if let output = output {
+        XCTAssert(output.valueA.value == original.valueA.value)
+        XCTAssert(output.valueB.value == original.valueB.value)
+      }
+    }
+  }
 }
 
 extension PropertyTests {
@@ -102,7 +122,8 @@ extension PropertyTests {
       ("testValue", testValue),
       ("testEvents", testEvents),
       ("testReadOnlyView", testReadOnlyView),
-      ("testBidirectionalBind", testBidirectionalBind)
+      ("testBidirectionalBind", testBidirectionalBind),
+      ("testCodableProtocol", testCodableProtocol)
     ]
   }
 }
