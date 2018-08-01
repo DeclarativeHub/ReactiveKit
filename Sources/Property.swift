@@ -52,9 +52,7 @@ public class Property<Value>: PropertyProtocol, SubjectProtocol, BindableProtoco
   }
   
   public required convenience init(from decoder: Decoder) throws {
-    if let type = Value.self as? Decodable.Type {
-      let decodable = try type.init(from: decoder) as! Value
-      
+    if let type = Value.self as? Decodable.Type, let decodable = try type.init(from: decoder) as? Value {
       self.init(decodable)
     } else {
       throw PropertyError.decodingError
