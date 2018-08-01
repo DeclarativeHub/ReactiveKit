@@ -25,8 +25,8 @@
 import Foundation
 
 enum PropertyError: Error {
-  case decodingError
-  case encodingError
+  case decodingFailed
+  case encodingFailed
 }
 
 /// Represents mutable state that can be observed as a signal of events.
@@ -55,7 +55,7 @@ public class Property<Value>: PropertyProtocol, SubjectProtocol, BindableProtoco
     if let type = Value.self as? Decodable.Type, let decodable = try type.init(from: decoder) as? Value {
       self.init(decodable)
     } else {
-      throw PropertyError.decodingError
+      throw PropertyError.decodingFailed
     }
   }
   
@@ -63,7 +63,7 @@ public class Property<Value>: PropertyProtocol, SubjectProtocol, BindableProtoco
     if let value  = _value as? Encodable {
       try value.encode(to: encoder)
     } else {
-      throw PropertyError.encodingError
+      throw PropertyError.encodingFailed
     }
   }
 
