@@ -24,15 +24,15 @@
 
 import Foundation
 
+enum PropertyError: Error {
+  case decodingError
+  case encodingError
+}
+
 /// Represents mutable state that can be observed as a signal of events.
 public protocol PropertyProtocol {
   associatedtype ProperyElement
   var value: ProperyElement { get }
-}
-
-enum PropertyError: Error {
-  case couldntDecode
-  case couldntEncode
 }
 
 /// Represents mutable state that can be observed as a signal of events.
@@ -56,17 +56,17 @@ public class Property<Value>: PropertyProtocol, SubjectProtocol, BindableProtoco
       let decodable = try type.init(from: decoder) as! Value
       
       self.init(decodable)
-      return
+    } else {
+      throw PropertyError.decodingError
     }
-    throw PropertyError.couldntDecode
   }
   
   public func encode(to encoder: Encoder) throws {
     if let value  = _value as? Encodable {
       try value.encode(to: encoder)
-      return
+    } else {
+      throw PropertyError.encodingError
     }
-    throw PropertyError.couldntEncode
   }
 
   /// Underlying value. Changing it emits `.next` event with new value.
