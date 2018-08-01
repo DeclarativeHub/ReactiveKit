@@ -36,7 +36,7 @@ enum PropertyError: Error {
 }
 
 /// Represents mutable state that can be observed as a signal of events.
-public class Property<Value : Encodable>: PropertyProtocol, SubjectProtocol, BindableProtocol, DisposeBagProvider, Codable {
+public class Property<Value>: PropertyProtocol, SubjectProtocol, BindableProtocol, DisposeBagProvider, Codable {
 
   private var _value: Value
   private let subject = PublishSubject<Value, NoError>()
@@ -52,12 +52,9 @@ public class Property<Value : Encodable>: PropertyProtocol, SubjectProtocol, Bin
   }
   
   public required convenience init(from decoder: Decoder) throws {
-    let container = try decoder.singleValueContainer()
-  
-    let decodingHelper = try container.decode(DecodingHelper.self)
-    
     if let type = Value.self as? Decodable.Type {
-      let decodable = try decodingHelper.decode(to: type) as! Value
+      let decodable = try type.init(from: decoder) as! Value
+      
       self.init(decodable)
       return
     }
@@ -65,8 +62,11 @@ public class Property<Value : Encodable>: PropertyProtocol, SubjectProtocol, Bin
   }
   
   public func encode(to encoder: Encoder) throws {
-    var container = encoder.singleValueContainer()
-    try container.encode(_value)
+    if let value  = _value as? Encodable {
+      try value.encode(to: encoder)
+      return
+    }
+    throw PropertyError.couldntEncode
   }
 
   /// Underlying value. Changing it emits `.next` event with new value.
@@ -121,21 +121,9 @@ public class Property<Value : Encodable>: PropertyProtocol, SubjectProtocol, Bin
   }
 }
 
-struct DecodingHelper: Decodable {
-  private let decoder: Decoder
-  
-  init(from decoder: Decoder) throws {
-    self.decoder = decoder
-  }
-  
-  func decode(to type: Decodable.Type) throws -> Decodable {
-    let decodable = try type.init(from: decoder)
-    return decodable
-  }
-}
 
 /// Represents mutable state that can be observed as a signal of events.
-public final class AnyProperty<Value : Encodable>: PropertyProtocol, SignalProtocol {
+public final class AnyProperty<Value>: PropertyProtocol, SignalProtocol, Codable {
 
   private let property: Property<Value>
 
