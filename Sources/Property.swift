@@ -30,8 +30,13 @@ public protocol PropertyProtocol {
   var value: ProperyElement { get }
 }
 
+enum PropertyError: Error {
+  case couldntDecode
+  case couldntEncode
+}
+
 /// Represents mutable state that can be observed as a signal of events.
-public class Property<Value : Codable>: PropertyProtocol, SubjectProtocol, BindableProtocol, DisposeBagProvider, Codable {
+public class Property<Value>: PropertyProtocol, SubjectProtocol, BindableProtocol, DisposeBagProvider, Codable {
 
   private var _value: Value
   private let subject = PublishSubject<Value, NoError>()
@@ -44,6 +49,28 @@ public class Property<Value : Codable>: PropertyProtocol, SubjectProtocol, Binda
 
   public var bag: DisposeBag {
     return subject.disposeBag
+  }
+  
+  public required convenience init(from decoder: Decoder) throws {
+    let container = try decoder.singleValueContainer()
+  
+    let decodingHelper = try container.decode(DecodingHelper.self)
+    
+    if let type = Value.self as? Decodable.Type {
+      let decodable = try decodingHelper.decode(to: type) as! Value
+      self.init(decodable)
+      return
+    }
+    throw PropertyError.couldntDecode
+  }
+  
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.singleValueContainer()
+    if let encodabelValue = _value as? Encodable {
+      try container.encode(encodabelValue)
+    }
+    
+    throw PropertyError.couldntEncode
   }
 
   /// Underlying value. Changing it emits `.next` event with new value.
@@ -58,18 +85,6 @@ public class Property<Value : Codable>: PropertyProtocol, SubjectProtocol, Binda
       subject.next(newValue)
     }
   }
-  
-  public required convenience init(from decoder: Decoder) throws {
-    let container = try decoder.singleValueContainer()
-    let value = try container.decode(Value.self)
-    self.init(value)
-  }
-  
-  public func encode(to encoder: Encoder) throws {
-    var container = encoder.singleValueContainer()
-    try container.encode(_value)
-  }
-
 
   public init(_ value: Value) {
     _value = value
@@ -110,8 +125,21 @@ public class Property<Value : Codable>: PropertyProtocol, SubjectProtocol, Binda
   }
 }
 
+struct DecodingHelper: Decodable {
+  private let decoder: Decoder
+  
+  init(from decoder: Decoder) throws {
+    self.decoder = decoder
+  }
+  
+  func decode(to type: Decodable.Type) throws -> Decodable {
+    let decodable = try type.init(from: decoder)
+    return decodable
+  }
+}
+
 /// Represents mutable state that can be observed as a signal of events.
-public final class AnyProperty<Value : Codable>: PropertyProtocol, SignalProtocol {
+public final class AnyProperty<Value>: PropertyProtocol, SignalProtocol {
 
   private let property: Property<Value>
 
