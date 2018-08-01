@@ -36,7 +36,7 @@ enum PropertyError: Error {
 }
 
 /// Represents mutable state that can be observed as a signal of events.
-public class Property<Value>: PropertyProtocol, SubjectProtocol, BindableProtocol, DisposeBagProvider, Codable {
+public class Property<Value : Encodable>: PropertyProtocol, SubjectProtocol, BindableProtocol, DisposeBagProvider, Codable {
 
   private var _value: Value
   private let subject = PublishSubject<Value, NoError>()
@@ -66,11 +66,7 @@ public class Property<Value>: PropertyProtocol, SubjectProtocol, BindableProtoco
   
   public func encode(to encoder: Encoder) throws {
     var container = encoder.singleValueContainer()
-    if let encodabelValue = _value as? Encodable {
-      try container.encode(encodabelValue)
-    }
-    
-    throw PropertyError.couldntEncode
+    try container.encode(_value)
   }
 
   /// Underlying value. Changing it emits `.next` event with new value.
@@ -139,7 +135,7 @@ struct DecodingHelper: Decodable {
 }
 
 /// Represents mutable state that can be observed as a signal of events.
-public final class AnyProperty<Value>: PropertyProtocol, SignalProtocol {
+public final class AnyProperty<Value : Encodable>: PropertyProtocol, SignalProtocol {
 
   private let property: Property<Value>
 
