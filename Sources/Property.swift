@@ -119,7 +119,6 @@ public class Property<Value>: PropertyProtocol, SubjectProtocol, BindableProtoco
   }
 }
 
-
 /// Represents mutable state that can be observed as a signal of events.
 public final class AnyProperty<Value>: PropertyProtocol, SignalProtocol, Codable {
 
