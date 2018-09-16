@@ -2,7 +2,6 @@
 
 [![Platform](https://img.shields.io/cocoapods/p/ReactiveKit.svg?style=flat)](http://cocoadocs.org/docsets/ReactiveKit/)
 [![Build Status](https://travis-ci.org/DeclarativeHub/ReactiveKit.svg?branch=master)](https://travis-ci.org/DeclarativeHub/ReactiveKit)
-[![Join Us on Gitter](https://img.shields.io/badge/GITTER-join%20chat-blue.svg)](https://gitter.im/ReactiveKit/General)
 [![Twitter](https://img.shields.io/badge/twitter-@srdanrasic-red.svg?style=flat)](https://twitter.com/srdanrasic)
 
 __ReactiveKit__ is a lightweight Swift framework for reactive and functional reactive programming. With just over 2000 lines of code it enables you to get into reactive world today.
@@ -1390,8 +1389,7 @@ let package = Package(
 
 ## Communication
 
-* If you'd like to ask a general question, use Stack Overflow or Github issues.
-* If you'd like to ask a quick question or chat about the project, try [Gitter](https://gitter.im/ReactiveKit/General).
+* If you'd like to ask a general question, open an issue.
 * If you have found a bug, open an issue or do a pull request with the fix.
 * If you have a feature request, open an issue.
 * If you want to contribute, submit a pull request (include unit tests).
