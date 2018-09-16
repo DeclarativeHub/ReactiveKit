@@ -24,6 +24,11 @@
 
 import Foundation
 
+enum PropertyError: Error {
+  case decodingFailed
+  case encodingFailed
+}
+
 /// Represents mutable state that can be observed as a signal of events.
 public protocol PropertyProtocol {
   associatedtype ProperyElement
@@ -31,7 +36,7 @@ public protocol PropertyProtocol {
 }
 
 /// Represents mutable state that can be observed as a signal of events.
-public class Property<Value>: PropertyProtocol, SubjectProtocol, BindableProtocol, DisposeBagProvider {
+public class Property<Value>: PropertyProtocol, SubjectProtocol, BindableProtocol, DisposeBagProvider, Codable {
 
   private var _value: Value
   private let subject = PublishSubject<Value, NoError>()
@@ -44,6 +49,22 @@ public class Property<Value>: PropertyProtocol, SubjectProtocol, BindableProtoco
 
   public var bag: DisposeBag {
     return subject.disposeBag
+  }
+  
+  public required convenience init(from decoder: Decoder) throws {
+    if let type = Value.self as? Decodable.Type, let decodable = try type.init(from: decoder) as? Value {
+      self.init(decodable)
+    } else {
+      throw PropertyError.decodingFailed
+    }
+  }
+  
+  public func encode(to encoder: Encoder) throws {
+    if let value  = _value as? Encodable {
+      try value.encode(to: encoder)
+    } else {
+      throw PropertyError.encodingFailed
+    }
   }
 
   /// Underlying value. Changing it emits `.next` event with new value.
@@ -99,7 +120,7 @@ public class Property<Value>: PropertyProtocol, SubjectProtocol, BindableProtoco
 }
 
 /// Represents mutable state that can be observed as a signal of events.
-public final class AnyProperty<Value>: PropertyProtocol, SignalProtocol {
+public final class AnyProperty<Value>: PropertyProtocol, SignalProtocol, Codable {
 
   private let property: Property<Value>
 
