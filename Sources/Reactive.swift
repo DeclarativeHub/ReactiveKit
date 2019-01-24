@@ -51,12 +51,12 @@ public protocol ReactiveExtensionsProvider: class {}
 public extension ReactiveExtensionsProvider {
 
   /// Reactive extensions of `self`.
-  public var reactive: Reactive<Self> {
+  var reactive: Reactive<Self> {
     return Reactive(self)
   }
 
   /// Reactive extensions of `Self`.
-  public static var reactive: Reactive<Self>.Type {
+  static var reactive: Reactive<Self>.Type {
     return Reactive<Self>.self
   }
 }

@@ -85,7 +85,7 @@ extension SignalProtocol {
 public extension SignalProtocol {
 
   /// Create a signal that emits given element and then completes.
-  public static func just(_ element: Element) -> Signal<Element, Error> {
+  static func just(_ element: Element) -> Signal<Element, Error> {
     return Signal { observer in
       observer.next(element)
       observer.completed()
@@ -94,7 +94,7 @@ public extension SignalProtocol {
   }
 
   /// Create a signal that emits given sequence of elements and then completes.
-  public static func sequence<S: Sequence>(_ sequence: S) -> Signal<Element, Error> where S.Iterator.Element == Element {
+  static func sequence<S: Sequence>(_ sequence: S) -> Signal<Element, Error> where S.Iterator.Element == Element {
     return Signal { observer in
       sequence.forEach(observer.next)
       observer.completed()
@@ -103,7 +103,7 @@ public extension SignalProtocol {
   }
 
   /// Create a signal that completes without emitting any elements.
-  public static func completed() -> Signal<Element, Error> {
+  static func completed() -> Signal<Element, Error> {
     return Signal { observer in
       observer.completed()
       return NonDisposable.instance
@@ -111,7 +111,7 @@ public extension SignalProtocol {
   }
 
   /// Create a signal that just terminates with the given error.
-  public static func failed(_ error: Error) -> Signal<Element, Error> {
+  static func failed(_ error: Error) -> Signal<Element, Error> {
     return Signal { observer in
       observer.failed(error)
       return NonDisposable.instance
@@ -119,14 +119,14 @@ public extension SignalProtocol {
   }
 
   /// Create a signal that never completes.
-  public static func never() -> Signal<Element, Error> {
+  static func never() -> Signal<Element, Error> {
     return Signal { observer in
       return NonDisposable.instance
     }
   }
 
   /// Create a signal that emits an integer every `interval` time on a given dispatch queue.
-  public static func interval(_ interval: Double, queue: DispatchQueue = DispatchQueue(label: "com.reactivekit.interval")) -> Signal<Int, Error> {
+  static func interval(_ interval: Double, queue: DispatchQueue = DispatchQueue(label: "com.reactivekit.interval")) -> Signal<Int, Error> {
     return Signal { observer in
       var number = 0
       var dispatch: (() -> Void)!
@@ -145,7 +145,7 @@ public extension SignalProtocol {
   }
 
   /// Create a signal that emits given element after `time` time on a given queue.
-  public static func timer(element: Element, time: Double, queue: DispatchQueue = DispatchQueue(label: "com.reactivekit.timer")) -> Signal<Element, Error> {
+  static func timer(element: Element, time: Double, queue: DispatchQueue = DispatchQueue(label: "com.reactivekit.timer")) -> Signal<Element, Error> {
     return Signal { observer in
       let disposable = SimpleDisposable()
       queue.after(when: time) {
@@ -163,12 +163,12 @@ public extension SignalProtocol {
 public extension SignalProtocol {
 
   @available(*, deprecated, renamed: "buffer(ofSize:)")
-  public func buffer(size: Int) -> Signal<[Element], Error> {
+  func buffer(size: Int) -> Signal<[Element], Error> {
     return buffer(ofSize: size)
   }
 
   /// Batch the elements into arrays of given size.
-  public func buffer(ofSize size: Int) -> Signal<[Element], Error> {
+  func buffer(ofSize size: Int) -> Signal<[Element], Error> {
     return Signal { observer in
       var buffer: [Element] = []
       return self.observe { event in
@@ -189,13 +189,13 @@ public extension SignalProtocol {
   }
 
   @available(*, deprecated, renamed: "compactMap(_:)")
-  public func flatMap<U>(_ transform: @escaping (Element) -> U?) -> Signal<U, Error> {
+  func flatMap<U>(_ transform: @escaping (Element) -> U?) -> Signal<U, Error> {
     return compactMap(transform)
   }
 
   /// Maps each element into an optional type and propagates unwrapped .some results.
   /// Shorthand for ```map().ignoreNil()```.
-  public func compactMap<U>(_ transform: @escaping (Element) -> U?) -> Signal<U, Error> {
+  func compactMap<U>(_ transform: @escaping (Element) -> U?) -> Signal<U, Error> {
     return Signal { observer in
       return self.observe { event in
         switch event {
@@ -213,27 +213,27 @@ public extension SignalProtocol {
   }
 
   /// Map each event into a signal and then flatten inner signals.
-  public func flatMap<O: SignalProtocol>(_ strategy: FlattenStrategy, _ transform: @escaping (Element) -> O) -> Signal<O.Element, Error> where O.Error == Error {
+  func flatMap<O: SignalProtocol>(_ strategy: FlattenStrategy, _ transform: @escaping (Element) -> O) -> Signal<O.Element, Error> where O.Error == Error {
     return map(transform).flatten(strategy)
   }
 
   /// Map each event into a signal and then flatten inner signals.
-  public func flatMapLatest<O: SignalProtocol>(_ transform: @escaping (Element) -> O) -> Signal<O.Element, Error> where O.Error == Error {
+  func flatMapLatest<O: SignalProtocol>(_ transform: @escaping (Element) -> O) -> Signal<O.Element, Error> where O.Error == Error {
     return flatMap(.latest, transform)
   }
 
   /// Map each event into a signal and then flatten inner signals.
-  public func flatMapMerge<O: SignalProtocol>(_ transform: @escaping (Element) -> O) -> Signal<O.Element, Error> where O.Error == Error {
+  func flatMapMerge<O: SignalProtocol>(_ transform: @escaping (Element) -> O) -> Signal<O.Element, Error> where O.Error == Error {
     return flatMap(.merge, transform)
   }
 
   /// Map each event into a signal and then flatten inner signals.
-  public func flatMapConcat<O: SignalProtocol>(_ transform: @escaping (Element) -> O) -> Signal<O.Element, Error> where O.Error == Error {
+  func flatMapConcat<O: SignalProtocol>(_ transform: @escaping (Element) -> O) -> Signal<O.Element, Error> where O.Error == Error {
     return flatMap(.concat, transform)
   }
 
   /// Map failure event into another operation and continue with that operation. Also called `catch`.
-  public func flatMapError<S: SignalProtocol>(_ recover: @escaping (Error) -> S) -> Signal<Element, S.Error> where S.Element == Element {
+  func flatMapError<S: SignalProtocol>(_ recover: @escaping (Error) -> S) -> Signal<Element, S.Error> where S.Element == Element {
     return Signal { observer in
       let serialDisposable = SerialDisposable(otherDisposable: nil)
 
@@ -253,7 +253,7 @@ public extension SignalProtocol {
   }
 
   /// Transform each element by applying `transform` on it.
-  public func map<U>(_ transform: @escaping (Element) -> U) -> Signal<U, Error> {
+  func map<U>(_ transform: @escaping (Element) -> U) -> Signal<U, Error> {
     return Signal { observer in
       return self.observe { event in
         switch event {
@@ -269,7 +269,7 @@ public extension SignalProtocol {
   }
 
   /// Transform error by applying `transform` on it.
-  public func mapError<F>(_ transform: @escaping (Error) -> F) -> Signal<Element, F> {
+  func mapError<F>(_ transform: @escaping (Error) -> F) -> Signal<Element, F> {
     return Signal { observer in
       return self.observe { event in
         switch event {
@@ -285,18 +285,18 @@ public extension SignalProtocol {
   }
 
   /// Replace all emitted elements with the given element.
-  public func replace<T>(with element: T) -> Signal<T, Error> {
+  func replace<T>(with element: T) -> Signal<T, Error> {
     return map { _ in element }
   }
 
   /// Map elements to Void.
-  public func eraseType() -> Signal<Void, Error> {
+  func eraseType() -> Signal<Void, Error> {
     return map { _ in }
   }
 
   /// Apply `combine` to each element starting with `initial` and emit each
   /// intermediate result. This differs from `reduce` which emits only final result.
-  public func scan<U>(_ initial: U, _ combine: @escaping (U, Element) -> U) -> Signal<U, Error> {
+  func scan<U>(_ initial: U, _ combine: @escaping (U, Element) -> U) -> Signal<U, Error> {
     return Signal { observer in
       var accumulator = initial
       observer.next(accumulator)
@@ -315,7 +315,7 @@ public extension SignalProtocol {
   }
 
   /// Transform each element by applying `transform` on it.
-  public func tryMap<U>(_ transform: @escaping (Element) -> Result<U, Error>) -> Signal<U, Error> {
+  func tryMap<U>(_ transform: @escaping (Element) -> Result<U, Error>) -> Signal<U, Error> {
     return Signal { observer in
       return self.observe { event in
         switch event {
@@ -336,7 +336,7 @@ public extension SignalProtocol {
   }
 
   /// Convert the receiver to a concrete signal.
-  public func toSignal() -> Signal<Element, Error> {
+  func toSignal() -> Signal<Element, Error> {
     if let signal = self as? Signal<Element, Error> {
       return signal
     } else {
@@ -347,19 +347,19 @@ public extension SignalProtocol {
   }
 
   /// Branches out error into another signal.
-  public func branchOutError() -> (Signal<Element, NoError>, Signal<Error, NoError>) {
+  func branchOutError() -> (Signal<Element, NoError>, Signal<Error, NoError>) {
     let shared = shareReplay()
     return (shared.suppressError(logging: false), shared.toErrorSignal())
   }
 
   /// Branches out mapped error into another signal.
-  public func branchOutError<F>(_ mapError: @escaping (Error) -> F) -> (Signal<Element, NoError>, Signal<F, NoError>) {
+  func branchOutError<F>(_ mapError: @escaping (Error) -> F) -> (Signal<Element, NoError>, Signal<F, NoError>) {
     let shared = shareReplay()
     return (shared.suppressError(logging: false), shared.toErrorSignal().map(mapError))
   }
 
   /// Converts signal into non-failable signal by suppressing the error.
-  public func suppressError(logging: Bool, file: String = #file, line: Int = #line) -> Signal<Element, NoError> {
+  func suppressError(logging: Bool, file: String = #file, line: Int = #line) -> Signal<Element, NoError> {
     return Signal { observer in
       return self.observe { event in
         switch event {
@@ -378,12 +378,12 @@ public extension SignalProtocol {
   }
 
   /// Converts signal into non-failable signal by feeding suppressed error into a subject.
-  public func suppressAndFeedError<S: SubjectProtocol>(into listener: S, logging: Bool = true, file: String = #file, line: Int = #line) -> Signal<Element, NoError> where S.Element == Error {
+  func suppressAndFeedError<S: SubjectProtocol>(into listener: S, logging: Bool = true, file: String = #file, line: Int = #line) -> Signal<Element, NoError> where S.Element == Error {
     return feedError(into: listener).suppressError(logging: logging, file: file, line: line)
   }
 
   /// Recovers the signal by propagating default element if error happens.
-  public func recover(with element: Element) -> Signal<Element, NoError> {
+  func recover(with element: Element) -> Signal<Element, NoError> {
     return Signal { observer in
       return self.observe { event in
         switch event {
@@ -400,7 +400,7 @@ public extension SignalProtocol {
   }
 
   /// Maps failable signal into a non-failable signal of errors. Ignores `.next` events.
-  public func toErrorSignal() -> Signal<Error, NoError> {
+  func toErrorSignal() -> Signal<Error, NoError> {
     return Signal { observer in
       return self.observe { taskEvent in
         switch taskEvent {
@@ -416,12 +416,12 @@ public extension SignalProtocol {
   }
 
   @available(*, deprecated, renamed: "window(ofSize:)")
-  public func window(size: Int) -> Signal<Signal<Element, Error>, Error> {
+  func window(size: Int) -> Signal<Signal<Element, Error>, Error> {
     return window(ofSize: size)
   }
 
   /// Batch each `size` elements into another signal.
-  public func window(ofSize size: Int) -> Signal<Signal<Element, Error>, Error> {
+  func window(ofSize size: Int) -> Signal<Signal<Element, Error>, Error> {
     return buffer(ofSize: size).map { Signal.sequence($0) }
   }
 }
@@ -499,7 +499,7 @@ extension SignalProtocol where Element: Sequence {
 public extension SignalProtocol {
 
   /// Emit an element only if `interval` time passes without emitting another element.
-  public func debounce(interval: Double, on queue: DispatchQueue = DispatchQueue(label: "com.reactivekit.debounce")) -> Signal<Element, Error> {
+  func debounce(interval: Double, on queue: DispatchQueue = DispatchQueue(label: "com.reactivekit.debounce")) -> Signal<Element, Error> {
     return Signal { observer in
       var timerSubscription: Disposable? = nil
       var previousElement: Element? = nil
@@ -528,7 +528,7 @@ public extension SignalProtocol {
   }
 
   /// Emit first element and then all elements that are not equal to their predecessor(s).
-  public func distinct(areDistinct: @escaping (Element, Element) -> Bool) -> Signal<Element, Error> {
+  func distinct(areDistinct: @escaping (Element, Element) -> Bool) -> Signal<Element, Error> {
     return Signal { observer in
       var lastElement: Element? = nil
       return self.observe { event in
@@ -547,7 +547,7 @@ public extension SignalProtocol {
   }
 
   /// Emit only element at given index if such element is produced.
-  public func element(at index: Int) -> Signal<Element, Error> {
+  func element(at index: Int) -> Signal<Element, Error> {
     return Signal { observer in
       var currentIndex = 0
       return self.observe { event in
@@ -567,7 +567,7 @@ public extension SignalProtocol {
   }
 
   /// Emit only elements that pass `include` test.
-  public func filter(_ isIncluded: @escaping (Element) -> Bool) -> Signal<Element, Error> {
+  func filter(_ isIncluded: @escaping (Element) -> Bool) -> Signal<Element, Error> {
     return Signal { observer in
       return self.observe { event in
         switch event {
@@ -584,7 +584,7 @@ public extension SignalProtocol {
 
   /// Filters the signal by executing `isIncluded` in each element and
   /// propagates that element only if the returned signal fires `true`.
-  public func filter(_ isIncluded: @escaping (Element) -> SafeSignal<Bool>) -> Signal<Element, Error> {
+  func filter(_ isIncluded: @escaping (Element) -> SafeSignal<Bool>) -> Signal<Element, Error> {
     return flatMapLatest { element -> Signal<Element, Error> in
       return isIncluded(element)
         .first()
@@ -601,17 +601,17 @@ public extension SignalProtocol {
   }
 
   /// Emit only the first element generated by the signal and then complete.
-  public func first() -> Signal<Element, Error> {
+  func first() -> Signal<Element, Error> {
     return take(first: 1)
   }
 
   /// Ignore all elements (just propagate terminal events).
-  public func ignoreElements() -> Signal<Element, Error> {
+  func ignoreElements() -> Signal<Element, Error> {
     return filter { _ in false }
   }
   
   /// Ignore all terminal events (just propagate next events).
-  public func ignoreTerminal() -> Signal<Element, Error> {
+  func ignoreTerminal() -> Signal<Element, Error> {
     return Signal { observer in
       return self.observe { event in
         if case .next(let element) = event {
@@ -622,12 +622,12 @@ public extension SignalProtocol {
   }
 
   /// Emit only last element generated by the signal and then complete.
-  public func last() -> Signal<Element, Error> {
+  func last() -> Signal<Element, Error> {
     return take(last: 1)
   }
 
   /// Periodically sample the signal and emit latest element from each interval.
-  public func sample(interval: Double, on queue: DispatchQueue = DispatchQueue(label: "com.reactivekit.sample")) -> Signal<Element, Error> {
+  func sample(interval: Double, on queue: DispatchQueue = DispatchQueue(label: "com.reactivekit.sample")) -> Signal<Element, Error> {
     return Signal { observer in
       let serialDisposable = SerialDisposable(otherDisposable: nil)
       var latestElement: Element? = nil
@@ -659,7 +659,7 @@ public extension SignalProtocol {
   }
 
   /// Suppress first `count` elements generated by the signal.
-  public func skip(first count: Int) -> Signal<Element, Error> {
+  func skip(first count: Int) -> Signal<Element, Error> {
     return Signal { observer in
       var count = count
       return self.observe { event in
@@ -678,7 +678,7 @@ public extension SignalProtocol {
   }
 
   /// Suppress last `count` elements generated by the signal.
-  public func skip(last count: Int) -> Signal<Element, Error> {
+  func skip(last count: Int) -> Signal<Element, Error> {
     guard count > 0 else { return self.toSignal() }
     return Signal { observer in
       var buffer: [Element] = []
@@ -697,7 +697,7 @@ public extension SignalProtocol {
   }
 
   /// Suppress elements for first `interval` seconds.
-  public func skip(interval: Double) -> Signal<Element, Error> {
+  func skip(interval: Double) -> Signal<Element, Error> {
     return Signal { observer in
       let startTime = Date().addingTimeInterval(interval)
       return self.observe { event in
@@ -714,7 +714,7 @@ public extension SignalProtocol {
   }
 
   /// Emit only first `count` elements of the signal and then complete.
-  public func take(first count: Int) -> Signal<Element, Error> {
+  func take(first count: Int) -> Signal<Element, Error> {
     return Signal { observer in
       guard count > 0 else {
         observer.completed()
@@ -744,7 +744,7 @@ public extension SignalProtocol {
   }
 
   /// Emit only last `count` elements of the signal and then complete.
-  public func take(last count: Int) -> Signal<Element, Error> {
+  func take(last count: Int) -> Signal<Element, Error> {
     return Signal { observer in
       var values: [Element] = []
       values.reserveCapacity(count)
@@ -771,7 +771,7 @@ public extension SignalProtocol {
 
   /// Emit elements of the receiver until the given signal sends an event (of any kind)
   /// and then completes the receiver (subsequent events on the receiver are ignored).
-  public func take<S: SignalProtocol>(until signal: S) -> Signal<Element, Error> {
+  func take<S: SignalProtocol>(until signal: S) -> Signal<Element, Error> {
     return Signal { observer in
       let disposable = CompositeDisposable()
       
@@ -795,7 +795,7 @@ public extension SignalProtocol {
   }
 
   /// Throttle the signal to emit at most one element per given `seconds` interval.
-  public func throttle(seconds: Double) -> Signal<Element, Error> {
+  func throttle(seconds: Double) -> Signal<Element, Error> {
     return Signal { observer in
       var lastEventTime: DispatchTime?
       return self.observe { event in
@@ -817,7 +817,7 @@ public extension SignalProtocol {
 public extension SignalProtocol where Element: Equatable {
 
   /// Emit first element and then all elements that are not equal to their predecessor(s).
-  public func distinct() -> Signal<Element, Error> {
+  func distinct() -> Signal<Element, Error> {
     return distinct(areDistinct: !=)
   }
 }
@@ -836,7 +836,7 @@ public extension SignalProtocol where Element: OptionalProtocol, Element.Wrapped
 public extension SignalProtocol where Element: OptionalProtocol {
 
   /// Suppress all `nil`-elements.
-  public func ignoreNil() -> Signal<Element.Wrapped, Error> {
+  func ignoreNil() -> Signal<Element.Wrapped, Error> {
     return Signal { observer in
       return self.observe { event in
         switch event {
@@ -854,7 +854,7 @@ public extension SignalProtocol where Element: OptionalProtocol {
   }
 
   /// Replace all `nil`-elements with the provided replacement.
-  public func replaceNil(with replacement: Element.Wrapped) -> Signal<Element.Wrapped, Error> {
+  func replaceNil(with replacement: Element.Wrapped) -> Signal<Element.Wrapped, Error> {
     return Signal { observer in
       return self.observe { event in
         switch event {
@@ -1279,10 +1279,10 @@ public enum FlattenStrategy {
 
 public extension SignalProtocol where Element: SignalProtocol, Element.Error == Error {
 
-  public typealias InnerElement = Element.Element
+  typealias InnerElement = Element.Element
 
   /// Flatten the signal with the given strategy.
-  public func flatten(_ strategy: FlattenStrategy) -> Signal<InnerElement, Error> {
+  func flatten(_ strategy: FlattenStrategy) -> Signal<InnerElement, Error> {
     switch strategy {
     case .merge:
       return merge()
@@ -1294,7 +1294,7 @@ public extension SignalProtocol where Element: SignalProtocol, Element.Error == 
   }
 
   /// Flatten the signal by observing all inner signals and propagating events from each one as they arrive.
-  public func merge() -> Signal<InnerElement, Error> {
+  func merge() -> Signal<InnerElement, Error> {
     return Signal { observer in
       let lock = NSRecursiveLock(name: "com.reactivekit.merge")
       let compositeDisposable = CompositeDisposable()
@@ -1337,7 +1337,7 @@ public extension SignalProtocol where Element: SignalProtocol, Element.Error == 
   }
 
   /// Flatten the signal by observing and propagating emissions only from latest signal.
-  public func switchToLatest() -> Signal<InnerElement, Error> {
+  func switchToLatest() -> Signal<InnerElement, Error> {
     return Signal { observer in
       let serialDisposable = SerialDisposable(otherDisposable: nil)
       let compositeDisposable = CompositeDisposable([serialDisposable])
@@ -1384,7 +1384,7 @@ public extension SignalProtocol where Element: SignalProtocol, Element.Error == 
 
   /// Flatten the signal by sequentially observing inner signals in order in which they
   /// arrive, starting next observation only after previous one completes.
-  public func concat() -> Signal<InnerElement, Error> {
+  func concat() -> Signal<InnerElement, Error> {
     return Signal { observer in
       let lock = NSRecursiveLock(name: "com.reactivekit.concat")
       let serialDisposable = SerialDisposable(otherDisposable: nil)

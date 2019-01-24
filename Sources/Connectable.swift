@@ -64,7 +64,7 @@ public extension ConnectableSignalProtocol {
 
   /// Convert connectable signal into the ordinary signal by calling `connect`
   /// on the first observation and calling dispose when number of observers goes down to zero.
-  public func refCount() -> Signal<Element, Error> {
+  func refCount() -> Signal<Element, Error> {
     let lock = NSRecursiveLock()
     var count = 0
     var connectionDisposable: Disposable? = nil

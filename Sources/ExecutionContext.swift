@@ -90,7 +90,7 @@ public struct ExecutionContext {
 public extension DispatchQueue {
 
   /// Creates ExecutionContext from the queue.
-  public var context: ExecutionContext {
+  var context: ExecutionContext {
     return ExecutionContext(context)
   }
 
@@ -99,13 +99,13 @@ public extension DispatchQueue {
   }
 
   /// Schedule given block for execution after given interval passes.
-  public func after(when interval: Double, block: @escaping () -> Void) {
+  func after(when interval: Double, block: @escaping () -> Void) {
     asyncAfter(deadline: .now() + interval, execute: block)
   }
 
   /// Schedule given block for execution after given interval passes.
   /// Scheduled execution can be cancelled by disposing the returned disposable.
-  public func disposableAfter(when interval: Double, block: @escaping () -> Void) -> Disposable {
+  func disposableAfter(when interval: Double, block: @escaping () -> Void) -> Disposable {
     let disposable = SimpleDisposable()
     after(when: interval) {
       if !disposable.isDisposed {

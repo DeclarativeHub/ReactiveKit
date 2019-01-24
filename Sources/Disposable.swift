@@ -267,7 +267,7 @@ public extension Disposable {
 
   /// Put the disposable in the given bag. Disposable will be disposed when
   /// the bag is either deallocated or disposed.
-  public func dispose(in disposeBag: DisposeBagProtocol) {
+  func dispose(in disposeBag: DisposeBagProtocol) {
     disposeBag.add(disposable: self)
   }
 }

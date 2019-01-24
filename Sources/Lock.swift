@@ -32,7 +32,7 @@ public protocol Lock {
 
 public extension Lock {
 
-  public func atomic<T>(body: () -> T) -> T {
+  func atomic<T>(body: () -> T) -> T {
     lock(); defer { unlock() }
     return body()
   }
