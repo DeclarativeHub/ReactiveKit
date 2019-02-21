@@ -6,6 +6,7 @@ jobs:
         - stage: "Xcode"
           name: "Run tests on iOS"
           script: xcrun xcodebuild test -destination "platform=iOS Simulator,OS=12.2,name=iPhone X" -workspace "ReactiveKit.xcworkspace" -scheme "ReactiveKit-iOS"
+          after_success: 'bash <(curl -s https://codecov.io/bash)'
         -
           name: "Build for macOS"
           script: xcrun xcodebuild build -destination "platform=macOS" -workspace "ReactiveKit.xcworkspace" -scheme "ReactiveKit-macOS"
@@ -23,6 +24,3 @@ jobs:
         - stage: "CocoaPods"
           name: "Lint Podspec"
           script: pod lib lint
-
-after_success:
-    - 'bash <(curl -s https://codecov.io/bash)'
