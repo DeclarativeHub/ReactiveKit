@@ -31,7 +31,7 @@ public protocol PropertyProtocol {
 }
 
 /// Represents mutable state that can be observed as a signal of events.
-public class Property<Value>: PropertyProtocol, SubjectProtocol, BindableProtocol, DisposeBagProvider {
+public final class Property<Value>: PropertyProtocol, SubjectProtocol, BindableProtocol, DisposeBagProvider {
 
   private var _value: Value
   private let subject = PublishSubject<Value, NoError>()
