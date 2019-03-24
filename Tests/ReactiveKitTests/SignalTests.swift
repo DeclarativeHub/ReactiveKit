@@ -95,9 +95,9 @@ class SignalTests: XCTestCase {
     }
 
     func testBuffer() {
-        let operation = Signal<Int, TestError>(sequence: [1,2,3,4,5])
-        let buffered = operation.buffer(ofSize: 2)
-        buffered.expectComplete(after: [[1, 2], [3, 4]])
+        SafeSignal(sequence: [1, 2, 3]).buffer(ofSize: 1).expectComplete(after: [[1], [2], [3]])
+        SafeSignal(sequence: [1, 2, 3, 4]).buffer(ofSize: 2).expectComplete(after: [[1, 2], [3, 4]])
+        SafeSignal(sequence: [1, 2, 3, 4, 5]).buffer(ofSize: 2).expectComplete(after: [[1, 2], [3, 4]])
     }
 
     func testMap() {
