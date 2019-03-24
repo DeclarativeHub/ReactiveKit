@@ -30,17 +30,8 @@ public protocol OptionalProtocol {
 }
 
 extension Optional: OptionalProtocol {
+
     public var _unbox: Optional<Wrapped> {
         return self
     }
-}
-
-func ==<O: OptionalProtocol>(lhs: O, rhs: O) -> Bool
-    where O.Wrapped: Equatable {
-        return lhs._unbox == rhs._unbox
-}
-
-func !=<O: OptionalProtocol>(lhs: O, rhs: O) -> Bool
-    where O.Wrapped: Equatable {
-        return !(lhs == rhs)
 }
