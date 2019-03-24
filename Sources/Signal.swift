@@ -179,6 +179,13 @@ extension Signal {
     public init<S: Sequence>(flattening signals: S, strategy: FlattenStrategy) where S.Element: SignalProtocol, S.Element.Element == Element, S.Element.Error == Error {
         self = Signal<S.Element, Error>(sequence: signals).flatten(strategy)
     }
+
+    /// Combine an array of signals into one. See `combineLatest(with:)` for more info.
+    public init<S: Collection>(combiningLatest signals: S, combine: @escaping ([S.Element.Element]) -> Element) where S.Element: SignalProtocol, S.Element.Error == Error {
+        self = signals.dropFirst().reduce(signals.first?.map { [$0] }) { (running, new) in
+            return running?.combineLatest(with: new) { $0 + [$1] }
+        }?.map(combine) ?? Signal.completed()
+    }
 }
 
 extension Signal where Error == Swift.Error {

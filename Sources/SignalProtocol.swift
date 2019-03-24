@@ -1653,33 +1653,3 @@ extension SignalProtocol where Error == Never {
         return compactMap { $0.error }
     }
 }
-
-// MARK: Standalone functions
-
-/// Combine an array of signals into one. See `combineLatest(with:)` for more info.
-public func combineLatest<Element, Result, Error>(_ signals: [Signal<Element, Error>], combine: @escaping ([Element]) -> Result) -> Signal<Result, Error> {
-    return Signal { observer in
-        let disposable = CompositeDisposable()
-        var elements = Array<Element?>(repeating: nil, count: signals.count)
-        var completions = Array(repeating: false, count: signals.count)
-        for (idx, signal) in signals.enumerated() {
-            disposable += signal.observe { event in
-                switch event {
-                case .next(let element):
-                    elements[idx] = element
-                    if elements.reduce(true, { $0 && ($1 != nil) }) {
-                        observer.next(combine(elements.map { $0! }))
-                    }
-                case .failed(let error):
-                    observer.failed(error)
-                case .completed:
-                    completions[idx] = true
-                    if completions.reduce(true, { $0 && $1 }) {
-                        observer.completed()
-                    }
-                }
-            }
-        }
-        return disposable
-    }
-}

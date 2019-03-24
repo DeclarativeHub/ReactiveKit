@@ -70,3 +70,8 @@ extension SignalProtocol {
 public func merge<Element, Error>(_ signals: [Signal<Element, Error>]) -> Signal<Element, Error> {
     return Signal(sequence: signals).flatten(.merge)
 }
+
+@available(*, deprecated, renamed: "Signal(combiningLatest:combine:)")
+public func combineLatest<Element, Result, Error>(_ signals: [Signal<Element, Error>], combine: @escaping ([Element]) -> Result) -> Signal<Result, Error> {
+    return Signal(combiningLatest: signals, combine: combine)
+}
