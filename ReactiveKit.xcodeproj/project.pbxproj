@@ -67,10 +67,10 @@
 		EC4C28141E167EED0055D256 /* Typealiases.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4C28111E167EED0055D256 /* Typealiases.swift */; };
 		EC4C28151E167EED0055D256 /* Typealiases.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4C28111E167EED0055D256 /* Typealiases.swift */; };
 		EC6C0FC71DB4A78E00C3880B /* PropertyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6C0FC51DB4A76A00C3880B /* PropertyTests.swift */; };
-		EC7A6F891D3CCF5B00F9EF4A /* NoError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7A6F881D3CCF5B00F9EF4A /* NoError.swift */; };
-		EC7A6F8A1D3CCF5B00F9EF4A /* NoError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7A6F881D3CCF5B00F9EF4A /* NoError.swift */; };
-		EC7A6F8B1D3CCF5B00F9EF4A /* NoError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7A6F881D3CCF5B00F9EF4A /* NoError.swift */; };
-		EC7A6F8C1D3CCF5B00F9EF4A /* NoError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7A6F881D3CCF5B00F9EF4A /* NoError.swift */; };
+		EC7A6F891D3CCF5B00F9EF4A /* Deprecations.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7A6F881D3CCF5B00F9EF4A /* Deprecations.swift */; };
+		EC7A6F8A1D3CCF5B00F9EF4A /* Deprecations.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7A6F881D3CCF5B00F9EF4A /* Deprecations.swift */; };
+		EC7A6F8B1D3CCF5B00F9EF4A /* Deprecations.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7A6F881D3CCF5B00F9EF4A /* Deprecations.swift */; };
+		EC7A6F8C1D3CCF5B00F9EF4A /* Deprecations.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7A6F881D3CCF5B00F9EF4A /* Deprecations.swift */; };
 		EC8706641D3CDC210068B589 /* Subjects.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8A99E41CABD9B50042A6AD /* Subjects.swift */; };
 		EC8706651D3CDCAC0068B589 /* Connectable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16886A191D3168E000D83E39 /* Connectable.swift */; };
 		EC8706661D3CDCE10068B589 /* Bindable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16886A221D31705500D83E39 /* Bindable.swift */; };
@@ -122,7 +122,7 @@
 		EC4C28111E167EED0055D256 /* Typealiases.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Typealiases.swift; path = Sources/Typealiases.swift; sourceTree = SOURCE_ROOT; };
 		EC4E7A6D200173DE002BAEEC /* LinuxMain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinuxMain.swift; sourceTree = "<group>"; };
 		EC6C0FC51DB4A76A00C3880B /* PropertyTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PropertyTests.swift; sourceTree = "<group>"; };
-		EC7A6F881D3CCF5B00F9EF4A /* NoError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NoError.swift; path = Sources/NoError.swift; sourceTree = SOURCE_ROOT; };
+		EC7A6F881D3CCF5B00F9EF4A /* Deprecations.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Deprecations.swift; path = Sources/Deprecations.swift; sourceTree = SOURCE_ROOT; };
 		EC877A861E019E3400A23B51 /* Reactive.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Reactive.swift; path = Sources/Reactive.swift; sourceTree = SOURCE_ROOT; };
 		EC8A99DC1CABD9B50042A6AD /* Disposable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Disposable.swift; path = Sources/Disposable.swift; sourceTree = SOURCE_ROOT; };
 		EC8A99DF1CABD9B50042A6AD /* Observer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Observer.swift; path = Sources/Observer.swift; sourceTree = SOURCE_ROOT; };
@@ -222,13 +222,13 @@
 				EC8A99E41CABD9B50042A6AD /* Subjects.swift */,
 				16886A221D31705500D83E39 /* Bindable.swift */,
 				EC877A861E019E3400A23B51 /* Reactive.swift */,
-				EC7A6F881D3CCF5B00F9EF4A /* NoError.swift */,
 				16F2F5661D6D8A4500B85896 /* Lock.swift */,
 				164189771D2C4E71001D3881 /* Optional.swift */,
 				EC8A99E11CABD9B50042A6AD /* Property.swift */,
 				EC4C28111E167EED0055D256 /* Typealiases.swift */,
 				EC966F1E204B43FA0016B4FC /* LoadingSignal.swift */,
 				EC966F19204B43DF0016B4FC /* LoadingProperty.swift */,
+				EC7A6F881D3CCF5B00F9EF4A /* Deprecations.swift */,
 				ECD102FB1D89B2530086B6A1 /* Tests */,
 			);
 			path = ReactiveKit;
@@ -495,7 +495,7 @@
 				EC877A881E019E3400A23B51 /* Reactive.swift in Sources */,
 				EC966F1B204B43DF0016B4FC /* LoadingProperty.swift in Sources */,
 				165EBE491D27FE8F000E68C8 /* ExecutionContext.swift in Sources */,
-				EC7A6F8A1D3CCF5B00F9EF4A /* NoError.swift in Sources */,
+				EC7A6F8A1D3CCF5B00F9EF4A /* Deprecations.swift in Sources */,
 				EC4C28131E167EED0055D256 /* Typealiases.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -521,7 +521,7 @@
 				EC877A891E019E3400A23B51 /* Reactive.swift in Sources */,
 				EC966F1C204B43DF0016B4FC /* LoadingProperty.swift in Sources */,
 				165EBE481D27FE8E000E68C8 /* ExecutionContext.swift in Sources */,
-				EC7A6F8B1D3CCF5B00F9EF4A /* NoError.swift in Sources */,
+				EC7A6F8B1D3CCF5B00F9EF4A /* Deprecations.swift in Sources */,
 				EC4C28141E167EED0055D256 /* Typealiases.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -547,7 +547,7 @@
 				EC877A8A1E019E3400A23B51 /* Reactive.swift in Sources */,
 				EC966F1D204B43DF0016B4FC /* LoadingProperty.swift in Sources */,
 				165EBE471D27FE8D000E68C8 /* ExecutionContext.swift in Sources */,
-				EC7A6F8C1D3CCF5B00F9EF4A /* NoError.swift in Sources */,
+				EC7A6F8C1D3CCF5B00F9EF4A /* Deprecations.swift in Sources */,
 				EC4C28151E167EED0055D256 /* Typealiases.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -572,7 +572,7 @@
 				EC877A871E019E3400A23B51 /* Reactive.swift in Sources */,
 				165EBE4A1D27FE90000E68C8 /* ExecutionContext.swift in Sources */,
 				EC966F1A204B43DF0016B4FC /* LoadingProperty.swift in Sources */,
-				EC7A6F891D3CCF5B00F9EF4A /* NoError.swift in Sources */,
+				EC7A6F891D3CCF5B00F9EF4A /* Deprecations.swift in Sources */,
 				EC8706651D3CDCAC0068B589 /* Connectable.swift in Sources */,
 				EC4C28121E167EED0055D256 /* Typealiases.swift in Sources */,
 			);

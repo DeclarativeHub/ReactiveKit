@@ -157,7 +157,7 @@ extension LoadingState {
 /// A signal with elements of LoadingState type. Used to represent loading state of a value.
 public typealias LoadingSignal<LoadingValue, LoadingError: Error> = SafeSignal<LoadingState<LoadingValue, LoadingError>>
 
-extension SignalProtocol where Element: LoadingStateProtocol, Error == NoError {
+extension SignalProtocol where Element: LoadingStateProtocol, Error == Never {
     
     public typealias LoadingValue = Element.LoadingValue
     public typealias LoadingError = Element.LoadingError
@@ -228,7 +228,7 @@ extension SignalProtocol where Element: LoadingStateProtocol, Error == NoError {
                 case .completed:
                     observer.completed()
                 case .failed:
-                    break // NoError
+                    break // Never
                 }
             }
         }
@@ -270,7 +270,7 @@ extension SignalProtocol where Element: LoadingStateProtocol, Error == NoError {
                 case .completed:
                     subject.completed()
                 case .failed:
-                    break // NoError
+                    break // Never
                 }
             }
             return CompositeDisposable([d1, d2])
@@ -305,7 +305,7 @@ extension SignalProtocol where Element: LoadingStateProtocol, Error == NoError {
     ///
     /// - parameter loadsAgainOnFailure: `.loading` state that follows a `.failed` state will be kept as `.loading` if `true` is passed. Otherwise it will be mapped into `.reloading`. Default is true.
     ///
-    public func deriveObservedLoadingState(loadsAgainOnFailure: Bool = true) -> Signal<ObservedLoadingState<LoadingValue, LoadingError>, NoError> {
+    public func deriveObservedLoadingState(loadsAgainOnFailure: Bool = true) -> Signal<ObservedLoadingState<LoadingValue, LoadingError>, Never> {
         var previousLoadingState: LoadingState<LoadingValue, LoadingError>? = nil
         var hasProducedNonLoadingState = false
         return Signal { observer in
@@ -332,7 +332,7 @@ extension SignalProtocol where Element: LoadingStateProtocol, Error == NoError {
                 case .completed:
                     observer.completed()
                 case .failed:
-                    break // NoError
+                    break // Never
                 }
             }
         }
@@ -364,17 +364,17 @@ extension LoadingStateListener {
     }
 }
 
-extension SignalProtocol where Element: ObservedLoadingStateProtocol, Error == NoError {
+extension SignalProtocol where Element: ObservedLoadingStateProtocol, Error == Never {
     
     /// Update loading state of the listener on each `.next` (loading state) event.
-    public func updateLoadingState(of listener: (LoadingStateListener & BindingExecutionContextProvider)) -> Signal<ObservedLoadingState<LoadingValue, LoadingError>, NoError> {
+    public func updateLoadingState(of listener: (LoadingStateListener & BindingExecutionContextProvider)) -> Signal<ObservedLoadingState<LoadingValue, LoadingError>, Never> {
         return updateLoadingState(of: listener, context: listener.bindingExecutionContext)
     }
     
     /// Update loading state of the listener on each `.next` (loading state) event.
-    public func updateLoadingState(of listener: LoadingStateListener, context: ExecutionContext) -> Signal<ObservedLoadingState<LoadingValue, LoadingError>, NoError> {
+    public func updateLoadingState(of listener: LoadingStateListener, context: ExecutionContext) -> Signal<ObservedLoadingState<LoadingValue, LoadingError>, Never> {
         
-        let _observe = { (listener: LoadingStateListener?, event: Event<Element, Error>, observer: AtomicObserver<ObservedLoadingState<LoadingValue, LoadingError>, NoError>) in
+        let _observe = { (listener: LoadingStateListener?, event: Event<Element, Error>, observer: AtomicObserver<ObservedLoadingState<LoadingValue, LoadingError>, Never>) in
             switch event {
             case .next(let anyObservedLoadingState):
                 let observedLoadingState = anyObservedLoadingState.asObservedLoadingState
@@ -387,7 +387,7 @@ extension SignalProtocol where Element: ObservedLoadingStateProtocol, Error == N
             case .completed:
                 observer.completed()
             case .failed:
-                break // NoError
+                break // Never
             }
         }
         
@@ -417,7 +417,7 @@ extension SignalProtocol where Element: ObservedLoadingStateProtocol, Error == N
     }
 }
 
-extension SignalProtocol where Element: LoadingStateProtocol, Error == NoError {
+extension SignalProtocol where Element: LoadingStateProtocol, Error == Never {
     
     /// Update loading state of the listener on each `.next` (loading state) event.
     public func updateLoadingState(of listener: (LoadingStateListener & BindingExecutionContextProvider)) -> LoadingSignal<LoadingValue, LoadingError> {

@@ -335,19 +335,19 @@ extension SignalProtocol {
     }
 
     /// Branches out error into another signal.
-    public func branchOutError() -> (Signal<Element, NoError>, Signal<Error, NoError>) {
+    public func branchOutError() -> (Signal<Element, Never>, Signal<Error, Never>) {
         let shared = shareReplay()
         return (shared.suppressError(logging: false), shared.toErrorSignal())
     }
 
     /// Branches out mapped error into another signal.
-    public func branchOutError<F>(_ mapError: @escaping (Error) -> F) -> (Signal<Element, NoError>, Signal<F, NoError>) {
+    public func branchOutError<F>(_ mapError: @escaping (Error) -> F) -> (Signal<Element, Never>, Signal<F, Never>) {
         let shared = shareReplay()
         return (shared.suppressError(logging: false), shared.toErrorSignal().map(mapError))
     }
 
     /// Converts signal into non-failable signal by suppressing the error.
-    public func suppressError(logging: Bool, file: String = #file, line: Int = #line) -> Signal<Element, NoError> {
+    public func suppressError(logging: Bool, file: String = #file, line: Int = #line) -> Signal<Element, Never> {
         return Signal { observer in
             return self.observe { event in
                 switch event {
@@ -366,12 +366,12 @@ extension SignalProtocol {
     }
 
     /// Converts signal into non-failable signal by feeding suppressed error into a subject.
-    public func suppressAndFeedError<S: SubjectProtocol>(into listener: S, logging: Bool = true, file: String = #file, line: Int = #line) -> Signal<Element, NoError> where S.Element == Error {
+    public func suppressAndFeedError<S: SubjectProtocol>(into listener: S, logging: Bool = true, file: String = #file, line: Int = #line) -> Signal<Element, Never> where S.Element == Error {
         return feedError(into: listener).suppressError(logging: logging, file: file, line: line)
     }
 
     /// Recovers the signal by propagating default element if error happens.
-    public func recover(with element: Element) -> Signal<Element, NoError> {
+    public func recover(with element: Element) -> Signal<Element, Never> {
         return Signal { observer in
             return self.observe { event in
                 switch event {
@@ -388,7 +388,7 @@ extension SignalProtocol {
     }
 
     /// Maps failable signal into a non-failable signal of errors. Ignores `.next` events.
-    public func toErrorSignal() -> Signal<Error, NoError> {
+    public func toErrorSignal() -> Signal<Error, Never> {
         return Signal { observer in
             return self.observe { taskEvent in
                 switch taskEvent {
@@ -1013,7 +1013,7 @@ extension SignalProtocol {
     /// Retries the failed signal when other signal produces an element.
     /// - parameter other: Signal that triggers a retry attempt.
     /// - parameter shouldRetry: Retries only if this returns true for a given error. Defaults to always returning true.
-    public func retry<S: SignalProtocol>(when other: S, if shouldRetry: @escaping (Error) -> Bool = { _ in true }) -> Signal<Element, Error> where S.Error == NoError {
+    public func retry<S: SignalProtocol>(when other: S, if shouldRetry: @escaping (Error) -> Bool = { _ in true }) -> Signal<Element, Error> where S.Error == Never {
         return Signal { observer in
             let serialDisposable = SerialDisposable(otherDisposable: nil)
             var attempt: (() -> Void)?
@@ -1122,7 +1122,7 @@ extension SignalProtocol {
     }
 
     /// Replays the latest element when other signal fires an element.
-    public func replayLatest<S: SignalProtocol>(when other: S) -> Signal<Element, Error> where S.Error == NoError {
+    public func replayLatest<S: SignalProtocol>(when other: S) -> Signal<Element, Error> where S.Error == Never {
         return Signal { observer in
             var latest: Element? = nil
             let disposable = CompositeDisposable()
@@ -1182,7 +1182,7 @@ extension SignalProtocol {
     }
 
     /// Wrap events into elements.
-    public func materialize() -> Signal<Event<Element, Error>, NoError> {
+    public func materialize() -> Signal<Event<Element, Error>, Never> {
         return Signal { observer in
             return self.observe { event in
                 switch event {
@@ -1614,9 +1614,9 @@ extension SignalProtocol {
     }
 }
 
-extension SignalProtocol where Error == NoError {
+extension SignalProtocol where Error == Never {
 
-    /// Safe error casting from NoError to some Error type.
+    /// Safe error casting from Never to some Error type.
     public func castError<E>() -> Signal<Element, E> {
         return Signal { observer in
             return self.observe { event in
@@ -1626,7 +1626,7 @@ extension SignalProtocol where Error == NoError {
                 case .completed:
                     observer.completed()
                 case .failed:
-                    break // will never happen because of NoError constraint
+                    break // will never happen because of Never constraint
                 }
             }
         }
@@ -1665,7 +1665,7 @@ extension SignalProtocol where Error == NoError {
                         observer.failed(error)
                     }
                 case .failed:
-                break  // will never happen because of NoError constraint
+                break  // will never happen because of Never constraint
                 case .completed:
                     observer.completed()
                 }
@@ -1722,14 +1722,14 @@ extension SignalProtocol where Error == NoError {
     /// Returns an observable sequence containing only the unwrapped elements from `.next` events.
     /// Usually used on the Signal resulting from `materialize()`.
     /// - SeeAlso: `errors()`, `materialize()`
-    public func elements<U, E>() -> Signal<U, NoError> where Element == Event<U, E> {
+    public func elements<U, E>() -> Signal<U, Never> where Element == Event<U, E> {
         return compactMap { $0.element }
     }
 
     /// Returns an observable sequence containing only the unwrapped errors from `.failed` events.
     /// Usually used on the Signal resulting from `materialize()`.
     /// - SeeAlso: `elements()`, `materialize()`
-    public func errors<U, E>() -> Signal<E, NoError> where Element == Event<U, E> {
+    public func errors<U, E>() -> Signal<E, Never> where Element == Event<U, E> {
         return compactMap { $0.error }
     }
 }

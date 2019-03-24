@@ -88,7 +88,7 @@ open class Subject<Element, Error: Swift.Error>: SubjectProtocol {
 
 extension Subject: BindableProtocol {
     
-    public func bind(signal: Signal<Element, NoError>) -> Disposable {
+    public func bind(signal: Signal<Element, Never>) -> Disposable {
         return signal
             .take(until: disposeBag.deallocated)
             .observeIn(.nonRecursive())

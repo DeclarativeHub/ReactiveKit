@@ -22,6 +22,5 @@
 //  THE SOFTWARE.
 //
 
-/// An error type that cannot be instantiated. Used to make signals non-failable.
-public enum NoError: Error {
-}
+@available(*, deprecated, renamed: "Never")
+public typealias NoError = Never

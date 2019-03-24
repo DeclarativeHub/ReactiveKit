@@ -22,17 +22,17 @@
 //  THE SOFTWARE.
 //
 
-public typealias Signal1<Element> = Signal<Element, NoError>
-public typealias SafeSignal<Element> = Signal<Element, NoError>
+public typealias Signal1<Element> = Signal<Element, Never>
+public typealias SafeSignal<Element> = Signal<Element, Never>
 
-public typealias Observer1<Element> = (Event<Element, NoError>) -> Void
-public typealias SafeObserver<Element> = (Event<Element, NoError>) -> Void
+public typealias Observer1<Element> = (Event<Element, Never>) -> Void
+public typealias SafeObserver<Element> = (Event<Element, Never>) -> Void
 
-public typealias PublishSubject1<Element> = PublishSubject<Element, NoError>
-public typealias SafePublishSubject<Element> = PublishSubject<Element, NoError>
+public typealias PublishSubject1<Element> = PublishSubject<Element, Never>
+public typealias SafePublishSubject<Element> = PublishSubject<Element, Never>
 
-public typealias ReplaySubject1<Element> = ReplaySubject<Element, NoError>
-public typealias SafeReplaySubject<Element> = ReplaySubject<Element, NoError>
+public typealias ReplaySubject1<Element> = ReplaySubject<Element, Never>
+public typealias SafeReplaySubject<Element> = ReplaySubject<Element, Never>
 
-public typealias ReplayOneSubject1<Element> = ReplayOneSubject<Element, NoError>
-public typealias SafeReplayOneSubject<Element> = ReplayOneSubject<Element, NoError>
+public typealias ReplayOneSubject1<Element> = ReplayOneSubject<Element, Never>
+public typealias SafeReplayOneSubject<Element> = ReplayOneSubject<Element, Never>

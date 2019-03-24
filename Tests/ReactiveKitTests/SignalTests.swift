@@ -19,7 +19,7 @@ class SignalTests: XCTestCase {
     func testPerformance() {
         self.measure {
             (0..<1000).forEach { _ in
-                let signal = ReactiveKit.Signal<Int, NoError> { observer in
+                let signal = ReactiveKit.Signal<Int, Never> { observer in
                     (0..<100).forEach(observer.next)
                     observer.completed()
                     return NonDisposable.instance
@@ -344,7 +344,7 @@ class SignalTests: XCTestCase {
 
     func testFlatMapError2() {
         let operation = Signal<Int, TestError>.failed(.Error)
-        let recovered = operation.flatMapError { error in Signal<Int, NoError>.just(1) }
+        let recovered = operation.flatMapError { error in Signal<Int, Never>.just(1) }
         recovered.expectComplete(after: [1])
     }
 

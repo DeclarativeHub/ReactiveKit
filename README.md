@@ -166,7 +166,7 @@ Visually that would look like:
 While in the code, we would do:
 
 ```swift
-let counter = Signal<Int, NoError> { observer in
+let counter = Signal<Int, Never> { observer in
 
   // send first three positive integers
   observer(.next(1))
@@ -228,7 +228,7 @@ public extension ObserverProtocol {
 So with ReactiveKit we can implement previous example like this:
 
 ```swift
-let counter = Signal<Int, NoError> { observer in
+let counter = Signal<Int, Never> { observer in
 
   // send first three positive integers
   observer.next(1)
@@ -499,7 +499,7 @@ ReactiveKit provides following type:
 
 ```swift
 /// An error type that cannot be instantiated. Used to make signals non-failable.
-public enum NoError: Error {
+public enum Never: Error {
 }
 ```
 
@@ -508,19 +508,19 @@ An enum with no cases that conforms to `Swift.Error` protocol. Since it has no c
 For example, if we try
 
 ```swift
-let signal = Signal<Int, NoError> { observer in
+let signal = Signal<Int, Never> { observer in
   ...
   observer.failed(/* What do I send here? */)
   ...
 }
 ```
 
-we will hit the wall because we cannot create an instance of `NoError` so we cannot send `.failed` event. This is a very powerful and important feature because whenever you see a signal whose errors are specialized to `NoError` type you can safely assume that signal will not fail - because it cannot.
+we will hit the wall because we cannot create an instance of `Never` so we cannot send `.failed` event. This is a very powerful and important feature because whenever you see a signal whose errors are specialized to `Never` type you can safely assume that signal will not fail - because it cannot.
 
 Signals that do not fail are very common so ReactiveKit defines a typealias to make their usage simple and consistent.
 
 ```swift
-public typealias SafeSignal<Element> = Signal<Element, NoError>
+public typealias SafeSignal<Element> = Signal<Element, Never>
 ```
 
 You are recommend to use `SafeSignal` whenever you have a signal that cannot fail.
@@ -809,7 +809,7 @@ extension MyViewModel: BindingExecutionContextProvider {
 Now we can peek into the binding implementation.
 
 ```swift
-extension SignalProtocol where Error == NoError {
+extension SignalProtocol where Error == Never {
 
   @discardableResult
   public func bind<Target: Deallocatable>(to target: Target, setter: @escaping (Target, Element) -> Void) -> Disposable
@@ -919,7 +919,7 @@ Our new kind of signal, subject, is an observer itself that holds an array of it
 How do we use such subject?
 
 ```swift
-let name = Subject<String, NoError>()
+let name = Subject<String, Never>()
 
 name.observeNext { name in print("Hi \(name)!") }
 
@@ -940,7 +940,7 @@ Subjects are useful when we need to convert actions from imperative world into s
 ```swift
 class MyViewController: UIViewController {
 
-  fileprivate let _viewDidAppear = PublishSubject<Void, NoError>()
+  fileprivate let _viewDidAppear = PublishSubject<Void, Never>()
 
   override viewDidAppear(_ animated: Bool) {
     super.viewDidAppear(animated)

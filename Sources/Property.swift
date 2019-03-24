@@ -34,7 +34,7 @@ public protocol PropertyProtocol {
 public final class Property<Value>: PropertyProtocol, SubjectProtocol, BindableProtocol, DisposeBagProvider {
     
     private var _value: Value
-    private let subject = PublishSubject<Value, NoError>()
+    private let subject = PublishSubject<Value, Never>()
     private let lock = NSRecursiveLock(name: "com.reactivekit.property")
 
     public var bag: DisposeBag {
@@ -58,14 +58,14 @@ public final class Property<Value>: PropertyProtocol, SubjectProtocol, BindableP
         _value = value
     }
     
-    public func on(_ event: Event<Value, NoError>) {
+    public func on(_ event: Event<Value, Never>) {
         if case .next(let element) = event {
             _value = element
         }
         subject.on(event)
     }
     
-    public func observe(with observer: @escaping (Event<Value, NoError>) -> Void) -> Disposable {
+    public func observe(with observer: @escaping (Event<Value, Never>) -> Void) -> Disposable {
         return subject.start(with: value).observe(with: observer)
     }
     
@@ -78,7 +78,7 @@ public final class Property<Value>: PropertyProtocol, SubjectProtocol, BindableP
         _value = value
     }
     
-    public func bind(signal: Signal<Value, NoError>) -> Disposable {
+    public func bind(signal: Signal<Value, Never>) -> Disposable {
         return signal
             .take(until: bag.deallocated)
             .observeIn(.nonRecursive())
@@ -106,7 +106,7 @@ public final class AnyProperty<Value>: PropertyProtocol, SignalProtocol {
         self.property = property
     }
     
-    public func observe(with observer: @escaping (Event<Value, NoError>) -> Void) -> Disposable {
+    public func observe(with observer: @escaping (Event<Value, Never>) -> Void) -> Disposable {
         return property.observe(with: observer)
     }
 }
