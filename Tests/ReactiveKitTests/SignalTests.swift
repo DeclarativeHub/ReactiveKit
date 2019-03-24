@@ -248,15 +248,15 @@ class SignalTests: XCTestCase {
     //    waitForExpectationsWithTimeout(3, handler: nil)
     //  }
 
-    func testIgnoreNil() {
+    func testIgnoreNils() {
         let operation = Signal<Int?, TestError>(sequence: Array<Int?>([1, nil, 3]))
-        let unwrapped = operation.ignoreNil()
+        let unwrapped = operation.ignoreNils()
         unwrapped.expectComplete(after: [1, 3])
     }
 
-    func testReplaceNil() {
+    func testReplaceNils() {
         let operation = Signal<Int?, TestError>(sequence: Array<Int?>([1, nil, 3, nil]))
-        let unwrapped = operation.replaceNil(with: 7)
+        let unwrapped = operation.replaceNils(with: 7)
         unwrapped.expectComplete(after: [1, 7, 3, 7])
     }
 
@@ -635,8 +635,8 @@ extension SignalTests {
             ("testSkipLast", testSkipLast),
             ("testTake", testTake),
             ("testTakeLast", testTakeLast),
-            ("testIgnoreNil", testIgnoreNil),
-            ("testReplaceNil", testReplaceNil),
+            ("testIgnoreNils", testIgnoreNils),
+            ("testReplaceNils", testReplaceNils),
             ("testCombineLatestWith", testCombineLatestWith),
             ("testMergeWith", testMergeWith),
             ("testStartWith", testStartWith),

@@ -76,6 +76,17 @@ extension SignalProtocol {
             }
         }
     }
+
+    /// Convert the receiver to a concrete signal.
+    public func toSignal() -> Signal<Element, Error> {
+        if let signal = self as? Signal<Element, Error> {
+            return signal
+        } else {
+            return Signal { observer in
+                return self.observe(with: observer.on)
+            }
+        }
+    }
 }
 
 // MARK: Transforming signals
@@ -103,24 +114,7 @@ extension SignalProtocol {
         }
     }
 
-    /// Maps each element into an optional type and propagates unwrapped .some results.
-    /// Shorthand for ```map().ignoreNil()```.
-    public func compactMap<U>(_ transform: @escaping (Element) -> U?) -> Signal<U, Error> {
-        return Signal { observer in
-            return self.observe { event in
-                switch event {
-                case .next(let element):
-                    if let element = transform(element) {
-                        observer.next(element)
-                    }
-                case .failed(let error):
-                    observer.failed(error)
-                case .completed:
-                    observer.completed()
-                }
-            }
-        }
-    }
+
 
     /// Map each event into a signal and then flatten inner signals.
     public func flatMap<O: SignalProtocol>(_ strategy: FlattenStrategy, _ transform: @escaping (Element) -> O) -> Signal<O.Element, Error> where O.Error == Error {
@@ -222,38 +216,6 @@ extension SignalProtocol {
         }
     }
 
-    /// Transform each element by applying `transform` on it.
-    public func tryMap<U>(_ transform: @escaping (Element) -> Result<U, Error>) -> Signal<U, Error> {
-        return Signal { observer in
-            return self.observe { event in
-                switch event {
-                case .next(let element):
-                    switch transform(element) {
-                    case .success(let value):
-                        observer.next(value)
-                    case .failure(let error):
-                        observer.failed(error)
-                    }
-                case .failed(let error):
-                    observer.failed(error)
-                case .completed:
-                    observer.completed()
-                }
-            }
-        }
-    }
-
-    /// Convert the receiver to a concrete signal.
-    public func toSignal() -> Signal<Element, Error> {
-        if let signal = self as? Signal<Element, Error> {
-            return signal
-        } else {
-            return Signal { observer in
-                return self.observe(with: observer.on)
-            }
-        }
-    }
-
     /// Branches out error into another signal.
     public func branchOutError() -> (Signal<Element, Never>, Signal<Error, Never>) {
         let shared = shareReplay()
@@ -326,64 +288,6 @@ extension SignalProtocol {
     /// Batch each `size` elements into another signal.
     public func window(ofSize size: Int) -> Signal<Signal<Element, Error>, Error> {
         return buffer(ofSize: size).map { Signal(sequence: $0) }
-    }
-}
-
-extension SignalProtocol where Element: OptionalProtocol {
-
-    /// Apply `transform` to all non-nil elements.
-    public func mapWrapped<U>(_ transform: @escaping (Element.Wrapped) -> U?) -> Signal<U?, Error> {
-        return Signal { observer in
-            return self.observe { event in
-                switch event {
-                case .next(let element):
-                    if let element = element._unbox {
-                        observer.next(transform(element))
-                    } else {
-                        observer.next(nil)
-                    }
-                case .failed(let error):
-                    observer.failed(error)
-                case .completed:
-                    observer.completed()
-                }
-            }
-        }
-    }
-}
-
-extension SignalProtocol where Element: Sequence {
-
-    /// Map each emitted sequence.
-    public func mapElement<U>(_ transform: @escaping (Element.Iterator.Element) -> U) -> Signal<[U], Error> {
-        return Signal { observer in
-            return self.observe { event in
-                switch event {
-                case .next(let element):
-                    observer.next(element.map(transform))
-                case .failed(let error):
-                    observer.failed(error)
-                case .completed:
-                    observer.completed()
-                }
-            }
-        }
-    }
-
-    /// Unwraps elements from each emitted sequence into an events of their own.
-    public func unwrap() -> Signal<Element.Iterator.Element, Error> {
-        return Signal { observer in
-            return self.observe { event in
-                switch event {
-                case .next(let sequence):
-                    sequence.forEach(observer.next)
-                case .completed:
-                    observer.completed()
-                case .failed(let error):
-                    observer.failed(error)
-                }
-            }
-        }
     }
 }
 
@@ -488,7 +392,7 @@ extension SignalProtocol {
                         return nil
                     }
                 }
-                .ignoreNil()
+                .ignoreNils()
                 .castError()
         }
     }
@@ -708,58 +612,6 @@ extension SignalProtocol where Element: Equatable {
     /// Emit first element and then all elements that are not equal to their predecessor(s).
     public func distinct() -> Signal<Element, Error> {
         return distinct(areDistinct: !=)
-    }
-}
-
-#if swift(>=4.1)
-#else
-extension SignalProtocol where Element: OptionalProtocol, Element.Wrapped: Equatable {
-
-    /// Emit first element and then all elements that are not equal to their predecessor(s).
-    public func distinct() -> Signal<Element, Error> {
-        return distinct(areDistinct: !=)
-    }
-}
-#endif
-
-extension SignalProtocol where Element: OptionalProtocol {
-
-    /// Suppress all `nil`-elements.
-    public func ignoreNil() -> Signal<Element.Wrapped, Error> {
-        return Signal { observer in
-            return self.observe { event in
-                switch event {
-                case .next(let element):
-                    if let element = element._unbox {
-                        observer.next(element)
-                    }
-                case .failed(let error):
-                    observer.failed(error)
-                case .completed:
-                    observer.completed()
-                }
-            }
-        }
-    }
-
-    /// Replace all `nil`-elements with the provided replacement.
-    public func replaceNil(with replacement: Element.Wrapped) -> Signal<Element.Wrapped, Error> {
-        return Signal { observer in
-            return self.observe { event in
-                switch event {
-                case .next(let element):
-                    if let element = element._unbox {
-                        observer.next(element)
-                    } else {
-                        observer.next(replacement)
-                    }
-                case .failed(let error):
-                    observer.failed(error)
-                case .completed:
-                    observer.completed()
-                }
-            }
-        }
     }
 }
 
@@ -1095,24 +947,6 @@ extension SignalProtocol {
                 case .failed(let error):
                     observer.failed(error)
                 case .completed:
-                    observer.completed()
-                }
-            }
-        }
-    }
-
-    /// Wrap events into elements.
-    public func materialize() -> Signal<Event<Element, Error>, Never> {
-        return Signal { observer in
-            return self.observe { event in
-                switch event {
-                case .next(let element):
-                    observer.next(.next(element))
-                case .failed(let error):
-                    observer.next(.failed(error))
-                    observer.completed()
-                case .completed:
-                    observer.next(.completed)
                     observer.completed()
                 }
             }
@@ -1534,6 +1368,29 @@ extension SignalProtocol {
     }
 }
 
+extension SignalProtocol where Error == Swift.Error {
+
+    /// Transform each element by applying `transform` on it.
+    public func map<U>(_ transform: @escaping (Element) throws -> U) -> Signal<U, Error> {
+        return Signal { observer in
+            return self.observe { event in
+                switch event {
+                case .next(let element):
+                    do {
+                        observer.next(try transform(element))
+                    } catch {
+                        observer.failed(error)
+                    }
+                case .failed(let error):
+                    observer.failed(error)
+                case .completed:
+                    observer.completed()
+                }
+            }
+        }
+    }
+}
+
 extension SignalProtocol where Error == Never {
 
     /// Safe error casting from Never to some Error type.
@@ -1570,25 +1427,6 @@ extension SignalProtocol where Error == Never {
         return flatMap(.concat, transform)
     }
 
-    /// Transform each element by applying `transform` on it.
-    public func tryMap<U, E>(_ transform: @escaping (Element) -> Result<U, E>) -> Signal<U, E> {
-        return Signal { observer in
-            return self.observe { event in
-                switch event {
-                case .next(let element):
-                    switch transform(element) {
-                    case .success(let value):
-                        observer.next(value)
-                    case .failure(let error):
-                        observer.failed(error)
-                    }
-                case .completed:
-                    observer.completed()
-                }
-            }
-        }
-    }
-
     /// Propagate events only from a signal that starts emitting first.
     public func amb<O: SignalProtocol>(with other: O) -> Signal<Element, O.Error> where O.Element == Element {
         return castError()._amb(with: other)
@@ -1608,7 +1446,7 @@ extension SignalProtocol where Error == Never {
 
     /// Merge emissions from both the receiver and the other signal into one signal.
     public func merge<O: SignalProtocol>(with other: O) -> Signal<Element, O.Error> where O.Element == Element {
-        return Signal(sequence: [toSignal().castError(), other.toSignal()]).merge()
+        return Signal(flattening: [self.castError(), other.toSignal()], strategy: .merge)
     }
 
     /// Emit elements from the receiver and the other signal in pairs.
@@ -1633,19 +1471,5 @@ extension SignalProtocol where Error == Never {
     /// receiver emits an element with the latest element from the other signal.
     public func with<O: SignalProtocol>(latestFrom other: O) -> Signal<(Element, O.Element), O.Error> {
         return castError()._with(latestFrom: other, combine: { ($0, $1) })
-    }
-
-    /// Returns an observable sequence containing only the unwrapped elements from `.next` events.
-    /// Usually used on the Signal resulting from `materialize()`.
-    /// - SeeAlso: `errors()`, `materialize()`
-    public func elements<U, E>() -> Signal<U, Never> where Element == Event<U, E> {
-        return compactMap { $0.element }
-    }
-
-    /// Returns an observable sequence containing only the unwrapped errors from `.failed` events.
-    /// Usually used on the Signal resulting from `materialize()`.
-    /// - SeeAlso: `elements()`, `materialize()`
-    public func errors<U, E>() -> Signal<E, Never> where Element == Event<U, E> {
-        return compactMap { $0.error }
     }
 }

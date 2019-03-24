@@ -75,3 +75,29 @@ public func merge<Element, Error>(_ signals: [Signal<Element, Error>]) -> Signal
 public func combineLatest<Element, Result, Error>(_ signals: [Signal<Element, Error>], combine: @escaping ([Element]) -> Result) -> Signal<Result, Error> {
     return Signal(combiningLatest: signals, combine: combine)
 }
+
+extension SignalProtocol where Element: OptionalProtocol {
+
+    @available(*, deprecated, renamed: "replaceNils")
+    public func replaceNil(with replacement: Element.Wrapped) -> Signal<Element.Wrapped, Error> {
+        return replaceNils(with: replacement)
+    }
+
+    @available(*, deprecated, renamed: "ignoreNils")
+    public func ignoreNil() -> Signal<Element.Wrapped, Error> {
+        return ignoreNils()
+    }
+}
+
+extension Signal where Error == Never {
+
+    @available(*, deprecated, message: "Replace with compactMap { $0.element }`")
+    public func elements<U, E>() -> Signal<U, Never> where Element == Event<U, E> {
+        return compactMap { $0.element }
+    }
+
+    @available(*, deprecated, message: "Replace with compactMap { $0.error }`")
+    public func errors<U, E>() -> Signal<E, Never> where Element == Event<U, E> {
+        return compactMap { $0.error }
+    }
+}
