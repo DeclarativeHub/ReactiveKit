@@ -386,8 +386,6 @@ extension SignalProtocol where Element: ObservedLoadingStateProtocol, Error == N
                 observer.next(observedLoadingState)
             case .completed:
                 observer.completed()
-            case .failed:
-                break // Never
             }
         }
         

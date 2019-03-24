@@ -954,7 +954,7 @@ extension SignalProtocol {
                                 switch otherEvent {
                                 case .next:
                                     attempt?()
-                                case .completed, .failed:
+                                case .completed:
                                     attempt = nil
                                     observer.failed(error)
                                 }
@@ -1052,7 +1052,7 @@ extension SignalProtocol {
                     if let latest = latest {
                         observer.next(latest)
                     }
-                case .failed, .completed:
+                case .completed:
                     break
                 }
             }
@@ -1545,8 +1545,6 @@ extension SignalProtocol where Error == Never {
                     observer.next(element)
                 case .completed:
                     observer.completed()
-                case .failed:
-                    break // will never happen because of Never constraint
                 }
             }
         }
@@ -1584,8 +1582,6 @@ extension SignalProtocol where Error == Never {
                     case .failure(let error):
                         observer.failed(error)
                     }
-                case .failed:
-                break  // will never happen because of Never constraint
                 case .completed:
                     observer.completed()
                 }
