@@ -24,3 +24,26 @@
 
 @available(*, deprecated, renamed: "Never")
 public typealias NoError = Never
+
+extension SignalProtocol {
+
+    @available(*, deprecated, renamed: "init(just:)")
+    public static func just(_ element: Element) -> Signal<Element, Error> {
+        return Signal(just: element)
+    }
+
+    @available(*, deprecated, renamed: "init(sequence:)")
+    public static func sequence<S: Sequence>(_ sequence: S) -> Signal<Element, Error> where S.Iterator.Element == Element {
+        return Signal(sequence: sequence)
+    }
+
+    @available(*, deprecated, renamed: "init(sequence:interval:queue:)")
+    public static func interval(_ interval: Double, queue: DispatchQueue = DispatchQueue(label: "com.reactivekit.interval")) -> Signal<Int, Error> {
+        return Signal(sequence: 0..., interval: interval, queue: queue)
+    }
+
+    @available(*, deprecated, renamed: "init(just:after:)")
+    public static func timer(element: Element, time: Double, queue: DispatchQueue = DispatchQueue(label: "com.reactivekit.timer")) -> Signal<Element, Error> {
+        return Signal(just: element, after: time, queue: queue)
+    }
+}

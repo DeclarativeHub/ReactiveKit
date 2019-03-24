@@ -78,86 +78,6 @@ extension SignalProtocol {
     }
 }
 
-// MARK: - Extensions
-
-// MARK: Creating a signal
-
-extension SignalProtocol {
-
-    /// Create a signal that emits given element and then completes.
-    public static func just(_ element: Element) -> Signal<Element, Error> {
-        return Signal { observer in
-            observer.next(element)
-            observer.completed()
-            return NonDisposable.instance
-        }
-    }
-
-    /// Create a signal that emits given sequence of elements and then completes.
-    public static func sequence<S: Sequence>(_ sequence: S) -> Signal<Element, Error> where S.Iterator.Element == Element {
-        return Signal { observer in
-            sequence.forEach(observer.next)
-            observer.completed()
-            return NonDisposable.instance
-        }
-    }
-
-    /// Create a signal that completes without emitting any elements.
-    public static func completed() -> Signal<Element, Error> {
-        return Signal { observer in
-            observer.completed()
-            return NonDisposable.instance
-        }
-    }
-
-    /// Create a signal that just terminates with the given error.
-    public static func failed(_ error: Error) -> Signal<Element, Error> {
-        return Signal { observer in
-            observer.failed(error)
-            return NonDisposable.instance
-        }
-    }
-
-    /// Create a signal that never completes.
-    public static func never() -> Signal<Element, Error> {
-        return Signal { observer in
-            return NonDisposable.instance
-        }
-    }
-
-    /// Create a signal that emits an integer every `interval` time on a given dispatch queue.
-    public static func interval(_ interval: Double, queue: DispatchQueue = DispatchQueue(label: "com.reactivekit.interval")) -> Signal<Int, Error> {
-        return Signal { observer in
-            var number = 0
-            var dispatch: (() -> Void)!
-            let disposable = SimpleDisposable()
-            dispatch = {
-                queue.after(when: interval) {
-                    guard !disposable.isDisposed else { dispatch = nil; return }
-                    observer.next(number)
-                    number = number + 1
-                    dispatch()
-                }
-            }
-            dispatch()
-            return disposable
-        }
-    }
-
-    /// Create a signal that emits given element after `time` time on a given queue.
-    public static func timer(element: Element, time: Double, queue: DispatchQueue = DispatchQueue(label: "com.reactivekit.timer")) -> Signal<Element, Error> {
-        return Signal { observer in
-            let disposable = SimpleDisposable()
-            queue.after(when: time) {
-                guard !disposable.isDisposed else { return }
-                observer.next(element)
-                observer.completed()
-            }
-            return disposable
-        }
-    }
-}
-
 // MARK: Transforming signals
 
 extension SignalProtocol {
@@ -405,7 +325,7 @@ extension SignalProtocol {
 
     /// Batch each `size` elements into another signal.
     public func window(ofSize size: Int) -> Signal<Signal<Element, Error>, Error> {
-        return buffer(ofSize: size).map { Signal.sequence($0) }
+        return buffer(ofSize: size).map { Signal(sequence: $0) }
     }
 }
 
@@ -1505,7 +1425,7 @@ extension SignalProtocol {
 
     /// Merge emissions from both the receiver and the other signal into one signal.
     public func merge<O: SignalProtocol>(with other: O) -> Signal<Element, Error> where O.Element == Element, O.Error == Error {
-        return Signal.sequence([self.toSignal(), other.toSignal()]).merge()
+        return Signal(sequence: [self.toSignal(), other.toSignal()]).merge()
     }
 
     fileprivate func _zip<O: SignalProtocol, U>(with other: O, combine: @escaping (Element, O.Element) -> U) -> Signal<U, Error> where O.Error == Error {
@@ -1692,7 +1612,7 @@ extension SignalProtocol where Error == Never {
 
     /// Merge emissions from both the receiver and the other signal into one signal.
     public func merge<O: SignalProtocol>(with other: O) -> Signal<Element, O.Error> where O.Element == Element {
-        return Signal.sequence([toSignal().castError(), other.toSignal()]).merge()
+        return Signal(sequence: [toSignal().castError(), other.toSignal()]).merge()
     }
 
     /// Emit elements from the receiver and the other signal in pairs.

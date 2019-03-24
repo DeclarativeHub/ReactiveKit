@@ -164,17 +164,17 @@ extension SignalProtocol where Element: LoadingStateProtocol, Error == Never {
     
     /// Create LoadingSignal that just emits `.loading` state.
     public static func loading() -> LoadingSignal<LoadingValue, LoadingError> {
-        return .just(.loading)
+        return Signal(just: .loading)
     }
     
     /// Create LoadingSignal that just emits the given value in `.loaded` state.
     public static func loaded(_ value: LoadingValue) -> LoadingSignal<LoadingValue, LoadingError> {
-        return .just(.loaded(value))
+        return Signal(just: .loaded(value))
     }
     
     /// Create LoadingSignal that just emits the given error in `.failed` state.
     public static func failed(_ error: LoadingError) -> LoadingSignal<LoadingValue, LoadingError> {
-        return .just(.failed(error))
+        return Signal(just: .failed(error))
     }
     
     /// Convert receiver into a SafeSignal by passing values from `.loaded` events and ignoring `.loading` or `.failed` states.
