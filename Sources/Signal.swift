@@ -172,7 +172,7 @@ extension Signal {
 
     /// Create a signal that flattens events from the given signals into a single sequence of events.
     ///
-    /// - Parameter signals: A sequence of signals whose events should be propageted as own event.
+    /// - Parameter signals: A sequence of signals whose events should be propageted as own events.
     /// - Parameter strategy: Flattening strategy. Check out `FlattenStrategy` for more info.
     ///
     /// A failure on any of the inner signals will be propagated as own failure.
