@@ -61,7 +61,7 @@ public struct AnyObserver<Element, Error: Swift.Error>: ObserverProtocol {
 }
 
 /// Observer that ensures events are sent atomically.
-public class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol {
+public final class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol {
     
     private var observer: Observer<Element, Error>?
     private let lock = NSRecursiveLock(name: "reactive_kit.atomic_observer")
