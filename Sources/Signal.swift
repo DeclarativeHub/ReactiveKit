@@ -22,6 +22,9 @@
 //  THE SOFTWARE.
 //
 
+import Dispatch
+import Foundation
+
 /// A signal represents a sequence of elements.
 public struct Signal<Element, Error: Swift.Error>: SignalProtocol {
     

@@ -22,6 +22,9 @@
 //  THE SOFTWARE.
 //
 
+import Dispatch
+import Foundation
+
 @available(*, deprecated, renamed: "Never")
 public typealias NoError = Never
 
