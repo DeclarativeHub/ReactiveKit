@@ -1683,31 +1683,3 @@ public func combineLatest<Element, Result, Error>(_ signals: [Signal<Element, Er
         return disposable
     }
 }
-
-/// Merge an array of signals into one. See `merge(with:)` for more info.
-public func merge<Element, Error>(_ signals: [Signal<Element, Error>]) -> Signal<Element, Error> {
-    return Signal { observer in
-        guard signals.count > 0 else {
-            observer.completed()
-            return NonDisposable.instance
-        }
-        let disposable = CompositeDisposable()
-        var completions = Array(repeating: false, count: signals.count)
-        for (idx, signal) in signals.enumerated() {
-            disposable += signal.observe { event in
-                switch event {
-                case .next(let element):
-                    observer.next(element)
-                case .failed(let error):
-                    observer.failed(error)
-                case .completed:
-                    completions[idx] = true
-                    if completions.reduce(true, { $0 && $1 }) {
-                        observer.completed()
-                    }
-                }
-            }
-        }
-        return disposable
-    }
-}

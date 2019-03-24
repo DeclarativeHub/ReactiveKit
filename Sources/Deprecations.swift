@@ -65,3 +65,8 @@ extension SignalProtocol {
         return Signal(just: element, after: time, queue: queue)
     }
 }
+
+@available(*, deprecated, message: "Please use Signal(flattening: signals, strategy: .merge")
+public func merge<Element, Error>(_ signals: [Signal<Element, Error>]) -> Signal<Element, Error> {
+    return Signal(sequence: signals).flatten(.merge)
+}
