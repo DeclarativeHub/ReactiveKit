@@ -392,7 +392,7 @@ extension SignalProtocol where Element: Sequence {
 extension SignalProtocol {
 
     /// Emit an element only if `interval` time passes without emitting another element.
-    public func debounce(interval: Double, on queue: DispatchQueue = DispatchQueue(label: "com.reactivekit.debounce")) -> Signal<Element, Error> {
+    public func debounce(interval: Double, on queue: DispatchQueue = DispatchQueue(label: "reactive_kit.debounce")) -> Signal<Element, Error> {
         return Signal { observer in
             var timerSubscription: Disposable? = nil
             var previousElement: Element? = nil
@@ -520,7 +520,7 @@ extension SignalProtocol {
     }
 
     /// Periodically sample the signal and emit latest element from each interval.
-    public func sample(interval: Double, on queue: DispatchQueue = DispatchQueue(label: "com.reactivekit.sample")) -> Signal<Element, Error> {
+    public func sample(interval: Double, on queue: DispatchQueue = DispatchQueue(label: "reactive_kit.sample")) -> Signal<Element, Error> {
         return Signal { observer in
             let serialDisposable = SerialDisposable(otherDisposable: nil)
             var latestElement: Element? = nil
@@ -796,7 +796,7 @@ extension SignalProtocol {
     }
 
     /// Delay signal events for `interval` time.
-    public func delay(interval: Double, on queue: DispatchQueue = DispatchQueue(label: "com.reactivekit.delay")) -> Signal<Element, Error> {
+    public func delay(interval: Double, on queue: DispatchQueue = DispatchQueue(label: "reactive_kit.delay")) -> Signal<Element, Error> {
         return Signal { observer in
             return self.observe { event in
                 queue.after(when: interval) {
@@ -971,7 +971,7 @@ extension SignalProtocol {
     }
 
     /// Error-out if `interval` time passes with no emitted elements.
-    public func timeout(after interval: Double, with error: Error, on queue: DispatchQueue = DispatchQueue(label: "com.reactivekit.timeout")) -> Signal<Element, Error> {
+    public func timeout(after interval: Double, with error: Error, on queue: DispatchQueue = DispatchQueue(label: "reactive_kit.timeout")) -> Signal<Element, Error> {
         return Signal { observer in
             var completed = false
             let timeoutWhenCan: () -> Disposable = {
@@ -1180,7 +1180,7 @@ extension SignalProtocol where Element: SignalProtocol, Element.Error == Error {
     /// Flatten the signal by observing all inner signals and propagating events from each one as they arrive.
     public func merge() -> Signal<InnerElement, Error> {
         return Signal { observer in
-            let lock = NSRecursiveLock(name: "com.reactivekit.merge")
+            let lock = NSRecursiveLock(name: "reactive_kit.merge")
             let compositeDisposable = CompositeDisposable()
             var numberOfOperations = 1 // 1 for outer signal
             func decrementNumberOfOperations() {
@@ -1223,7 +1223,7 @@ extension SignalProtocol where Element: SignalProtocol, Element.Error == Error {
             let serialDisposable = SerialDisposable(otherDisposable: nil)
             let compositeDisposable = CompositeDisposable([serialDisposable])
             var completions = (outer: false, inner: false)
-            let lock = NSRecursiveLock(name: "com.reactivekit.switchtolatest")
+            let lock = NSRecursiveLock(name: "reactive_kit.switch_to_latest")
 
             compositeDisposable += self.observe { outerEvent in
                 switch outerEvent {
@@ -1267,7 +1267,7 @@ extension SignalProtocol where Element: SignalProtocol, Element.Error == Error {
     /// arrive, starting next observation only after previous one completes.
     public func concat() -> Signal<InnerElement, Error> {
         return Signal { observer in
-            let lock = NSRecursiveLock(name: "com.reactivekit.concat")
+            let lock = NSRecursiveLock(name: "reactive_kit.concat")
             let serialDisposable = SerialDisposable(otherDisposable: nil)
             let compositeDisposable = CompositeDisposable([serialDisposable])
             var completions = (outer: false, inner: true)
@@ -1331,7 +1331,7 @@ extension SignalProtocol {
 
     fileprivate func _amb<O: SignalProtocol>(with other: O) -> Signal<Element, Error> where O.Element == Element, O.Error == Error {
         return Signal { observer in
-            let lock = NSRecursiveLock(name: "com.reactivekit.amb")
+            let lock = NSRecursiveLock(name: "reactive_kit.amb")
             let disposable = (my: SerialDisposable(otherDisposable: nil), other: SerialDisposable(otherDisposable: nil))
             var dispatching = (me: false, other: false)
             disposable.my.otherDisposable = self.observe { event in
@@ -1363,7 +1363,7 @@ extension SignalProtocol {
 
     fileprivate func _combineLatest<O: SignalProtocol, U>(with other: O, combine: @escaping (Element, O.Element) -> U) -> Signal<U, Error> where O.Error == Error {
         return Signal { observer in
-            let lock = NSRecursiveLock(name: "com.reactivekit.combinelatestwith")
+            let lock = NSRecursiveLock(name: "reactive_kit.combine_latest_with")
             var elements: (my: Element?, other: O.Element?)
             var completions: (me: Bool, other: Bool) = (false, false)
             let compositeDisposable = CompositeDisposable()
@@ -1430,7 +1430,7 @@ extension SignalProtocol {
 
     fileprivate func _zip<O: SignalProtocol, U>(with other: O, combine: @escaping (Element, O.Element) -> U) -> Signal<U, Error> where O.Error == Error {
         return Signal { observer in
-            let lock = NSRecursiveLock(name: "zip")
+            let lock = NSRecursiveLock(name: "reactive_kit.zip")
             var buffers: (my: [Element], other: [O.Element]) = ([], [])
             var completions: (me: Bool, other: Bool) = (false, false)
             let compositeDisposable = CompositeDisposable()

@@ -46,8 +46,6 @@ public struct Signal<Element, Error: Swift.Error>: SignalProtocol {
 /// A Signal compile-time guaranteed never to emit an error.
 public typealias SafeSignal<Element> = Signal<Element, Never>
 
-// MARK: Creating signals
-
 extension Signal {
 
     /// Create a signal that completes immediately without emitting any elements.

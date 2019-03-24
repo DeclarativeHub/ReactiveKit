@@ -35,7 +35,7 @@ public final class Property<Value>: PropertyProtocol, SubjectProtocol, BindableP
     
     private var _value: Value
     private let subject = PublishSubject<Value, Never>()
-    private let lock = NSRecursiveLock(name: "com.reactivekit.property")
+    private let lock = NSRecursiveLock(name: "reactive_kit.property")
 
     public var bag: DisposeBag {
         return subject.disposeBag

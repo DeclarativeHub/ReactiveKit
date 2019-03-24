@@ -64,7 +64,7 @@ public struct AnyObserver<Element, Error: Swift.Error>: ObserverProtocol {
 public class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol {
     
     private var observer: Observer<Element, Error>?
-    private let lock = NSRecursiveLock(name: "com.reactivekit.signal.atomicobserver")
+    private let lock = NSRecursiveLock(name: "reactive_kit.atomic_observer")
     private let parentDisposable: Disposable
     
     public private(set) var disposable: Disposable!
