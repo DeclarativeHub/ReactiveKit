@@ -38,8 +38,8 @@ open class Subject<Element, Error: Swift.Error>: SubjectProtocol {
     
     public private(set) var isTerminated = false
     
-    public let observersLock = NSRecursiveLock(name: "reactivekit.subject.observers-lock")
-    public let dispatchLock = NSRecursiveLock(name: "reactivekit.subject.dispatch-lock")
+    public let observersLock = NSRecursiveLock(name: "reactive_kit.subject.observers_lock")
+    public let dispatchLock = NSRecursiveLock(name: "reactive_kit.subject.dispatch_lock")
     
     public let disposeBag = DisposeBag()
     
