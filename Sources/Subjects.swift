@@ -102,6 +102,9 @@ extension Subject: BindableProtocol {
 /// A subject that propagates received events to the registered observes.
 public final class PublishSubject<Element, Error: Swift.Error>: Subject<Element, Error> {}
 
+/// A PublishSubject compile-time guaranteed never to emit an error.
+public typealias SafePublishSubject<Element> = PublishSubject<Element, Never>
+
 /// A subject that replies accumulated sequence of events to each observer.
 public final class ReplaySubject<Element, Error: Swift.Error>: Subject<Element, Error> {
     
@@ -126,6 +129,9 @@ public final class ReplaySubject<Element, Error: Swift.Error>: Subject<Element, 
         buffer.forEach(observer)
     }
 }
+
+/// A ReplaySubject compile-time guaranteed never to emit an error.
+public typealias SafeReplaySubject<Element> = ReplaySubject<Element, Never>
 
 /// A subject that replies latest event to each observer.
 public final class ReplayOneSubject<Element, Error: Swift.Error>: Subject<Element, Error> {
@@ -152,6 +158,8 @@ public final class ReplayOneSubject<Element, Error: Swift.Error>: Subject<Elemen
     }
 }
 
+/// A ReplayOneSubject compile-time guaranteed never to emit an error.
+public typealias SafeReplayOneSubject<Element> = ReplayOneSubject<Element, Never>
 
 /// A subject that replies accumulated sequence of loading values to each observer.
 public final class ReplayLoadingValueSubject<Val, LoadingError: Swift.Error, Error: Swift.Error>: Subject<LoadingState<Val, LoadingError>, Error> {

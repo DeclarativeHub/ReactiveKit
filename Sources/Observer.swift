@@ -27,6 +27,9 @@ import Foundation
 /// Represents a type that receives events.
 public typealias Observer<Element, Error: Swift.Error> = (Event<Element, Error>) -> Void
 
+/// An observer of safe signals.
+public typealias SafeObserver<Element> = (Event<Element, Never>) -> Void
+
 /// Represents a type that receives events.
 public protocol ObserverProtocol {
     

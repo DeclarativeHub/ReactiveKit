@@ -25,6 +25,21 @@
 @available(*, deprecated, renamed: "Never")
 public typealias NoError = Never
 
+@available(*, deprecated, renamed: "SafeSignal")
+public typealias Signal1<Element> = Signal<Element, Never>
+
+@available(*, deprecated, renamed: "SafeObserver")
+public typealias Observer1<Element> = (Event<Element, Never>) -> Void
+
+@available(*, deprecated, renamed: "SafePublishSubject")
+public typealias PublishSubject1<Element> = PublishSubject<Element, Never>
+
+@available(*, deprecated, renamed: "SafeReplaySubject")
+public typealias ReplaySubject1<Element> = ReplaySubject<Element, Never>
+
+@available(*, deprecated, renamed: "SafeReplayOneSubject")
+public typealias ReplayOneSubject1<Element> = ReplayOneSubject<Element, Never>
+
 extension SignalProtocol {
 
     @available(*, deprecated, renamed: "init(just:)")
