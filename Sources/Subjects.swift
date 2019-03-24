@@ -208,24 +208,3 @@ public final class ReplayLoadingValueSubject<Val, LoadingError: Swift.Error, Err
         }
     }
 }
-
-@available(*, deprecated, message: "All subjects now inherit 'Subject' that can be used in place of 'AnySubject'.")
-public final class AnySubject<Element, Error: Swift.Error>: SubjectProtocol {
-    private let baseObserve: (@escaping Observer<Element, Error>) -> Disposable
-    private let baseOn: Observer<Element, Error>
-    
-    public let disposeBag = DisposeBag()
-    
-    public init<S: SubjectProtocol>(base: S) where S.Element == Element, S.Error == Error {
-        baseObserve = base.observe
-        baseOn = base.on
-    }
-    
-    public func on(_ event: Event<Element, Error>) {
-        return baseOn(event)
-    }
-    
-    public func observe(with observer: @escaping Observer<Element, Error>) -> Disposable {
-        return baseObserve(observer)
-    }
-}

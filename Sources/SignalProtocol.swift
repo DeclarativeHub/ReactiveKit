@@ -162,11 +162,6 @@ extension SignalProtocol {
 
 extension SignalProtocol {
 
-    @available(*, deprecated, renamed: "buffer(ofSize:)")
-    public func buffer(size: Int) -> Signal<[Element], Error> {
-        return buffer(ofSize: size)
-    }
-
     /// Batch the elements into arrays of given size.
     public func buffer(ofSize size: Int) -> Signal<[Element], Error> {
         return Signal { observer in
@@ -186,11 +181,6 @@ extension SignalProtocol {
                 }
             }
         }
-    }
-
-    @available(*, deprecated, renamed: "compactMap(_:)")
-    public func flatMap<U>(_ transform: @escaping (Element) -> U?) -> Signal<U, Error> {
-        return compactMap(transform)
     }
 
     /// Maps each element into an optional type and propagates unwrapped .some results.
@@ -413,11 +403,6 @@ extension SignalProtocol {
         }
     }
 
-    @available(*, deprecated, renamed: "window(ofSize:)")
-    public func window(size: Int) -> Signal<Signal<Element, Error>, Error> {
-        return window(ofSize: size)
-    }
-
     /// Batch each `size` elements into another signal.
     public func window(ofSize size: Int) -> Signal<Signal<Element, Error>, Error> {
         return buffer(ofSize: size).map { Signal.sequence($0) }
@@ -425,11 +410,6 @@ extension SignalProtocol {
 }
 
 extension SignalProtocol where Element: OptionalProtocol {
-
-    @available(*, deprecated, renamed: "mapWrapped(_:)")
-    public func flatMap<U>(_ transform: @escaping (Element.Wrapped) -> U?) -> Signal<U?, Error> {
-        return mapWrapped(transform)
-    }
 
     /// Apply `transform` to all non-nil elements.
     public func mapWrapped<U>(_ transform: @escaping (Element.Wrapped) -> U?) -> Signal<U?, Error> {
@@ -453,11 +433,6 @@ extension SignalProtocol where Element: OptionalProtocol {
 }
 
 extension SignalProtocol where Element: Sequence {
-
-    @available(*, deprecated, renamed: "mapElement(_:)")
-    public func flatMap<U>(_ transform: @escaping (Element.Iterator.Element) -> U) -> Signal<[U], Error> {
-        return mapElement(transform)
-    }
 
     /// Map each emitted sequence.
     public func mapElement<U>(_ transform: @escaping (Element.Iterator.Element) -> U) -> Signal<[U], Error> {
