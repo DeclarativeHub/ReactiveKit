@@ -20,47 +20,47 @@
 ///       view.display(number)
 ///     }
 public protocol Deallocatable: class {
-
-  /// A signal that fires `completed` event when the receiver is deallocated.
-  var deallocated: SafeSignal<Void> { get }
+    
+    /// A signal that fires `completed` event when the receiver is deallocated.
+    var deallocated: SafeSignal<Void> { get }
 }
 
 /// A type that provides a dispose bag.
 /// `DisposeBagProvider` conforms to `Deallocatable` out of the box.
 public protocol DisposeBagProvider: Deallocatable {
-
-  /// A `DisposeBag` that can be used to dispose observations and bindings.
-  var bag: DisposeBag { get }
+    
+    /// A `DisposeBag` that can be used to dispose observations and bindings.
+    var bag: DisposeBag { get }
 }
 
 extension DisposeBagProvider {
-
-  /// A signal that fires `completed` event when the receiver is deallocated.
-  public var deallocated: SafeSignal<Void> {
-    return bag.deallocated
-  }
+    
+    /// A signal that fires `completed` event when the receiver is deallocated.
+    public var deallocated: SafeSignal<Void> {
+        return bag.deallocated
+    }
 }
 
 #if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
 
-  import ObjectiveC.runtime
+import ObjectiveC.runtime
 
-  extension NSObject: DisposeBagProvider {
-
+extension NSObject: DisposeBagProvider {
+    
     private struct AssociatedKeys {
-      static var DisposeBagKey = "DisposeBagKey"
+        static var DisposeBagKey = "DisposeBagKey"
     }
-
+    
     /// A `DisposeBag` that can be used to dispose observations and bindings.
     public var bag: DisposeBag {
-      if let disposeBag = objc_getAssociatedObject(self, &NSObject.AssociatedKeys.DisposeBagKey) {
-        return disposeBag as! DisposeBag
-      } else {
-        let disposeBag = DisposeBag()
-        objc_setAssociatedObject(self, &NSObject.AssociatedKeys.DisposeBagKey, disposeBag, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-        return disposeBag
-      }
+        if let disposeBag = objc_getAssociatedObject(self, &NSObject.AssociatedKeys.DisposeBagKey) {
+            return disposeBag as! DisposeBag
+        } else {
+            let disposeBag = DisposeBag()
+            objc_setAssociatedObject(self, &NSObject.AssociatedKeys.DisposeBagKey, disposeBag, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            return disposeBag
+        }
     }
-  }
+}
 
 #endif

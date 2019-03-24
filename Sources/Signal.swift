@@ -24,21 +24,21 @@
 
 /// A signal represents a sequence of elements.
 public struct Signal<Element, Error: Swift.Error>: SignalProtocol {
-
-  public typealias Producer = (AtomicObserver<Element, Error>) -> Disposable
-
-  private let producer: Producer
-
-  /// Create new signal given a producer closure.
-  public init(producer: @escaping Producer) {
-    self.producer = producer
-  }
-
-  /// Register the observer that will receive events from the signal.
-  public func observe(with observer: @escaping Observer<Element, Error>) -> Disposable {
-    let serialDisposable = SerialDisposable(otherDisposable: nil)
-    let observer = AtomicObserver(disposable: serialDisposable, observer: observer)
-    serialDisposable.otherDisposable = producer(observer)
-    return observer.disposable
-  }
+    
+    public typealias Producer = (AtomicObserver<Element, Error>) -> Disposable
+    
+    private let producer: Producer
+    
+    /// Create new signal given a producer closure.
+    public init(producer: @escaping Producer) {
+        self.producer = producer
+    }
+    
+    /// Register the observer that will receive events from the signal.
+    public func observe(with observer: @escaping Observer<Element, Error>) -> Disposable {
+        let serialDisposable = SerialDisposable(otherDisposable: nil)
+        let observer = AtomicObserver(disposable: serialDisposable, observer: observer)
+        serialDisposable.otherDisposable = producer(observer)
+        return observer.disposable
+    }
 }

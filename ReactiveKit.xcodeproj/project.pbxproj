@@ -196,9 +196,9 @@
 				ECBCCDD21BEB6B9A00723476 /* ReactiveKit */,
 				ECBCCDD11BEB6B9A00723476 /* Products */,
 			);
-			indentWidth = 2;
+			indentWidth = 4;
 			sourceTree = "<group>";
-			tabWidth = 2;
+			tabWidth = 4;
 		};
 		ECBCCDD11BEB6B9A00723476 /* Products */ = {
 			isa = PBXGroup;

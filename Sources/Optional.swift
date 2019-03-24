@@ -23,24 +23,24 @@
 //
 
 public protocol OptionalProtocol {
-  associatedtype Wrapped
-  var _unbox: Optional<Wrapped> { get }
-  init(nilLiteral: ())
-  init(_ some: Wrapped)
+    associatedtype Wrapped
+    var _unbox: Optional<Wrapped> { get }
+    init(nilLiteral: ())
+    init(_ some: Wrapped)
 }
 
 extension Optional: OptionalProtocol {
-  public var _unbox: Optional<Wrapped> {
-    return self
-  }
+    public var _unbox: Optional<Wrapped> {
+        return self
+    }
 }
 
 func ==<O: OptionalProtocol>(lhs: O, rhs: O) -> Bool
-  where O.Wrapped: Equatable {
-    return lhs._unbox == rhs._unbox
+    where O.Wrapped: Equatable {
+        return lhs._unbox == rhs._unbox
 }
 
 func !=<O: OptionalProtocol>(lhs: O, rhs: O) -> Bool
-  where O.Wrapped: Equatable {
-    return !(lhs == rhs)
+    where O.Wrapped: Equatable {
+        return !(lhs == rhs)
 }

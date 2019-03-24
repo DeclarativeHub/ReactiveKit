@@ -34,48 +34,48 @@ import Foundation
 ///
 /// where `X` conforms to `ReactiveExtensionsProvider`.
 public protocol ReactiveExtensions {
-  associatedtype Base
-  var base: Base { get }
+    associatedtype Base
+    var base: Base { get }
 }
 
 public struct Reactive<Base>: ReactiveExtensions {
-  public let base: Base
-
-  public init(_ base: Base) {
-    self.base = base
-  }
+    public let base: Base
+    
+    public init(_ base: Base) {
+        self.base = base
+    }
 }
 
 public protocol ReactiveExtensionsProvider: class {}
 
-public extension ReactiveExtensionsProvider {
-
-  /// Reactive extensions of `self`.
-  public var reactive: Reactive<Self> {
-    return Reactive(self)
-  }
-
-  /// Reactive extensions of `Self`.
-  public static var reactive: Reactive<Self>.Type {
-    return Reactive<Self>.self
-  }
+extension ReactiveExtensionsProvider {
+    
+    /// Reactive extensions of `self`.
+    public var reactive: Reactive<Self> {
+        return Reactive(self)
+    }
+    
+    /// Reactive extensions of `Self`.
+    public static var reactive: Reactive<Self>.Type {
+        return Reactive<Self>.self
+    }
 }
 
 extension NSObject: ReactiveExtensionsProvider {}
 
 #if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
 
-  extension ReactiveExtensions where Base: NSObject {
-
+extension ReactiveExtensions where Base: NSObject {
+    
     /// A signal that fires completion event when the object is deallocated.
     public var deallocated: SafeSignal<Void> {
-      return base.bag.deallocated
+        return base.bag.deallocated
     }
-
+    
     /// A `DisposeBag` that can be used to dispose observations and bindings.
     public var bag: DisposeBag {
-      return base.bag
+        return base.bag
     }
-  }
+}
 
 #endif

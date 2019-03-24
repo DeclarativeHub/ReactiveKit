@@ -34,86 +34,86 @@ import Dispatch
 ///     }
 ///
 public struct ExecutionContext {
-
-  private let context: (@escaping () -> Void) -> Void
-
-  /// Execution context is just a function that executes other function.
-  public init(_ context: @escaping (@escaping () -> Void) -> Void) {
-    self.context = context
-  }
-
-  /// Execute given block in the context.
-  public func execute(_ block: @escaping () -> Void) {
-    context(block)
-  }
-
-  /// Execution context that executes immediately and synchronously on current thread or queue.
-  public static var immediate: ExecutionContext {
-    return ExecutionContext { block in block () }
-  }
-
-  /// Executes immediately and synchronously if current thread is main thread. Otherwise executes
-  /// asynchronously on main dispatch queue (main thread).
-  public static var immediateOnMain: ExecutionContext {
-    return ExecutionContext { block in
-      if Thread.isMainThread {
-        block()
-      } else {
-        DispatchQueue.main.async(execute: block)
-      }
+    
+    private let context: (@escaping () -> Void) -> Void
+    
+    /// Execution context is just a function that executes other function.
+    public init(_ context: @escaping (@escaping () -> Void) -> Void) {
+        self.context = context
     }
-  }
-
-  /// Execution context bound to main dispatch queue.
-  public static var main: ExecutionContext {
-    return DispatchQueue.main.context
-  }
-
-  /// Execution context bound to global dispatch queue.
-  @available(macOS 10.10, *)
-  public static func global(qos: DispatchQoS.QoSClass = .default) -> ExecutionContext {
-    return DispatchQueue.global(qos: qos).context
-  }
-
-  /// Execution context that breaks recursive class by ingoring them.
-  public static func nonRecursive() -> ExecutionContext {
-    var updating: Bool = false
-    return ExecutionContext { block in
-      guard !updating else { return }
-      updating = true
-      block()
-      updating = false
+    
+    /// Execute given block in the context.
+    public func execute(_ block: @escaping () -> Void) {
+        context(block)
     }
-  }
+    
+    /// Execution context that executes immediately and synchronously on current thread or queue.
+    public static var immediate: ExecutionContext {
+        return ExecutionContext { block in block () }
+    }
+    
+    /// Executes immediately and synchronously if current thread is main thread. Otherwise executes
+    /// asynchronously on main dispatch queue (main thread).
+    public static var immediateOnMain: ExecutionContext {
+        return ExecutionContext { block in
+            if Thread.isMainThread {
+                block()
+            } else {
+                DispatchQueue.main.async(execute: block)
+            }
+        }
+    }
+    
+    /// Execution context bound to main dispatch queue.
+    public static var main: ExecutionContext {
+        return DispatchQueue.main.context
+    }
+    
+    /// Execution context bound to global dispatch queue.
+    @available(macOS 10.10, *)
+    public static func global(qos: DispatchQoS.QoSClass = .default) -> ExecutionContext {
+        return DispatchQueue.global(qos: qos).context
+    }
+    
+    /// Execution context that breaks recursive class by ingoring them.
+    public static func nonRecursive() -> ExecutionContext {
+        var updating: Bool = false
+        return ExecutionContext { block in
+            guard !updating else { return }
+            updating = true
+            block()
+            updating = false
+        }
+    }
 }
 
-public extension DispatchQueue {
-
-  /// Creates ExecutionContext from the queue.
-  public var context: ExecutionContext {
-    return ExecutionContext(context)
-  }
-
-  private func context(_ block: @escaping () -> Void) {
-    async(execute: block)
-  }
-
-  /// Schedule given block for execution after given interval passes.
-  public func after(when interval: Double, block: @escaping () -> Void) {
-    asyncAfter(deadline: .now() + interval, execute: block)
-  }
-
-  /// Schedule given block for execution after given interval passes.
-  /// Scheduled execution can be cancelled by disposing the returned disposable.
-  public func disposableAfter(when interval: Double, block: @escaping () -> Void) -> Disposable {
-    let disposable = SimpleDisposable()
-    after(when: interval) {
-      if !disposable.isDisposed {
-        block()
-      }
+extension DispatchQueue {
+    
+    /// Creates ExecutionContext from the queue.
+    public var context: ExecutionContext {
+        return ExecutionContext(context)
     }
-    return disposable
-  }
+    
+    private func context(_ block: @escaping () -> Void) {
+        async(execute: block)
+    }
+    
+    /// Schedule given block for execution after given interval passes.
+    public func after(when interval: Double, block: @escaping () -> Void) {
+        asyncAfter(deadline: .now() + interval, execute: block)
+    }
+    
+    /// Schedule given block for execution after given interval passes.
+    /// Scheduled execution can be cancelled by disposing the returned disposable.
+    public func disposableAfter(when interval: Double, block: @escaping () -> Void) -> Disposable {
+        let disposable = SimpleDisposable()
+        after(when: interval) {
+            if !disposable.isDisposed {
+                block()
+            }
+        }
+        return disposable
+    }
 }
 
 // MARK: Compatibility

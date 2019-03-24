@@ -26,32 +26,32 @@ import Foundation
 
 /// Common lock interface.
 public protocol Lock {
-  func lock()
-  func unlock()
+    func lock()
+    func unlock()
 }
 
-public extension Lock {
-
-  public func atomic<T>(body: () -> T) -> T {
-    lock(); defer { unlock() }
-    return body()
-  }
+extension Lock {
+    
+    public func atomic<T>(body: () -> T) -> T {
+        lock(); defer { unlock() }
+        return body()
+    }
 }
 
 /// Lock
 extension NSLock: Lock {
-
-  public convenience init(name: String) {
-    self.init()
-    self.name = name
-  }
+    
+    public convenience init(name: String) {
+        self.init()
+        self.name = name
+    }
 }
 
 /// Recursive Lock
 extension NSRecursiveLock: Lock {
-
-  public convenience init(name: String) {
-    self.init()
-    self.name = name
-  }
+    
+    public convenience init(name: String) {
+        self.init()
+        self.name = name
+    }
 }
