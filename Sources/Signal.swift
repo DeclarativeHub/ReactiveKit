@@ -145,7 +145,8 @@ extension Signal {
     /// - Parameter sequence: A sequence of elements to convert into a series of `next` events.
     /// - Parameter interval: A number of seconds to wait between each emission.
     /// - Parameter queue: A queue used to delay the emissions. Defaults to a new serial queue.
-    public init<S: Sequence>(sequence: S, interval: Double, queue: DispatchQueue = DispatchQueue(label: "reactive_kit.sequence_interval")) where S.Iterator.Element == Element {
+    public init<S: Sequence>(sequence: S, interval: Double, queue: DispatchQueue = DispatchQueue(label: "reactive_kit.sequence_interval"))
+        where S.Iterator.Element == Element {
         self.init { observer in
             var iterator = sequence.makeIterator()
             var dispatch: (() -> Void)!
@@ -172,16 +173,24 @@ extension Signal {
 
     /// Create a signal that flattens events from the given signals into a single sequence of events.
     ///
-    /// - Parameter signals: A sequence of signals whose events should be propageted as own events.
+    /// - Parameter signals: A sequence of signals whose elements should be propageted as own elements.
     /// - Parameter strategy: Flattening strategy. Check out `FlattenStrategy` for more info.
     ///
     /// A failure on any of the inner signals will be propagated as own failure.
-    public init<S: Sequence>(flattening signals: S, strategy: FlattenStrategy) where S.Element: SignalProtocol, S.Element.Element == Element, S.Element.Error == Error {
+    public init<S: Sequence>(flattening signals: S, strategy: FlattenStrategy)
+        where S.Element: SignalProtocol, S.Element.Element == Element, S.Element.Error == Error {
         self = Signal<S.Element, Error>(sequence: signals).flatten(strategy)
     }
 
-    /// Combine an array of signals into one. See `combineLatest(with:)` for more info.
-    public init<S: Collection>(combiningLatest signals: S, combine: @escaping ([S.Element.Element]) -> Element) where S.Element: SignalProtocol, S.Element.Error == Error {
+    /// Create a signal that emits a combination of elements made from the elements of the given signals.
+    /// The signal starts when all the given signals emit at least one element.
+    ///
+    /// - Parameter signals: A sequence of signals whose elements should be combined.
+    /// - Parameter combine: A closure that combines an array of elements from the given signal into a desired type.
+    /// - Parameter elements: An array containing elements from each of the given signals.
+    /// Guaranteed to have the same number of elements as the given array of signals.
+    public init<S: Collection>(combiningLatest signals: S, combine: @escaping (_ elements: [S.Element.Element]) -> Element)
+        where S.Element: SignalProtocol, S.Element.Error == Error {
         self = signals.dropFirst().reduce(signals.first?.map { [$0] }) { (running, new) in
             return running?.combineLatest(with: new) { $0 + [$1] }
         }?.map(combine) ?? Signal.completed()
