@@ -101,3 +101,16 @@ extension Signal where Error == Never {
         return compactMap { $0.error }
     }
 }
+
+extension SignalProtocol {
+
+    @available(*, deprecated, renamed: "debounce(interval:queue:)")
+    public func debounce(interval: Double, on queue: DispatchQueue = DispatchQueue(label: "reactive_kit.debounce")) -> Signal<Element, Error> {
+        return debounce(interval: interval, queue: queue)
+    }
+
+    @available(*, deprecated, renamed: "replaceElements")
+    public func replace<T>(with element: T) -> Signal<T, Error> {
+        return replaceElements(with: element)
+    }
+}

@@ -22,8 +22,6 @@
 //  THE SOFTWARE.
 //
 
-// MARK: - Free Functions
-
 // MARK: - Tuple functions
 
 private func tuple<A, B>(a: A, b: B) -> (A, B) { return (a, b) }

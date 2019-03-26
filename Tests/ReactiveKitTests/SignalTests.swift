@@ -206,7 +206,7 @@ class SignalTests: XCTestCase {
         skippedLast1.expectComplete(after: [1, 2])
     }
 
-    func testTake() {
+    func testTakeFirst() {
         let operation = Signal<Int, TestError>(sequence: [1, 2, 3])
         let taken2 = operation.take(first: 2)
         taken2.expectComplete(after: [1, 2])
@@ -633,7 +633,7 @@ extension SignalTests {
             ("testLast", testLast),
             ("testSkip", testSkip),
             ("testSkipLast", testSkipLast),
-            ("testTake", testTake),
+            ("testTakeFirst", testTakeFirst),
             ("testTakeLast", testTakeLast),
             ("testIgnoreNils", testIgnoreNils),
             ("testReplaceNils", testReplaceNils),
