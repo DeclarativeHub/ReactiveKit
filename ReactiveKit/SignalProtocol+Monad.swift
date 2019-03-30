@@ -27,6 +27,8 @@ import Foundation
 extension SignalProtocol {
 
     /// Transform each element by applying `transform` on it.
+    ///
+    /// Check out interactive example: [https://rxmarbles.com/#map](https://rxmarbles.com/#map)
     public func map<U>(_ transform: @escaping (Element) -> U) -> Signal<U, Error> {
         return Signal { observer in
             return self.observe { event in
@@ -42,27 +44,42 @@ extension SignalProtocol {
         }
     }
 
-    /// Map each event into a signal and then flatten inner signals.
+    /// Map each event into a signal and then flatten inner signals using the given strategy.
+    /// `flatMap` is just a shorthand for `map(transform).flatten(strategy)`.
+    ///
+    /// Check out interactive examples for various strategies:
+    /// * Strategy `.concat`: [https://rxmarbles.com/#concatMap](https://rxmarbles.com/#concatMap)
+    /// * Strategy `.latest`: [https://rxmarbles.com/#switchMap](https://rxmarbles.com/#switchMap)
+    /// * Strategy `.merge`: [https://rxmarbles.com/#mergeMap](https://rxmarbles.com/#mergeMap)
     public func flatMap<O: SignalProtocol>(_ strategy: FlattenStrategy, _ transform: @escaping (Element) -> O) -> Signal<O.Element, Error> where O.Error == Error {
         return map(transform).flatten(strategy)
     }
 
-    /// Map each event into a signal and then flatten inner signals.
-    public func flatMapLatest<O: SignalProtocol>(_ transform: @escaping (Element) -> O) -> Signal<O.Element, Error> where O.Error == Error {
-        return flatMap(.latest, transform)
-    }
-
-    /// Map each event into a signal and then flatten inner signals.
-    public func flatMapMerge<O: SignalProtocol>(_ transform: @escaping (Element) -> O) -> Signal<O.Element, Error> where O.Error == Error {
-        return flatMap(.merge, transform)
-    }
-
-    /// Map each event into a signal and then flatten inner signals.
+    /// Map each event into a signal and then flatten inner signals using `.concat` strategy.
+    /// Shorthand for `flatMap(.concat, transform)`.
+    ///
+    /// Check out interactive example: [https://rxmarbles.com/#concatMap](https://rxmarbles.com/#concatMap)
     public func flatMapConcat<O: SignalProtocol>(_ transform: @escaping (Element) -> O) -> Signal<O.Element, Error> where O.Error == Error {
         return flatMap(.concat, transform)
     }
 
-    /// Map failure event into another operation and continue with that operation. Also called `catch`.
+    /// Map each event into a signal and then flatten inner signals using `.latest` strategy.
+    /// Shorthand for `flatMap(.latest, transform)`.
+    ///
+    /// Check out interactive example: [https://rxmarbles.com/#switchMap](https://rxmarbles.com/#switchMap)
+    public func flatMapLatest<O: SignalProtocol>(_ transform: @escaping (Element) -> O) -> Signal<O.Element, Error> where O.Error == Error {
+        return flatMap(.latest, transform)
+    }
+
+    /// Map each event into a signal and then flatten inner signals using `.merge` strategy.
+    /// Shorthand for `flatMap(.merge, transform)`.
+    ///
+    /// Check out interactive example: [https://rxmarbles.com/#mergeMap](https://rxmarbles.com/#mergeMap)
+    public func flatMapMerge<O: SignalProtocol>(_ transform: @escaping (Element) -> O) -> Signal<O.Element, Error> where O.Error == Error {
+        return flatMap(.merge, transform)
+    }
+
+    /// Map failure event into a signal and continue with that signal. Also known as `catch`.
     public func flatMapError<S: SignalProtocol>(_ recover: @escaping (Error) -> S) -> Signal<Element, S.Error> where S.Element == Element {
         return Signal { observer in
             let serialDisposable = SerialDisposable(otherDisposable: nil)
@@ -84,6 +101,9 @@ extension SignalProtocol {
 extension SignalProtocol where Error == Swift.Error {
 
     /// Transform each element by applying `transform` on it.
+    /// Throwing an error will be emitted as `.failed` event on the Signal.
+    ///
+    /// Check out interactive example: [https://rxmarbles.com/#map](https://rxmarbles.com/#map)
     public func map<U>(_ transform: @escaping (Element) throws -> U) -> Signal<U, Error> {
         return Signal { observer in
             return self.observe { event in
@@ -104,15 +124,17 @@ extension SignalProtocol where Error == Swift.Error {
     }
 }
 
+/// Flattening strategy defines how to flatten (join) inner signals into one, flattened, signal.
+/// - Tag: FlattenStrategy
 public enum FlattenStrategy {
-
-    /// Flatten the signal by observing and propagating emissions only from latest signal.
-    /// Previous signal observation gets disposed is such exists.
-    case latest
 
     /// Flatten the signal by sequentially observing inner signals in order in which they
     /// arrive, starting next observation only after previous one completes.
     case concat
+
+    /// Flatten the signal by observing and propagating emissions only from latest signal.
+    /// Previous signal observation gets disposed.
+    case latest
 
     /// Flatten the signal by observing all inner signals and propagating events from each one as they arrive.
     case merge
@@ -122,7 +144,9 @@ extension SignalProtocol where Element: SignalProtocol, Element.Error == Error {
 
     public typealias InnerElement = Element.Element
 
-    /// Flatten the signal with the given strategy.
+    /// Flatten the signal using the given strategy.
+    ///
+    /// - parameter strategy: Flattening strategy to use. Check out [FlattenStrategy](x-source-tag://FlattenStrategy) type from more info.
     public func flatten(_ strategy: FlattenStrategy) -> Signal<InnerElement, Error> {
         switch strategy {
         case .merge:
@@ -280,23 +304,38 @@ extension SignalProtocol where Element: SignalProtocol, Element.Error == Error {
 
 extension SignalProtocol where Error == Never {
 
-    /// Map each event into a signal and then flatten inner signals.
+    /// Map each event into a signal and then flatten inner signals using the given strategy.
+    /// `flatMap` is just a shorthand for `map(transform).flatten(strategy)`.
+    ///
+    /// Check out interactive examples for various strategies:
+    /// * Strategy `.concat`: [https://rxmarbles.com/#concatMap](https://rxmarbles.com/#concatMap)
+    /// * Strategy `.latest`: [https://rxmarbles.com/#switchMap](https://rxmarbles.com/#switchMap)
+    /// * Strategy `.merge`: [https://rxmarbles.com/#mergeMap](https://rxmarbles.com/#mergeMap)
     public func flatMap<O: SignalProtocol>(_ strategy: FlattenStrategy, _ transform: @escaping (Element) -> O) -> Signal<O.Element, O.Error> {
         return (castError() as Signal<Element, O.Error>).map(transform).flatten(strategy)
     }
 
-    /// Map each event into a signal and then flatten inner signals.
+    /// Map each event into a signal and then flatten inner signals using `.concat` strategy.
+    /// Shorthand for `flatMap(.concat, transform)`.
+    ///
+    /// Check out interactive example: [https://rxmarbles.com/#concatMap](https://rxmarbles.com/#concatMap)
+    public func flatMapConcat<O: SignalProtocol>(_ transform: @escaping (Element) -> O) -> Signal<O.Element, O.Error>  {
+        return flatMap(.concat, transform)
+    }
+
+    /// Map each event into a signal and then flatten inner signals using `.latest` strategy.
+    /// Shorthand for `flatMap(.latest, transform)`.
+    ///
+    /// Check out interactive example: [https://rxmarbles.com/#switchMap](https://rxmarbles.com/#switchMap)
     public func flatMapLatest<O: SignalProtocol>(_ transform: @escaping (Element) -> O) -> Signal<O.Element, O.Error> {
         return flatMap(.latest, transform)
     }
 
-    /// Map each event into a signal and then flatten inner signals.
+    /// Map each event into a signal and then flatten inner signals using `.merge` strategy.
+    /// Shorthand for `flatMap(.merge, transform)`.
+    ///
+    /// Check out interactive example: [https://rxmarbles.com/#mergeMap](https://rxmarbles.com/#mergeMap)
     public func flatMapMerge<O: SignalProtocol>(_ transform: @escaping (Element) -> O) -> Signal<O.Element, O.Error> {
         return flatMap(.merge, transform)
-    }
-
-    /// Map each event into a signal and then flatten inner signals.
-    public func flatMapConcat<O: SignalProtocol>(_ transform: @escaping (Element) -> O) -> Signal<O.Element, O.Error>  {
-        return flatMap(.concat, transform)
     }
 }
