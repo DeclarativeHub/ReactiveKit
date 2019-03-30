@@ -4,11 +4,13 @@
 [![Build Status](https://travis-ci.org/DeclarativeHub/ReactiveKit.svg?branch=master)](https://travis-ci.org/DeclarativeHub/ReactiveKit)
 [![Twitter](https://img.shields.io/badge/twitter-@srdanrasic-red.svg?style=flat)](https://twitter.com/srdanrasic)
 
-__ReactiveKit__ is a lightweight Swift framework for reactive and functional reactive programming. With just over 2000 lines of code it enables you to get into reactive world today.
+__ReactiveKit__ is a lightweight Swift framework for reactive and functional reactive programming that enables you to get into the reactive world today.
 
 The framework is compatible with all Apple platforms and Linux. If you are developing an iOS or macOS app, make sure to also check out [Bond](https://github.com/DeclarativeHub/Bond) framework that provides UIKit and AppKit bindings, reactive delegates and data sources.
 
 This document will introduce the framework by going through its implementation. By the end you should be equipped with a pretty good understanding of how is the framework implemented and what are the best ways to use it.
+
+To get started quickly, clone the project and explore available tutorials in the playgrounds of the workspace!
 
 ## Summary
 
@@ -1343,17 +1345,15 @@ All you have to provide to the operator is the signals and a closure that maps t
 ## Requirements
 
 * iOS 8.0+ / macOS 10.9+ / tvOS 9.0+ / watchOS 2.0+
-* Xcode 9
+* Xcode 10.2
 
 or
 
-* Linux + Swift 4.0 
+* Linux + Swift 5.0 
 
 ## Installation
 
 Bond framework is optional, but recommended for Cocoa / Cocoa touch development.
-
-> Note: Since v3.7, ReactiveKit is using Swift 4 syntax that compiles under Xcode 9. If you are still using Xcode 8, please do not update to v3.7 and stay on the latest v3.6.x version.
 
 ### Carthage
 
@@ -1372,14 +1372,14 @@ pod 'Bond'
 ### Swift Package Manager
 
 ```
-// swift-tools-version:4.0
+// swift-tools-version:5.0
 
 import PackageDescription
 
 let package = Package(
   name: "MyApp",
   dependencies: [
-    .package(url: "https://github.com/DeclarativeHub/ReactiveKit.git", from: "3.9.0")
+    .package(url: "https://github.com/DeclarativeHub/ReactiveKit.git", from: "3.10.0")
   ],
   targets: [
     .target(name: "MyApp", dependencies: ["ReactiveKit"])
@@ -1403,7 +1403,7 @@ let package = Package(
 
 The MIT License (MIT)
 
-Copyright (c) 2015-2018 Srdan Rasic (@srdanrasic)
+Copyright (c) 2015-2019 Srdan Rasic (@srdanrasic)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
