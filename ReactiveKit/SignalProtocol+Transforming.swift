@@ -28,7 +28,7 @@ extension SignalProtocol {
     
     /// Batch signal elements into arrays of the given size.
     ///
-    /// Check out interactive example: [https://rxmarbles.com/#bufferCount](https://rxmarbles.com/#bufferCount)
+    /// Check out interactive example at [https://rxmarbles.com/#bufferCount](https://rxmarbles.com/#bufferCount)
     public func buffer(ofSize size: Int) -> Signal<[Element], Error> {
         return Signal { observer in
             var buffer: [Element] = []
@@ -56,7 +56,7 @@ extension SignalProtocol {
 
     /// Emit default element if the signal completes without emitting any element.
     ///
-    /// Check out interactive example: [https://rxmarbles.com/#defaultIfEmpty](https://rxmarbles.com/#defaultIfEmpty)
+    /// Check out interactive example at [https://rxmarbles.com/#defaultIfEmpty](https://rxmarbles.com/#defaultIfEmpty)
     public func defaultIfEmpty(_ element: Element) -> Signal<Element, Error> {
         return Signal { observer in
             var didEmitNonTerminal = false
@@ -85,7 +85,7 @@ extension SignalProtocol {
     /// Par each element with its predecessor, starting from the second element.
     /// Similar to `zipPrevious`, but starts from the second element.
     ///
-    /// Check out interactive example: [https://rxmarbles.com/#pairwise](https://rxmarbles.com/#pairwise)
+    /// Check out interactive example at [https://rxmarbles.com/#pairwise](https://rxmarbles.com/#pairwise)
     public func pairwise() -> Signal<(Element, Element), Error> {
         return zipPrevious().compactMap { a, b in a.flatMap { ($0, b) } }
     }
@@ -97,7 +97,7 @@ extension SignalProtocol {
 
     /// Reduce all elements to a single element. Similar to `scan`, but emits only the final element.
     ///
-    /// Check out interactive example: [https://rxmarbles.com/#reduce](https://rxmarbles.com/#reduce)
+    /// Check out interactive example at [https://rxmarbles.com/#reduce](https://rxmarbles.com/#reduce)
     public func reduce<U>(_ initial: U, _ combine: @escaping (U, Element) -> U) -> Signal<U, Error> {
         return scan(initial, combine).last()
     }
@@ -105,7 +105,7 @@ extension SignalProtocol {
     /// Apply `combine` to each element starting with `initial` and emit each
     /// intermediate result. This differs from `reduce` which only emits the final result.
     ///
-    /// Check out interactive example: [https://rxmarbles.com/#scan](https://rxmarbles.com/#scan)
+    /// Check out interactive example at [https://rxmarbles.com/#scan](https://rxmarbles.com/#scan)
     public func scan<U>(_ initial: U, _ combine: @escaping (U, Element) -> U) -> Signal<U, Error> {
         return Signal { observer in
             var accumulator = initial
@@ -126,7 +126,7 @@ extension SignalProtocol {
 
     /// Prepend the given element to the signal element sequence.
     ///
-    /// Check out interactive example: [https://rxmarbles.com/#startWith](https://rxmarbles.com/#startWith)
+    /// Check out interactive example at [https://rxmarbles.com/#startWith](https://rxmarbles.com/#startWith)
     public func start(with element: Element) -> Signal<Element, Error> {
         return scan(element, { _, next in next })
     }

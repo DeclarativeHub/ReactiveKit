@@ -50,7 +50,7 @@ extension SignalProtocol {
     
     /// Delay signal elements for `interval` time.
     ///
-    /// Check out interactive example: [https://rxmarbles.com/#delay](https://rxmarbles.com/#delay)
+    /// Check out interactive example at [https://rxmarbles.com/#delay](https://rxmarbles.com/#delay)
     public func delay(interval: Double, on queue: DispatchQueue = DispatchQueue(label: "reactive_kit.delay")) -> Signal<Element, Error> {
         return Signal { observer in
             return self.observe { event in
