@@ -44,7 +44,7 @@ extension SignalProtocol {
         }
     }
 
-    /// Map each event into a signal and then flatten inner signals using the given strategy.
+    /// Map each element into a signal and then flatten inner signals using the given strategy.
     /// `flatMap` is just a shorthand for `map(transform).flatten(strategy)`.
     ///
     /// Check out interactive examples for various strategies:
@@ -55,7 +55,7 @@ extension SignalProtocol {
         return map(transform).flatten(strategy)
     }
 
-    /// Map each event into a signal and then flatten inner signals using `.concat` strategy.
+    /// Map each element into a signal and then flatten inner signals using `.concat` strategy.
     /// Shorthand for `flatMap(.concat, transform)`.
     ///
     /// Check out interactive example: [https://rxmarbles.com/#concatMap](https://rxmarbles.com/#concatMap)
@@ -63,7 +63,7 @@ extension SignalProtocol {
         return flatMap(.concat, transform)
     }
 
-    /// Map each event into a signal and then flatten inner signals using `.latest` strategy.
+    /// Map each element into a signal and then flatten inner signals using `.latest` strategy.
     /// Shorthand for `flatMap(.latest, transform)`.
     ///
     /// Check out interactive example: [https://rxmarbles.com/#switchMap](https://rxmarbles.com/#switchMap)
@@ -71,7 +71,7 @@ extension SignalProtocol {
         return flatMap(.latest, transform)
     }
 
-    /// Map each event into a signal and then flatten inner signals using `.merge` strategy.
+    /// Map each element into a signal and then flatten inner signals using `.merge` strategy.
     /// Shorthand for `flatMap(.merge, transform)`.
     ///
     /// Check out interactive example: [https://rxmarbles.com/#mergeMap](https://rxmarbles.com/#mergeMap)
@@ -79,7 +79,7 @@ extension SignalProtocol {
         return flatMap(.merge, transform)
     }
 
-    /// Map failure event into a signal and continue with that signal. Also known as `catch`.
+    /// Map failure element into a signal and continue with that signal. Also known as `catch`.
     public func flatMapError<S: SignalProtocol>(_ recover: @escaping (Error) -> S) -> Signal<Element, S.Error> where S.Element == Element {
         return Signal { observer in
             let serialDisposable = SerialDisposable(otherDisposable: nil)
@@ -136,7 +136,7 @@ public enum FlattenStrategy {
     /// Previous signal observation gets disposed.
     case latest
 
-    /// Flatten the signal by observing all inner signals and propagating events from each one as they arrive.
+    /// Flatten the signal by observing all inner signals and propagating elements from each one as they arrive.
     case merge
 }
 
@@ -158,7 +158,7 @@ extension SignalProtocol where Element: SignalProtocol, Element.Error == Error {
         }
     }
 
-    /// Flatten the signal by observing all inner signals and propagating events from each one as they arrive.
+    /// Flatten the signal by observing all inner signals and propagating elements from each one as they arrive.
     public func merge() -> Signal<InnerElement, Error> {
         return Signal { observer in
             let lock = NSRecursiveLock(name: "reactive_kit.merge")
@@ -304,7 +304,7 @@ extension SignalProtocol where Element: SignalProtocol, Element.Error == Error {
 
 extension SignalProtocol where Error == Never {
 
-    /// Map each event into a signal and then flatten inner signals using the given strategy.
+    /// Map each element into a signal and then flatten inner signals using the given strategy.
     /// `flatMap` is just a shorthand for `map(transform).flatten(strategy)`.
     ///
     /// Check out interactive examples for various strategies:
@@ -315,7 +315,7 @@ extension SignalProtocol where Error == Never {
         return (castError() as Signal<Element, O.Error>).map(transform).flatten(strategy)
     }
 
-    /// Map each event into a signal and then flatten inner signals using `.concat` strategy.
+    /// Map each element into a signal and then flatten inner signals using `.concat` strategy.
     /// Shorthand for `flatMap(.concat, transform)`.
     ///
     /// Check out interactive example: [https://rxmarbles.com/#concatMap](https://rxmarbles.com/#concatMap)
@@ -323,7 +323,7 @@ extension SignalProtocol where Error == Never {
         return flatMap(.concat, transform)
     }
 
-    /// Map each event into a signal and then flatten inner signals using `.latest` strategy.
+    /// Map each element into a signal and then flatten inner signals using `.latest` strategy.
     /// Shorthand for `flatMap(.latest, transform)`.
     ///
     /// Check out interactive example: [https://rxmarbles.com/#switchMap](https://rxmarbles.com/#switchMap)
@@ -331,7 +331,7 @@ extension SignalProtocol where Error == Never {
         return flatMap(.latest, transform)
     }
 
-    /// Map each event into a signal and then flatten inner signals using `.merge` strategy.
+    /// Map each element into a signal and then flatten inner signals using `.merge` strategy.
     /// Shorthand for `flatMap(.merge, transform)`.
     ///
     /// Check out interactive example: [https://rxmarbles.com/#mergeMap](https://rxmarbles.com/#mergeMap)

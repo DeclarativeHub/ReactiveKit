@@ -32,7 +32,7 @@ public struct Signal<Element, Error: Swift.Error>: SignalProtocol {
     
     private let producer: Producer
     
-    /// Create new signal given a producer closure.
+    /// Create a new signal given the producer closure.
     public init(_ producer: @escaping Producer) {
         self.producer = producer
     }

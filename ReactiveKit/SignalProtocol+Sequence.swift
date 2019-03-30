@@ -40,7 +40,7 @@ extension SignalProtocol where Element: Sequence {
         return map { $0.map(transform) }
     }
 
-    /// Unwrap elements from each emitted sequence into events of their own.
+    /// Unwrap elements from each emitted sequence into the elements of the signal.
     public func flattenElements() -> Signal<Element.Iterator.Element, Error> {
         return Signal { observer in
             return self.observe { event in

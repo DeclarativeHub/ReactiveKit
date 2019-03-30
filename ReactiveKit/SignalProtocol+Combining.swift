@@ -26,7 +26,7 @@ import Foundation
 
 extension SignalProtocol {
 
-    /// Propagate events only from the signal that starts emitting first. Also known as the `race` operator.
+    /// Propagate elements only from the signal that starts emitting first. Also known as the `race` operator.
     ///
     /// Check out interactive example: [https://rxmarbles.com/#race](https://rxmarbles.com/#race)
     public func amb<O: SignalProtocol>(with other: O) -> Signal<Element, Error> where O.Element == Element, O.Error == Error {
@@ -253,7 +253,7 @@ extension SignalProtocol {
 
 extension SignalProtocol where Error == Never {
 
-    /// Propagate events only from the signal that starts emitting first. Also known as the `race` operator.
+    /// Propagate elements only from the signal that starts emitting first. Also known as the `race` operator.
     ///
     /// Check out interactive example: [https://rxmarbles.com/#race](https://rxmarbles.com/#race)
     public func amb<O: SignalProtocol>(with other: O) -> Signal<Element, O.Error> where O.Element == Element {

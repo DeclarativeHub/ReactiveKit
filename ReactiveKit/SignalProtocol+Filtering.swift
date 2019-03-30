@@ -141,7 +141,7 @@ extension SignalProtocol {
         return take(last: 1)
     }
 
-    /// Supress events while the last element on the other signal is `false`.
+    /// Supress elements while the last element on the other signal is `false`.
     public func pausable<O: SignalProtocol>(by other: O) -> Signal<Element, Error> where O.Element == Bool {
         return Signal { observer in
             var allowed: Bool = true

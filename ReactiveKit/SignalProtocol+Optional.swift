@@ -26,7 +26,7 @@ import Foundation
 
 extension SignalProtocol {
 
-    /// Map element into a result, propagating `.some` value as a next event or skipping an event in case of a `nil`.
+    /// Map element into a result, propagating `.some` value as a next event or skipping an element in case of a `nil`.
     /// Shorthand for `map(transform).ignoreNils()`.
     public func compactMap<NewWrapped>(_ transform: @escaping (Element) -> NewWrapped?) -> Signal<NewWrapped, Error> {
         return map(transform).ignoreNils()
