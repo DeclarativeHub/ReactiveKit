@@ -26,7 +26,31 @@ import Foundation
 
 extension SignalProtocol {
 
-    /// Delay signal events for `interval` time.
+    /// Log various signal events. If title is not provided, source file and function names are printed instead.
+    public func debug(_ title: String? = nil, file: String = #file, function: String = #function, line: Int = #line) -> Signal<Element, Error> {
+        let prefix: String
+        if let title = title {
+            prefix = "[\(title)]"
+        } else {
+            let filename = file.components(separatedBy: "/").last ?? file
+            prefix = "[\(filename):\(function):\(line)]"
+        }
+        return doOn(next: { element in
+            print("\(prefix) next(\(element))")
+        }, start: {
+            print("\(prefix) started")
+        }, failed: { error in
+            print("\(prefix) failed: \(error)")
+        }, completed: {
+            print("\(prefix) completed")
+        }, disposed: {
+            print("\(prefix) disposed")
+        })
+    }
+    
+    /// Delay signal elements for `interval` time.
+    ///
+    /// Check out interactive example: [https://rxmarbles.com/#delay](https://rxmarbles.com/#delay)
     public func delay(interval: Double, on queue: DispatchQueue = DispatchQueue(label: "reactive_kit.delay")) -> Signal<Element, Error> {
         return Signal { observer in
             return self.observe { event in
@@ -63,56 +87,6 @@ extension SignalProtocol {
         }
     }
 
-    /// Log various signal events. If title is not provided, source file and function names are printed instead.
-    public func debug(_ title: String? = nil, file: String = #file, function: String = #function, line: Int = #line) -> Signal<Element, Error> {
-        let prefix: String
-        if let title = title {
-            prefix = "[\(title)]"
-        } else {
-            let filename = file.components(separatedBy: "/").last ?? file
-            prefix = "[\(filename):\(function):\(line)]"
-        }
-        return doOn(next: { element in
-            print("\(prefix) next(\(element))")
-        }, start: {
-            print("\(prefix) started")
-        }, failed: { error in
-            print("\(prefix) failed: \(error)")
-        }, completed: {
-            print("\(prefix) completed")
-        }, disposed: {
-            print("\(prefix) disposed")
-        })
-    }
-
-    /// Set the execution context in which to execute the signal (i.e. in which to run
-    /// the signal's producer).
-    public func executeIn(_ context: ExecutionContext) -> Signal<Element, Error> {
-        return Signal { observer in
-            let serialDisposable = SerialDisposable(otherDisposable: nil)
-            context.execute {
-                if !serialDisposable.isDisposed {
-                    serialDisposable.otherDisposable = self.observe(with: observer.on)
-                }
-            }
-            return serialDisposable
-        }
-    }
-
-    /// Set the dispatch queue on which to execute the signal (i.e. in which to run
-    /// the signal's producer).
-    public func executeOn(_ queue: DispatchQueue) -> Signal<Element, Error> {
-        return Signal { observer in
-            let serialDisposable = SerialDisposable(otherDisposable: nil)
-            queue.async {
-                if !serialDisposable.isDisposed {
-                    serialDisposable.otherDisposable = self.observe(with: observer.on)
-                }
-            }
-            return serialDisposable
-        }
-    }
-
     /// Update the given subject with `true` when the receiver starts and with `false` when the receiver terminates.
     public func feedActivity<S: SubjectProtocol>(into listener: S) -> Signal<Element, Error> where S.Element == Bool {
         return doOn(start: { listener.next(true) }, disposed: { listener.next(false) })
@@ -131,44 +105,5 @@ extension SignalProtocol {
     /// Updates the given subject with error from .failed event is such occurs.
     public func feedError<S: SubjectProtocol>(into listener: S) -> Signal<Element, Error> where S.Element == Error {
         return doOn(failed: { e in listener.next(e) })
-    }
-
-    /// Set the execution context used to dispatch events (i.e. to run the observers).
-    public func observeIn(_ context: ExecutionContext) -> Signal<Element, Error> {
-        return Signal { observer in
-            return self.observe { event in
-                context.execute {
-                    observer.on(event)
-                }
-            }
-        }
-    }
-
-    /// Set the dispatch queue used to dispatch events (i.e. to run the observers).
-    public func observeOn(_ queue: DispatchQueue) -> Signal<Element, Error> {
-        return Signal { observer in
-            return self.observe { event in
-                queue.async {
-                    observer.on(event)
-                }
-            }
-        }
-    }
-}
-
-extension SignalProtocol where Error == Never {
-
-    /// Safe error casting from Never to some Error type.
-    public func castError<E>() -> Signal<Element, E> {
-        return Signal { observer in
-            return self.observe { event in
-                switch event {
-                case .next(let element):
-                    observer.next(element)
-                case .completed:
-                    observer.completed()
-                }
-            }
-        }
     }
 }

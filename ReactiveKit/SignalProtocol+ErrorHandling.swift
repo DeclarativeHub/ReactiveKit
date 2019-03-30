@@ -42,19 +42,19 @@ extension SignalProtocol {
         }
     }
 
-    /// Branches out error into another signal.
+    /// Branch out error into another signal.
     public func branchOutError() -> (Signal<Element, Never>, Signal<Error, Never>) {
         let shared = shareReplay()
         return (shared.suppressError(logging: false), shared.toErrorSignal())
     }
 
-    /// Branches out mapped error into another signal.
+    /// Branch out mapped error into another signal.
     public func branchOutError<F>(_ mapError: @escaping (Error) -> F) -> (Signal<Element, Never>, Signal<F, Never>) {
         let shared = shareReplay()
         return (shared.suppressError(logging: false), shared.toErrorSignal().map(mapError))
     }
 
-    /// Converts signal into non-failable signal by suppressing the error.
+    /// Convert signal into a non-failable signal by suppressing the error.
     public func suppressError(logging: Bool, file: String = #file, line: Int = #line) -> Signal<Element, Never> {
         return Signal { observer in
             return self.observe { event in
@@ -73,12 +73,12 @@ extension SignalProtocol {
         }
     }
 
-    /// Converts signal into non-failable signal by feeding suppressed error into a subject.
+    /// Convert signal into a non-failable signal by feeding suppressed error into a subject.
     public func suppressAndFeedError<S: SubjectProtocol>(into listener: S, logging: Bool = true, file: String = #file, line: Int = #line) -> Signal<Element, Never> where S.Element == Error {
         return feedError(into: listener).suppressError(logging: logging, file: file, line: line)
     }
 
-    /// Recovers the signal by propagating default element if error happens.
+    /// Recover the signal by propagating default element if an error happens.
     public func recover(with element: Element) -> Signal<Element, Never> {
         return Signal { observer in
             return self.observe { event in
@@ -95,7 +95,7 @@ extension SignalProtocol {
         }
     }
 
-    /// Restart the operation in case of failure at most `times` number of times.
+    /// Retry the signal in case of failure at most `times` number of times.
     public func retry(times: Int) -> Signal<Element, Error> {
         guard times > 0 else { return toSignal() }
         return Signal { observer in
@@ -130,7 +130,7 @@ extension SignalProtocol {
         }
     }
 
-    /// Retries the failed signal when other signal produces an element.
+    /// Retry the failed signal when other signal produces an element.
     /// - parameter other: Signal that triggers a retry attempt.
     /// - parameter shouldRetry: Retries only if this returns true for a given error. Defaults to always returning true.
     public func retry<S: SignalProtocol>(when other: S, if shouldRetry: @escaping (Error) -> Bool = { _ in true }) -> Signal<Element, Error> where S.Error == Never {
@@ -170,7 +170,7 @@ extension SignalProtocol {
         }
     }
 
-    /// Error-out if `interval` time passes with no emitted elements.
+    /// Error out if the `interval` time passes with no emitted elements.
     public func timeout(after interval: Double, with error: Error, on queue: DispatchQueue = DispatchQueue(label: "reactive_kit.timeout")) -> Signal<Element, Error> {
         return Signal { observer in
             var completed = false
@@ -192,7 +192,7 @@ extension SignalProtocol {
         }
     }
 
-    /// Maps failable signal into a non-failable signal of errors. Ignores `.next` events.
+    /// Map failable signal into a non-failable signal of errors. Ignores `.next` events.
     public func toErrorSignal() -> Signal<Error, Never> {
         return Signal { observer in
             return self.observe { taskEvent in
@@ -203,6 +203,23 @@ extension SignalProtocol {
                     observer.completed()
                 case .failed(let error):
                     observer.next(error)
+                    observer.completed()
+                }
+            }
+        }
+    }
+}
+
+extension SignalProtocol where Error == Never {
+
+    /// Safe error casting from Never to some Error type.
+    public func castError<E>() -> Signal<Element, E> {
+        return Signal { observer in
+            return self.observe { event in
+                switch event {
+                case .next(let element):
+                    observer.next(element)
+                case .completed:
                     observer.completed()
                 }
             }

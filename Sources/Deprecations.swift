@@ -109,8 +109,21 @@ extension SignalProtocol {
         return debounce(interval: interval, queue: queue)
     }
 
+    @available(*, deprecated, renamed: "distinctUntilChanged")
+    public func distinct(areDistinct: @escaping (Element, Element) -> Bool) -> Signal<Element, Error> {
+        return distinctUntilChanged(areDistinct)
+    }
+
     @available(*, deprecated, renamed: "replaceElements")
     public func replace<T>(with element: T) -> Signal<T, Error> {
         return replaceElements(with: element)
+    }
+}
+
+extension SignalProtocol where Element: Equatable {
+
+    @available(*, deprecated, renamed: "distinctUntilChanged")
+    public func distinct() -> Signal<Element, Error> {
+        return distinctUntilChanged()
     }
 }

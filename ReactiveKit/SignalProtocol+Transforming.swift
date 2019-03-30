@@ -26,7 +26,9 @@ import Foundation
 
 extension SignalProtocol {
     
-    /// Batch the elements into arrays of given size.
+    /// Batch signal elements into arrays of the given size.
+    ///
+    /// Check out interactive example: [https://rxmarbles.com/#bufferCount](https://rxmarbles.com/#bufferCount)
     public func buffer(ofSize size: Int) -> Signal<[Element], Error> {
         return Signal { observer in
             var buffer: [Element] = []
@@ -47,12 +49,14 @@ extension SignalProtocol {
         }
     }
 
-    /// Collect all elements into an array and emit just that array.
+    /// Collect all elements into an array and emit the array as a single element.
     public func collect() -> Signal<[Element], Error> {
         return reduce([], { memo, new in memo + [new] })
     }
 
-    /// Emit default element if signal completes without emitting any element.
+    /// Emit default element if the signal completes without emitting any element.
+    ///
+    /// Check out interactive example: [https://rxmarbles.com/#defaultIfEmpty](https://rxmarbles.com/#defaultIfEmpty)
     public func defaultIfEmpty(_ element: Element) -> Signal<Element, Error> {
         return Signal { observer in
             var didEmitNonTerminal = false
@@ -73,9 +77,17 @@ extension SignalProtocol {
         }
     }
 
-    /// Map elements to Void.
+    /// Map all elements to instances of Void.
     public func eraseType() -> Signal<Void, Error> {
-        return map { _ in }
+        return replaceElements(with: ())
+    }
+
+    /// Par each element with its predecessor, starting from the second element.
+    /// Similar to `zipPrevious`, but starts from the second element.
+    ///
+    /// Check out interactive example: [https://rxmarbles.com/#pairwise](https://rxmarbles.com/#pairwise)
+    public func pairwise() -> Signal<(Element, Element), Error> {
+        return zipPrevious().compactMap { a, b in a.flatMap { ($0, b) } }
     }
 
     /// Replace all emitted elements with the given element.
@@ -83,13 +95,17 @@ extension SignalProtocol {
         return map { _ in element }
     }
 
-    /// Reduce signal events to a single event by applying given function on each emission.
+    /// Reduce all elements to a single element. Similar to `scan`, but emits only the final element.
+    ///
+    /// Check out interactive example: [https://rxmarbles.com/#reduce](https://rxmarbles.com/#reduce)
     public func reduce<U>(_ initial: U, _ combine: @escaping (U, Element) -> U) -> Signal<U, Error> {
-        return scan(initial, combine).take(last: 1)
+        return scan(initial, combine).last()
     }
 
     /// Apply `combine` to each element starting with `initial` and emit each
     /// intermediate result. This differs from `reduce` which only emits the final result.
+    ///
+    /// Check out interactive example: [https://rxmarbles.com/#scan](https://rxmarbles.com/#scan)
     public func scan<U>(_ initial: U, _ combine: @escaping (U, Element) -> U) -> Signal<U, Error> {
         return Signal { observer in
             var accumulator = initial
@@ -108,7 +124,9 @@ extension SignalProtocol {
         }
     }
 
-    /// Prepend the given element to the signal emission.
+    /// Prepend the given element to the signal element sequence.
+    ///
+    /// Check out interactive example: [https://rxmarbles.com/#startWith](https://rxmarbles.com/#startWith)
     public func start(with element: Element) -> Signal<Element, Error> {
         return scan(element, { _, next in next })
     }
@@ -118,7 +136,8 @@ extension SignalProtocol {
         return buffer(ofSize: size).map { Signal(sequence: $0) }
     }
 
-    /// Par each element with its predecessor. First element is paired with `nil`.
+    /// Par each element with its predecessor.
+    /// Similar to `parwise`, but starts from the first element which is paird with `nil`.
     public func zipPrevious() -> Signal<(Element?, Element), Error> {
         return scan(nil) { (pair, next) in (pair?.1, next) }.ignoreNils()
     }

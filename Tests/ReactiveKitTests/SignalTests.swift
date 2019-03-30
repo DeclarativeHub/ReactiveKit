@@ -152,13 +152,13 @@ class SignalTests: XCTestCase {
 
     func testDistinct() {
         let operation = Signal<Int, TestError>(sequence: [1, 2, 2, 3])
-        let distinct = operation.distinct { a, b in a != b }
+        let distinct = operation.distinctUntilChanged { a, b in a != b }
         distinct.expectComplete(after: [1, 2, 3])
     }
 
     func testDistinct2() {
         let operation = Signal<Int, TestError>(sequence: [1, 2, 2, 3])
-        let distinct = operation.distinct()
+        let distinct = operation.distinctUntilChanged()
         distinct.expectComplete(after: [1, 2, 3])
     }
 
