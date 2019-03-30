@@ -55,12 +55,12 @@ extension SignalProtocol {
         return Signal(sequence: sequence)
     }
 
-    @available(*, deprecated, renamed: "init(sequence:interval:queue:)")
+    @available(*, deprecated, message: "Please use Signal(sequence: 0..., interval: N) instead")
     public static func interval(_ interval: Double, queue: DispatchQueue = DispatchQueue(label: "com.reactivekit.interval")) -> Signal<Int, Error> {
         return Signal(sequence: 0..., interval: interval, queue: queue)
     }
 
-    @available(*, deprecated, renamed: "init(just:after:)")
+    @available(*, deprecated, message: "Please use Signal(just:after:) instead")
     public static func timer(element: Element, time: Double, queue: DispatchQueue = DispatchQueue(label: "com.reactivekit.timer")) -> Signal<Element, Error> {
         return Signal(just: element, after: time, queue: queue)
     }
