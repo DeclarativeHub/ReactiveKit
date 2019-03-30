@@ -470,11 +470,11 @@
 			};
 			buildConfigurationList = ECBCCDCA1BEB6B9A00723476 /* Build configuration list for PBXProject "ReactiveKit" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				English,
 				Base,
+				en,
 			);
 			mainGroup = ECBCCDC61BEB6B9A00723476;
 			productRefGroup = ECBCCDD11BEB6B9A00723476 /* Products */;
