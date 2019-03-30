@@ -52,24 +52,6 @@ extension SignalProtocol {
         return reduce([], { memo, new in memo + [new] })
     }
 
-    /// First emit events from source and then from `other` signal.
-    public func concat(with other: Signal<Element, Error>) -> Signal<Element, Error> {
-        return Signal { observer in
-            let serialDisposable = SerialDisposable(otherDisposable: nil)
-            serialDisposable.otherDisposable = self.observe { event in
-                switch event {
-                case .next(let element):
-                    observer.next(element)
-                case .failed(let error):
-                    observer.failed(error)
-                case .completed:
-                    serialDisposable.otherDisposable = other.observe(with: observer.on)
-                }
-            }
-            return serialDisposable
-        }
-    }
-
     /// Emit default element if signal completes without emitting any element.
     public func defaultIfEmpty(_ element: Element) -> Signal<Element, Error> {
         return Signal { observer in
@@ -137,7 +119,7 @@ extension SignalProtocol {
     }
 
     /// Apply `combine` to each element starting with `initial` and emit each
-    /// intermediate result. This differs from `reduce` which emits only final result.
+    /// intermediate result. This differs from `reduce` which only emits the final result.
     public func scan<U>(_ initial: U, _ combine: @escaping (U, Element) -> U) -> Signal<U, Error> {
         return Signal { observer in
             var accumulator = initial
@@ -158,12 +140,7 @@ extension SignalProtocol {
 
     /// Prepend the given element to the signal emission.
     public func start(with element: Element) -> Signal<Element, Error> {
-        return Signal { observer in
-            observer.next(element)
-            return self.observe { event in
-                observer.on(event)
-            }
-        }
+        return scan(element, { _, next in next })
     }
 
     /// Batch each `size` elements into another signal.
@@ -173,20 +150,6 @@ extension SignalProtocol {
 
     /// Par each element with its predecessor. First element is paired with `nil`.
     public func zipPrevious() -> Signal<(Element?, Element), Error> {
-        return Signal { observer in
-            var previous: Element? = nil
-            return self.observe { event in
-                switch event {
-                case .next(let element):
-                    let lastPrevious = previous
-                    previous = element
-                    observer.next((lastPrevious, element))
-                case .failed(let error):
-                    observer.failed(error)
-                case .completed:
-                    observer.completed()
-                }
-            }
-        }
+        return scan(nil) { (pair, next) in (pair?.1, next) }.ignoreNils()
     }
 }

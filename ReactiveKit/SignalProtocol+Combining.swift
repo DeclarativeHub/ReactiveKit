@@ -109,6 +109,24 @@ extension SignalProtocol {
         return combineLatest(with: other, combine: { ($0, $1) })
     }
 
+    /// First emit events from source and then from `other` signal.
+    public func concat(with other: Signal<Element, Error>) -> Signal<Element, Error> {
+        return Signal { observer in
+            let serialDisposable = SerialDisposable(otherDisposable: nil)
+            serialDisposable.otherDisposable = self.observe { event in
+                switch event {
+                case .next(let element):
+                    observer.next(element)
+                case .failed(let error):
+                    observer.failed(error)
+                case .completed:
+                    serialDisposable.otherDisposable = other.observe(with: observer.on)
+                }
+            }
+            return serialDisposable
+        }
+    }
+
     /// Merge emissions from both the receiver and the other signal into one signal.
     public func merge<O: SignalProtocol>(with other: O) -> Signal<Element, Error> where O.Element == Element, O.Error == Error {
         return Signal(sequence: [self.toSignal(), other.toSignal()]).merge()

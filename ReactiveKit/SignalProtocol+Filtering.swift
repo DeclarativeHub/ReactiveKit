@@ -57,41 +57,14 @@ extension SignalProtocol {
 
     /// Emit first element and then all elements that are not equal to their predecessor(s).
     public func distinct(areDistinct: @escaping (Element, Element) -> Bool) -> Signal<Element, Error> {
-        return Signal { observer in
-            var lastElement: Element? = nil
-            return self.observe { event in
-                switch event {
-                case .next(let element):
-                    let prevLastElement = lastElement
-                    lastElement = element
-                    if prevLastElement == nil || areDistinct(prevLastElement!, element) {
-                        observer.next(element)
-                    }
-                default:
-                    observer.on(event)
-                }
-            }
+        return zipPrevious().compactMap { (prev, next) -> Element? in
+            prev == nil || areDistinct(prev!, next) ? next : nil
         }
     }
 
     /// Emit only element at given index if such element is produced.
     public func element(at index: Int) -> Signal<Element, Error> {
-        return Signal { observer in
-            var currentIndex = 0
-            return self.observe { event in
-                switch event {
-                case .next(let element):
-                    if currentIndex == index {
-                        observer.next(element)
-                        observer.completed()
-                    } else {
-                        currentIndex += 1
-                    }
-                default:
-                    observer.on(event)
-                }
-            }
-        }
+        return take(first: index + 1).last()
     }
 
     /// Emit only elements that pass `include` test.
@@ -258,14 +231,10 @@ extension SignalProtocol {
 
     /// Emit only first `count` elements of the signal and then complete.
     public func take(first count: Int) -> Signal<Element, Error> {
+        guard count > 0 else { return .completed() }
         return Signal { observer in
-            guard count > 0 else {
-                observer.completed()
-                return NonDisposable.instance
-            }
             var taken = 0
-            let serialDisposable = SerialDisposable(otherDisposable: nil)
-            serialDisposable.otherDisposable = self.observe { event in
+            return self.observe { event in
                 switch event {
                 case .next(let element):
                     if taken < count {
@@ -274,13 +243,11 @@ extension SignalProtocol {
                     }
                     if taken == count {
                         observer.completed()
-                        serialDisposable.otherDisposable?.dispose()
                     }
                 default:
                     observer.on(event)
                 }
             }
-            return serialDisposable
         }
     }
 
