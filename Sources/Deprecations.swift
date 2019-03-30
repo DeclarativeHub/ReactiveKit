@@ -105,7 +105,7 @@ extension Signal where Error == Never {
 extension SignalProtocol {
 
     @available(*, deprecated, renamed: "debounce(interval:queue:)")
-    public func debounce(interval: Double, on queue: DispatchQueue = DispatchQueue(label: "reactive_kit.debounce")) -> Signal<Element, Error> {
+    public func debounce(interval: Double, on queue: DispatchQueue) -> Signal<Element, Error> {
         return debounce(interval: interval, queue: queue)
     }
 
