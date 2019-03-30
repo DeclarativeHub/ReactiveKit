@@ -132,6 +132,11 @@ extension SignalProtocol {
         return Signal(sequence: [self.toSignal(), other.toSignal()]).merge()
     }
 
+    /// Replay the latest element when the other signal emits an element.
+    public func replayLatest<S: SignalProtocol>(when other: S) -> Signal<Element, Error> where S.Error == Never {
+        return combineLatest(with: other.scan((), { _, _ in }).castError()) { my, _ in my }
+    }
+
     /// Emit elements from the receiver and the other signal in pairs.
     /// This differs from `combineLatest` in that the combinations are produced from elements at same positions.
     public func zip<O: SignalProtocol, U>(with other: O, combine: @escaping (Element, O.Element) -> U) -> Signal<U, Error> where O.Error == Error {

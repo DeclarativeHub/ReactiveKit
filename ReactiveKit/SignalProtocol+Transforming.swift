@@ -88,36 +88,6 @@ extension SignalProtocol {
         return scan(initial, combine).take(last: 1)
     }
 
-    /// Replays the latest element when other signal fires an element.
-    public func replayLatest<S: SignalProtocol>(when other: S) -> Signal<Element, Error> where S.Error == Never {
-        return Signal { observer in
-            var latest: Element? = nil
-            let disposable = CompositeDisposable()
-            disposable += other.observe { event in
-                switch event {
-                case .next:
-                    if let latest = latest {
-                        observer.next(latest)
-                    }
-                case .completed:
-                    break
-                }
-            }
-            disposable += self.observe { event in
-                switch event {
-                case .next(let element):
-                    latest = element
-                    observer.next(element)
-                case .failed(let error):
-                    observer.failed(error)
-                case .completed:
-                    observer.completed()
-                }
-            }
-            return disposable
-        }
-    }
-
     /// Apply `combine` to each element starting with `initial` and emit each
     /// intermediate result. This differs from `reduce` which only emits the final result.
     public func scan<U>(_ initial: U, _ combine: @escaping (U, Element) -> U) -> Signal<U, Error> {

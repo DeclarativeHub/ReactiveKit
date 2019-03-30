@@ -565,6 +565,30 @@ class SignalTests: XCTestCase {
         XCTAssertEqual(bob.numberOfRuns, 2)
     }
 
+    func testReplayLatestWith() {
+        let bob = Scheduler()
+        let eve = Scheduler()
+
+        let a = Signal<Int, TestError>(sequence: [1, 2, 3]).observeIn(bob.context)
+        let b = Signal<String, Never>(sequence: ["A", "A", "A", "A", "A"]).observeIn(eve.context)
+        let combined = a.replayLatest(when: b)
+
+        let exp = expectation(description: "completed")
+        combined.expectAsyncComplete(after: [1, 2, 2, 2, 3, 3], expectation: exp)
+
+        eve.runOne()
+        eve.runOne()
+        bob.runOne()
+        bob.runOne()
+        eve.runOne()
+        eve.runOne()
+        bob.runOne()
+        eve.runRemaining()
+        bob.runRemaining()
+
+        waitForExpectations(timeout: 1, handler: nil)
+    }
+
     func testPublish() {
         let bob = Scheduler()
         bob.runRemaining()
@@ -664,6 +688,7 @@ extension SignalTests {
             ("testFlatMapConcat", testFlatMapConcat),
             ("testReplay", testReplay),
             ("testPublish", testPublish),
+            ("testReplayLatestWith", testReplayLatestWith)
         ]
     }
 }
