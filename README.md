@@ -10,7 +10,7 @@ The framework is compatible with all Apple platforms and Linux. If you are devel
 
 This document will introduce the framework by going through its implementation. By the end you should be equipped with a pretty good understanding of how is the framework implemented and what are the best ways to use it.
 
-To get started quickly, clone the project and explore available tutorials in the playgrounds of the workspace!
+_To get started quickly, clone the project and explore available tutorials in the playgrounds of the workspace!_
 
 ## Summary
 
