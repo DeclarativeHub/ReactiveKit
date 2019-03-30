@@ -48,54 +48,60 @@
 		16F2F5691D6D8A4500B85896 /* Lock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F2F5661D6D8A4500B85896 /* Lock.swift */; };
 		16F2F56A1D6D8A4500B85896 /* Lock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F2F5661D6D8A4500B85896 /* Lock.swift */; };
 		16F2F56C1D6D924B00B85896 /* SignalProtocol+Arities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F2F56B1D6D924B00B85896 /* SignalProtocol+Arities.swift */; };
-		EC2519CF2247E7280027CF12 /* SignalProtocol+Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2519CE2247E7280027CF12 /* SignalProtocol+Result.swift */; };
-		EC2519D12247E7B70027CF12 /* SignalProtocol+Optional.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2519D02247E7B70027CF12 /* SignalProtocol+Optional.swift */; };
-		EC2519D32247EB3E0027CF12 /* SignalProtocol+Sequence.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2519D22247EB3E0027CF12 /* SignalProtocol+Sequence.swift */; };
-		EC2519D5224837070027CF12 /* SignalProtocol+Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2519D4224837070027CF12 /* SignalProtocol+Event.swift */; };
 		EC31EE0D1E7BF97C00857946 /* Deallocatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC31EE0C1E7BF97C00857946 /* Deallocatable.swift */; };
 		EC31EE0E1E7BF97C00857946 /* Deallocatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC31EE0C1E7BF97C00857946 /* Deallocatable.swift */; };
 		EC31EE0F1E7BF97C00857946 /* Deallocatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC31EE0C1E7BF97C00857946 /* Deallocatable.swift */; };
 		EC31EE101E7BF97C00857946 /* Deallocatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC31EE0C1E7BF97C00857946 /* Deallocatable.swift */; };
-		EC48D28D224FAEC700284EA0 /* SignalProtocol+Threading.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D28C224FAEC700284EA0 /* SignalProtocol+Threading.swift */; };
 		EC48D291224FB07A00284EA0 /* SignalProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 165EBE501D280028000E68C8 /* SignalProtocol.swift */; };
-		EC48D292224FB07A00284EA0 /* SignalProtocol+Monad.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCBDF14224A325700A43D2A /* SignalProtocol+Monad.swift */; };
-		EC48D293224FB07A00284EA0 /* SignalProtocol+Filtering.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCBDEFB224A2B7900A43D2A /* SignalProtocol+Filtering.swift */; };
-		EC48D294224FB07A00284EA0 /* SignalProtocol+Combining.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCBDF0F224A303D00A43D2A /* SignalProtocol+Combining.swift */; };
-		EC48D295224FB07A00284EA0 /* SignalProtocol+Transforming.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCBDF00224A2D3900A43D2A /* SignalProtocol+Transforming.swift */; };
-		EC48D296224FB07A00284EA0 /* SignalProtocol+ErrorHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCBDF0A224A2F1800A43D2A /* SignalProtocol+ErrorHandling.swift */; };
-		EC48D297224FB07A00284EA0 /* SignalProtocol+Threading.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D28C224FAEC700284EA0 /* SignalProtocol+Threading.swift */; };
-		EC48D298224FB07A00284EA0 /* SignalProtocol+Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCBDF05224A2DB500A43D2A /* SignalProtocol+Utilities.swift */; };
-		EC48D299224FB07A00284EA0 /* SignalProtocol+Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2519CE2247E7280027CF12 /* SignalProtocol+Result.swift */; };
-		EC48D29A224FB07A00284EA0 /* SignalProtocol+Optional.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2519D02247E7B70027CF12 /* SignalProtocol+Optional.swift */; };
-		EC48D29B224FB07A00284EA0 /* SignalProtocol+Sequence.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2519D22247EB3E0027CF12 /* SignalProtocol+Sequence.swift */; };
-		EC48D29C224FB07A00284EA0 /* SignalProtocol+Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2519D4224837070027CF12 /* SignalProtocol+Event.swift */; };
 		EC48D29D224FB07A00284EA0 /* SignalProtocol+Arities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F2F56B1D6D924B00B85896 /* SignalProtocol+Arities.swift */; };
 		EC48D29E224FB07A00284EA0 /* SignalProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 165EBE501D280028000E68C8 /* SignalProtocol.swift */; };
-		EC48D29F224FB07A00284EA0 /* SignalProtocol+Monad.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCBDF14224A325700A43D2A /* SignalProtocol+Monad.swift */; };
-		EC48D2A0224FB07A00284EA0 /* SignalProtocol+Filtering.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCBDEFB224A2B7900A43D2A /* SignalProtocol+Filtering.swift */; };
-		EC48D2A1224FB07A00284EA0 /* SignalProtocol+Combining.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCBDF0F224A303D00A43D2A /* SignalProtocol+Combining.swift */; };
-		EC48D2A2224FB07A00284EA0 /* SignalProtocol+Transforming.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCBDF00224A2D3900A43D2A /* SignalProtocol+Transforming.swift */; };
-		EC48D2A3224FB07A00284EA0 /* SignalProtocol+ErrorHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCBDF0A224A2F1800A43D2A /* SignalProtocol+ErrorHandling.swift */; };
-		EC48D2A4224FB07A00284EA0 /* SignalProtocol+Threading.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D28C224FAEC700284EA0 /* SignalProtocol+Threading.swift */; };
-		EC48D2A5224FB07A00284EA0 /* SignalProtocol+Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCBDF05224A2DB500A43D2A /* SignalProtocol+Utilities.swift */; };
-		EC48D2A6224FB07A00284EA0 /* SignalProtocol+Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2519CE2247E7280027CF12 /* SignalProtocol+Result.swift */; };
-		EC48D2A7224FB07A00284EA0 /* SignalProtocol+Optional.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2519D02247E7B70027CF12 /* SignalProtocol+Optional.swift */; };
-		EC48D2A8224FB07A00284EA0 /* SignalProtocol+Sequence.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2519D22247EB3E0027CF12 /* SignalProtocol+Sequence.swift */; };
-		EC48D2A9224FB07A00284EA0 /* SignalProtocol+Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2519D4224837070027CF12 /* SignalProtocol+Event.swift */; };
 		EC48D2AA224FB07A00284EA0 /* SignalProtocol+Arities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F2F56B1D6D924B00B85896 /* SignalProtocol+Arities.swift */; };
 		EC48D2AB224FB07B00284EA0 /* SignalProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 165EBE501D280028000E68C8 /* SignalProtocol.swift */; };
-		EC48D2AC224FB07B00284EA0 /* SignalProtocol+Monad.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCBDF14224A325700A43D2A /* SignalProtocol+Monad.swift */; };
-		EC48D2AD224FB07B00284EA0 /* SignalProtocol+Filtering.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCBDEFB224A2B7900A43D2A /* SignalProtocol+Filtering.swift */; };
-		EC48D2AE224FB07B00284EA0 /* SignalProtocol+Combining.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCBDF0F224A303D00A43D2A /* SignalProtocol+Combining.swift */; };
-		EC48D2AF224FB07B00284EA0 /* SignalProtocol+Transforming.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCBDF00224A2D3900A43D2A /* SignalProtocol+Transforming.swift */; };
-		EC48D2B0224FB07B00284EA0 /* SignalProtocol+ErrorHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCBDF0A224A2F1800A43D2A /* SignalProtocol+ErrorHandling.swift */; };
-		EC48D2B1224FB07B00284EA0 /* SignalProtocol+Threading.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D28C224FAEC700284EA0 /* SignalProtocol+Threading.swift */; };
-		EC48D2B2224FB07B00284EA0 /* SignalProtocol+Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCBDF05224A2DB500A43D2A /* SignalProtocol+Utilities.swift */; };
-		EC48D2B3224FB07B00284EA0 /* SignalProtocol+Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2519CE2247E7280027CF12 /* SignalProtocol+Result.swift */; };
-		EC48D2B4224FB07B00284EA0 /* SignalProtocol+Optional.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2519D02247E7B70027CF12 /* SignalProtocol+Optional.swift */; };
-		EC48D2B5224FB07B00284EA0 /* SignalProtocol+Sequence.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2519D22247EB3E0027CF12 /* SignalProtocol+Sequence.swift */; };
-		EC48D2B6224FB07B00284EA0 /* SignalProtocol+Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2519D4224837070027CF12 /* SignalProtocol+Event.swift */; };
 		EC48D2B7224FB07B00284EA0 /* SignalProtocol+Arities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F2F56B1D6D924B00B85896 /* SignalProtocol+Arities.swift */; };
+		EC48D2C3224FB4DE00284EA0 /* SignalProtocol+Threading.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2B8224FB4DD00284EA0 /* SignalProtocol+Threading.swift */; };
+		EC48D2C4224FB4DE00284EA0 /* SignalProtocol+Threading.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2B8224FB4DD00284EA0 /* SignalProtocol+Threading.swift */; };
+		EC48D2C5224FB4DE00284EA0 /* SignalProtocol+Threading.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2B8224FB4DD00284EA0 /* SignalProtocol+Threading.swift */; };
+		EC48D2C6224FB4DE00284EA0 /* SignalProtocol+Threading.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2B8224FB4DD00284EA0 /* SignalProtocol+Threading.swift */; };
+		EC48D2C7224FB4DE00284EA0 /* SignalProtocol+Sequence.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2B9224FB4DD00284EA0 /* SignalProtocol+Sequence.swift */; };
+		EC48D2C8224FB4DE00284EA0 /* SignalProtocol+Sequence.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2B9224FB4DD00284EA0 /* SignalProtocol+Sequence.swift */; };
+		EC48D2C9224FB4DE00284EA0 /* SignalProtocol+Sequence.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2B9224FB4DD00284EA0 /* SignalProtocol+Sequence.swift */; };
+		EC48D2CA224FB4DE00284EA0 /* SignalProtocol+Sequence.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2B9224FB4DD00284EA0 /* SignalProtocol+Sequence.swift */; };
+		EC48D2CB224FB4DE00284EA0 /* SignalProtocol+Combining.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2BA224FB4DD00284EA0 /* SignalProtocol+Combining.swift */; };
+		EC48D2CC224FB4DE00284EA0 /* SignalProtocol+Combining.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2BA224FB4DD00284EA0 /* SignalProtocol+Combining.swift */; };
+		EC48D2CD224FB4DE00284EA0 /* SignalProtocol+Combining.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2BA224FB4DD00284EA0 /* SignalProtocol+Combining.swift */; };
+		EC48D2CE224FB4DE00284EA0 /* SignalProtocol+Combining.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2BA224FB4DD00284EA0 /* SignalProtocol+Combining.swift */; };
+		EC48D2CF224FB4DE00284EA0 /* SignalProtocol+ErrorHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2BB224FB4DD00284EA0 /* SignalProtocol+ErrorHandling.swift */; };
+		EC48D2D0224FB4DE00284EA0 /* SignalProtocol+ErrorHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2BB224FB4DD00284EA0 /* SignalProtocol+ErrorHandling.swift */; };
+		EC48D2D1224FB4DE00284EA0 /* SignalProtocol+ErrorHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2BB224FB4DD00284EA0 /* SignalProtocol+ErrorHandling.swift */; };
+		EC48D2D2224FB4DE00284EA0 /* SignalProtocol+ErrorHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2BB224FB4DD00284EA0 /* SignalProtocol+ErrorHandling.swift */; };
+		EC48D2D3224FB4DE00284EA0 /* SignalProtocol+Optional.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2BC224FB4DD00284EA0 /* SignalProtocol+Optional.swift */; };
+		EC48D2D4224FB4DE00284EA0 /* SignalProtocol+Optional.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2BC224FB4DD00284EA0 /* SignalProtocol+Optional.swift */; };
+		EC48D2D5224FB4DE00284EA0 /* SignalProtocol+Optional.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2BC224FB4DD00284EA0 /* SignalProtocol+Optional.swift */; };
+		EC48D2D6224FB4DE00284EA0 /* SignalProtocol+Optional.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2BC224FB4DD00284EA0 /* SignalProtocol+Optional.swift */; };
+		EC48D2D7224FB4DE00284EA0 /* SignalProtocol+Filtering.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2BD224FB4DD00284EA0 /* SignalProtocol+Filtering.swift */; };
+		EC48D2D8224FB4DE00284EA0 /* SignalProtocol+Filtering.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2BD224FB4DD00284EA0 /* SignalProtocol+Filtering.swift */; };
+		EC48D2D9224FB4DE00284EA0 /* SignalProtocol+Filtering.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2BD224FB4DD00284EA0 /* SignalProtocol+Filtering.swift */; };
+		EC48D2DA224FB4DE00284EA0 /* SignalProtocol+Filtering.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2BD224FB4DD00284EA0 /* SignalProtocol+Filtering.swift */; };
+		EC48D2DB224FB4DE00284EA0 /* SignalProtocol+Monad.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2BE224FB4DD00284EA0 /* SignalProtocol+Monad.swift */; };
+		EC48D2DC224FB4DE00284EA0 /* SignalProtocol+Monad.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2BE224FB4DD00284EA0 /* SignalProtocol+Monad.swift */; };
+		EC48D2DD224FB4DE00284EA0 /* SignalProtocol+Monad.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2BE224FB4DD00284EA0 /* SignalProtocol+Monad.swift */; };
+		EC48D2DE224FB4DE00284EA0 /* SignalProtocol+Monad.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2BE224FB4DD00284EA0 /* SignalProtocol+Monad.swift */; };
+		EC48D2DF224FB4DE00284EA0 /* SignalProtocol+Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2BF224FB4DD00284EA0 /* SignalProtocol+Utilities.swift */; };
+		EC48D2E0224FB4DE00284EA0 /* SignalProtocol+Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2BF224FB4DD00284EA0 /* SignalProtocol+Utilities.swift */; };
+		EC48D2E1224FB4DE00284EA0 /* SignalProtocol+Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2BF224FB4DD00284EA0 /* SignalProtocol+Utilities.swift */; };
+		EC48D2E2224FB4DE00284EA0 /* SignalProtocol+Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2BF224FB4DD00284EA0 /* SignalProtocol+Utilities.swift */; };
+		EC48D2E3224FB4DE00284EA0 /* SignalProtocol+Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2C0224FB4DD00284EA0 /* SignalProtocol+Event.swift */; };
+		EC48D2E4224FB4DE00284EA0 /* SignalProtocol+Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2C0224FB4DD00284EA0 /* SignalProtocol+Event.swift */; };
+		EC48D2E5224FB4DE00284EA0 /* SignalProtocol+Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2C0224FB4DD00284EA0 /* SignalProtocol+Event.swift */; };
+		EC48D2E6224FB4DE00284EA0 /* SignalProtocol+Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2C0224FB4DD00284EA0 /* SignalProtocol+Event.swift */; };
+		EC48D2E7224FB4DE00284EA0 /* SignalProtocol+Transforming.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2C1224FB4DE00284EA0 /* SignalProtocol+Transforming.swift */; };
+		EC48D2E8224FB4DE00284EA0 /* SignalProtocol+Transforming.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2C1224FB4DE00284EA0 /* SignalProtocol+Transforming.swift */; };
+		EC48D2E9224FB4DE00284EA0 /* SignalProtocol+Transforming.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2C1224FB4DE00284EA0 /* SignalProtocol+Transforming.swift */; };
+		EC48D2EA224FB4DE00284EA0 /* SignalProtocol+Transforming.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2C1224FB4DE00284EA0 /* SignalProtocol+Transforming.swift */; };
+		EC48D2EB224FB4DE00284EA0 /* SignalProtocol+Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2C2224FB4DE00284EA0 /* SignalProtocol+Result.swift */; };
+		EC48D2EC224FB4DE00284EA0 /* SignalProtocol+Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2C2224FB4DE00284EA0 /* SignalProtocol+Result.swift */; };
+		EC48D2ED224FB4DE00284EA0 /* SignalProtocol+Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2C2224FB4DE00284EA0 /* SignalProtocol+Result.swift */; };
+		EC48D2EE224FB4DE00284EA0 /* SignalProtocol+Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2C2224FB4DE00284EA0 /* SignalProtocol+Result.swift */; };
 		EC6C0FC71DB4A78E00C3880B /* PropertyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6C0FC51DB4A76A00C3880B /* PropertyTests.swift */; };
 		EC7A6F891D3CCF5B00F9EF4A /* Deprecations.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7A6F881D3CCF5B00F9EF4A /* Deprecations.swift */; };
 		EC7A6F8A1D3CCF5B00F9EF4A /* Deprecations.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7A6F881D3CCF5B00F9EF4A /* Deprecations.swift */; };
@@ -119,12 +125,6 @@
 		EC966F22204B43FA0016B4FC /* LoadingSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC966F1E204B43FA0016B4FC /* LoadingSignal.swift */; };
 		ECBCCDD41BEB6B9A00723476 /* ReactiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		ECBCCDDB1BEB6B9B00723476 /* ReactiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ECBCCDD01BEB6B9A00723476 /* ReactiveKit.framework */; };
-		ECCBDEFC224A2B7900A43D2A /* SignalProtocol+Filtering.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCBDEFB224A2B7900A43D2A /* SignalProtocol+Filtering.swift */; };
-		ECCBDF01224A2D3900A43D2A /* SignalProtocol+Transforming.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCBDF00224A2D3900A43D2A /* SignalProtocol+Transforming.swift */; };
-		ECCBDF06224A2DB500A43D2A /* SignalProtocol+Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCBDF05224A2DB500A43D2A /* SignalProtocol+Utilities.swift */; };
-		ECCBDF0B224A2F1800A43D2A /* SignalProtocol+ErrorHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCBDF0A224A2F1800A43D2A /* SignalProtocol+ErrorHandling.swift */; };
-		ECCBDF10224A303D00A43D2A /* SignalProtocol+Combining.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCBDF0F224A303D00A43D2A /* SignalProtocol+Combining.swift */; };
-		ECCBDF15224A325700A43D2A /* SignalProtocol+Monad.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCBDF14224A325700A43D2A /* SignalProtocol+Monad.swift */; };
 		ECD102FF1D89B2530086B6A1 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD102FD1D89B2530086B6A1 /* Helpers.swift */; };
 		ECD103001D89B2530086B6A1 /* SignalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD102FE1D89B2530086B6A1 /* SignalTests.swift */; };
 /* End PBXBuildFile section */
@@ -153,12 +153,18 @@
 		16C33B241BEFBA0100A0DBE0 /* ReactiveKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		16F2F5661D6D8A4500B85896 /* Lock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Lock.swift; path = Sources/Lock.swift; sourceTree = SOURCE_ROOT; };
 		16F2F56B1D6D924B00B85896 /* SignalProtocol+Arities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "SignalProtocol+Arities.swift"; path = "Sources/SignalProtocol+Arities.swift"; sourceTree = SOURCE_ROOT; };
-		EC2519CE2247E7280027CF12 /* SignalProtocol+Result.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SignalProtocol+Result.swift"; sourceTree = "<group>"; };
-		EC2519D02247E7B70027CF12 /* SignalProtocol+Optional.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SignalProtocol+Optional.swift"; sourceTree = "<group>"; };
-		EC2519D22247EB3E0027CF12 /* SignalProtocol+Sequence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SignalProtocol+Sequence.swift"; sourceTree = "<group>"; };
-		EC2519D4224837070027CF12 /* SignalProtocol+Event.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SignalProtocol+Event.swift"; sourceTree = "<group>"; };
 		EC31EE0C1E7BF97C00857946 /* Deallocatable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Deallocatable.swift; path = Sources/Deallocatable.swift; sourceTree = SOURCE_ROOT; };
-		EC48D28C224FAEC700284EA0 /* SignalProtocol+Threading.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SignalProtocol+Threading.swift"; sourceTree = "<group>"; };
+		EC48D2B8224FB4DD00284EA0 /* SignalProtocol+Threading.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "SignalProtocol+Threading.swift"; path = "Sources/SignalProtocol+Threading.swift"; sourceTree = SOURCE_ROOT; };
+		EC48D2B9224FB4DD00284EA0 /* SignalProtocol+Sequence.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "SignalProtocol+Sequence.swift"; path = "Sources/SignalProtocol+Sequence.swift"; sourceTree = SOURCE_ROOT; };
+		EC48D2BA224FB4DD00284EA0 /* SignalProtocol+Combining.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "SignalProtocol+Combining.swift"; path = "Sources/SignalProtocol+Combining.swift"; sourceTree = SOURCE_ROOT; };
+		EC48D2BB224FB4DD00284EA0 /* SignalProtocol+ErrorHandling.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "SignalProtocol+ErrorHandling.swift"; path = "Sources/SignalProtocol+ErrorHandling.swift"; sourceTree = SOURCE_ROOT; };
+		EC48D2BC224FB4DD00284EA0 /* SignalProtocol+Optional.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "SignalProtocol+Optional.swift"; path = "Sources/SignalProtocol+Optional.swift"; sourceTree = SOURCE_ROOT; };
+		EC48D2BD224FB4DD00284EA0 /* SignalProtocol+Filtering.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "SignalProtocol+Filtering.swift"; path = "Sources/SignalProtocol+Filtering.swift"; sourceTree = SOURCE_ROOT; };
+		EC48D2BE224FB4DD00284EA0 /* SignalProtocol+Monad.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "SignalProtocol+Monad.swift"; path = "Sources/SignalProtocol+Monad.swift"; sourceTree = SOURCE_ROOT; };
+		EC48D2BF224FB4DD00284EA0 /* SignalProtocol+Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "SignalProtocol+Utilities.swift"; path = "Sources/SignalProtocol+Utilities.swift"; sourceTree = SOURCE_ROOT; };
+		EC48D2C0224FB4DD00284EA0 /* SignalProtocol+Event.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "SignalProtocol+Event.swift"; path = "Sources/SignalProtocol+Event.swift"; sourceTree = SOURCE_ROOT; };
+		EC48D2C1224FB4DE00284EA0 /* SignalProtocol+Transforming.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "SignalProtocol+Transforming.swift"; path = "Sources/SignalProtocol+Transforming.swift"; sourceTree = SOURCE_ROOT; };
+		EC48D2C2224FB4DE00284EA0 /* SignalProtocol+Result.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "SignalProtocol+Result.swift"; path = "Sources/SignalProtocol+Result.swift"; sourceTree = SOURCE_ROOT; };
 		EC4E7A6D200173DE002BAEEC /* LinuxMain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinuxMain.swift; sourceTree = "<group>"; };
 		EC6C0FC51DB4A76A00C3880B /* PropertyTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PropertyTests.swift; sourceTree = "<group>"; };
 		EC7A6F881D3CCF5B00F9EF4A /* Deprecations.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Deprecations.swift; path = Sources/Deprecations.swift; sourceTree = SOURCE_ROOT; };
@@ -174,12 +180,6 @@
 		ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ReactiveKit.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		ECBCCDD51BEB6B9A00723476 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		ECBCCDDA1BEB6B9B00723476 /* ReactiveKit-Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ReactiveKit-Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		ECCBDEFB224A2B7900A43D2A /* SignalProtocol+Filtering.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SignalProtocol+Filtering.swift"; sourceTree = "<group>"; };
-		ECCBDF00224A2D3900A43D2A /* SignalProtocol+Transforming.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SignalProtocol+Transforming.swift"; sourceTree = "<group>"; };
-		ECCBDF05224A2DB500A43D2A /* SignalProtocol+Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SignalProtocol+Utilities.swift"; sourceTree = "<group>"; };
-		ECCBDF0A224A2F1800A43D2A /* SignalProtocol+ErrorHandling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SignalProtocol+ErrorHandling.swift"; sourceTree = "<group>"; };
-		ECCBDF0F224A303D00A43D2A /* SignalProtocol+Combining.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SignalProtocol+Combining.swift"; sourceTree = "<group>"; };
-		ECCBDF14224A325700A43D2A /* SignalProtocol+Monad.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SignalProtocol+Monad.swift"; sourceTree = "<group>"; };
 		ECD102FD1D89B2530086B6A1 /* Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
 		ECD102FE1D89B2530086B6A1 /* SignalTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalTests.swift; sourceTree = "<group>"; };
 		ECD103011D89B2610086B6A1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = ReactiveKitTests/Info.plist; sourceTree = SOURCE_ROOT; };
@@ -258,18 +258,18 @@
 				165EBE311D27F8BC000E68C8 /* Event.swift */,
 				165EBE5A1D2804FF000E68C8 /* Signal.swift */,
 				165EBE501D280028000E68C8 /* SignalProtocol.swift */,
-				ECCBDF14224A325700A43D2A /* SignalProtocol+Monad.swift */,
-				ECCBDEFB224A2B7900A43D2A /* SignalProtocol+Filtering.swift */,
-				ECCBDF0F224A303D00A43D2A /* SignalProtocol+Combining.swift */,
-				ECCBDF00224A2D3900A43D2A /* SignalProtocol+Transforming.swift */,
-				ECCBDF0A224A2F1800A43D2A /* SignalProtocol+ErrorHandling.swift */,
-				EC48D28C224FAEC700284EA0 /* SignalProtocol+Threading.swift */,
-				ECCBDF05224A2DB500A43D2A /* SignalProtocol+Utilities.swift */,
-				EC2519CE2247E7280027CF12 /* SignalProtocol+Result.swift */,
-				EC2519D02247E7B70027CF12 /* SignalProtocol+Optional.swift */,
-				EC2519D22247EB3E0027CF12 /* SignalProtocol+Sequence.swift */,
-				EC2519D4224837070027CF12 /* SignalProtocol+Event.swift */,
+				EC48D2BE224FB4DD00284EA0 /* SignalProtocol+Monad.swift */,
+				EC48D2BD224FB4DD00284EA0 /* SignalProtocol+Filtering.swift */,
+				EC48D2BA224FB4DD00284EA0 /* SignalProtocol+Combining.swift */,
+				EC48D2C1224FB4DE00284EA0 /* SignalProtocol+Transforming.swift */,
+				EC48D2BB224FB4DD00284EA0 /* SignalProtocol+ErrorHandling.swift */,
+				EC48D2B8224FB4DD00284EA0 /* SignalProtocol+Threading.swift */,
+				EC48D2BF224FB4DD00284EA0 /* SignalProtocol+Utilities.swift */,
 				16F2F56B1D6D924B00B85896 /* SignalProtocol+Arities.swift */,
+				EC48D2C0224FB4DD00284EA0 /* SignalProtocol+Event.swift */,
+				EC48D2C2224FB4DE00284EA0 /* SignalProtocol+Result.swift */,
+				EC48D2BC224FB4DD00284EA0 /* SignalProtocol+Optional.swift */,
+				EC48D2B9224FB4DD00284EA0 /* SignalProtocol+Sequence.swift */,
 				EC8A99DF1CABD9B50042A6AD /* Observer.swift */,
 				EC8A99E61CABD9B50042A6AD /* ExecutionContext.swift */,
 				16886A191D3168E000D83E39 /* Connectable.swift */,
@@ -533,34 +533,34 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EC48D2EC224FB4DE00284EA0 /* SignalProtocol+Result.swift in Sources */,
 				16A205081D3236EC0054484B /* Property.swift in Sources */,
-				EC48D2AC224FB07B00284EA0 /* SignalProtocol+Monad.swift in Sources */,
-				EC48D2B1224FB07B00284EA0 /* SignalProtocol+Threading.swift in Sources */,
+				EC48D2E8224FB4DE00284EA0 /* SignalProtocol+Transforming.swift in Sources */,
 				EC48D2B7224FB07B00284EA0 /* SignalProtocol+Arities.swift in Sources */,
-				EC48D2B2224FB07B00284EA0 /* SignalProtocol+Utilities.swift in Sources */,
-				EC48D2B4224FB07B00284EA0 /* SignalProtocol+Optional.swift in Sources */,
+				EC48D2C8224FB4DE00284EA0 /* SignalProtocol+Sequence.swift in Sources */,
 				EC31EE0E1E7BF97C00857946 /* Deallocatable.swift in Sources */,
-				EC48D2AF224FB07B00284EA0 /* SignalProtocol+Transforming.swift in Sources */,
+				EC48D2E0224FB4DE00284EA0 /* SignalProtocol+Utilities.swift in Sources */,
 				EC966F20204B43FA0016B4FC /* LoadingSignal.swift in Sources */,
 				16F2F5681D6D8A4500B85896 /* Lock.swift in Sources */,
-				EC48D2B3224FB07B00284EA0 /* SignalProtocol+Result.swift in Sources */,
+				EC48D2CC224FB4DE00284EA0 /* SignalProtocol+Combining.swift in Sources */,
 				16886A1F1D31699F00D83E39 /* Subjects.swift in Sources */,
+				EC48D2D8224FB4DE00284EA0 /* SignalProtocol+Filtering.swift in Sources */,
 				16886A1B1D3168E000D83E39 /* Connectable.swift in Sources */,
-				EC48D2AE224FB07B00284EA0 /* SignalProtocol+Combining.swift in Sources */,
 				165EBE401D27FAEA000E68C8 /* Observer.swift in Sources */,
-				EC48D2B5224FB07B00284EA0 /* SignalProtocol+Sequence.swift in Sources */,
 				16886A241D31705500D83E39 /* Bindable.swift in Sources */,
-				EC48D2B0224FB07B00284EA0 /* SignalProtocol+ErrorHandling.swift in Sources */,
+				EC48D2D0224FB4DE00284EA0 /* SignalProtocol+ErrorHandling.swift in Sources */,
 				165EBE331D27F8BC000E68C8 /* Event.swift in Sources */,
+				EC48D2C4224FB4DE00284EA0 /* SignalProtocol+Threading.swift in Sources */,
 				165EBE5C1D2804FF000E68C8 /* Signal.swift in Sources */,
+				EC48D2D4224FB4DE00284EA0 /* SignalProtocol+Optional.swift in Sources */,
 				165EBE451D27FE76000E68C8 /* Disposable.swift in Sources */,
-				EC48D2AD224FB07B00284EA0 /* SignalProtocol+Filtering.swift in Sources */,
 				EC877A881E019E3400A23B51 /* Reactive.swift in Sources */,
+				EC48D2E4224FB4DE00284EA0 /* SignalProtocol+Event.swift in Sources */,
 				EC966F1B204B43DF0016B4FC /* LoadingProperty.swift in Sources */,
 				165EBE491D27FE8F000E68C8 /* ExecutionContext.swift in Sources */,
-				EC48D2B6224FB07B00284EA0 /* SignalProtocol+Event.swift in Sources */,
 				EC7A6F8A1D3CCF5B00F9EF4A /* Deprecations.swift in Sources */,
 				EC48D2AB224FB07B00284EA0 /* SignalProtocol.swift in Sources */,
+				EC48D2DC224FB4DE00284EA0 /* SignalProtocol+Monad.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -568,34 +568,34 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EC48D2ED224FB4DE00284EA0 /* SignalProtocol+Result.swift in Sources */,
 				16A205071D3236EC0054484B /* Property.swift in Sources */,
-				EC48D29F224FB07A00284EA0 /* SignalProtocol+Monad.swift in Sources */,
-				EC48D2A4224FB07A00284EA0 /* SignalProtocol+Threading.swift in Sources */,
+				EC48D2E9224FB4DE00284EA0 /* SignalProtocol+Transforming.swift in Sources */,
 				EC48D2AA224FB07A00284EA0 /* SignalProtocol+Arities.swift in Sources */,
-				EC48D2A5224FB07A00284EA0 /* SignalProtocol+Utilities.swift in Sources */,
-				EC48D2A7224FB07A00284EA0 /* SignalProtocol+Optional.swift in Sources */,
+				EC48D2C9224FB4DE00284EA0 /* SignalProtocol+Sequence.swift in Sources */,
 				EC31EE0F1E7BF97C00857946 /* Deallocatable.swift in Sources */,
-				EC48D2A2224FB07A00284EA0 /* SignalProtocol+Transforming.swift in Sources */,
+				EC48D2E1224FB4DE00284EA0 /* SignalProtocol+Utilities.swift in Sources */,
 				EC966F21204B43FA0016B4FC /* LoadingSignal.swift in Sources */,
 				16F2F5691D6D8A4500B85896 /* Lock.swift in Sources */,
-				EC48D2A6224FB07A00284EA0 /* SignalProtocol+Result.swift in Sources */,
+				EC48D2CD224FB4DE00284EA0 /* SignalProtocol+Combining.swift in Sources */,
 				16886A201D31699F00D83E39 /* Subjects.swift in Sources */,
+				EC48D2D9224FB4DE00284EA0 /* SignalProtocol+Filtering.swift in Sources */,
 				16886A1C1D3168E000D83E39 /* Connectable.swift in Sources */,
-				EC48D2A1224FB07A00284EA0 /* SignalProtocol+Combining.swift in Sources */,
 				165EBE411D27FAEB000E68C8 /* Observer.swift in Sources */,
-				EC48D2A8224FB07A00284EA0 /* SignalProtocol+Sequence.swift in Sources */,
 				16886A251D31705500D83E39 /* Bindable.swift in Sources */,
-				EC48D2A3224FB07A00284EA0 /* SignalProtocol+ErrorHandling.swift in Sources */,
+				EC48D2D1224FB4DE00284EA0 /* SignalProtocol+ErrorHandling.swift in Sources */,
 				165EBE341D27F8BC000E68C8 /* Event.swift in Sources */,
+				EC48D2C5224FB4DE00284EA0 /* SignalProtocol+Threading.swift in Sources */,
 				165EBE5D1D2804FF000E68C8 /* Signal.swift in Sources */,
+				EC48D2D5224FB4DE00284EA0 /* SignalProtocol+Optional.swift in Sources */,
 				165EBE441D27FE76000E68C8 /* Disposable.swift in Sources */,
-				EC48D2A0224FB07A00284EA0 /* SignalProtocol+Filtering.swift in Sources */,
 				EC877A891E019E3400A23B51 /* Reactive.swift in Sources */,
+				EC48D2E5224FB4DE00284EA0 /* SignalProtocol+Event.swift in Sources */,
 				EC966F1C204B43DF0016B4FC /* LoadingProperty.swift in Sources */,
 				165EBE481D27FE8E000E68C8 /* ExecutionContext.swift in Sources */,
-				EC48D2A9224FB07A00284EA0 /* SignalProtocol+Event.swift in Sources */,
 				EC7A6F8B1D3CCF5B00F9EF4A /* Deprecations.swift in Sources */,
 				EC48D29E224FB07A00284EA0 /* SignalProtocol.swift in Sources */,
+				EC48D2DD224FB4DE00284EA0 /* SignalProtocol+Monad.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -603,34 +603,34 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EC48D2EE224FB4DE00284EA0 /* SignalProtocol+Result.swift in Sources */,
 				16A205061D3236EC0054484B /* Property.swift in Sources */,
-				EC48D292224FB07A00284EA0 /* SignalProtocol+Monad.swift in Sources */,
-				EC48D297224FB07A00284EA0 /* SignalProtocol+Threading.swift in Sources */,
+				EC48D2EA224FB4DE00284EA0 /* SignalProtocol+Transforming.swift in Sources */,
 				EC48D29D224FB07A00284EA0 /* SignalProtocol+Arities.swift in Sources */,
-				EC48D298224FB07A00284EA0 /* SignalProtocol+Utilities.swift in Sources */,
-				EC48D29A224FB07A00284EA0 /* SignalProtocol+Optional.swift in Sources */,
+				EC48D2CA224FB4DE00284EA0 /* SignalProtocol+Sequence.swift in Sources */,
 				EC31EE101E7BF97C00857946 /* Deallocatable.swift in Sources */,
-				EC48D295224FB07A00284EA0 /* SignalProtocol+Transforming.swift in Sources */,
+				EC48D2E2224FB4DE00284EA0 /* SignalProtocol+Utilities.swift in Sources */,
 				EC966F22204B43FA0016B4FC /* LoadingSignal.swift in Sources */,
 				16F2F56A1D6D8A4500B85896 /* Lock.swift in Sources */,
-				EC48D299224FB07A00284EA0 /* SignalProtocol+Result.swift in Sources */,
+				EC48D2CE224FB4DE00284EA0 /* SignalProtocol+Combining.swift in Sources */,
 				16886A1E1D31699E00D83E39 /* Subjects.swift in Sources */,
+				EC48D2DA224FB4DE00284EA0 /* SignalProtocol+Filtering.swift in Sources */,
 				16886A1D1D3168E000D83E39 /* Connectable.swift in Sources */,
-				EC48D294224FB07A00284EA0 /* SignalProtocol+Combining.swift in Sources */,
 				165EBE421D27FAEC000E68C8 /* Observer.swift in Sources */,
-				EC48D29B224FB07A00284EA0 /* SignalProtocol+Sequence.swift in Sources */,
 				16886A261D31705500D83E39 /* Bindable.swift in Sources */,
-				EC48D296224FB07A00284EA0 /* SignalProtocol+ErrorHandling.swift in Sources */,
+				EC48D2D2224FB4DE00284EA0 /* SignalProtocol+ErrorHandling.swift in Sources */,
 				165EBE351D27F8BC000E68C8 /* Event.swift in Sources */,
+				EC48D2C6224FB4DE00284EA0 /* SignalProtocol+Threading.swift in Sources */,
 				165EBE5E1D2804FF000E68C8 /* Signal.swift in Sources */,
+				EC48D2D6224FB4DE00284EA0 /* SignalProtocol+Optional.swift in Sources */,
 				165EBE431D27FE75000E68C8 /* Disposable.swift in Sources */,
-				EC48D293224FB07A00284EA0 /* SignalProtocol+Filtering.swift in Sources */,
 				EC877A8A1E019E3400A23B51 /* Reactive.swift in Sources */,
+				EC48D2E6224FB4DE00284EA0 /* SignalProtocol+Event.swift in Sources */,
 				EC966F1D204B43DF0016B4FC /* LoadingProperty.swift in Sources */,
 				165EBE471D27FE8D000E68C8 /* ExecutionContext.swift in Sources */,
-				EC48D29C224FB07A00284EA0 /* SignalProtocol+Event.swift in Sources */,
 				EC7A6F8C1D3CCF5B00F9EF4A /* Deprecations.swift in Sources */,
 				EC48D291224FB07A00284EA0 /* SignalProtocol.swift in Sources */,
+				EC48D2DE224FB4DE00284EA0 /* SignalProtocol+Monad.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -638,34 +638,34 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EC48D2EB224FB4DE00284EA0 /* SignalProtocol+Result.swift in Sources */,
 				EC8706671D3CDDAA0068B589 /* Property.swift in Sources */,
+				EC48D2E7224FB4DE00284EA0 /* SignalProtocol+Transforming.swift in Sources */,
 				EC31EE0D1E7BF97C00857946 /* Deallocatable.swift in Sources */,
-				EC48D28D224FAEC700284EA0 /* SignalProtocol+Threading.swift in Sources */,
-				ECCBDF10224A303D00A43D2A /* SignalProtocol+Combining.swift in Sources */,
+				EC48D2C7224FB4DE00284EA0 /* SignalProtocol+Sequence.swift in Sources */,
 				EC966F1F204B43FA0016B4FC /* LoadingSignal.swift in Sources */,
+				EC48D2DF224FB4DE00284EA0 /* SignalProtocol+Utilities.swift in Sources */,
 				16F2F5671D6D8A4500B85896 /* Lock.swift in Sources */,
-				EC2519D32247EB3E0027CF12 /* SignalProtocol+Sequence.swift in Sources */,
 				EC8706661D3CDCE10068B589 /* Bindable.swift in Sources */,
-				ECCBDEFC224A2B7900A43D2A /* SignalProtocol+Filtering.swift in Sources */,
-				ECCBDF15224A325700A43D2A /* SignalProtocol+Monad.swift in Sources */,
-				EC2519D5224837070027CF12 /* SignalProtocol+Event.swift in Sources */,
+				EC48D2CB224FB4DE00284EA0 /* SignalProtocol+Combining.swift in Sources */,
 				16F2F56C1D6D924B00B85896 /* SignalProtocol+Arities.swift in Sources */,
-				ECCBDF01224A2D3900A43D2A /* SignalProtocol+Transforming.swift in Sources */,
+				EC48D2D7224FB4DE00284EA0 /* SignalProtocol+Filtering.swift in Sources */,
 				165EBE511D280028000E68C8 /* SignalProtocol.swift in Sources */,
 				165EBE3F1D27FAE9000E68C8 /* Observer.swift in Sources */,
-				EC2519D12247E7B70027CF12 /* SignalProtocol+Optional.swift in Sources */,
 				EC8706641D3CDC210068B589 /* Subjects.swift in Sources */,
-				ECCBDF0B224A2F1800A43D2A /* SignalProtocol+ErrorHandling.swift in Sources */,
+				EC48D2CF224FB4DE00284EA0 /* SignalProtocol+ErrorHandling.swift in Sources */,
 				165EBE321D27F8BC000E68C8 /* Event.swift in Sources */,
+				EC48D2C3224FB4DE00284EA0 /* SignalProtocol+Threading.swift in Sources */,
 				165EBE5B1D2804FF000E68C8 /* Signal.swift in Sources */,
+				EC48D2D3224FB4DE00284EA0 /* SignalProtocol+Optional.swift in Sources */,
 				165EBE461D27FE76000E68C8 /* Disposable.swift in Sources */,
 				EC877A871E019E3400A23B51 /* Reactive.swift in Sources */,
-				ECCBDF06224A2DB500A43D2A /* SignalProtocol+Utilities.swift in Sources */,
+				EC48D2E3224FB4DE00284EA0 /* SignalProtocol+Event.swift in Sources */,
 				165EBE4A1D27FE90000E68C8 /* ExecutionContext.swift in Sources */,
 				EC966F1A204B43DF0016B4FC /* LoadingProperty.swift in Sources */,
-				EC2519CF2247E7280027CF12 /* SignalProtocol+Result.swift in Sources */,
 				EC7A6F891D3CCF5B00F9EF4A /* Deprecations.swift in Sources */,
 				EC8706651D3CDCAC0068B589 /* Connectable.swift in Sources */,
+				EC48D2DB224FB4DE00284EA0 /* SignalProtocol+Monad.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
