@@ -56,6 +56,13 @@ extension SignalProtocol {
         }
     }
 
+    /// Propagate elements only from the signal that starts emitting first. Also known as the `race` operator.
+    ///
+    /// Check out interactive example at [https://rxmarbles.com/#race](https://rxmarbles.com/#race)
+    public func amb<O: SignalProtocol>(with other: O) -> Signal<Element, Error> where O.Element == Element, O.Error == Never {
+        return amb(with: (other.castError() as Signal<O.Element, Error>))
+    }
+
     /// Emit a combination of latest elements from each signal. Starts when both signals emit at least one element.
     /// Emits an element when any of the two signals emit an element by calling `combine` on the two emitted elements.
     ///
@@ -115,6 +122,22 @@ extension SignalProtocol {
         return combineLatest(with: other, combine: { ($0, $1) })
     }
 
+    /// Emit a combination of latest elements from each signal. Starts when both signals emit at least one element.
+    /// Emits an element when any of the two signals emit an element by calling `combine` on the two emitted elements.
+    ///
+    /// Check out interactive example at [https://rxmarbles.com/#combineLatest](https://rxmarbles.com/#combineLatest)
+    public func combineLatest<O: SignalProtocol, U>(with other: O, combine: @escaping (Element, O.Element) -> U) -> Signal<U, Error> where O.Error == Never {
+        return combineLatest(with: (other.castError() as Signal<O.Element, Error>), combine: combine)
+    }
+
+    /// Emit a pair of the latest elements from each signal. Starts when both signals emit at least one element.
+    /// Emits a pair element when any of the two signals emit an element.
+    ///
+    /// Check out interactive example at [https://rxmarbles.com/#combineLatest](https://rxmarbles.com/#combineLatest)
+    public func combineLatest<O: SignalProtocol>(with other: O) -> Signal<(Element, O.Element), Error> where O.Error == Never {
+        return combineLatest(with: (other.castError() as Signal<O.Element, Error>))
+    }
+
     /// First propagate all elements from the source signal and then all elements from the `other` signal.
     ///
     /// Check out interactive example at [https://rxmarbles.com/#concat](https://rxmarbles.com/#concat)
@@ -135,11 +158,25 @@ extension SignalProtocol {
         }
     }
 
+    /// First propagate all elements from the source signal and then all elements from the `other` signal.
+    ///
+    /// Check out interactive example at [https://rxmarbles.com/#concat](https://rxmarbles.com/#concat)
+    public func concat<O: SignalProtocol>(with other: O) -> Signal<Element, Error> where O.Element == Element, O.Error == Never {
+        return concat(with: (other.castError() as Signal<O.Element, Error>))
+    }
+
     /// Merge emissions from both the receiver and the `other` signal into one signal.
     ///
     /// Check out interactive example at [https://rxmarbles.com/#merge](https://rxmarbles.com/#merge)
     public func merge<O: SignalProtocol>(with other: O) -> Signal<Element, Error> where O.Element == Element, O.Error == Error {
         return Signal(sequence: [self.toSignal(), other.toSignal()]).merge()
+    }
+
+    /// Merge emissions from both the receiver and the `other` signal into one signal.
+    ///
+    /// Check out interactive example at [https://rxmarbles.com/#merge](https://rxmarbles.com/#merge)
+    public func merge<O: SignalProtocol>(with other: O) -> Signal<Element, Error> where O.Element == Element, O.Error == Never {
+        return Signal(sequence: [self.toSignal(), other.castError()]).merge()
     }
 
     /// Replay the latest element when the other signal emits an element.
@@ -187,6 +224,22 @@ extension SignalProtocol {
     /// Check out interactive example at [https://rxmarbles.com/#withLatestFrom](https://rxmarbles.com/#withLatestFrom)
     public func with<O: SignalProtocol>(latestFrom other: O) -> Signal<(Element, O.Element), Error> where O.Error == Error {
         return with(latestFrom: other, combine: { ($0, $1) })
+    }
+
+    /// Combine the receiver and the `other` signal into a signal whose elements are combinations of the
+    /// receiver elements with the latest elements from the `other` signal.
+    ///
+    /// Check out interactive example at [https://rxmarbles.com/#withLatestFrom](https://rxmarbles.com/#withLatestFrom)
+    public func with<O: SignalProtocol, U>(latestFrom other: O, combine: @escaping (Element, O.Element) -> U) -> Signal<U, Error> where O.Error == Never {
+        return with(latestFrom: (other.castError() as Signal<O.Element, Error>), combine: combine)
+    }
+
+    /// Combine the receiver and the `other` signal into a signal whose elements are combinations of the
+    /// receiver elements with the latest elements from the `other` signal.
+    ///
+    /// Check out interactive example at [https://rxmarbles.com/#withLatestFrom](https://rxmarbles.com/#withLatestFrom)
+    public func with<O: SignalProtocol>(latestFrom other: O) -> Signal<(Element, O.Element), Error> where O.Error == Never {
+        return with(latestFrom: (other.castError() as Signal<O.Element, Error>))
     }
 
     /// Zip elements from the receiver and the `other` signal.
@@ -248,6 +301,22 @@ extension SignalProtocol {
     /// Check out interactive example at [https://rxmarbles.com/#zip](https://rxmarbles.com/#zip)
     public func zip<O: SignalProtocol>(with other: O) -> Signal<(Element, O.Element), Error> where O.Error == Error {
         return zip(with: other, combine: { ($0, $1) })
+    }
+
+    /// Zip elements from the receiver and the `other` signal.
+    /// Zip differs from `combineLatest` in that the combinations are produced from elements at same positions.
+    ///
+    /// Check out interactive example at [https://rxmarbles.com/#zip](https://rxmarbles.com/#zip)
+    public func zip<O: SignalProtocol, U>(with other: O, combine: @escaping (Element, O.Element) -> U) -> Signal<U, Error> where O.Error == Never {
+        return zip(with: (other.castError() as Signal<O.Element, Error>), combine: combine)
+    }
+
+    /// Zip elements from the receiver and the `other` signal.
+    /// Zip differs from `combineLatest` in that the combinations are produced from elements at same positions.
+    ///
+    /// Check out interactive example at [https://rxmarbles.com/#zip](https://rxmarbles.com/#zip)
+    public func zip<O: SignalProtocol>(with other: O) -> Signal<(Element, O.Element), Error> where O.Error == Never {
+        return zip(with: (other.castError() as Signal<O.Element, Error>))
     }
 }
 

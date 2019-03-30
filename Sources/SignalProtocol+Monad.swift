@@ -339,3 +339,13 @@ extension SignalProtocol where Error == Never {
         return flatMap(.merge, transform)
     }
 }
+
+extension SignalProtocol where Element: SignalProtocol, Error == Never {
+
+    /// Flatten the signal using the given strategy.
+    ///
+    /// - parameter strategy: Flattening strategy to use. Check out [FlattenStrategy](x-source-tag://FlattenStrategy) type from more info.
+    public func flatten(_ strategy: FlattenStrategy) -> Signal<Element.Element, Element.Error> {
+        return (castError() as Signal<Element, Element.Error>).flatten(strategy)
+    }
+}

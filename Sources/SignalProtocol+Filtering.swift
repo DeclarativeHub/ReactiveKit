@@ -93,8 +93,8 @@ extension SignalProtocol {
 
     /// Filter the signal by executing `isIncluded` in each element and
     /// propagate that element only if the returned signal emits `true`.
-    public func filter(_ isIncluded: @escaping (Element) -> SafeSignal<Bool>) -> Signal<Element, Error> {
-        return flatMapLatest { element -> Signal<Element, Error> in
+    public func flatMapFilter(_ strategy: FlattenStrategy = .concat, _ isIncluded: @escaping (Element) -> SafeSignal<Bool>) -> Signal<Element, Error> {
+        return flatMap(strategy) { element -> Signal<Element, Error> in
             return isIncluded(element)
                 .first()
                 .map { isIncluded -> Element? in
