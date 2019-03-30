@@ -7,7 +7,7 @@ import PlaygroundSupport
 PlaygroundPage.current.needsIndefiniteExecution = true
 
 //: # Creating Signals
-//: Uncomment the observer line to explore the behaviour
+//: Uncomment the `observe { ... }` line to explore the behaviour!
 
 SafeSignal(just: "Jim")
 //.observe { print($0) }

@@ -12,6 +12,5 @@ enum MyError: Error {
 let a = Signal<Int, Error>(sequence: 0...4, interval: 0.5)
 let b = SafeSignal(sequence: 0...2, interval: 2)
 
-a.amb(with: b.castError()).observeNext { (e) in
-    print(e)
-}
+b.concat(with: b)
+

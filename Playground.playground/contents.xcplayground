@@ -2,6 +2,9 @@
 <playground version='6.0' target-platform='ios' display-mode='raw' last-migration='1020'>
     <pages>
         <page name='Creating Signals'/>
+        <page name='Observing Signals'/>
+        <page name='Transforming Signals'/>
+        <page name='Working with UI'/>
         <page name='Exploration'/>
     </pages>
 </playground>
