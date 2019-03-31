@@ -24,21 +24,22 @@ class PropertyTests: XCTestCase {
     }
     
     func testEvents() {
-        property.expectAsync(events: 
-            [
+        property.expectAsync(
+            events: [
                 .next(0),
                 .next(5),
                 .next(10),
                 .next(20),
                 .next(30),
                 .next(40),
-                .completed],
-                             expectation: expectation(description: "Property did not fire expected events")
+                .completed
+            ],
+            expectation: expectation(description: "Property did not fire expected events")
         )
         
         property.value = 5
         property.value = 10
-        SafeSignal.sequence([20, 30]).bind(to: property)
+        SafeSignal(sequence: [20, 30]).bind(to: property)
         property.value = 40
         
         weak var weakProperty = property
@@ -52,21 +53,22 @@ class PropertyTests: XCTestCase {
         var readOnlyView: AnyProperty<Int>! = property.readOnlyView
         XCTAssert(readOnlyView.value == 0)
         
-        readOnlyView.expectAsync(events: 
-            [
+        readOnlyView.expectAsync(
+            events: [
                 .next(0),
                 .next(5),
                 .next(10),
                 .next(20),
                 .next(30),
                 .next(40),
-                .completed],
-                                 expectation: expectation(description: "Property did not fire expected events")
+                .completed
+            ],
+            expectation: expectation(description: "Property did not fire expected events")
         )
         
         property.value = 5
         property.value = 10
-        SafeSignal.sequence([20, 30]).bind(to: property)
+        SafeSignal(sequence: [20, 30]).bind(to: property)
         property.value = 40
         
         XCTAssert(readOnlyView.value == 40)

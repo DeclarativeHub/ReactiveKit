@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<playground version='5.0' target-platform='ios'>
-    <timeline fileName='timeline.xctimeline'/>
+<playground version='6.0' target-platform='ios' display-mode='raw' last-migration='1020'>
+    <pages>
+        <page name='Creating Signals'/>
+        <page name='Observing Signals'/>
+        <page name='Transforming Signals'/>
+        <page name='Working with UI'/>
+        <page name='Exploration'/>
+    </pages>
 </playground>

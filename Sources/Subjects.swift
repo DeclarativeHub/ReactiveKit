@@ -38,8 +38,8 @@ open class Subject<Element, Error: Swift.Error>: SubjectProtocol {
     
     public private(set) var isTerminated = false
     
-    public let observersLock = NSRecursiveLock(name: "reactivekit.subject.observers-lock")
-    public let dispatchLock = NSRecursiveLock(name: "reactivekit.subject.dispatch-lock")
+    public let observersLock = NSRecursiveLock(name: "reactive_kit.subject.observers_lock")
+    public let dispatchLock = NSRecursiveLock(name: "reactive_kit.subject.dispatch_lock")
     
     public let disposeBag = DisposeBag()
     
@@ -74,7 +74,7 @@ open class Subject<Element, Error: Swift.Error>: SubjectProtocol {
         return BlockDisposable { [weak self] in
             guard let me = self else { return }
             me.observersLock.lock(); defer { me.observersLock.unlock() }
-            guard let index = me.observers.index(where: { $0.0 == token }) else { return }
+            guard let index = me.observers.firstIndex(where: { $0.0 == token }) else { return }
             me.observers.remove(at: index)
         }
     }
@@ -88,7 +88,7 @@ open class Subject<Element, Error: Swift.Error>: SubjectProtocol {
 
 extension Subject: BindableProtocol {
     
-    public func bind(signal: Signal<Element, NoError>) -> Disposable {
+    public func bind(signal: Signal<Element, Never>) -> Disposable {
         return signal
             .take(until: disposeBag.deallocated)
             .observeIn(.nonRecursive())
@@ -101,6 +101,9 @@ extension Subject: BindableProtocol {
 
 /// A subject that propagates received events to the registered observes.
 public final class PublishSubject<Element, Error: Swift.Error>: Subject<Element, Error> {}
+
+/// A PublishSubject compile-time guaranteed never to emit an error.
+public typealias SafePublishSubject<Element> = PublishSubject<Element, Never>
 
 /// A subject that replies accumulated sequence of events to each observer.
 public final class ReplaySubject<Element, Error: Swift.Error>: Subject<Element, Error> {
@@ -127,6 +130,9 @@ public final class ReplaySubject<Element, Error: Swift.Error>: Subject<Element, 
     }
 }
 
+/// A ReplaySubject compile-time guaranteed never to emit an error.
+public typealias SafeReplaySubject<Element> = ReplaySubject<Element, Never>
+
 /// A subject that replies latest event to each observer.
 public final class ReplayOneSubject<Element, Error: Swift.Error>: Subject<Element, Error> {
     
@@ -152,6 +158,8 @@ public final class ReplayOneSubject<Element, Error: Swift.Error>: Subject<Elemen
     }
 }
 
+/// A ReplayOneSubject compile-time guaranteed never to emit an error.
+public typealias SafeReplayOneSubject<Element> = ReplayOneSubject<Element, Never>
 
 /// A subject that replies accumulated sequence of loading values to each observer.
 public final class ReplayLoadingValueSubject<Val, LoadingError: Swift.Error, Error: Swift.Error>: Subject<LoadingState<Val, LoadingError>, Error> {
@@ -206,26 +214,5 @@ public final class ReplayLoadingValueSubject<Val, LoadingError: Swift.Error, Err
         if let event = terminalEvent {
             observer(event)
         }
-    }
-}
-
-@available(*, deprecated, message: "All subjects now inherit 'Subject' that can be used in place of 'AnySubject'.")
-public final class AnySubject<Element, Error: Swift.Error>: SubjectProtocol {
-    private let baseObserve: (@escaping Observer<Element, Error>) -> Disposable
-    private let baseOn: Observer<Element, Error>
-    
-    public let disposeBag = DisposeBag()
-    
-    public init<S: SubjectProtocol>(base: S) where S.Element == Element, S.Error == Error {
-        baseObserve = base.observe
-        baseOn = base.on
-    }
-    
-    public func on(_ event: Event<Element, Error>) {
-        return baseOn(event)
-    }
-    
-    public func observe(with observer: @escaping Observer<Element, Error>) -> Disposable {
-        return baseObserve(observer)
     }
 }

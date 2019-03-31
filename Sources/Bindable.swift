@@ -32,10 +32,10 @@ public protocol BindableProtocol {
     
     /// Establish a one-way binding between the signal and the receiver.
     /// - Warning: You are recommended to use `bind(to:)` on the signal when binding.
-    func bind(signal: Signal<Element, NoError>) -> Disposable
+    func bind(signal: Signal<Element, Never>) -> Disposable
 }
 
-extension SignalProtocol where Error == NoError {
+extension SignalProtocol where Error == Never {
     
     /// Establish a one-way binding between the source and the bindable.
     /// - Parameter bindable: A binding target that will receive signal events.
@@ -54,7 +54,7 @@ extension SignalProtocol where Error == NoError {
     }
 }
 
-extension BindableProtocol where Self: SignalProtocol, Self.Error == NoError {
+extension BindableProtocol where Self: SignalProtocol, Self.Error == Never {
     
     /// Establish a two-way binding between the source and the bindable.
     /// - Parameter target: A binding target that will receive events from
@@ -69,7 +69,7 @@ extension BindableProtocol where Self: SignalProtocol, Self.Error == NoError {
     }
 }
 
-extension SignalProtocol where Error == NoError {
+extension SignalProtocol where Error == Never {
     
     /// Bind the receiver to the target using the given setter closure. Closure is
     /// called whenever the signal emits `next` event.
@@ -153,7 +153,7 @@ extension SignalProtocol where Error == NoError {
     }
 }
 
-extension SignalProtocol where Error == NoError, Element == Void {
+extension SignalProtocol where Error == Never, Element == Void {
     
     /// Bind the receiver to the target using the given setter closure. Closure is
     /// called whenever the signal emits `next` event.

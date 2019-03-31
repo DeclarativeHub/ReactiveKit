@@ -1,19 +1,26 @@
-language: objective-c
-osx_image: xcode9.3
+language: swift
+osx_image: xcode10.2
 
-# Travis is currently experiencing issues with Xcode builds: https://github.com/travis-ci/travis-ci/issues/6675#issuecomment-257964767
-# When this is resolved, remove the entire `before_install` block, as well as the `travis_retry` command below.
-before_install:
-  - export IOS_SIMULATOR_UDID=`instruments -s devices | grep "iPhone 7 (11.3" | awk -F '[ ]' '{print $4}' | awk -F '[\[]' '{print $2}' | sed 's/.$//'`
-  - echo $IOS_SIMULATOR_UDID
-  - open -a "simulator" --args -CurrentDeviceUDID $IOS_SIMULATOR_UDID
+jobs:
+    include:
+        - stage: "Xcode"
+          name: "Run tests on iOS"
+          script: xcrun xcodebuild test -destination "platform=iOS Simulator,OS=12.2,name=iPhone X" -workspace "ReactiveKit.xcworkspace" -scheme "ReactiveKit-iOS"
+          after_success: 'bash <(curl -s https://codecov.io/bash)'
+        -
+          name: "Build for macOS"
+          script: xcrun xcodebuild build -destination "platform=macOS" -workspace "ReactiveKit.xcworkspace" -scheme "ReactiveKit-macOS"
+        -
+          name: "Build for tvOS"
+          script: xcrun xcodebuild build -destination "platform=tvOS Simulator,OS=12.2,name=Apple TV 4K" -workspace "ReactiveKit.xcworkspace" -scheme "ReactiveKit-tvOS"
+        -
+          name: "Build for watchOS"
+          script: xcrun xcodebuild build -destination "platform=watchOS Simulator,OS=5.2,name=Apple Watch Series 4 - 44mm" -workspace "ReactiveKit.xcworkspace" -scheme "ReactiveKit-watchOS"
 
-install:
-  - gem install xcpretty
+        - stage: "Swift Package Manager"
+          name: "Run Tests"
+          script: swift test
 
-script:
-  - set -o pipefail && travis_retry xcodebuild -project ReactiveKit.xcodeproj -scheme ReactiveKit-iOS -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 7,OS=11.3' test | xcpretty
-  - swift test
-
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
+        - stage: "CocoaPods"
+          name: "Lint Podspec"
+          script: pod lib lint

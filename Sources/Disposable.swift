@@ -208,7 +208,7 @@ public protocol DisposeBagProtocol: Disposable {
 public final class DisposeBag: DisposeBagProtocol {
     
     private var disposables: [Disposable] = []
-    private var subject: ReplayOneSubject<Void, NoError>?
+    private var subject: ReplayOneSubject<Void, Never>?
     private lazy var lock = NSRecursiveLock(name: "com.reactivekit.disposebag")
     
     /// `true` if bag is empty, `false` otherwise.

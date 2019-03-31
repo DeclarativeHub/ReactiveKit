@@ -27,7 +27,7 @@
 public class LoadingProperty<LoadingValue, LoadingError: Swift.Error>: PropertyProtocol, SignalProtocol, DisposeBagProvider {
     
     private let signalProducer: () -> LoadingSignal<LoadingValue, LoadingError>
-    private let subject = PublishSubject<LoadingState<LoadingValue, LoadingError>, NoError>()
+    private let subject = PublishSubject<LoadingState<LoadingValue, LoadingError>, Never>()
     private var loadingDisposable: Disposable? = nil
     
     public var bag: DisposeBag {
@@ -89,7 +89,7 @@ public class LoadingProperty<LoadingValue, LoadingError: Swift.Error>: PropertyP
                 case .completed:
                     observer.completed()
                 case .failed:
-                    break // NoError
+                    break // Never
                 }
             }
             
@@ -100,7 +100,7 @@ public class LoadingProperty<LoadingValue, LoadingError: Swift.Error>: PropertyP
         }
     }
     
-    public func observe(with observer: @escaping (Event<LoadingState<LoadingValue, LoadingError>, NoError>) -> Void) -> Disposable {
+    public func observe(with observer: @escaping (Event<LoadingState<LoadingValue, LoadingError>, Never>) -> Void) -> Disposable {
         if case .loading = loadingState, loadingDisposable == nil {
             loadingDisposable = load(silently: false).observeCompleted { [weak self] in
                 self?.loadingDisposable = nil
@@ -120,7 +120,7 @@ extension SignalProtocol {
     }
 }
 
-extension SignalProtocol where Element: LoadingStateProtocol, Error == NoError {
+extension SignalProtocol where Element: LoadingStateProtocol, Error == Never {
     
     /// Pauses the propagation of the receiver's loading values until the given property is reloaded.
     public func reloading<V>(_ property: LoadingProperty<V, LoadingError>, strategy: FlattenStrategy = .latest) -> LoadingSignal<LoadingValue, LoadingError> {

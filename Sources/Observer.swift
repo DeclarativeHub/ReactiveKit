@@ -27,6 +27,9 @@ import Foundation
 /// Represents a type that receives events.
 public typealias Observer<Element, Error: Swift.Error> = (Event<Element, Error>) -> Void
 
+/// An observer of safe signals.
+public typealias SafeObserver<Element> = (Event<Element, Never>) -> Void
+
 /// Represents a type that receives events.
 public protocol ObserverProtocol {
     
@@ -58,10 +61,10 @@ public struct AnyObserver<Element, Error: Swift.Error>: ObserverProtocol {
 }
 
 /// Observer that ensures events are sent atomically.
-public class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol {
+public final class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol {
     
     private var observer: Observer<Element, Error>?
-    private let lock = NSRecursiveLock(name: "com.reactivekit.signal.atomicobserver")
+    private let lock = NSRecursiveLock(name: "reactive_kit.atomic_observer")
     private let parentDisposable: Disposable
     
     public private(set) var disposable: Disposable!
