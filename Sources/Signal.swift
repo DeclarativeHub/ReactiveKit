@@ -113,6 +113,16 @@ extension Signal {
         self = Signal(evaluating: { result })
     }
 
+    /// Defer the signal creation until an observer stars observing it.
+    /// A new signal is created for each observer.
+    ///
+    /// - Parameter makeSignal: A closure to creates the signal.
+    public init<Other: SignalProtocol>(deferring makeSignal: @escaping () -> Other) where Other.Element == Element, Other.Error == Error {
+        self.init { observer in
+            return makeSignal().observe(with: observer)
+        }
+    }
+
     /// Create a signal by evaluating a closure that returns result, propagating the success element as a
     /// next event and completing immediately, or propagating the failure error as a failed event.
     ///
