@@ -1389,10 +1389,11 @@ let package = Package(
 
 ## Communication
 
-* If you'd like to ask a general question, open an issue.
-* If you have found a bug, open an issue or do a pull request with the fix.
-* If you have a feature request, open an issue.
-* If you want to contribute, submit a pull request (include unit tests).
+* If you'd like to ask a general question, you can [open an issue](https://github.com/DeclarativeHub/ReactiveKit/issues) or go to [StackOverflow](https://stackoverflow.com/questions/tagged/reactivekit).
+* If you have found a bug, [open an issue](https://github.com/DeclarativeHub/ReactiveKit/issues) or create a [pull request](https://github.com/DeclarativeHub/ReactiveKit/pulls) with the fix.
+* If you have a feature request, [open an issue](https://github.com/DeclarativeHub/ReactiveKit/issues) .
+* If you want to contribute, submit a [pull request](https://github.com/DeclarativeHub/ReactiveKit/pulls) (include unit tests).
+
 
 ## Additional Documentation
 
