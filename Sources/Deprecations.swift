@@ -127,3 +127,11 @@ extension SignalProtocol where Element: Equatable {
         return distinctUntilChanged()
     }
 }
+
+extension SignalProtocol where Element: Sequence {
+
+    @available(*, deprecated, renamed: "flattenElements")
+    public func unwrap() -> Signal<Element.Iterator.Element, Error> {
+        return flattenElements()
+    }
+}
