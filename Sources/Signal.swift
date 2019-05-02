@@ -75,6 +75,12 @@ extension Signal {
             return NonDisposable.instance
         }
     }
+
+    /// Create a signal and an observer that can be used to send events on the signal.
+    public static func withObserver() -> (Signal<Element, Error>, AnyObserver<Element, Error>) {
+        let subject = PublishSubject<Element, Error>()
+        return (subject.toSignal(), AnyObserver(observer: subject.on))
+    }
 }
 
 extension Signal {
@@ -209,11 +215,41 @@ extension Signal {
 
 extension Signal where Error == Swift.Error {
 
-    /// Creates a new signal by evaluating a throwing closure, capturing the
+    /// Create a new signal by evaluating a throwing closure, capturing the
     /// returned value as a next event followed by a completion event, or any thrown error as a failure event.
     ///
     /// - Parameter body: A throwing closure to evaluate.
     public init(catching body: @escaping () throws -> Element) {
         self = Signal(result: Result(catching: body))
+    }
+}
+
+extension Signal where Error == Never {
+
+    /// Create a new signal and assign its next element observer to the given variable.
+    /// Calling the closure assigned to the varaible will send the next element on the signal.
+    ///
+    /// - Parameter nextObserver: A variable that will be assigned the observer of next elements.
+    ///
+    /// - Note: Calling this initializer will replace the value of the given variable.
+    public init(takingOver nextObserver: inout (Element) -> Void) {
+        let (signal, observer) = Signal.withObserver()
+        nextObserver = { observer.next($0) }
+        self = signal
+    }
+}
+
+extension Signal where Element == Void, Error == Never {
+
+    /// Create a new signal and assign its next element observer to the given variable.
+    /// Calling the closure assigned to the varaible will send the next element on the signal.
+    ///
+    /// - Parameter nextObserver: A variable that will be assigned the observer of next elements.
+    ///
+    /// - Note: Calling this initializer will replace the value of the given variable.
+    public init(takingOver nextObserver: inout () -> Void) {
+        let (signal, observer) = Signal.withObserver()
+        nextObserver = { observer.next() }
+        self = signal
     }
 }

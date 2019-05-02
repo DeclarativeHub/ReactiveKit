@@ -53,4 +53,13 @@ Signal<Int, NSError> { observer in
 }
 //.observe { print($0) }
 
+var didTapReload: () -> Void = {}
+let reloadTaps = Signal(takingOver: &didTapReload)
+
+reloadTaps
+//.observeNext { print("reload") }
+
+didTapReload()
+didTapReload()
+
 //: [Next](@next)
