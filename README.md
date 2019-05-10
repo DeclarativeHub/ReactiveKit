@@ -594,7 +594,7 @@ let signal = SafeSignal.timer(element: 5, time: 60)
 Finally, when you need a signal that sends an integer every `interval` seconds, do
 
 ```swift
-let signal = SafeSignal.interval(5)
+let signal = SafeSignal(sequence: 0..., interval: 5)
 ```
 ```
 ---0---1---2---3---...>
