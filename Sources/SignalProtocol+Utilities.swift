@@ -81,10 +81,12 @@ extension SignalProtocol {
                     switch event {
                     case .next(let element):
                         observer.next(element)
+                        completions.other = false
                         innerDisposable.otherDisposable?.dispose()
                         innerDisposable.otherDisposable = other(element).observe { otherEvent in
                             switch otherEvent {
                             case .next:
+                                completions.me = false
                                 attempt?()
                             case .completed:
                                 completions.other = true
