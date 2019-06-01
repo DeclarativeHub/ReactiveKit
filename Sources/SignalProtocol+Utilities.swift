@@ -61,6 +61,49 @@ extension SignalProtocol {
         }
     }
 
+
+    /// Repeat the receiver signal whenever the signal returned from the given closure emits an element.
+    public func `repeat`<S: SignalProtocol>(when other: @escaping (Element) -> S) -> Signal<Element, Error> where S.Error == Never {
+        return Signal { observer in
+            var attempt: (() -> Void)?
+            let outerDisposable = SerialDisposable(otherDisposable: nil)
+            let innerDisposable = SerialDisposable(otherDisposable: nil)
+            var completions: (me: Bool, other: Bool) = (false, false)
+            func completeIfPossible() {
+                if completions.me && completions.other {
+                    observer.completed()
+                    attempt = nil
+                }
+            }
+            attempt = {
+                outerDisposable.otherDisposable?.dispose()
+                outerDisposable.otherDisposable = self.observe { event in
+                    switch event {
+                    case .next(let element):
+                        observer.next(element)
+                        innerDisposable.otherDisposable?.dispose()
+                        innerDisposable.otherDisposable = other(element).observe { otherEvent in
+                            switch otherEvent {
+                            case .next:
+                                attempt?()
+                            case .completed:
+                                completions.other = true
+                                completeIfPossible()
+                            }
+                        }
+                    case .completed:
+                        completions.me = true
+                        completeIfPossible()
+                    case .failed(let error):
+                        observer.failed(error)
+                    }
+                }
+            }
+            attempt?()
+            return CompositeDisposable([outerDisposable, innerDisposable])
+        }
+    }
+
     /// Do side-effect upon various events.
     public func doOn(next: ((Element) -> ())? = nil,
                      start: (() -> Void)? = nil,
