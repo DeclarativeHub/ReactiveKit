@@ -32,13 +32,13 @@ extension SignalProtocol {
             return self.observe { event in
                 switch event {
                 case .next(let element):
-                    observer.next(.next(element))
+                    observer.receive(.next(element))
                 case .failed(let error):
-                    observer.next(.failed(error))
-                    observer.completed()
+                    observer.receive(.failed(error))
+                    observer.receive(completion: .finished)
                 case .completed:
-                    observer.next(.completed)
-                    observer.completed()
+                    observer.receive(.completed)
+                    observer.receive(completion: .finished)
                 }
             }
         }
@@ -52,16 +52,16 @@ extension SignalProtocol {
                 case .next(let innerEvent):
                     switch innerEvent {
                     case .next(let element):
-                        observer.next(element)
+                        observer.receive(element)
                     case .failed(let error):
-                        observer.failed(error)
+                        observer.receive(completion: .failure(error))
                     case .completed:
-                        observer.completed()
+                        observer.receive(completion: .finished)
                     }
                 case .failed(let error):
-                    observer.failed(error)
+                    observer.receive(completion: .failure(error))
                 case .completed:
-                    observer.completed()
+                    observer.receive(completion: .finished)
                 }
             }
         }

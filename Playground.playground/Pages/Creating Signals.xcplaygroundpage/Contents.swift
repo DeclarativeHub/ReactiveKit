@@ -44,9 +44,9 @@ Signal(catching: {
 //.observe { print($0) }
 
 Signal<Int, NSError> { observer in
-    observer.next(1)
-    observer.next(2)
-    observer.completed()
+    observer.receive(1)
+    observer.receive(2)
+    observer.receive(completion: .finished)
     return BlockDisposable {
         print("disposed")
     }

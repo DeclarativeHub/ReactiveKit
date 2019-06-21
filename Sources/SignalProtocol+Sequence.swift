@@ -46,11 +46,11 @@ extension SignalProtocol where Element: Sequence {
             return self.observe { event in
                 switch event {
                 case .next(let sequence):
-                    sequence.forEach(observer.next)
+                    sequence.forEach(observer.receive(_:))
                 case .completed:
-                    observer.completed()
+                    observer.receive(completion: .finished)
                 case .failed(let error):
-                    observer.failed(error)
+                    observer.receive(completion: .failure(error))
                 }
             }
         }

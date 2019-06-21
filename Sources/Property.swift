@@ -50,7 +50,7 @@ public final class Property<Value>: PropertyProtocol, SubjectProtocol, BindableP
         set {
             lock.lock(); defer { lock.unlock() }
             _value = newValue
-            subject.next(newValue)
+            subject.send(newValue)
         }
     }
     
@@ -91,7 +91,7 @@ public final class Property<Value>: PropertyProtocol, SubjectProtocol, BindableP
     }
     
     deinit {
-        subject.completed()
+        subject.send(completion: .finished)
     }
 }
 

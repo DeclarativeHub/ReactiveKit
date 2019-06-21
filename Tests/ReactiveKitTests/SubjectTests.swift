@@ -28,7 +28,7 @@ final class SubjectTests: XCTestCase {
             
             let dispatchQueueTwo = DispatchQueue(label: "two")
             dispatchQueueTwo.async {
-                subject.next(1)
+                subject.send(1)
                 bag.dispose()
             }
         }
@@ -68,7 +68,7 @@ final class SubjectTests: XCTestCase {
             
             let dispatchQueueTwo = DispatchQueue(label: "two")
             dispatchQueueTwo.async {
-                subject.next(1)
+                subject.send(1)
                 bag.dispose()
             }
         }
@@ -97,7 +97,7 @@ final class SubjectTests: XCTestCase {
             
             let dispatchQueueTwo = DispatchQueue(label: "two")
             dispatchQueueTwo.async {
-                subject.next(1)
+                subject.send(1)
                 bag.dispose()
             }
             
@@ -148,7 +148,7 @@ final class SubjectTests: XCTestCase {
             
             let dispatchQueueTwo = DispatchQueue(label: "two")
             dispatchQueueTwo.async {
-                subject.next(1)
+                subject.send(1)
                 bag.dispose()
             }
         }
@@ -177,7 +177,7 @@ final class SubjectTests: XCTestCase {
             
             let dispatchQueueTwo = DispatchQueue(label: "two")
             dispatchQueueTwo.async {
-                subject.next(1)
+                subject.send(1)
                 bag.dispose()
             }
             
@@ -228,7 +228,7 @@ final class SubjectTests: XCTestCase {
             
             let dispatchQueueTwo = DispatchQueue(label: "two")
             dispatchQueueTwo.async {
-                subject.next(.loaded(1))
+                subject.send(.loaded(1))
                 bag.dispose()
             }
         }
@@ -257,7 +257,7 @@ final class SubjectTests: XCTestCase {
             
             let dispatchQueueTwo = DispatchQueue(label: "two")
             dispatchQueueTwo.async {
-                subject.next(.loaded(1))
+                subject.send(.loaded(1))
                 bag.dispose()
             }
             

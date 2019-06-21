@@ -28,6 +28,30 @@ import Foundation
 public protocol SubjectProtocol: SignalProtocol, ObserverProtocol {
 }
 
+extension SubjectProtocol {
+
+    /// Convenience method to send `.next` event.
+    public func send(_ element: Element) {
+        on(.next(element))
+    }
+
+    /// Convenience method to send `.failed` or `.completed` event.
+    public func send(completion: Subscribers.Completion<Error>) {
+        switch completion {
+        case .finished:
+            on(.completed)
+        case .failure(let error):
+            on(.failed(error))
+        }
+    }
+
+    /// Convenience method to send `.next` event followed by a `.completed` event.
+    public func send(lastElement element: Element) {
+        send(element)
+        send(completion: .finished)
+    }
+}
+
 /// A type that is both a signal and an observer.
 open class Subject<Element, Error: Swift.Error>: SubjectProtocol {
     
@@ -48,10 +72,10 @@ open class Subject<Element, Error: Swift.Error>: SubjectProtocol {
         lock.lock(); defer { lock.unlock() }
         guard !isTerminated else { return }
         isTerminated = event.isTerminal
-        send(event)
+        receive(event: event)
     }
-    
-    open func send(_ event: Event<Element, Error>) {
+
+    open func receive(event: Event<Element, Error>) {
         lock.lock(); defer { lock.unlock() }
         forEachObserver { $0(event) }
     }
@@ -116,11 +140,11 @@ public final class ReplaySubject<Element, Error: Swift.Error>: Subject<Element, 
         }
     }
     
-    public override func send(_ event: Event<Element, Error>) {
+    public override func receive(event: Event<Element, Error>) {
         lock.lock(); defer { lock.unlock() }
         buffer.append(event)
         buffer = buffer.suffix(bufferSize)
-        super.send(event)
+        super.receive(event: event)
     }
     
     public override func willAdd(observer: @escaping Observer<Element, Error>) {
@@ -137,14 +161,14 @@ public final class ReplayOneSubject<Element, Error: Swift.Error>: Subject<Elemen
     private var lastEvent: Event<Element, Error>? = nil
     private var terminalEvent: Event<Element, Error>? = nil
     
-    public override func send(_ event: Event<Element, Error>) {
+    public override func receive(event: Event<Element, Error>) {
         lock.lock(); defer { lock.unlock() }
         if event.isTerminal {
             terminalEvent = event
         } else {
             lastEvent = event
         }
-        super.send(event)
+        super.receive(event: event)
     }
     
     public override func willAdd(observer: @escaping Observer<Element, Error>) {
@@ -179,7 +203,7 @@ public final class ReplayLoadingValueSubject<Val, LoadingError: Swift.Error, Err
         self.bufferSize = bufferSize
     }
     
-    public override func send(_ event: Event<LoadingState<Val, LoadingError>, Error>) {
+    public override func receive(event: Event<LoadingState<Val, LoadingError>, Error>) {
         lock.lock(); defer { lock.unlock() }
         switch event {
         case .next(let loadingState):
@@ -199,7 +223,7 @@ public final class ReplayLoadingValueSubject<Val, LoadingError: Swift.Error, Err
         case .failed, .completed:
             terminalEvent = event
         }
-        super.send(event)
+        super.receive(event: event)
     }
     
     public override func willAdd(observer: @escaping Observer<LoadingState<Val, LoadingError>, Error>) {

@@ -95,28 +95,28 @@ public final class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol
 // MARK: - Extensions
 
 extension ObserverProtocol {
-    
+
     /// Convenience method to send `.next` event.
-    public func next(_ element: Element) {
+    public func receive(_ element: Element) {
         on(.next(element))
     }
-    
-    /// Convenience method to send `.failed` event.
-    public func failed(_ error: Error) {
-        on(.failed(error))
+
+    /// Convenience method to send `.failed` or `.completed` event.
+    public func receive(completion: Subscribers.Completion<Error>) {
+        switch completion {
+        case .finished:
+            on(.completed)
+        case .failure(let error):
+            on(.failed(error))
+        }
     }
-    
-    /// Convenience method to send `.completed` event.
-    public func completed() {
-        on(.completed)
-    }
-    
+
     /// Convenience method to send `.next` event followed by a `.completed` event.
-    public func completed(with element: Element) {
-        next(element)
-        completed()
+    public func receive(lastElement element: Element) {
+        receive(element)
+        receive(completion: .finished)
     }
-    
+
     /// Converts the receiver to the Observer closure.
     public func toObserver() -> Observer<Element, Error> {
         return on
@@ -124,11 +124,9 @@ extension ObserverProtocol {
 }
 
 extension ObserverProtocol where Element == Void {
-    
+
     /// Convenience method to send `.next` event.
-    /// Overloaded to not require sending an instance of Void when calling.
-    public func next() {
-        next(())
+    public func receive() {
+        on(.next(()))
     }
-    
 }

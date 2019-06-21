@@ -187,15 +187,15 @@ ReactiveKit wraps the observer into a struct with various helper methods to make
 ```swift
 /// Represents a type that receives events.
 public protocol ObserverProtocol {
+    
+    /// Type of elements being received.
+    associatedtype Element
+    
+    /// Type of error that can be received.
+    associatedtype Error: Swift.Error
 
-  /// Type of elements being received.
-  associatedtype Element
-
-  /// Type of error that can be received.
-  associatedtype Error: Swift.Error
-
-  /// Send the event to the observer.
-  func on(_ event: Event<Element, Error>)
+    /// Send the event to the observer.
+    func on(_ event: Event<Element, Error>)
 }
 ```
 
@@ -204,26 +204,26 @@ Our observer we introduced earlier is basically the `on(_:)` method. ReactiveKit
 ```swift
 public extension ObserverProtocol {
 
-  /// Convenience method to send `.next` event.
-  public func next(_ element: Element) {
-    on(.next(element))
-  }
+    /// Convenience method to send `.next` event.
+    public func receive(_ element: Element) {
+        on(.next(element))
+    }
 
-  /// Convenience method to send `.failed` event.
-  public func failed(_ error: Error) {
-    on(.failed(error))
-   }
+    /// Convenience method to send `.failed` or `.completed` event.
+    public func receive(completion: Subscribers.Completion<Error>) {
+        switch completion {
+        case .finished:
+            on(.completed)
+        case .failure(let error):
+            on(.failed(error))
+        }
+    }
 
-  /// Convenience method to send `.completed` event.
-  public func completed() {
-    on(.completed)
-  }
-
-  /// Convenience method to send `.next` event followed by a `.completed` event.
-  public func completed(with element: Element) {
-    next(element)
-    completed()
-  }
+    /// Convenience method to send `.next` event followed by a `.completed` event.
+    public func receive(lastElement element: Element) {
+        receive(element)
+        receive(completion: .finished)
+    }
 }
 ```
 
@@ -233,12 +233,12 @@ So with ReactiveKit we can implement previous example like this:
 let counter = Signal<Int, Never> { observer in
 
   // send first three positive integers
-  observer.next(1)
-  observer.next(2)
-  observer.next(3)
+  observer.receive(1)
+  observer.receive(2)
+  observer.receive(3)
 
   // send completed event
-  observer.completed()
+  observer.receive(completion: .finished)
 }
 ```
 
@@ -277,10 +277,10 @@ func getUser() -> Signal<User, ClientError> {
     getUser(completion: { result in
       switch result {
       case .success(let user):
-        observer.next(user)
-        observer.completed()
+        observer.receive(user)
+        observer.receive(completion: .finished)
       case .failure(let error):
-        observer.failed(error)
+        observer.receive(completion: .failure(error))
     })
     // return disposable, continue reading
   }
@@ -385,10 +385,10 @@ func getUser() -> Signal<User, ClientError> {
     let task = getUser(completion: { result in
       switch result {
       case .success(let user):
-        observer.next(user)
-        observer.completed()
+        observer.receive(user)
+        observer.receive(completion: .finished)
       case .failure(let error):
-        observer.failed(error)
+        observer.receive(completion: .failure(error))
     })
 
     return BlockDisposable {
@@ -442,7 +442,7 @@ extension SignalProtocol {
         switch event {
         case .next(let element):
           if isIncluded(element) {
-            observer.next(element)
+            observer.receive(element)
           }
         default:
           observer(event)
@@ -646,7 +646,7 @@ For example, if we have a signal that is created like
 let someImage = SafeSignal<UIImage> { observer in
   ...
   DispatchQueue.global(qos: .background).async {
-    observer.next(someImage)
+    observer.receive(someImage)
   }
   ...
 }
@@ -681,7 +681,7 @@ There is also another side to this. You might have a signal that does some slow 
 let someData = SafeSignal<Data> { observer in
   ...
   let data = // synchronously load large file
-  observer.next(data)
+  observer.receive(data)
   ...
 }
 ```
@@ -928,12 +928,12 @@ name.observeNext { name in print("Hi \(name)!") }
 name.on(.next("Jim")) // prints: Hi Jim!
 
 // ReactiveKit provides few extension toon the ObserverProtocol so we can also do:
-name.next("Kathryn") // prints: Hi Kathryn!
+name.send("Kathryn") // prints: Hi Kathryn!
 
-name.completed()
+name.send(completion: .finished)
 ```
 
-> Note: When using ReactiveKit you should actually use `PublishSubject` instead. It has the same behaviour and interface as `Subject` we defined here - just a different name in order to be consistent with ReactiveX API.
+> Note: When using ReactiveKit you should actually use `PassthroughSubject` instead. It has the same behaviour and interface as `Subject` we defined here - just a different name in order to be consistent with ReactiveX API.
 
 As you can see, we do not have a producer closure, rather we send events to the subject itself. The subject then propagates those events to its own observers.
 
@@ -942,11 +942,11 @@ Subjects are useful when we need to convert actions from imperative world into s
 ```swift
 class MyViewController: UIViewController {
 
-  fileprivate let _viewDidAppear = PublishSubject<Void, Never>()
+  fileprivate let _viewDidAppear = PassthroughSubject<Void, Never>()
 
   override viewDidAppear(_ animated: Bool) {
     super.viewDidAppear(animated)
-    _viewDidAppear.next()
+    _viewDidAppear.send()
   }
 }
 ```
@@ -1118,7 +1118,7 @@ let image = getImage().flatMapError { error in
 
 ### Property
 
-Property wraps mutable state into an object that enables observation of that state. Whenever the state changes, an observer will be notified. Just like the `PublishSubject`, it represents a bridge into the imperative world.
+Property wraps mutable state into an object that enables observation of that state. Whenever the state changes, an observer will be notified. Just like the `PassthroughSubject`, it represents a bridge into the imperative world.
 
 To create a property, just initialize it with the initial value.
 
