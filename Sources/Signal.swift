@@ -78,7 +78,7 @@ extension Signal {
 
     /// Create a signal and an observer that can be used to send events on the signal.
     public static func withObserver() -> (Signal<Element, Error>, AnyObserver<Element, Error>) {
-        let subject = PublishSubject<Element, Error>()
+        let subject = PassthroughSubject<Element, Error>()
         return (subject.toSignal(), AnyObserver(observer: subject.on))
     }
 }

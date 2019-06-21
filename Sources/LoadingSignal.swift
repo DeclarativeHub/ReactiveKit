@@ -254,7 +254,7 @@ extension SignalProtocol where Element: LoadingStateProtocol, Error == Never {
     ///
     public func liftValue<T>(_ transfrom: @escaping (Signal<LoadingValue, LoadingError>) -> LoadingSignal<T, LoadingError>) -> LoadingSignal<T, LoadingError> {
         return Signal { observer in
-            let subject = PublishSubject<LoadingValue, LoadingError>()
+            let subject = PassthroughSubject<LoadingValue, LoadingError>()
             let d1 = transfrom(subject.toSignal()).observe(with: observer.on)
             let d2 = self.observe { event in
                 switch event {

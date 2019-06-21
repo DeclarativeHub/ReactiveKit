@@ -400,8 +400,8 @@ class SignalTests: XCTestCase {
     }
 
     func testPausable() {
-        let operation = PublishSubject<Int, TestError>()
-        let controller = PublishSubject<Bool, TestError>()
+        let operation = PassthroughSubject<Int, TestError>()
+        let controller = PassthroughSubject<Bool, TestError>()
         let paused = operation.shareReplay().pausable(by: controller)
 
         let exp = expectation(description: "completed")

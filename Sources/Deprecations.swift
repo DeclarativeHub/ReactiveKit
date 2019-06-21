@@ -135,3 +135,9 @@ extension SignalProtocol where Element: Sequence {
         return flattenElements()
     }
 }
+
+@available(*, deprecated, renamed: "PassthroughSubject")
+public final class PublishSubject<Element, Error: Swift.Error>: Subject<Element, Error> {}
+
+@available(*, deprecated, renamed: "PassthroughSubject")
+public typealias SafePublishSubject<Element> = PublishSubject<Element, Never>

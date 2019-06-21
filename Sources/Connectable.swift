@@ -92,7 +92,7 @@ extension SignalProtocol {
     /// Ensure that all observers see the same sequence of elements. Connectable.
     public func replay(limit: Int = Int.max) -> ConnectableSignal<Self> {
         if limit == 0 {
-            return ConnectableSignal(source: self, subject: PublishSubject())
+            return ConnectableSignal(source: self, subject: PassthroughSubject())
         } else if limit == 1 {
             return ConnectableSignal(source: self, subject: ReplayOneSubject())
         } else {
@@ -102,7 +102,7 @@ extension SignalProtocol {
     
     /// Convert signal to a connectable signal.
     public func publish() -> ConnectableSignal<Self> {
-        return ConnectableSignal(source: self, subject: PublishSubject())
+        return ConnectableSignal(source: self, subject: PassthroughSubject())
     }
     
     /// Ensure that all observers see the same sequence of elements.
@@ -117,7 +117,7 @@ extension SignalProtocol where Element: LoadingStateProtocol {
     /// Ensure that all observers see the same sequence of elements. Connectable.
     public func replayValues(limit: Int = Int.max) -> ConnectableSignal<Signal<LoadingState<LoadingValue, LoadingError>, Error>> {
         if limit == 0 {
-            return ConnectableSignal(source: map { $0.asLoadingState }, subject: PublishSubject())
+            return ConnectableSignal(source: map { $0.asLoadingState }, subject: PassthroughSubject())
         } else {
             return ConnectableSignal(source: map { $0.asLoadingState }, subject: ReplayLoadingValueSubject(bufferSize: limit))
         }

@@ -54,7 +54,7 @@ public final class Property<Value>: PropertyProtocol, SubjectProtocol, BindableP
         }
     }
     
-    public init(_ value: Value, subject: Subject<Value, Never> = PublishSubject()) {
+    public init(_ value: Value, subject: Subject<Value, Never> = PassthroughSubject()) {
         _value = value
         self.subject = subject
     }

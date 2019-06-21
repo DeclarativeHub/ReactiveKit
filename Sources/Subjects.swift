@@ -100,10 +100,7 @@ extension Subject: BindableProtocol {
 }
 
 /// A subject that propagates received events to the registered observes.
-public final class PublishSubject<Element, Error: Swift.Error>: Subject<Element, Error> {}
-
-/// A PublishSubject compile-time guaranteed never to emit an error.
-public typealias SafePublishSubject<Element> = PublishSubject<Element, Never>
+public final class PassthroughSubject<Element, Error: Swift.Error>: Subject<Element, Error> {}
 
 /// A subject that replies accumulated sequence of events to each observer.
 public final class ReplaySubject<Element, Error: Swift.Error>: Subject<Element, Error> {

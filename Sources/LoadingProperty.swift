@@ -27,7 +27,7 @@
 public class LoadingProperty<LoadingValue, LoadingError: Swift.Error>: PropertyProtocol, SignalProtocol, DisposeBagProvider {
     
     private let signalProducer: () -> LoadingSignal<LoadingValue, LoadingError>
-    private let subject = PublishSubject<LoadingState<LoadingValue, LoadingError>, Never>()
+    private let subject = PassthroughSubject<LoadingState<LoadingValue, LoadingError>, Never>()
     private var loadingDisposable: Disposable? = nil
     
     public var bag: DisposeBag {
