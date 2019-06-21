@@ -38,26 +38,26 @@ open class Subject<Element, Error: Swift.Error>: SubjectProtocol {
     
     public private(set) var isTerminated = false
     
-    public let observersLock = NSRecursiveLock(name: "reactive_kit.subject.observers_lock")
-    public let dispatchLock = NSRecursiveLock(name: "reactive_kit.subject.dispatch_lock")
+    public let lock = NSRecursiveLock(name: "reactive_kit.subject.lock")
     
     public let disposeBag = DisposeBag()
     
     public init() {}
     
     public func on(_ event: Event<Element, Error>) {
-        dispatchLock.lock(); defer { dispatchLock.unlock() }
+        lock.lock(); defer { lock.unlock() }
         guard !isTerminated else { return }
         isTerminated = event.isTerminal
         send(event)
     }
     
     open func send(_ event: Event<Element, Error>) {
+        lock.lock(); defer { lock.unlock() }
         forEachObserver { $0(event) }
     }
     
     open func observe(with observer: @escaping Observer<Element, Error>) -> Disposable {
-        observersLock.lock(); defer { observersLock.unlock() }
+        lock.lock(); defer { lock.unlock() }
         willAdd(observer: observer)
         return add(observer: observer)
     }
@@ -73,7 +73,7 @@ open class Subject<Element, Error: Swift.Error>: SubjectProtocol {
         
         return BlockDisposable { [weak self] in
             guard let me = self else { return }
-            me.observersLock.lock(); defer { me.observersLock.unlock() }
+            me.lock.lock(); defer { me.lock.unlock() }
             guard let index = me.observers.firstIndex(where: { $0.0 == token }) else { return }
             me.observers.remove(at: index)
         }
@@ -120,6 +120,7 @@ public final class ReplaySubject<Element, Error: Swift.Error>: Subject<Element, 
     }
     
     public override func send(_ event: Event<Element, Error>) {
+        lock.lock(); defer { lock.unlock() }
         buffer.append(event)
         buffer = buffer.suffix(bufferSize)
         super.send(event)
@@ -140,6 +141,7 @@ public final class ReplayOneSubject<Element, Error: Swift.Error>: Subject<Elemen
     private var terminalEvent: Event<Element, Error>? = nil
     
     public override func send(_ event: Event<Element, Error>) {
+        lock.lock(); defer { lock.unlock() }
         if event.isTerminal {
             terminalEvent = event
         } else {
@@ -181,6 +183,7 @@ public final class ReplayLoadingValueSubject<Val, LoadingError: Swift.Error, Err
     }
     
     public override func send(_ event: Event<LoadingState<Val, LoadingError>, Error>) {
+        lock.lock(); defer { lock.unlock() }
         switch event {
         case .next(let loadingState):
             switch loadingState {

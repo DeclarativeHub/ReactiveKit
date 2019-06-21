@@ -209,8 +209,10 @@ public final class DisposeBag: DisposeBagProtocol {
     
     private var disposables: [Disposable] = []
     private var subject: ReplayOneSubject<Void, Never>?
-    private lazy var lock = NSRecursiveLock(name: "com.reactivekit.disposebag")
-    
+
+    private let subjectLoadingLock = NSRecursiveLock(name: "com.reactivekit.disposebag.subject")
+    private let disposablesLock = NSRecursiveLock(name: "com.reactivekit.disposebag.disposables")
+
     /// `true` if bag is empty, `false` otherwise.
     public var isDisposed: Bool {
         return disposables.count == 0
@@ -222,12 +224,14 @@ public final class DisposeBag: DisposeBagProtocol {
     /// Add the given disposable to the bag.
     /// Disposable will be disposed when the bag is deallocated.
     public func add(disposable: Disposable) {
+        disposablesLock.lock(); defer { disposablesLock.unlock() }
         disposables.append(disposable)
     }
     
     /// Add the given disposables to the bag.
     /// Disposables will be disposed when the bag is deallocated.
     public func add(disposables: [Disposable]) {
+        disposablesLock.lock(); defer { disposablesLock.unlock() }
         disposables.forEach(add)
     }
     
@@ -243,17 +247,18 @@ public final class DisposeBag: DisposeBagProtocol {
     
     /// Disposes all disposables that are currenty in the bag.
     public func dispose() {
+        disposablesLock.lock(); defer { disposablesLock.unlock() }
         disposables.forEach { $0.dispose() }
         disposables.removeAll()
     }
     
     /// A signal that fires `completed` event when the bag gets deallocated.
     public var deallocated: SafeSignal<Void> {
-        lock.lock()
+        subjectLoadingLock.lock()
         if subject == nil {
             subject = ReplayOneSubject()
         }
-        lock.unlock()
+        subjectLoadingLock.unlock()
         return subject!.toSignal()
     }
     
