@@ -60,6 +60,7 @@ public final class Property<Value>: PropertyProtocol, SubjectProtocol, BindableP
     }
     
     public func on(_ event: Event<Value, Never>) {
+        lock.lock(); defer { lock.unlock() }
         if case .next(let element) = event {
             _value = element
         }
