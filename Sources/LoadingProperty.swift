@@ -49,7 +49,7 @@ public class LoadingProperty<LoadingValue, LoadingError: Swift.Error>: PropertyP
             return loadingState.value
         }
         set {
-            loadingState = value.flatMap { .loaded($0) } ?? .loading
+            loadingState = newValue.flatMap { .loaded($0) } ?? .loading
         }
     }
     
