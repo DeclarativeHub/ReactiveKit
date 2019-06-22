@@ -8,6 +8,8 @@ __ReactiveKit__ is a lightweight Swift framework for reactive and functional rea
 
 The framework is compatible with all Apple platforms and Linux. If you are developing an iOS or macOS app, make sure to also check out [Bond](https://github.com/DeclarativeHub/Bond) framework that provides UIKit and AppKit bindings, reactive delegates and data sources.
 
+ReactiveKit is currently in a process of API alignment with Apple's Combine framework. Types and functions are being renamed, where applicable, to match those of Combine. It's important to note that ReactiveKit will not become a drop-in replacement for Combine. The goal is to make interoperability and transition smooth. All work is being done in a backward compatible way and will be done gradually over a number of releases. Check out [release notes](https://github.com/DeclarativeHub/ReactiveKit/releases) to follow the process.
+
 This document will introduce the framework by going through its implementation. By the end you should be equipped with a pretty good understanding of how is the framework implemented and what are the best ways to use it.
 
 _To get started quickly, clone the project and explore available tutorials in the playgrounds of the workspace!_
