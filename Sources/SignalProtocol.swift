@@ -80,3 +80,20 @@ extension SignalProtocol {
         return (self as? Signal<Element, Error>) ?? Signal(self.observe)
     }
 }
+
+extension SignalProtocol {
+
+    /// Attaches a subscriber (observer) with closure-based behavior.
+    public func sink(receiveCompletion: ((Subscribers.Completion<Error>) -> Void)? = nil, receiveValue: @escaping ((Element) -> Void)) -> Disposable {
+        return observe { event in
+            switch event {
+            case .next(let element):
+                receiveValue(element)
+            case .failed(let error):
+                receiveCompletion?(.failure(error))
+            case .completed:
+                receiveCompletion?(.finished)
+            }
+        }
+    }
+}
