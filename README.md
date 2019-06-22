@@ -519,14 +519,6 @@ let signal = Signal<Int, Never> { observer in
 
 we will hit the wall because we cannot create an instance of `Never` so we cannot send `.failed` event. This is a very powerful and important feature because whenever you see a signal whose errors are specialized to `Never` type you can safely assume that signal will not fail - because it cannot.
 
-Signals that do not fail are very common so ReactiveKit defines a typealias to make their usage simple and consistent.
-
-```swift
-public typealias SafeSignal<Element> = Signal<Element, Never>
-```
-
-You are recommend to use `SafeSignal` whenever you have a signal that cannot fail.
-
 > Bindings work only with safe (non-failable) signals.
 
 
@@ -535,7 +527,7 @@ You are recommend to use `SafeSignal` whenever you have a signal that cannot fai
 You will often need a signal that emits just one element and then completes. To make it, use static method `just`.
 
 ```swift
-let signal = SafeSignal.just(5)
+let signal = Signal<Int, Never>.just(5)
 ```
 
 That will give you following signal:
@@ -547,7 +539,7 @@ That will give you following signal:
 If you need a signal that fires multiple elements and then completes, you can convert any `Sequence` to a signal with static method `sequence`.
 
 ```swift
-let signal = SafeSignal.sequence([1, 2, 3])
+let signal = Signal<Int, Never>.sequence([1, 2, 3])
 ```
 ```
 ---1-2-3-|--->
@@ -557,7 +549,7 @@ To create a signal that just completes without sending any elements, do
 
 
 ```swift
-let signal = SafeSignal<Int>.completed()
+let signal = Signal<Int, Never>.completed()
 ```
 ```
 ---|--->
@@ -576,7 +568,7 @@ let signal = Signal<Int, MyError>.failed(MyError.someError)
 You can also create a signal that never sends any events (i.e. a signal that never terminates).
 
 ```swift
-let signal = SafeSignal.never()
+let signal = Signal<Int, Never>.never()
 ```
 ```
 ------>
@@ -585,7 +577,7 @@ let signal = SafeSignal.never()
 Sometimes you will need a signal that sends specific element after certain amount of time passes:
 
 ```swift
-let signal = SafeSignal.timer(element: 5, time: 60)
+let signal = Signal<Int, Never>(just: 5, after: 60)
 ```
 ```
 ---/60 seconds/---5-|-->
@@ -594,7 +586,7 @@ let signal = SafeSignal.timer(element: 5, time: 60)
 Finally, when you need a signal that sends an integer every `interval` seconds, do
 
 ```swift
-let signal = SafeSignal(sequence: 0..., interval: 5)
+let signal = Signal<Int, Never>(sequence: 0..., interval: 5)
 ```
 ```
 ---0---1---2---3---...>
@@ -643,7 +635,7 @@ By default observers receive events on the thread or the queue where the event i
 For example, if we have a signal that is created like
 
 ```swift
-let someImage = SafeSignal<UIImage> { observer in
+let someImage = Signal<UIImage, Never> { observer in
   ...
   DispatchQueue.global(qos: .background).async {
     observer.receive(someImage)
@@ -678,7 +670,7 @@ someImage
 There is also another side to this. You might have a signal that does some slow synchronous work on whatever thread or queue it is observed on.
 
 ```swift
-let someData = SafeSignal<Data> { observer in
+let someData = Signal<Data, Never> { observer in
   ...
   let data = // synchronously load large file
   observer.receive(data)
@@ -717,7 +709,7 @@ Note that there are also operators `observeIn` and `executeIn`. Those operators 
 Bindings are observations with perks. Most of the time you should be able to replace observation with a binding. Consider the following example. Say we have a signal of users
 
 ```swift
-let presentUserProfile: SafeSignal<User> = ...
+let presentUserProfile: Signal<User, Never> = ...
 ```
 
 and we would like to present a profile screen when a user is sent on the signal. Usually we would do something like:
@@ -754,7 +746,7 @@ Objects that conform to `Deallocatable` provide a signal that can tell us when t
 public protocol Deallocatable: class {
 
   /// A signal that fires `completed` event when the receiver is deallocated.
-  var deallocated: SafeSignal<Void> { get }
+  var deallocated: Signal<Void, Never> { get }
 }
 ```
 
@@ -773,7 +765,7 @@ public protocol DisposeBagProvider: Deallocatable {
 
 extension DisposeBagProvider {
 
-  public var deallocated: SafeSignal<Void> {
+  public var deallocated: Signal<Void, Never> {
     return bag.deallocated
   }
 }
@@ -957,7 +949,7 @@ We could have exposed subject publicly, but then anyone would be able to send ev
 ```swift
 extension ReactiveExtensions where Base: MyViewController {
 
-  var viewDidAppear: SafeSignal<Void> {
+  var viewDidAppear: Signal<Void, Never> {
     return base._viewDidAppear.toSignal() // convert Subject to Signal
   }
 }
@@ -1095,15 +1087,15 @@ Operator `retry` will only work sometimes and it will fail eventually. The resul
 How do we convert failable signal into non-failable (safe) signal? We have to handle the error somehow. One way is to recover with a default element.
 
 ```swift
-let image /*: SafeSignal<UIImage> */ = getImage().recover(with: .placeholder)
+let image /*: Signal<UIImage, Never> */ = getImage().recover(with: .placeholder)
 ```
 
-Now we get `SafeSignal` because the transformed signal will never fail. Any `.failed` event that might occur on original signal will just be replaced with `.next` event containing the default element (placeholder image in our example).
+Now we get safe `Signal` because the transformed signal will never fail. Any `.failed` event that might occur on original signal will just be replaced with `.next` event containing the default element (placeholder image in our example).
 
 Alternative way to get safe signal is to ignore - suppress - the error. You would do this if you really do not care about the error and nothing bad will happen if you ignore it.
 
 ```swift
-let image /*: SafeSignal<UIImage> */ = getImage().suppressError(logging: true)
+let image /*: Signal<UIImage, Never> */ = getImage().suppressError(logging: true)
 ```
 
 It is always a good idea to log the error.
@@ -1170,7 +1162,7 @@ public enum LoadingState<LoadingValue, LoadingError: Error>: LoadingStateProtoco
 A signal with elements of `LoadingState` type is typealiased as `LoadingSignal`:
 
 ```swift
-public typealias LoadingSignal<LoadingValue, LoadingError: Error> = SafeSignal<LoadingState<LoadingValue, LoadingError>>
+public typealias LoadingSignal<LoadingValue, LoadingError: Error> = Signal<LoadingState<LoadingValue, LoadingError>, Never>
 ```
 
 Notice that loading signal is a safe signal. Signal itself can never fail, but errors can be emitted as `.failed` loading state. This means that the error does not terminate the signal - new events can be received after the error.
@@ -1250,7 +1242,7 @@ fetchImage
     }
 ```
 
-Exciting! Operator `consumeLoadingState` takes the loading state listener and updates it each time a state is produced by the loading signal. It returns a safe signal of loading values, i.e. it unwraps the underlying value from the `.loaded` state. In our example that would be `SafeSignal<UIImage>` which we can then bind to our image view and update its content.
+Exciting! Operator `consumeLoadingState` takes the loading state listener and updates it each time a state is produced by the loading signal. It returns a safe signal of loading values, i.e. it unwraps the underlying value from the `.loaded` state. In our example that would be `Signal<UIImage, Never>` which we can then bind to our image view and update its content.
 
 #### Transforming loading signals
 
@@ -1296,7 +1288,7 @@ class UserService {
 Say that you have a button that (re)loads a photo in your app. How to implement that in reactive world? First we will need a signal that represents buttons taps. With [Bond](https://github.com/DeclarativeHub/Bond) framework you can get that signal just like this:
 
 ```swift
-let reload /*: SafeSignal<Void> */ = button.reactive.tap
+let reload /*: Signal<Void, Never> */ = button.reactive.tap
 ```
 
 The signal will send `.next` event whenever the button is tapped. We would like to load the photo on each such event. In order to do so, we will flat map the reload signal into photo requests.
@@ -1353,20 +1345,16 @@ or
 
 ## Installation
 
-Bond framework is optional, but recommended for Cocoa / Cocoa touch development.
-
 ### Carthage
 
 ```
 github "DeclarativeHub/ReactiveKit"
-github "DeclarativeHub/Bond"
 ```
 
 ### CocoaPods
 
 ```
 pod 'ReactiveKit'
-pod 'Bond'
 ```
 
 ### Swift Package Manager
