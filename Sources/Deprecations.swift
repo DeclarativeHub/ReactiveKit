@@ -214,3 +214,11 @@ extension Subject {
         receive(event: event)
     }
 }
+
+extension SignalProtocol {
+
+    @available(*, deprecated, renamed: "share(limit:)")
+    public func shareReplay(limit: Int = Int.max) -> Signal<Element, Error> {
+        return share(limit: limit)
+    }
+}

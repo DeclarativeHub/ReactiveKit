@@ -44,13 +44,13 @@ extension SignalProtocol {
 
     /// Branch out error into another signal.
     public func branchOutError() -> (Signal<Element, Never>, Signal<Error, Never>) {
-        let shared = shareReplay()
+        let shared = share()
         return (shared.suppressError(logging: false), shared.toErrorSignal())
     }
 
     /// Branch out mapped error into another signal.
     public func branchOutError<F>(_ mapError: @escaping (Error) -> F) -> (Signal<Element, Never>, Signal<F, Never>) {
-        let shared = shareReplay()
+        let shared = share()
         return (shared.suppressError(logging: false), shared.toErrorSignal().map(mapError))
     }
 
