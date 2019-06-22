@@ -27,7 +27,7 @@
 public class LoadingProperty<LoadingValue, LoadingError: Swift.Error>: PropertyProtocol, SignalProtocol, DisposeBagProvider {
     
     private let signalProducer: () -> LoadingSignal<LoadingValue, LoadingError>
-    private let subject = PublishSubject<LoadingState<LoadingValue, LoadingError>, Never>()
+    private let subject = PassthroughSubject<LoadingState<LoadingValue, LoadingError>, Never>()
     private var loadingDisposable: Disposable? = nil
     
     public var bag: DisposeBag {
@@ -39,7 +39,7 @@ public class LoadingProperty<LoadingValue, LoadingError: Swift.Error>: PropertyP
     /// the state will be updated to either `.loaded` or `.failed` state.
     public private(set) var loadingState: LoadingState<LoadingValue, LoadingError> = .loading {
         didSet {
-            subject.next(loadingState)
+            subject.send(loadingState)
         }
     }
     
@@ -70,7 +70,7 @@ public class LoadingProperty<LoadingValue, LoadingError: Swift.Error>: PropertyP
             if !silently {
                 self.loadingState = .loading
             }
-            observer.next(.loading)
+            observer.receive(.loading)
             self.loadingDisposable = self.signalProducer().observe { event in
                 switch event {
                 case .next(let anyLoadingState):
@@ -85,9 +85,9 @@ public class LoadingProperty<LoadingValue, LoadingError: Swift.Error>: PropertyP
                             self.loadingState = loadingSate
                         }
                     }
-                    observer.next(loadingSate)
+                    observer.receive(loadingSate)
                 case .completed:
-                    observer.completed()
+                    observer.receive(completion: .finished)
                 case .failed:
                     break // Never
                 }

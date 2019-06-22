@@ -37,13 +37,13 @@ extension SignalProtocol {
                 case .next(let element):
                     buffer.append(element)
                     if buffer.count == size {
-                        observer.next(buffer)
+                        observer.receive(buffer)
                         buffer.removeAll()
                     }
                 case .failed(let error):
-                    observer.failed(error)
+                    observer.receive(completion: .failure(error))
                 case .completed:
-                    observer.completed()
+                    observer.receive(completion: .finished)
                 }
             }
         }
@@ -64,14 +64,14 @@ extension SignalProtocol {
                 switch event {
                 case .next(let element):
                     didEmitNonTerminal = true
-                    observer.next(element)
+                    observer.receive(element)
                 case .failed(let error):
-                    observer.failed(error)
+                    observer.receive(completion: .failure(error))
                 case .completed:
                     if !didEmitNonTerminal {
-                        observer.next(element)
+                        observer.receive(element)
                     }
-                    observer.completed()
+                    observer.receive(completion: .finished)
                 }
             }
         }
@@ -109,16 +109,16 @@ extension SignalProtocol {
     public func scan<U>(_ initial: U, _ combine: @escaping (U, Element) -> U) -> Signal<U, Error> {
         return Signal { observer in
             var accumulator = initial
-            observer.next(accumulator)
+            observer.receive(accumulator)
             return self.observe { event in
                 switch event {
                 case .next(let element):
                     accumulator = combine(accumulator, element)
-                    observer.next(accumulator)
+                    observer.receive(accumulator)
                 case .failed(let error):
-                    observer.failed(error)
+                    observer.receive(completion: .failure(error))
                 case .completed:
-                    observer.completed()
+                    observer.receive(completion: .finished)
                 }
             }
         }

@@ -62,14 +62,14 @@ extension SignalProtocol where Element: _ResultProtocol, Error == Element.Error 
                 case .next(let result):
                     switch result._unbox {
                     case .success(let element):
-                        observer.next(element)
+                        observer.receive(element)
                     case .failure(let error):
-                        observer.failed(error)
+                        observer.receive(completion: .failure(error))
                     }
                 case .completed:
-                    observer.completed()
+                    observer.receive(completion: .finished)
                 case .failed(let error):
-                    observer.failed(error)
+                    observer.receive(completion: .failure(error))
                 }
             }
         }

@@ -32,11 +32,11 @@ extension SignalProtocol {
             return self.observe { event in
                 switch event {
                 case .next(let element):
-                    observer.next(element)
+                    observer.receive(element)
                 case .failed(let error):
-                    observer.failed(transform(error))
+                    observer.receive(completion: .failure(transform(error)))
                 case .completed:
-                    observer.completed()
+                    observer.receive(completion: .finished)
                 }
             }
         }
@@ -44,13 +44,13 @@ extension SignalProtocol {
 
     /// Branch out error into another signal.
     public func branchOutError() -> (Signal<Element, Never>, Signal<Error, Never>) {
-        let shared = shareReplay()
+        let shared = share()
         return (shared.suppressError(logging: false), shared.toErrorSignal())
     }
 
     /// Branch out mapped error into another signal.
     public func branchOutError<F>(_ mapError: @escaping (Error) -> F) -> (Signal<Element, Never>, Signal<F, Never>) {
-        let shared = shareReplay()
+        let shared = share()
         return (shared.suppressError(logging: false), shared.toErrorSignal().map(mapError))
     }
 
@@ -60,14 +60,14 @@ extension SignalProtocol {
             return self.observe { event in
                 switch event {
                 case .next(let element):
-                    observer.next(element)
+                    observer.receive(element)
                 case .failed(let error):
-                    observer.completed()
+                    observer.receive(completion: .finished)
                     if logging {
                         print("Signal at \(file):\(line) encountered an error: \(error)")
                     }
                 case .completed:
-                    observer.completed()
+                    observer.receive(completion: .finished)
                 }
             }
         }
@@ -84,12 +84,12 @@ extension SignalProtocol {
             return self.observe { event in
                 switch event {
                 case .next(let element):
-                    observer.next(element)
+                    observer.receive(element)
                 case .failed:
-                    observer.next(element)
-                    observer.completed()
+                    observer.receive(element)
+                    observer.receive(completion: .finished)
                 case .completed:
-                    observer.completed()
+                    observer.receive(completion: .finished)
                 }
             }
         }
@@ -107,18 +107,18 @@ extension SignalProtocol {
                 serialDisposable.otherDisposable = self.observe { event in
                     switch event {
                     case .next(let element):
-                        observer.next(element)
+                        observer.receive(element)
                     case .failed(let error):
                         if remainingAttempts > 0 {
                             remainingAttempts -= 1
                             attempt?()
                         } else {
                             attempt = nil
-                            observer.failed(error)
+                            observer.receive(completion: .failure(error))
                         }
                     case .completed:
                         attempt = nil
-                        observer.completed()
+                        observer.receive(completion: .finished)
                     }
                 }
             }
@@ -144,10 +144,10 @@ extension SignalProtocol {
                 compositeDisposable += self.observe { event in
                     switch event {
                     case .next(let element):
-                        observer.next(element)
+                        observer.receive(element)
                     case .completed:
                         attempt = nil
-                        observer.completed()
+                        observer.receive(completion: .finished)
                     case .failed(let error):
                         if shouldRetry(error) {
                             compositeDisposable += other.observe { otherEvent in
@@ -156,11 +156,11 @@ extension SignalProtocol {
                                     attempt?()
                                 case .completed:
                                     attempt = nil
-                                    observer.failed(error)
+                                    observer.receive(completion: .failure(error))
                                 }
                             }
                         } else {
-                            observer.failed(error)
+                            observer.receive(completion: .failure(error))
                         }
                     }
                 }
@@ -178,7 +178,7 @@ extension SignalProtocol {
                 return queue.disposableAfter(when: interval) {
                     if !completed {
                         completed = true
-                        observer.failed(error)
+                        observer.receive(completion: .failure(error))
                     }
                 }
             }
@@ -200,10 +200,10 @@ extension SignalProtocol {
                 case .next:
                     break
                 case .completed:
-                    observer.completed()
+                    observer.receive(completion: .finished)
                 case .failed(let error):
-                    observer.next(error)
-                    observer.completed()
+                    observer.receive(error)
+                    observer.receive(completion: .finished)
                 }
             }
         }
@@ -218,9 +218,9 @@ extension SignalProtocol where Error == Never {
             return self.observe { event in
                 switch event {
                 case .next(let element):
-                    observer.next(element)
+                    observer.receive(element)
                 case .completed:
-                    observer.completed()
+                    observer.receive(completion: .finished)
                 }
             }
         }

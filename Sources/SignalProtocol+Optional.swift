@@ -53,12 +53,12 @@ extension SignalProtocol where Element: OptionalProtocol {
                 switch event {
                 case .next(let element):
                     if let element = element._unbox {
-                        observer.next(element)
+                        observer.receive(element)
                     }
                 case .failed(let error):
-                    observer.failed(error)
+                    observer.receive(completion: .failure(error))
                 case .completed:
-                    observer.completed()
+                    observer.receive(completion: .finished)
                 }
             }
         }

@@ -88,26 +88,34 @@ extension ConnectableSignalProtocol {
 }
 
 extension SignalProtocol {
+
+    public func multicast(_ createSubject: () -> Subject<Element, Error>) -> ConnectableSignal<Self> {
+        return ConnectableSignal(source: self, subject: createSubject())
+    }
+
+    public func multicast(subject: Subject<Element, Error>) -> ConnectableSignal<Self> {
+        return ConnectableSignal(source: self, subject: subject)
+    }
     
     /// Ensure that all observers see the same sequence of elements. Connectable.
     public func replay(limit: Int = Int.max) -> ConnectableSignal<Self> {
         if limit == 0 {
-            return ConnectableSignal(source: self, subject: PublishSubject())
+            return multicast(subject: PassthroughSubject())
         } else if limit == 1 {
-            return ConnectableSignal(source: self, subject: ReplayOneSubject())
+            return multicast(subject: ReplayOneSubject())
         } else {
-            return ConnectableSignal(source: self, subject: ReplaySubject(bufferSize: limit))
+            return multicast(subject: ReplaySubject(bufferSize: limit))
         }
     }
     
     /// Convert signal to a connectable signal.
     public func publish() -> ConnectableSignal<Self> {
-        return ConnectableSignal(source: self, subject: PublishSubject())
+        return multicast(subject: PassthroughSubject())
     }
     
     /// Ensure that all observers see the same sequence of elements.
     /// Shorthand for `replay(limit).refCount()`.
-    public func shareReplay(limit: Int = Int.max) -> Signal<Element, Error> {
+    public func share(limit: Int = Int.max) -> Signal<Element, Error> {
         return replay(limit: limit).refCount()
     }
 }
@@ -117,7 +125,7 @@ extension SignalProtocol where Element: LoadingStateProtocol {
     /// Ensure that all observers see the same sequence of elements. Connectable.
     public func replayValues(limit: Int = Int.max) -> ConnectableSignal<Signal<LoadingState<LoadingValue, LoadingError>, Error>> {
         if limit == 0 {
-            return ConnectableSignal(source: map { $0.asLoadingState }, subject: PublishSubject())
+            return ConnectableSignal(source: map { $0.asLoadingState }, subject: PassthroughSubject())
         } else {
             return ConnectableSignal(source: map { $0.asLoadingState }, subject: ReplayLoadingValueSubject(bufferSize: limit))
         }

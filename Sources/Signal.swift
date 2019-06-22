@@ -54,7 +54,7 @@ extension Signal {
     /// Create a signal that completes immediately without emitting any elements.
     public static func completed() -> Signal<Element, Error> {
         return Signal { observer in
-            observer.completed()
+            observer.receive(completion: .finished)
             return NonDisposable.instance
         }
     }
@@ -64,7 +64,7 @@ extension Signal {
     /// - Parameter error: An error to fail with.
     public static func failed(_ error: Error) -> Signal<Element, Error> {
         return Signal { observer in
-            observer.failed(error)
+            observer.receive(completion: .failure(error))
             return NonDisposable.instance
         }
     }
@@ -78,7 +78,7 @@ extension Signal {
 
     /// Create a signal and an observer that can be used to send events on the signal.
     public static func withObserver() -> (Signal<Element, Error>, AnyObserver<Element, Error>) {
-        let subject = PublishSubject<Element, Error>()
+        let subject = PassthroughSubject<Element, Error>()
         return (subject.toSignal(), AnyObserver(observer: subject.on))
     }
 }
@@ -106,7 +106,7 @@ extension Signal {
     /// - Parameter body: A closure to perform whose return element will be emitted in the `next` event.
     public init(performing body: @escaping () -> Element) {
         self.init { observer in
-            observer.completed(with: body())
+            observer.receive(lastElement: body())
             return NonDisposable.instance
         }
     }
@@ -137,9 +137,9 @@ extension Signal {
         self.init { observer in
             switch body() {
             case .success(let element):
-                observer.completed(with: element)
+                observer.receive(lastElement: element)
             case .failure(let error):
-                observer.failed(error)
+                observer.receive(completion: .failure(error))
             }
             return NonDisposable.instance
         }
@@ -150,8 +150,8 @@ extension Signal {
     /// - Parameter sequence: A sequence of elements to convert into a series of `next` events.
     public init<S: Sequence>(sequence: S) where S.Iterator.Element == Element {
         self.init { observer in
-            sequence.forEach(observer.next)
-            observer.completed()
+            sequence.forEach(observer.receive(_:))
+            observer.receive(completion: .finished)
             return NonDisposable.instance
         }
     }
@@ -175,10 +175,10 @@ extension Signal {
                     }
                     guard let element = iterator.next() else {
                         dispatch = nil
-                        observer.completed()
+                        observer.receive(completion: .finished)
                         return
                     }
-                    observer.next(element)
+                    observer.receive(element)
                     dispatch()
                 }
             }
@@ -234,7 +234,7 @@ extension Signal where Error == Never {
     /// - Note: Calling this initializer will replace the value of the given variable.
     public init(takingOver nextObserver: inout (Element) -> Void) {
         let (signal, observer) = Signal.withObserver()
-        nextObserver = { observer.next($0) }
+        nextObserver = { observer.receive($0) }
         self = signal
     }
 }
@@ -249,7 +249,7 @@ extension Signal where Element == Void, Error == Never {
     /// - Note: Calling this initializer will replace the value of the given variable.
     public init(takingOver nextObserver: inout () -> Void) {
         let (signal, observer) = Signal.withObserver()
-        nextObserver = { observer.next() }
+        nextObserver = { observer.receive() }
         self = signal
     }
 }

@@ -76,12 +76,12 @@ extension SignalProtocol {
             func onAnyNext() {
                 if let myElement = elements.my, let otherElement = elements.other {
                     let combination = combine(myElement, otherElement)
-                    observer.next(combination)
+                    observer.receive(combination)
                 }
             }
             func onAnyCompleted() {
                 if completions.me == true && completions.other == true {
-                    observer.completed()
+                    observer.receive(completion: .finished)
                 }
             }
             compositeDisposable += self.observe { event in
@@ -91,7 +91,7 @@ extension SignalProtocol {
                     elements.my = element
                     onAnyNext()
                 case .failed(let error):
-                    observer.failed(error)
+                    observer.receive(completion: .failure(error))
                 case .completed:
                     completions.me = true
                     onAnyCompleted()
@@ -104,7 +104,7 @@ extension SignalProtocol {
                     elements.other = element
                     onAnyNext()
                 case .failed(let error):
-                    observer.failed(error)
+                    observer.receive(completion: .failure(error))
                 case .completed:
                     completions.other = true
                     onAnyCompleted()
@@ -147,9 +147,9 @@ extension SignalProtocol {
             serialDisposable.otherDisposable = self.observe { event in
                 switch event {
                 case .next(let element):
-                    observer.next(element)
+                    observer.receive(element)
                 case .failed(let error):
-                    observer.failed(error)
+                    observer.receive(completion: .failure(error))
                 case .completed:
                     serialDisposable.otherDisposable = other.observe(with: observer.on)
                 }
@@ -197,7 +197,7 @@ extension SignalProtocol {
                 case .next(let element):
                     latest = element
                 case .failed(let error):
-                    observer.failed(error)
+                    observer.receive(completion: .failure(error))
                 case .completed:
                     break
                 }
@@ -205,12 +205,12 @@ extension SignalProtocol {
             compositeDisposable += self.observe { event in
                 switch event {
                 case .completed:
-                    observer.completed()
+                    observer.receive(completion: .finished)
                 case .failed(let error):
-                    observer.failed(error)
+                    observer.receive(completion: .failure(error))
                 case .next(let element):
                     if let latest = latest {
-                        observer.next(combine(element, latest))
+                        observer.receive(combine(element, latest))
                     }
                 }
             }
@@ -255,14 +255,14 @@ extension SignalProtocol {
             let dispatchIfPossible = {
                 while !buffers.my.isEmpty && !buffers.other.isEmpty {
                     let element = combine(buffers.my[0], buffers.other[0])
-                    observer.next(element)
+                    observer.receive(element)
                     buffers.my.removeFirst()
                     buffers.other.removeFirst()
                 }
             }
             func completeIfPossible() {
                 if (buffers.my.isEmpty && completions.me) || (buffers.other.isEmpty && completions.other) {
-                    observer.completed()
+                    observer.receive(completion: .finished)
                 }
             }
             compositeDisposable += self.observe { event in
@@ -271,7 +271,7 @@ extension SignalProtocol {
                 case .next(let element):
                     buffers.my.append(element)
                 case .failed(let error):
-                    observer.failed(error)
+                    observer.receive(completion: .failure(error))
                 case .completed:
                     completions.me = true
                 }
@@ -284,7 +284,7 @@ extension SignalProtocol {
                 case .next(let element):
                     buffers.other.append(element)
                 case .failed(let error):
-                    observer.failed(error)
+                    observer.receive(completion: .failure(error))
                 case .completed:
                     completions.other = true
                 }

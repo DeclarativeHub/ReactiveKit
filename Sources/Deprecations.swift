@@ -135,3 +135,90 @@ extension SignalProtocol where Element: Sequence {
         return flattenElements()
     }
 }
+
+@available(*, deprecated, renamed: "PassthroughSubject")
+public final class PublishSubject<Element, Error: Swift.Error>: Subject<Element, Error> {}
+
+@available(*, deprecated, renamed: "PassthroughSubject")
+public typealias SafePublishSubject<Element> = PublishSubject<Element, Never>
+
+extension ObserverProtocol {
+
+    @available(*, deprecated, renamed: "receive(_:)")
+    public func next(_ element: Element) {
+        on(.next(element))
+    }
+
+    @available(*, deprecated, message: "Please use receive(completion: .failure(error))")
+    public func failed(_ error: Error) {
+        on(.failed(error))
+    }
+
+    @available(*, deprecated, message: "Please use receive(completion: .finished)")
+    public func completed() {
+        on(.completed)
+    }
+
+    @available(*, deprecated, renamed: "receive(lastElement:)")
+    public func completed(with element: Element) {
+        next(element)
+        completed()
+    }
+}
+
+extension ObserverProtocol where Element == Void {
+
+    @available(*, deprecated, renamed: "receive")
+    public func next() {
+        next(())
+    }
+}
+
+extension SubjectProtocol {
+
+
+    @available(*, deprecated, renamed: "send(_:)")
+    public func next(_ element: Element) {
+        on(.next(element))
+    }
+
+    @available(*, deprecated, message: "Please use send(completion: .failure(error))")
+    public func failed(_ error: Error) {
+        on(.failed(error))
+    }
+
+    @available(*, deprecated, message: "Please use send(completion: .finished)")
+    public func completed() {
+        on(.completed)
+    }
+
+    @available(*, deprecated, renamed: "send(lastElement:)")
+    public func completed(with element: Element) {
+        next(element)
+        completed()
+    }
+}
+
+extension SubjectProtocol where Element == Void {
+
+    @available(*, deprecated, renamed: "send")
+    public func next() {
+        next(())
+    }
+}
+
+extension Subject {
+
+    @available(*, deprecated, renamed: "receive(event:)")
+    open func send(_ event: Event<Element, Error>) {
+        receive(event: event)
+    }
+}
+
+extension SignalProtocol {
+
+    @available(*, deprecated, renamed: "share(limit:)")
+    public func shareReplay(limit: Int = Int.max) -> Signal<Element, Error> {
+        return share(limit: limit)
+    }
+}

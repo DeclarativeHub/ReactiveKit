@@ -20,8 +20,8 @@ class SignalTests: XCTestCase {
         self.measure {
             (0..<1000).forEach { _ in
                 let signal = ReactiveKit.Signal<Int, Never> { observer in
-                    (0..<100).forEach(observer.next)
-                    observer.completed()
+                    (0..<100).forEach(observer.receive(_:))
+                    observer.receive(completion: .finished)
                     return NonDisposable.instance
                 }
                 _ = signal.observe { _ in }
@@ -400,19 +400,19 @@ class SignalTests: XCTestCase {
     }
 
     func testPausable() {
-        let operation = PublishSubject<Int, TestError>()
-        let controller = PublishSubject<Bool, TestError>()
-        let paused = operation.shareReplay().pausable(by: controller)
+        let operation = PassthroughSubject<Int, TestError>()
+        let controller = PassthroughSubject<Bool, TestError>()
+        let paused = operation.share().pausable(by: controller)
 
         let exp = expectation(description: "completed")
         paused.expectAsyncComplete(after: [1, 3], expectation: exp)
 
-        operation.next(1)
-        controller.next(false)
-        operation.next(2)
-        controller.next(true)
-        operation.next(3)
-        operation.completed()
+        operation.send(1)
+        controller.send(false)
+        operation.send(2)
+        controller.send(true)
+        operation.send(3)
+        operation.send(completion: .finished)
 
         waitForExpectations(timeout: 1, handler: nil)
     }

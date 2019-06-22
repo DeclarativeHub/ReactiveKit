@@ -34,11 +34,11 @@ extension SignalProtocol {
             return self.observe { event in
                 switch event {
                 case .next(let element):
-                    observer.next(transform(element))
+                    observer.receive(transform(element))
                 case .failed(let error):
-                    observer.failed(error)
+                    observer.receive(completion: .failure(error))
                 case .completed:
-                    observer.completed()
+                    observer.receive(completion: .finished)
                 }
             }
         }
@@ -86,9 +86,9 @@ extension SignalProtocol {
             serialDisposable.otherDisposable = self.observe { taskEvent in
                 switch taskEvent {
                 case .next(let value):
-                    observer.next(value)
+                    observer.receive(value)
                 case .completed:
-                    observer.completed()
+                    observer.receive(completion: .finished)
                 case .failed(let error):
                     serialDisposable.otherDisposable = recover(error).observe(with: observer.on)
                 }
@@ -110,14 +110,14 @@ extension SignalProtocol where Error == Swift.Error {
                 switch event {
                 case .next(let element):
                     do {
-                        observer.next(try transform(element))
+                        observer.receive(try transform(element))
                     } catch {
-                        observer.failed(error)
+                        observer.receive(completion: .failure(error))
                     }
                 case .failed(let error):
-                    observer.failed(error)
+                    observer.receive(completion: .failure(error))
                 case .completed:
-                    observer.completed()
+                    observer.receive(completion: .finished)
                 }
             }
         }
@@ -167,7 +167,7 @@ extension SignalProtocol where Element: SignalProtocol, Element.Error == Error {
             func decrementNumberOfOperations() {
                 numberOfOperations -= 1
                 if numberOfOperations == 0 {
-                    observer.completed()
+                    observer.receive(completion: .finished)
                 }
             }
             compositeDisposable += self.observe { outerEvent in
@@ -178,16 +178,16 @@ extension SignalProtocol where Element: SignalProtocol, Element.Error == Error {
                     compositeDisposable += innerSignal.observe { innerEvent in
                         switch innerEvent {
                         case .next(let element):
-                            observer.next(element)
+                            observer.receive(element)
                         case .failed(let error):
-                            observer.failed(error)
+                            observer.receive(completion: .failure(error))
                         case .completed:
                             decrementNumberOfOperations()
                         }
                     }
                     lock.unlock()
                 case .failed(let error):
-                    observer.failed(error)
+                    observer.receive(completion: .failure(error))
                 case .completed:
                     lock.lock()
                     decrementNumberOfOperations()
@@ -214,26 +214,26 @@ extension SignalProtocol where Element: SignalProtocol, Element.Error == Error {
                     serialDisposable.otherDisposable = innerSignal.observe { innerEvent in
                         switch innerEvent {
                         case .next(let element):
-                            observer.next(element)
+                            observer.receive(element)
                         case .failed(let error):
-                            observer.failed(error)
+                            observer.receive(completion: .failure(error))
                         case .completed:
                             lock.lock()
                             completions.inner = true
                             if completions.outer {
-                                observer.completed()
+                                observer.receive(completion: .finished)
                             }
                             lock.unlock()
                         }
                     }
                     lock.unlock()
                 case .failed(let error):
-                    observer.failed(error)
+                    observer.receive(completion: .failure(error))
                 case .completed:
                     lock.lock()
                     completions.outer = true
                     if completions.inner {
-                        observer.completed()
+                        observer.receive(completion: .finished)
                     }
                     lock.unlock()
                 }
@@ -259,16 +259,16 @@ extension SignalProtocol where Element: SignalProtocol, Element.Error == Error {
                 serialDisposable.otherDisposable = innerSignal.observe { event in
                     switch event {
                     case .next(let element):
-                        observer.next(element)
+                        observer.receive(element)
                     case .failed(let error):
-                        observer.failed(error)
+                        observer.receive(completion: .failure(error))
                     case .completed:
                         lock.lock()
                         completions.inner = true
                         if !innerSignalQueue.isEmpty {
                             startNextOperation()
                         } else if completions.outer {
-                            observer.completed()
+                            observer.receive(completion: .finished)
                         }
                         lock.unlock()
                     }
@@ -287,12 +287,12 @@ extension SignalProtocol where Element: SignalProtocol, Element.Error == Error {
                 case .next(let innerSignal):
                     addToQueue(signal: innerSignal)
                 case .failed(let error):
-                    observer.failed(error)
+                    observer.receive(completion: .failure(error))
                 case .completed:
                     lock.lock()
                     completions.outer = true
                     if completions.inner {
-                        observer.completed()
+                        observer.receive(completion: .finished)
                     }
                     lock.unlock()
                 }

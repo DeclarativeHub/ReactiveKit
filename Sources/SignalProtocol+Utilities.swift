@@ -71,7 +71,7 @@ extension SignalProtocol {
             var completions: (me: Bool, other: Bool) = (false, false)
             func completeIfPossible() {
                 if completions.me && completions.other {
-                    observer.completed()
+                    observer.receive(completion: .finished)
                     attempt = nil
                 }
             }
@@ -80,7 +80,7 @@ extension SignalProtocol {
                 outerDisposable.otherDisposable = self.observe { event in
                     switch event {
                     case .next(let element):
-                        observer.next(element)
+                        observer.receive(element)
                         completions.other = false
                         innerDisposable.otherDisposable?.dispose()
                         innerDisposable.otherDisposable = other(element).observe { otherEvent in
@@ -97,7 +97,7 @@ extension SignalProtocol {
                         completions.me = true
                         completeIfPossible()
                     case .failed(let error):
-                        observer.failed(error)
+                        observer.receive(completion: .failure(error))
                     }
                 }
             }
@@ -134,21 +134,21 @@ extension SignalProtocol {
 
     /// Update the given subject with `true` when the receiver starts and with `false` when the receiver terminates.
     public func feedActivity<S: SubjectProtocol>(into listener: S) -> Signal<Element, Error> where S.Element == Bool {
-        return doOn(start: { listener.next(true) }, disposed: { listener.next(false) })
+        return doOn(start: { listener.send(true) }, disposed: { listener.send(false) })
     }
 
     /// Update the given subject with `.next` elements.
     public func feedNext<S: SubjectProtocol>(into listener: S) -> Signal<Element, Error> where S.Element == Element {
-        return doOn(next: { e in listener.next(e) })
+        return doOn(next: { e in listener.send(e) })
     }
 
     /// Update the given subject with mapped `.next` element whenever the element satisfies the given constraint.
     public func feedNext<S: SubjectProtocol>(into listener: S, when: @escaping (Element) -> Bool = { _ in true }, map: @escaping (Element) -> S.Element) -> Signal<Element, Error> {
-        return doOn(next: { e in if when(e) { listener.next(map(e)) } })
+        return doOn(next: { e in if when(e) { listener.send(map(e)) } })
     }
 
     /// Updates the given subject with error from .failed event is such occurs.
     public func feedError<S: SubjectProtocol>(into listener: S) -> Signal<Element, Error> where S.Element == Error {
-        return doOn(failed: { e in listener.next(e) })
+        return doOn(failed: { e in listener.send(e) })
     }
 }

@@ -40,16 +40,16 @@ extension SignalProtocol {
                     previousElement = element
                     timerSubscription = queue.disposableAfter(when: interval) {
                         if let _element = previousElement {
-                            observer.next(_element)
+                            observer.receive(_element)
                             previousElement = nil
                         }
                     }
                 case .failed(let error):
-                    observer.failed(error)
+                    observer.receive(completion: .failure(error))
                 case .completed:
                     if let previousElement = previousElement {
-                        observer.next(previousElement)
-                        observer.completed()
+                        observer.receive(previousElement)
+                        observer.receive(completion: .finished)
                     }
                 }
 
@@ -82,7 +82,7 @@ extension SignalProtocol {
                 switch event {
                 case .next(let element):
                     if isIncluded(element) {
-                        observer.next(element)
+                        observer.receive(element)
                     }
                 default:
                     observer.on(event)
@@ -128,7 +128,7 @@ extension SignalProtocol {
         return Signal { observer in
             return self.observe { event in
                 if case .next(let element) = event {
-                    observer.next(element)
+                    observer.receive(element)
                 }
             }
         }
@@ -170,7 +170,7 @@ extension SignalProtocol {
                 queue.after(when: interval) {
                     guard !serialDisposable.isDisposed else { dispatch = nil; return }
                     if let element = latestElement {
-                        observer.next(element)
+                        observer.receive(element)
                         latestElement = nil
                     }
                     dispatch()
@@ -202,7 +202,7 @@ extension SignalProtocol {
                     if count > 0 {
                         count -= 1
                     } else {
-                        observer.next(element)
+                        observer.receive(element)
                     }
                 default:
                     observer.on(event)
@@ -223,7 +223,7 @@ extension SignalProtocol {
                 case .next(let element):
                     buffer.append(element)
                     if buffer.count > count {
-                        observer.next(buffer.removeFirst())
+                        observer.receive(buffer.removeFirst())
                     }
                 default:
                     observer.on(event)
@@ -261,10 +261,10 @@ extension SignalProtocol {
                 case .next(let element):
                     if taken < count {
                         taken += 1
-                        observer.next(element)
+                        observer.receive(element)
                     }
                     if taken == count {
-                        observer.completed()
+                        observer.receive(completion: .finished)
                     }
                 default:
                     observer.on(event)
@@ -283,10 +283,10 @@ extension SignalProtocol {
             return self.observe(with: { (event) in
                 switch event {
                 case .completed:
-                    values.forEach(observer.next)
-                    observer.completed()
+                    values.forEach(observer.receive(_:))
+                    observer.receive(completion: .finished)
                 case .failed(let error):
-                    observer.failed(error)
+                    observer.receive(completion: .failure(error))
                 case .next(let element):
                     if event.isTerminal {
                         observer.on(event)
@@ -310,9 +310,9 @@ extension SignalProtocol {
                 switch event {
                 case .next(let element):
                     if shouldContinue(element) {
-                        observer.next(element)
+                        observer.receive(element)
                     } else {
-                        observer.completed()
+                        observer.receive(completion: .finished)
                     }
                 default:
                     observer.on(event)
@@ -327,16 +327,16 @@ extension SignalProtocol {
         return Signal { observer in
             let disposable = CompositeDisposable()
             disposable += signal.observe { _ in
-                observer.completed()
+                observer.receive(completion: .finished)
             }
             disposable += self.observe { event in
                 switch event {
                 case .completed:
-                    observer.completed()
+                    observer.receive(completion: .finished)
                 case .failed(let error):
-                    observer.failed(error)
+                    observer.receive(completion: .failure(error))
                 case .next(let element):
-                    observer.next(element)
+                    observer.receive(element)
                 }
             }
             return disposable
@@ -355,7 +355,7 @@ extension SignalProtocol {
                     let now = DispatchTime.now()
                     if lastEventTime == nil || now.rawValue > (lastEventTime! + seconds).rawValue {
                         lastEventTime = now
-                        observer.next(element)
+                        observer.receive(element)
                     }
                 default:
                     observer.on(event)

@@ -50,11 +50,11 @@ public final class Property<Value>: PropertyProtocol, SubjectProtocol, BindableP
         set {
             lock.lock(); defer { lock.unlock() }
             _value = newValue
-            subject.next(newValue)
+            subject.send(newValue)
         }
     }
     
-    public init(_ value: Value, subject: Subject<Value, Never> = PublishSubject()) {
+    public init(_ value: Value, subject: Subject<Value, Never> = PassthroughSubject()) {
         _value = value
         self.subject = subject
     }
@@ -91,7 +91,7 @@ public final class Property<Value>: PropertyProtocol, SubjectProtocol, BindableP
     }
     
     deinit {
-        subject.completed()
+        subject.send(completion: .finished)
     }
 }
 

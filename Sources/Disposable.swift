@@ -264,7 +264,7 @@ public final class DisposeBag: DisposeBagProtocol {
     
     deinit {
         dispose()
-        subject?.completed()
+        subject?.send(completion: .finished)
     }
 }
 
