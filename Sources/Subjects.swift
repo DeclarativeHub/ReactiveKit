@@ -52,6 +52,14 @@ extension SubjectProtocol {
     }
 }
 
+extension SubjectProtocol where Element == Void {
+
+    /// Convenience method to send `.next` event.
+    public func send() {
+        send(())
+    }
+}
+
 /// A type that is both a signal and an observer.
 open class Subject<Element, Error: Swift.Error>: SubjectProtocol {
     
