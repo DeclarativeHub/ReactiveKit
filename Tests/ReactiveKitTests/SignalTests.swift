@@ -60,7 +60,7 @@ class SignalTests: XCTestCase {
         let operation = Signal<Int, TestError>(sequence: [1, 2, 3])
         operation.expectComplete(after: [1, 2, 3])
     }
-
+    
     func testCompleted() {
         let operation = Signal<Int, TestError>.completed()
         operation.expectComplete(after: [])
@@ -99,7 +99,7 @@ class SignalTests: XCTestCase {
         SafeSignal(sequence: [1, 2, 3, 4]).buffer(ofSize: 2).expectComplete(after: [[1, 2], [3, 4]])
         SafeSignal(sequence: [1, 2, 3, 4, 5]).buffer(ofSize: 2).expectComplete(after: [[1, 2], [3, 4]])
     }
-
+    
     func testMap() {
         let operation = Signal<Int, TestError>(sequence: [1, 2, 3])
         let mapped = operation.map { $0 * 2 }
@@ -110,6 +110,15 @@ class SignalTests: XCTestCase {
         let operation = Signal<Int, TestError>(sequence: [1, 2, 3])
         let scanned = operation.scan(0, +)
         scanned.expectComplete(after: [0, 1, 3, 6])
+    }
+    
+    func testScanForThreadSafety() {
+        let subject = Subject<Int, TestError>()
+        let scanned = subject.scan(0, +)
+        let disposeBag = DisposeBag()
+        let exp = expectation(description: "race_condition?")
+        scanned.stress(with: [subject], expectation: exp).dispose(in: disposeBag)
+        waitForExpectations(timeout: 3)
     }
 
     func testToSignal() {
@@ -147,7 +156,7 @@ class SignalTests: XCTestCase {
     //    let distinct = operation.debounce(interval: 0.3, on: Queue.global)
     //    let exp = expectation(withDescription: "completed")
     //    distinct.expectComplete(after: [2], expectation: exp)
-    //    waitForExpectations(withTimeout: 1, handler: nil)
+    //    waitForExpectations(withTimeout: 1)
     //  }
 
     func testDistinct() {
@@ -237,7 +246,7 @@ class SignalTests: XCTestCase {
         eve.runRemaining()          // Ignored. Sends B, with termination.
         bob.runRemaining()          // Ignored.
 
-        waitForExpectations(timeout: 1, handler: nil)
+        waitForExpectations(timeout: 1)
     }
 
     //  func testThrottle() {
@@ -245,7 +254,7 @@ class SignalTests: XCTestCase {
     //    let distinct = operation.throttle(1)
     //    let exp = expectation(withDescription: "completed")
     //    distinct.expectComplete(after: [0, 3], expectation: exp)
-    //    waitForExpectationsWithTimeout(3, handler: nil)
+    //    waitForExpectationsWithTimeout(3)
     //  }
 
     func testIgnoreNils() {
@@ -277,7 +286,19 @@ class SignalTests: XCTestCase {
         bob.runRemaining()
         eve.runRemaining()
 
-        waitForExpectations(timeout: 1, handler: nil)
+        waitForExpectations(timeout: 1)
+    }
+    
+    func testCombineLatestWithForThreadSafety() {
+        let subjectOne = Subject<Int, TestError>()
+        let subjectTwo = Subject<Int, TestError>()
+        let combined = subjectOne.combineLatest(with: subjectTwo)
+        
+        let disposeBag = DisposeBag()
+        let exp = expectation(description: "race_condition?")
+        combined.stress(with: [subjectOne, subjectTwo], expectation: exp).dispose(in: disposeBag)
+        
+        waitForExpectations(timeout: 3)
     }
 
     func testMergeWith() {
@@ -297,9 +318,9 @@ class SignalTests: XCTestCase {
         eve.runRemaining()
         bob.runRemaining()
 
-        waitForExpectations(timeout: 1, handler: nil)
+        waitForExpectations(timeout: 1)
     }
-
+    
     func testStartWith() {
         let operation = Signal<Int, TestError>(sequence: [1, 2, 3])
         let startWith4 = operation.start(with: 4)
@@ -311,6 +332,18 @@ class SignalTests: XCTestCase {
         let operationB = Signal<String, TestError>(sequence: ["A", "B"])
         let combined = operationA.zip(with: operationB).map { "\($0)\($1)" }
         combined.expectComplete(after: ["1A", "2B"])
+    }
+    
+    func testZipWithForThreadSafety() {
+        let subjectOne = Subject<Int, TestError>()
+        let subjectTwo = Subject<Int, TestError>()
+        let combined = subjectOne.zip(with: subjectTwo)
+        
+        let disposeBag = DisposeBag()
+        let exp = expectation(description: "race_condition?")
+        combined.stress(with: [subjectOne, subjectTwo], expectation: exp).dispose(in: disposeBag)
+        
+        waitForExpectations(timeout: 3)
     }
 
     func testZipWithWhenNotComplete() {
@@ -333,7 +366,7 @@ class SignalTests: XCTestCase {
         let combined = operationA.zip(with: operationB).map { $0 + $1 } // Completes after 4 nexts due to operationA and takes 4 secs due to operationB
         let exp = expectation(description: "completed")
         combined.expectAsyncComplete(after: [0, 2, 4, 6], expectation: exp)
-        waitForExpectations(timeout: 5.0, handler: nil)
+        waitForExpectations(timeout: 5.0)
     }
 
     func testFlatMapError() {
@@ -357,6 +390,17 @@ class SignalTests: XCTestCase {
         retry.expect(events: [.failed(.Error)])
 
         XCTAssertEqual(bob.numberOfRuns, 4)
+    }
+    
+    func testRetryForThreadSafety() {
+        let subjectOne = Subject<Int, TestError>()
+        let retry = subjectOne.retry(times: 3)
+        
+        let disposeBag = DisposeBag()
+        let exp = expectation(description: "race_condition?")
+        retry.stress(with: [subjectOne], expectation: exp).dispose(in: disposeBag)
+        
+        waitForExpectations(timeout: 3)
     }
 
     func testexecuteIn() {
@@ -414,19 +458,31 @@ class SignalTests: XCTestCase {
         operation.send(3)
         operation.send(completion: .finished)
 
-        waitForExpectations(timeout: 1, handler: nil)
+        waitForExpectations(timeout: 1)
     }
 
     func testTimeoutNoFailure() {
         let exp = expectation(description: "completed")
         Signal<Int, TestError>(just: 1).timeout(after: 0.2, with: .Error, on: DispatchQueue.main).expectAsyncComplete(after: [1], expectation: exp)
-        waitForExpectations(timeout: 1, handler: nil)
+        waitForExpectations(timeout: 1)
     }
 
     func testTimeoutFailure() {
         let exp = expectation(description: "completed")
         Signal<Int, TestError>.never().timeout(after: 0.5, with: .Error, on: DispatchQueue.main).expectAsync(events: [.failed(.Error)], expectation: exp)
-        waitForExpectations(timeout: 1, handler: nil)
+        waitForExpectations(timeout: 1)
+    }
+    
+    func testTimeoutForThreadSafety() {
+        let exp = expectation(description: "race_condition?")
+        exp.expectedFulfillmentCount = 1000
+        for _ in 0..<exp.expectedFulfillmentCount {
+            let subject = Subject<Int, TestError>()
+            let timeout = subject.timeout(after: 1, with: .Error)
+            let disposeBag = DisposeBag()
+            timeout.stress(with: [subject], eventsCount: 10, expectation: exp).dispose(in: disposeBag)
+        }
+        waitForExpectations(timeout: 3)
     }
 
     func testAmbWith() {
@@ -444,9 +500,21 @@ class SignalTests: XCTestCase {
         bob.runRemaining()
         eve.runRemaining()
 
-        waitForExpectations(timeout: 1, handler: nil)
+        waitForExpectations(timeout: 1)
     }
 
+    func testAmbForThreadSafety() {
+        let subjectOne = Subject<Int, TestError>()
+        let subjectTwo = Subject<Int, TestError>()
+        let combined = subjectOne.amb(with: subjectTwo)
+        
+        let disposeBag = DisposeBag()
+        let exp = expectation(description: "race_condition?")
+        combined.stress(with: [subjectOne, subjectTwo], expectation: exp).dispose(in: disposeBag)
+        
+        waitForExpectations(timeout: 3)
+    }
+    
     func testCollect() {
         let operation = Signal<Int, TestError>(sequence: [1, 2, 3])
         let collected = operation.collect()
@@ -469,7 +537,40 @@ class SignalTests: XCTestCase {
         bob.runRemaining()
         eve.runRemaining()
 
-        waitForExpectations(timeout: 1, handler: nil)
+        waitForExpectations(timeout: 1)
+    }
+    
+    func testWithLatestFrom() {
+        let bob = Scheduler()
+        let eve = Scheduler()
+        
+        let operationA = Signal<Int, TestError>(sequence: [1, 2, 5]).observeIn(bob.context)
+        let operationB = Signal<Int, TestError>(sequence: [3, 4, 6]).observeIn(eve.context)
+        let merged = operationA.with(latestFrom: operationB)
+        
+        let exp = expectation(description: "completed")
+        merged.expectAsyncComplete(after: [(2, 3), (5, 4)], expectation: exp)
+        
+        bob.runOne()
+        eve.runOne()
+        bob.runOne()
+        eve.runOne()
+        bob.runRemaining()
+        eve.runRemaining()
+        
+        waitForExpectations(timeout: 1)
+    }
+    
+    func testWithLatestFromForThreadSafety() {
+        let subjectOne = Subject<Int, TestError>()
+        let subjectTwo = Subject<Int, TestError>()
+        let merged = subjectOne.with(latestFrom: subjectTwo)
+        
+        let disposeBag = DisposeBag()
+        let exp = expectation(description: "race_condition?")
+        merged.stress(with: [subjectOne, subjectTwo], expectation: exp).dispose(in: disposeBag)
+        
+        waitForExpectations(timeout: 3)
     }
 
     func testDefaultIfEmpty() {
@@ -508,7 +609,19 @@ class SignalTests: XCTestCase {
         eves[1].runRemaining()
         eves[0].runRemaining()
 
-        waitForExpectations(timeout: 1, handler: nil)
+        waitForExpectations(timeout: 1)
+    }
+    
+    func testFlatMapMergeForThreadSafety() {
+        let subjectOne = Subject<Int, TestError>()
+        let subjectTwo = Subject<Int, TestError>()
+        let merged = subjectOne.flatMapMerge { _ in subjectTwo }
+        
+        let disposeBag = DisposeBag()
+        let exp = expectation(description: "race_condition?")
+        merged.stress(with: [subjectOne, subjectTwo], expectation: exp).dispose(in: disposeBag)
+        
+        waitForExpectations(timeout: 3)
     }
 
     func testFlatMapLatest() {
@@ -529,7 +642,19 @@ class SignalTests: XCTestCase {
         eves[1].runRemaining()
         eves[0].runRemaining()
 
-        waitForExpectations(timeout: 1, handler: nil)
+        waitForExpectations(timeout: 1)
+    }
+    
+    func testFlatMapLatestForThreadSafety() {
+        let subjectOne = Subject<Int, TestError>()
+        let subjectTwo = Subject<Int, TestError>()
+        let merged = subjectOne.flatMapLatest { _ in subjectTwo }
+        
+        let disposeBag = DisposeBag()
+        let exp = expectation(description: "race_condition?")
+        merged.stress(with: [subjectOne, subjectTwo], expectation: exp).dispose(in: disposeBag)
+        
+        waitForExpectations(timeout: 3)
     }
 
     func testFlatMapConcat() {
@@ -537,19 +662,31 @@ class SignalTests: XCTestCase {
         let eves = [Scheduler(), Scheduler()]
 
         let operation = Signal<Int, TestError>(sequence: [1, 2]).observeIn(bob.context)
-        let merged = operation.flatMapConcat { num in
+        let combined = operation.flatMapConcat { num in
             return Signal<Int, TestError>(sequence: [5, 6].map { $0 * num }).observeIn(eves[num-1].context)
         }
 
         let exp = expectation(description: "completed")
-        merged.expectAsyncComplete(after: [5, 6, 10, 12], expectation: exp)
+        combined.expectAsyncComplete(after: [5, 6, 10, 12], expectation: exp)
 
         bob.runRemaining()
         eves[1].runOne()
         eves[0].runRemaining()
         eves[1].runRemaining()
 
-        waitForExpectations(timeout: 1, handler: nil)
+        waitForExpectations(timeout: 1)
+    }
+    
+    func testFlatMapConcatForThreadSafety() {
+        let subjectOne = Subject<Int, TestError>()
+        let subjectTwo = Subject<Int, TestError>()
+        let merged = subjectOne.flatMapConcat { _ in subjectTwo }
+        
+        let disposeBag = DisposeBag()
+        let exp = expectation(description: "race_condition?")
+        merged.stress(with: [subjectOne, subjectTwo], expectation: exp).dispose(in: disposeBag)
+        
+        waitForExpectations(timeout: 3)
     }
 
     func testReplay() {
@@ -586,7 +723,19 @@ class SignalTests: XCTestCase {
         eve.runRemaining()
         bob.runRemaining()
 
-        waitForExpectations(timeout: 1, handler: nil)
+        waitForExpectations(timeout: 1)
+    }
+    
+    func testReplayLatestWithForThreadSafety() {
+        let subjectOne = Subject<Int, Never>()
+        let subjectTwo = Subject<Int, Never>()
+        let combined = subjectOne.replayLatest(when: subjectTwo)
+        
+        let disposeBag = DisposeBag()
+        let exp = expectation(description: "race_condition?")
+        combined.stress(with: [subjectOne, subjectTwo], expectation: exp).dispose(in: disposeBag)
+        
+        waitForExpectations(timeout: 3)
     }
 
     func testPublish() {

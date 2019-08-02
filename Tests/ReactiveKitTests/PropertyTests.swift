@@ -95,6 +95,62 @@ class PropertyTests: XCTestCase {
         
         waitForExpectations(timeout: 2, handler: nil)
     }
+    
+    func testPropertyForThreadSafety_oneEventDispatchedOnALotOfProperties() {
+        let exp = expectation(description: "race_condition?")
+        exp.expectedFulfillmentCount = 10000
+        
+        for _ in 0..<exp.expectedFulfillmentCount {
+            let disposeBag = DisposeBag()
+            let property = Property(0)
+            
+            property.stress(with: [{ property.value = $0 }],
+                            eventsCount: 1,
+                            expectation: exp)
+                .dispose(in: disposeBag)
+            
+            DispatchQueue.main.async {
+                disposeBag.dispose()
+            }
+        }
+        
+        waitForExpectations(timeout: 3)
+    }
+    
+    func testPropertyForThreadSafety_lotsOfEventsDispatchedOnOneProperty() {
+        let exp = expectation(description: "race_condition?")
+        
+        let disposeBag = DisposeBag()
+        let property = Property(0)
+
+        property.stress(with: [{ property.value = $0 }],
+                       queuesCount: 10,
+                       eventsCount: 3000,
+                       expectation: exp)
+            .dispose(in: disposeBag)
+        
+        waitForExpectations(timeout: 3)
+    }
+    
+    func testPropertyForThreadSafety_someEventsDispatchedOnSomeProperties() {
+        let exp = expectation(description: "race_condition?")
+        exp.expectedFulfillmentCount = 100
+        
+        for _ in 0..<exp.expectedFulfillmentCount {
+            let disposeBag = DisposeBag()
+            let property = Property(0)
+            
+            property.stress(with: [{ property.value = $0 }],
+                            expectation: exp)
+                .dispose(in: disposeBag)
+            
+            DispatchQueue.main.async {
+                disposeBag.dispose()
+            }
+        }
+        
+        waitForExpectations(timeout: 3)
+    }
 }
 
 extension PropertyTests {
