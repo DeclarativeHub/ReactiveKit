@@ -22,6 +22,8 @@
 //  THE SOFTWARE.
 //
 
+import Foundation
+
 /// Represents loading state of a value. Element of LoadingSignal.
 public protocol LoadingStateProtocol {
     
@@ -306,29 +308,31 @@ extension SignalProtocol where Element: LoadingStateProtocol, Error == Never {
     /// - parameter loadsAgainOnFailure: `.loading` state that follows a `.failed` state will be kept as `.loading` if `true` is passed. Otherwise it will be mapped into `.reloading`. Default is true.
     ///
     public func deriveObservedLoadingState(loadsAgainOnFailure: Bool = true) -> Signal<ObservedLoadingState<LoadingValue, LoadingError>, Never> {
-        var previousLoadingState: LoadingState<LoadingValue, LoadingError>? = nil
-        var hasProducedNonLoadingState = false
+        let lock = NSRecursiveLock(name: "com.reactive_kit.loading_signal.derive_observe_loading_state")
+        var _previousLoadingState: LoadingState<LoadingValue, LoadingError>? = nil
+        var _hasProducedNonLoadingState = false
         return Signal { observer in
             return self.observe { event in
                 switch event {
                 case .next(let anyLoadingState):
+                    lock.lock(); defer { lock.unlock() }
                     let loadingState = anyLoadingState.asLoadingState
                     switch loadingState {
                     case .loading:
-                        guard !(previousLoadingState?.isSameStateAs(loadingState) ?? false) else { break }
-                        if hasProducedNonLoadingState {
+                        guard !(_previousLoadingState?.isSameStateAs(loadingState) ?? false) else { break }
+                        if _hasProducedNonLoadingState {
                             observer.receive(.reloading)
                         } else {
                             observer.receive(.loading)
                         }
                     case .loaded(let value):
-                        hasProducedNonLoadingState = true
+                        _hasProducedNonLoadingState = true
                         observer.receive(.loaded(value))
                     case .failed(let error):
-                        hasProducedNonLoadingState = !loadsAgainOnFailure
+                        _hasProducedNonLoadingState = !loadsAgainOnFailure
                         observer.receive(.failed(error))
                     }
-                    previousLoadingState = loadingState
+                    _previousLoadingState = loadingState
                 case .completed:
                     observer.receive(completion: .finished)
                 case .failed:

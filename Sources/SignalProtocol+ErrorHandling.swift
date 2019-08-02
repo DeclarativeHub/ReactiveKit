@@ -99,33 +99,38 @@ extension SignalProtocol {
     public func retry(times: Int) -> Signal<Element, Error> {
         guard times > 0 else { return toSignal() }
         return Signal { observer in
-            var remainingAttempts = times
+            let lock = NSRecursiveLock(name: "com.reactive_kit.signal.retry")
+            var _remainingAttempts = times
             let serialDisposable = SerialDisposable(otherDisposable: nil)
-            var attempt: (() -> Void)?
-            attempt = {
+            var _attempt: (() -> Void)?
+            _attempt = {
                 serialDisposable.otherDisposable?.dispose()
                 serialDisposable.otherDisposable = self.observe { event in
                     switch event {
                     case .next(let element):
                         observer.receive(element)
                     case .failed(let error):
-                        if remainingAttempts > 0 {
-                            remainingAttempts -= 1
-                            attempt?()
+                        lock.lock(); defer { lock.unlock() }
+                        if _remainingAttempts > 0 {
+                            _remainingAttempts -= 1
+                            _attempt?()
                         } else {
-                            attempt = nil
+                            _attempt = nil
                             observer.receive(completion: .failure(error))
                         }
                     case .completed:
-                        attempt = nil
+                        lock.lock(); defer { lock.unlock() }
+                        _attempt = nil
                         observer.receive(completion: .finished)
                     }
                 }
             }
-            attempt?()
+            lock.lock(); defer { lock.unlock() }
+            _attempt?()
             return BlockDisposable {
                 serialDisposable.dispose()
-                attempt = nil
+                lock.lock(); defer { lock.unlock() }
+                _attempt = nil
             }
         }
     }
@@ -135,9 +140,10 @@ extension SignalProtocol {
     /// - parameter shouldRetry: Retries only if this returns true for a given error. Defaults to always returning true.
     public func retry<S: SignalProtocol>(when other: S, if shouldRetry: @escaping (Error) -> Bool = { _ in true }) -> Signal<Element, Error> where S.Error == Never {
         return Signal { observer in
+            let lock = NSRecursiveLock(name: "com.reactive_kit.signal.retry")
             let serialDisposable = SerialDisposable(otherDisposable: nil)
-            var attempt: (() -> Void)?
-            attempt = {
+            var _attempt: (() -> Void)?
+            _attempt = {
                 serialDisposable.otherDisposable?.dispose()
                 let compositeDisposable = CompositeDisposable()
                 serialDisposable.otherDisposable = compositeDisposable
@@ -146,16 +152,18 @@ extension SignalProtocol {
                     case .next(let element):
                         observer.receive(element)
                     case .completed:
-                        attempt = nil
+                        lock.lock(); defer { lock.unlock() }
+                        _attempt = nil
                         observer.receive(completion: .finished)
                     case .failed(let error):
                         if shouldRetry(error) {
                             compositeDisposable += other.observe { otherEvent in
+                                lock.lock(); defer { lock.unlock() }
                                 switch otherEvent {
                                 case .next:
-                                    attempt?()
+                                    _attempt?()
                                 case .completed:
-                                    attempt = nil
+                                    _attempt = nil
                                     observer.receive(completion: .failure(error))
                                 }
                             }
@@ -165,29 +173,33 @@ extension SignalProtocol {
                     }
                 }
             }
-            attempt?()
+            lock.lock(); defer { lock.unlock() }
+            _attempt?()
             return serialDisposable
         }
     }
 
     /// Error out if the `interval` time passes with no emitted elements.
-    public func timeout(after interval: Double, with error: Error, on queue: DispatchQueue = DispatchQueue(label: "reactive_kit.timeout")) -> Signal<Element, Error> {
+    public func timeout(after interval: Double, with error: Error, on queue: DispatchQueue = DispatchQueue(label: "com.reactive_kit.signal.timeout")) -> Signal<Element, Error> {
         return Signal { observer in
-            var completed = false
+            let lock = NSRecursiveLock(name: "com.reactive_kit.signal.timeout")
+            var _completed = false
             let timeoutWhenPossible: () -> Disposable = {
                 return queue.disposableAfter(when: interval) {
-                    if !completed {
-                        completed = true
+                    lock.lock(); defer { lock.unlock() }
+                    if !_completed {
+                        _completed = true
                         observer.receive(completion: .failure(error))
                     }
                 }
             }
-            var lastSubscription = timeoutWhenPossible()
+            var _lastSubscription = timeoutWhenPossible()
             return self.observe { event in
-                lastSubscription.dispose()
+                lock.lock(); defer { lock.unlock() }
+                _lastSubscription.dispose()
                 observer.on(event)
-                completed = event.isTerminal
-                lastSubscription = timeoutWhenPossible()
+                _completed = event.isTerminal
+                _lastSubscription = timeoutWhenPossible()
             }
         }
     }

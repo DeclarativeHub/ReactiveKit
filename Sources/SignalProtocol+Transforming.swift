@@ -31,14 +31,16 @@ extension SignalProtocol {
     /// Check out interactive example at [https://rxmarbles.com/#bufferCount](https://rxmarbles.com/#bufferCount)
     public func buffer(ofSize size: Int) -> Signal<[Element], Error> {
         return Signal { observer in
-            var buffer: [Element] = []
+            let lock = NSRecursiveLock(name: "com.reactive_kit.signal.buffer")
+            var _buffer: [Element] = []
             return self.observe { event in
                 switch event {
                 case .next(let element):
-                    buffer.append(element)
-                    if buffer.count == size {
-                        observer.receive(buffer)
-                        buffer.removeAll()
+                    lock.lock(); defer { lock.unlock() }
+                    _buffer.append(element)
+                    if _buffer.count == size {
+                        observer.receive(_buffer)
+                        _buffer.removeAll()
                     }
                 case .failed(let error):
                     observer.receive(completion: .failure(error))
@@ -59,16 +61,19 @@ extension SignalProtocol {
     /// Check out interactive example at [https://rxmarbles.com/#defaultIfEmpty](https://rxmarbles.com/#defaultIfEmpty)
     public func defaultIfEmpty(_ element: Element) -> Signal<Element, Error> {
         return Signal { observer in
-            var didEmitNonTerminal = false
+            let lock = NSRecursiveLock(name: "com.reactive_kit.signal.default_if_empty")
+            var _didEmitNonTerminal = false
             return self.observe { event in
                 switch event {
                 case .next(let element):
-                    didEmitNonTerminal = true
+                    lock.lock(); defer { lock.unlock() }
+                    _didEmitNonTerminal = true
                     observer.receive(element)
                 case .failed(let error):
                     observer.receive(completion: .failure(error))
                 case .completed:
-                    if !didEmitNonTerminal {
+                    lock.lock(); defer { lock.unlock() }
+                    if !_didEmitNonTerminal {
                         observer.receive(element)
                     }
                     observer.receive(completion: .finished)
@@ -108,13 +113,15 @@ extension SignalProtocol {
     /// Check out interactive example at [https://rxmarbles.com/#scan](https://rxmarbles.com/#scan)
     public func scan<U>(_ initial: U, _ combine: @escaping (U, Element) -> U) -> Signal<U, Error> {
         return Signal { observer in
-            var accumulator = initial
-            observer.receive(accumulator)
+            let lock = NSRecursiveLock(name: "com.reactive_kit.signal.scan")
+            var _accumulator = initial
+            observer.receive(_accumulator)
             return self.observe { event in
                 switch event {
                 case .next(let element):
-                    accumulator = combine(accumulator, element)
-                    observer.receive(accumulator)
+                    lock.lock(); defer { lock.unlock() }
+                    _accumulator = combine(_accumulator, element)
+                    observer.receive(_accumulator)
                 case .failed(let error):
                     observer.receive(completion: .failure(error))
                 case .completed:

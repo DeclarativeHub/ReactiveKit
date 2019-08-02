@@ -65,43 +65,47 @@ extension SignalProtocol {
     /// Repeat the receiver signal whenever the signal returned from the given closure emits an element.
     public func `repeat`<S: SignalProtocol>(when other: @escaping (Element) -> S) -> Signal<Element, Error> where S.Error == Never {
         return Signal { observer in
-            var attempt: (() -> Void)?
+            let lock = NSRecursiveLock(name: "com.reactive_kit.signal.repeat")
+            var _attempt: (() -> Void)?
             let outerDisposable = SerialDisposable(otherDisposable: nil)
             let innerDisposable = SerialDisposable(otherDisposable: nil)
-            var completions: (me: Bool, other: Bool) = (false, false)
-            func completeIfPossible() {
-                if completions.me && completions.other {
+            var _completions: (me: Bool, other: Bool) = (false, false)
+            func _completeIfPossible() {
+                if _completions.me && _completions.other {
                     observer.receive(completion: .finished)
-                    attempt = nil
+                    _attempt = nil
                 }
             }
-            attempt = {
+            _attempt = {
                 outerDisposable.otherDisposable?.dispose()
                 outerDisposable.otherDisposable = self.observe { event in
+                    lock.lock(); defer { lock.unlock() }
                     switch event {
                     case .next(let element):
                         observer.receive(element)
-                        completions.other = false
+                        _completions.other = false
                         innerDisposable.otherDisposable?.dispose()
                         innerDisposable.otherDisposable = other(element).observe { otherEvent in
+                            lock.lock(); defer { lock.unlock() }
                             switch otherEvent {
                             case .next:
-                                completions.me = false
-                                attempt?()
+                                _completions.me = false
+                                _attempt?()
                             case .completed:
-                                completions.other = true
-                                completeIfPossible()
+                                _completions.other = true
+                                _completeIfPossible()
                             }
                         }
                     case .completed:
-                        completions.me = true
-                        completeIfPossible()
+                        _completions.me = true
+                        _completeIfPossible()
                     case .failed(let error):
                         observer.receive(completion: .failure(error))
                     }
                 }
             }
-            attempt?()
+            lock.lock(); defer { lock.unlock() }
+            _attempt?()
             return CompositeDisposable([outerDisposable, innerDisposable])
         }
     }
