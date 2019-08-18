@@ -294,8 +294,10 @@ public final class DisposeBag: DisposeBagProtocol {
     /// A signal that fires `completed` event when the bag gets deallocated.
     public var deallocated: SafeSignal<Void> {
         subjectLock.lock(); defer { subjectLock.unlock() }
-        let subject = _subject ?? ReplaySubject()
-        return subject.toSignal()
+        if _subject == nil {
+            _subject = ReplayOneSubject()
+        }
+        return subject!.toSignal()
     }
     
     deinit {
