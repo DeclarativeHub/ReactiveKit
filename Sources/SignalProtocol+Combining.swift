@@ -31,13 +31,13 @@ extension SignalProtocol {
     /// Check out interactive example at [https://rxmarbles.com/#race](https://rxmarbles.com/#race)
     public func amb<O: SignalProtocol>(with other: O) -> Signal<Element, Error> where O.Element == Element, O.Error == Error {
         return Signal { observer in
-            let lock = NSRecursiveLock(name: "reactive_kit.amb")
+            let lock = NSRecursiveLock(name: "com.reactive_kit.signal.amb")
             let disposable = (my: SerialDisposable(otherDisposable: nil), other: SerialDisposable(otherDisposable: nil))
-            var dispatching = (me: false, other: false)
+            var _dispatching = (me: false, other: false)
             disposable.my.otherDisposable = self.observe { event in
                 lock.lock(); defer { lock.unlock() }
-                guard !dispatching.other else { return }
-                dispatching.me = true
+                guard !_dispatching.other else { return }
+                _dispatching.me = true
                 observer.on(event)
                 if !disposable.other.isDisposed {
                     disposable.other.dispose()
@@ -45,8 +45,8 @@ extension SignalProtocol {
             }
             disposable.other.otherDisposable = other.observe { event in
                 lock.lock(); defer { lock.unlock() }
-                guard !dispatching.me else { return }
-                dispatching.other = true
+                guard !_dispatching.me else { return }
+                _dispatching.other = true
                 observer.on(event)
                 if !disposable.my.isDisposed {
                     disposable.my.dispose()
@@ -69,18 +69,18 @@ extension SignalProtocol {
     /// Check out interactive example at [https://rxmarbles.com/#combineLatest](https://rxmarbles.com/#combineLatest)
     public func combineLatest<O: SignalProtocol, U>(with other: O, combine: @escaping (Element, O.Element) -> U) -> Signal<U, Error> where O.Error == Error {
         return Signal { observer in
-            let lock = NSRecursiveLock(name: "reactive_kit.combine_latest_with")
-            var elements: (my: Element?, other: O.Element?)
-            var completions: (me: Bool, other: Bool) = (false, false)
+            let lock = NSRecursiveLock(name: "com.reactive_kit.signal.combine_latest_with")
+            var _elements: (my: Element?, other: O.Element?)
+            var _completions: (me: Bool, other: Bool) = (false, false)
             let compositeDisposable = CompositeDisposable()
-            func onAnyNext() {
-                if let myElement = elements.my, let otherElement = elements.other {
+            func _onAnyNext() {
+                if let myElement = _elements.my, let otherElement = _elements.other {
                     let combination = combine(myElement, otherElement)
                     observer.receive(combination)
                 }
             }
-            func onAnyCompleted() {
-                if completions.me == true && completions.other == true {
+            func _onAnyCompleted() {
+                if _completions.me == true && _completions.other == true {
                     observer.receive(completion: .finished)
                 }
             }
@@ -88,26 +88,26 @@ extension SignalProtocol {
                 lock.lock(); defer { lock.unlock() }
                 switch event {
                 case .next(let element):
-                    elements.my = element
-                    onAnyNext()
+                    _elements.my = element
+                    _onAnyNext()
                 case .failed(let error):
                     observer.receive(completion: .failure(error))
                 case .completed:
-                    completions.me = true
-                    onAnyCompleted()
+                    _completions.me = true
+                    _onAnyCompleted()
                 }
             }
             compositeDisposable += other.observe { event in
                 lock.lock(); defer { lock.unlock() }
                 switch event {
                 case .next(let element):
-                    elements.other = element
-                    onAnyNext()
+                    _elements.other = element
+                    _onAnyNext()
                 case .failed(let error):
                     observer.receive(completion: .failure(error))
                 case .completed:
-                    completions.other = true
-                    onAnyCompleted()
+                    _completions.other = true
+                    _onAnyCompleted()
                 }
             }
             return compositeDisposable
@@ -190,12 +190,14 @@ extension SignalProtocol {
     /// Check out interactive example at [https://rxmarbles.com/#withLatestFrom](https://rxmarbles.com/#withLatestFrom)
     public func with<O: SignalProtocol, U>(latestFrom other: O, combine: @escaping (Element, O.Element) -> U) -> Signal<U, Error> where O.Error == Error {
         return Signal { observer in
-            var latest: O.Element? = nil
+            let lock = NSRecursiveLock(name: "com.reactive_kit.signal.with")
+            var _latest: O.Element?
             let compositeDisposable = CompositeDisposable()
             compositeDisposable += other.observe { event in
                 switch event {
                 case .next(let element):
-                    latest = element
+                    lock.lock(); defer { lock.unlock() }
+                    _latest = element
                 case .failed(let error):
                     observer.receive(completion: .failure(error))
                 case .completed:
@@ -209,7 +211,8 @@ extension SignalProtocol {
                 case .failed(let error):
                     observer.receive(completion: .failure(error))
                 case .next(let element):
-                    if let latest = latest {
+                    lock.lock(); defer { lock.unlock() }
+                    if let latest = _latest {
                         observer.receive(combine(element, latest))
                     }
                 }
@@ -248,20 +251,20 @@ extension SignalProtocol {
     /// Check out interactive example at [https://rxmarbles.com/#zip](https://rxmarbles.com/#zip)
     public func zip<O: SignalProtocol, U>(with other: O, combine: @escaping (Element, O.Element) -> U) -> Signal<U, Error> where O.Error == Error {
         return Signal { observer in
-            let lock = NSRecursiveLock(name: "reactive_kit.zip")
-            var buffers: (my: [Element], other: [O.Element]) = ([], [])
-            var completions: (me: Bool, other: Bool) = (false, false)
+            let lock = NSRecursiveLock(name: "com.reactive_kit.signal.zip")
+            var _buffers: (my: [Element], other: [O.Element]) = ([], [])
+            var _completions: (me: Bool, other: Bool) = (false, false)
             let compositeDisposable = CompositeDisposable()
-            let dispatchIfPossible = {
-                while !buffers.my.isEmpty && !buffers.other.isEmpty {
-                    let element = combine(buffers.my[0], buffers.other[0])
+            let _dispatchIfPossible = {
+                while !_buffers.my.isEmpty && !_buffers.other.isEmpty {
+                    let element = combine(_buffers.my[0], _buffers.other[0])
                     observer.receive(element)
-                    buffers.my.removeFirst()
-                    buffers.other.removeFirst()
+                    _buffers.my.removeFirst()
+                    _buffers.other.removeFirst()
                 }
             }
-            func completeIfPossible() {
-                if (buffers.my.isEmpty && completions.me) || (buffers.other.isEmpty && completions.other) {
+            func _completeIfPossible() {
+                if (_buffers.my.isEmpty && _completions.me) || (_buffers.other.isEmpty && _completions.other) {
                     observer.receive(completion: .finished)
                 }
             }
@@ -269,27 +272,27 @@ extension SignalProtocol {
                 lock.lock(); defer { lock.unlock() }
                 switch event {
                 case .next(let element):
-                    buffers.my.append(element)
+                    _buffers.my.append(element)
                 case .failed(let error):
                     observer.receive(completion: .failure(error))
                 case .completed:
-                    completions.me = true
+                    _completions.me = true
                 }
-                dispatchIfPossible()
-                completeIfPossible()
+                _dispatchIfPossible()
+                _completeIfPossible()
             }
             compositeDisposable += other.observe { event in
                 lock.lock(); defer { lock.unlock() }
                 switch event {
                 case .next(let element):
-                    buffers.other.append(element)
+                    _buffers.other.append(element)
                 case .failed(let error):
                     observer.receive(completion: .failure(error))
                 case .completed:
-                    completions.other = true
+                    _completions.other = true
                 }
-                dispatchIfPossible()
-                completeIfPossible()
+                _dispatchIfPossible()
+                _completeIfPossible()
             }
             return compositeDisposable
         }

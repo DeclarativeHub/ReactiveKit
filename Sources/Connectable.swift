@@ -35,7 +35,6 @@ public protocol ConnectableSignalProtocol: SignalProtocol {
 public final class ConnectableSignal<Source: SignalProtocol>: ConnectableSignalProtocol {
     
     private let source: Source
-    private let lock = NSRecursiveLock()
     private let subject: Subject<Source.Element, Source.Error>
     
     public init(source: Source, subject: Subject<Source.Element, Source.Error>) {
@@ -45,7 +44,6 @@ public final class ConnectableSignal<Source: SignalProtocol>: ConnectableSignalP
     
     /// Start the signal.
     public func connect() -> Disposable {
-        lock.lock(); defer { lock.unlock() }
         if !subject.isTerminated {
             return source.observe(with: subject)
         } else {
@@ -65,22 +63,23 @@ extension ConnectableSignalProtocol {
     /// Convert connectable signal into the ordinary signal by calling `connect`
     /// on the first observation and calling dispose when number of observers goes down to zero.
     public func refCount() -> Signal<Element, Error> {
-        let lock = NSRecursiveLock()
-        var count = 0
-        var connectionDisposable: Disposable? = nil
+        let lock = NSRecursiveLock(name: "com.reactive_kit.connectable_signal.ref_count")
+        var _count = 0
+        var _connectionDisposable: Disposable? = nil
         return Signal { observer in
             lock.lock(); defer { lock.unlock() }
-            count = count + 1
+            _count = _count + 1
             let disposable = self.observe(with: observer.on)
-            if connectionDisposable == nil {
-                connectionDisposable = self.connect()
+            if _connectionDisposable == nil {
+                _connectionDisposable = self.connect()
             }
             return BlockDisposable {
+                lock.lock(); defer { lock.unlock() }
                 disposable.dispose()
-                count = count - 1
-                if count == 0 {
-                    connectionDisposable?.dispose()
-                    connectionDisposable = nil
+                _count = _count - 1
+                if _count == 0 {
+                    _connectionDisposable?.dispose()
+                    _connectionDisposable = nil
                 }
             }
         }

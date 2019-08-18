@@ -13,34 +13,101 @@ final class SubjectTests: XCTestCase {
     
     // MARK: - Subject
     
-    func testSubjectForThreadSafety() {
+    func testSubjectForThreadSafety_oneEventDispatchedOnALotOfSubjects() {
+        let exp = expectation(description: "race_condition?")
+        exp.expectedFulfillmentCount = 10000
         
-        let eventsCount = 10000
-        
-        for _ in 0..<eventsCount {
-            let bag = DisposeBag()
+        for _ in 0..<exp.expectedFulfillmentCount {
+            let disposeBag = DisposeBag()
             let subject = Subject<Int, Never>()
-            
-            let dispatchQueueOne = DispatchQueue(label: "one")
-            dispatchQueueOne.async {
-                subject.observe { _ in }.dispose(in: bag)
-            }
-            
-            let dispatchQueueTwo = DispatchQueue(label: "two")
-            dispatchQueueTwo.async {
-                subject.send(1)
-                bag.dispose()
+            subject.stress(with: [subject], eventsCount: 1, expectation: exp).dispose(in: disposeBag)
+            DispatchQueue.main.async {
+                disposeBag.dispose()
             }
         }
 
-        let waitForRaceConditionExpectation = expectation(description: "race_condition?")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            waitForRaceConditionExpectation.fulfill()
+        waitForExpectations(timeout: 3)
+    }
+    
+    func testSubjectForThreadSafety_lotsOfEventsDispatchedOnOneSubject() {
+        let exp = expectation(description: "race_condition?")
+
+        let disposeBag = DisposeBag()
+        let subject = Subject<Int, Never>()
+       
+        subject.stress(with: [subject],
+                       queuesCount: 10,
+                       eventsCount: 3000,
+                       expectation: exp)
+            .dispose(in: disposeBag)
+        
+        waitForExpectations(timeout: 3)
+    }
+    
+    func testSubjectForThreadSafety_someEventsDispatchedOnSomeSubjects() {
+        let exp = expectation(description: "race_condition?")
+        exp.expectedFulfillmentCount = 100
+        
+        for _ in 0..<exp.expectedFulfillmentCount {
+            let disposeBag = DisposeBag()
+            let subject = Subject<Int, Never>()
+            subject.stress(with: [subject], expectation: exp).dispose(in: disposeBag)
+            DispatchQueue.main.async {
+                disposeBag.dispose()
+            }
         }
-        wait(for: [waitForRaceConditionExpectation], timeout: 3)
+        
+        waitForExpectations(timeout: 3)
     }
     
     // MARK: - ReplaySubject
+    
+    func testReplaySubjectForThreadSafety_oneEventDispatchedOnALotOfSubjects() {
+        let exp = expectation(description: "race_condition?")
+        exp.expectedFulfillmentCount = 10000
+        
+        for _ in 0..<exp.expectedFulfillmentCount {
+            let disposeBag = DisposeBag()
+            let subject = ReplaySubject<Int, Never>()
+            subject.stress(with: [subject], eventsCount: 1, expectation: exp).dispose(in: disposeBag)
+            DispatchQueue.main.async {
+                disposeBag.dispose()
+            }
+        }
+        
+        waitForExpectations(timeout: 3)
+    }
+    
+    func testReplaySubjectForThreadSafety_lotsOfEventsDispatchedOnOneSubject() {
+        let exp = expectation(description: "race_condition?")
+        
+        let disposeBag = DisposeBag()
+        let subject = ReplaySubject<Int, Never>()
+        
+        subject.stress(with: [subject],
+                       queuesCount: 10,
+                       eventsCount: 3000,
+                       expectation: exp)
+            .dispose(in: disposeBag)
+        
+        waitForExpectations(timeout: 3)
+    }
+    
+    func testReplaySubjectForThreadSafety_someEventsDispatchedOnSomeSubjects() {
+        let exp = expectation(description: "race_condition?")
+        exp.expectedFulfillmentCount = 100
+        
+        for _ in 0..<exp.expectedFulfillmentCount {
+            let disposeBag = DisposeBag()
+            let subject = ReplaySubject<Int, Never>()
+            subject.stress(with: [subject], expectation: exp).dispose(in: disposeBag)
+            DispatchQueue.main.async {
+                disposeBag.dispose()
+            }
+        }
+        
+        waitForExpectations(timeout: 3)
+    }
     
     func testReplaySubjectForThreadSafetySendLast() {
         
@@ -108,7 +175,7 @@ final class SubjectTests: XCTestCase {
                         actualEventsCount += 1
                     }
                     eventsExpectation.fulfill()
-                    }.dispose(in: bag)
+                }.dispose(in: bag)
             }
         }
         
@@ -121,6 +188,53 @@ final class SubjectTests: XCTestCase {
     }
     
     // MARK: - ReplayOneSubject
+    
+    func testReplayOneSubjectForThreadSafety_oneEventDispatchedOnALotOfSubjects() {
+        let exp = expectation(description: "race_condition?")
+        exp.expectedFulfillmentCount = 10000
+        
+        for _ in 0..<exp.expectedFulfillmentCount {
+            let disposeBag = DisposeBag()
+            let subject = ReplayOneSubject<Int, Never>()
+            subject.stress(with: [subject], eventsCount: 1, expectation: exp).dispose(in: disposeBag)
+            DispatchQueue.main.async {
+                disposeBag.dispose()
+            }
+        }
+        
+        waitForExpectations(timeout: 3)
+    }
+    
+    func testReplayOneSubjectForThreadSafety_lotsOfEventsDispatchedOnOneSubject() {
+        let exp = expectation(description: "race_condition?")
+        
+        let disposeBag = DisposeBag()
+        let subject = ReplayOneSubject<Int, Never>()
+        
+        subject.stress(with: [subject],
+                       queuesCount: 10,
+                       eventsCount: 3000,
+                       expectation: exp)
+            .dispose(in: disposeBag)
+        
+        waitForExpectations(timeout: 3)
+    }
+    
+    func testReplayOneSubjectForThreadSafety_someEventsDispatchedOnSomeSubjects() {
+        let exp = expectation(description: "race_condition?")
+        exp.expectedFulfillmentCount = 100
+        
+        for _ in 0..<exp.expectedFulfillmentCount {
+            let disposeBag = DisposeBag()
+            let subject = ReplayOneSubject<Int, Never>()
+            subject.stress(with: [subject], expectation: exp).dispose(in: disposeBag)
+            DispatchQueue.main.async {
+                disposeBag.dispose()
+            }
+        }
+        
+        waitForExpectations(timeout: 3)
+    }
     
     func testReplayOneSubjectForThreadSafetySendLast() {
         
@@ -201,6 +315,62 @@ final class SubjectTests: XCTestCase {
     }
     
     // MARK: - ReplayLoadingValueSubject
+    
+    func testReplayLoadingValueSubjectForThreadSafety_oneEventDispatchedOnALotOfSubjects() {
+        let exp = expectation(description: "race_condition?")
+        exp.expectedFulfillmentCount = 10000
+        
+        for _ in 0..<exp.expectedFulfillmentCount {
+            let disposeBag = DisposeBag()
+            let subject = ReplayLoadingValueSubject<Int, Never, Never>()
+
+            subject.stress(with: [{ subject.send(.loaded($0)) }],
+                           eventsCount: 1,
+                           expectation: exp)
+                .dispose(in: disposeBag)
+
+            DispatchQueue.main.async {
+                disposeBag.dispose()
+            }
+        }
+        
+        waitForExpectations(timeout: 3)
+    }
+    
+    func testReplayLoadingValueSubjectForThreadSafety_lotsOfEventsDispatchedOnOneSubject() {
+        let exp = expectation(description: "race_condition?")
+        
+        let disposeBag = DisposeBag()
+        let subject = ReplayLoadingValueSubject<Int, Never, Never>()
+        
+        subject.stress(with: [{ subject.send(.loaded($0)) }],
+                       queuesCount: 10,
+                       eventsCount: 3000,
+                       expectation: exp)
+            .dispose(in: disposeBag)
+        
+        waitForExpectations(timeout: 3)
+    }
+    
+    func testReplayLoadingValueSubjectForThreadSafety_someEventsDispatchedOnSomeSubjects() {
+        let exp = expectation(description: "race_condition?")
+        exp.expectedFulfillmentCount = 100
+        
+        for _ in 0..<exp.expectedFulfillmentCount {
+            let disposeBag = DisposeBag()
+            let subject = ReplayLoadingValueSubject<Int, Never, Never>()
+
+            subject.stress(with: [{ subject.send(.loaded($0)) }],
+                           expectation: exp)
+                .dispose(in: disposeBag)
+
+            DispatchQueue.main.async {
+                disposeBag.dispose()
+            }
+        }
+        
+        waitForExpectations(timeout: 3)
+    }
     
     func testReplayLoadingValueSubjectForThreadSafetySendLast() {
         
