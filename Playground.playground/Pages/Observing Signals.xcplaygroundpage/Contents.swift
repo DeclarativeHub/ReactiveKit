@@ -58,7 +58,7 @@ numberOfLines.observe { event in
 // being able to express the logic without doing side effects outweights this inconvenience.
 // In order to share the sequence, all we need to do is apply `shareReplay` operator.
 
-let sharedLoadedFile = loadedFile.shareReplay()
+let sharedLoadedFile = loadedFile.share()
 
 // The first time we observe the shared signal, it will load the file:
 
