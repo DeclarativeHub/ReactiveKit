@@ -95,14 +95,12 @@ open class Subject<Element, Error: Swift.Error>: SubjectProtocol {
         let deletedObservers = deletedObserversDispatchQueue.sync { _deletedObservers }
         
         lock.lock()
-        var filteredObservers = [(Token, Observer<Element, Error>)]()
-        for (token, observer) in _observers {
-            if deletedObservers.contains(token) == false {
-                filteredObservers.append((token, observer))
-                observer(event)
-            }
+        _observers = _observers.filter { (token, _) in
+            !deletedObservers.contains(token)
         }
-        self._observers = filteredObservers
+        for (_, observer) in _observers {
+            observer(event)
+        }
         lock.unlock()
         
         deletedObserversDispatchQueue.async(flags: .barrier) {
