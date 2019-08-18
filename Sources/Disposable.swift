@@ -59,18 +59,18 @@ public struct NonDisposable: Disposable {
 
 /// A disposable that just encapsulates disposed state.
 public final class SimpleDisposable: Disposable {
-    
-    private let dispatchQueue = DispatchQueue(label: "com.reactive_kit.simple_disposable")
+
+    private let lock = NSRecursiveLock(name: "com.reactive_kit.simple_disposable")
 
     private var _isDisposed = false
     public var isDisposed: Bool {
-        return dispatchQueue.sync { _isDisposed }
+        lock.lock(); defer { lock.unlock() }
+        return _isDisposed
     }
     
     public func dispose() {
-        dispatchQueue.async(flags: .barrier) {
-            self._isDisposed = true
-        }
+        lock.lock(); defer { lock.unlock() }
+        _isDisposed = true
     }
     
     public init(isDisposed: Bool = false) {
@@ -80,11 +80,12 @@ public final class SimpleDisposable: Disposable {
 
 /// A disposable that executes the given block upon disposing.
 public final class BlockDisposable: Disposable {
-    
-    private let dispatchQueue = DispatchQueue(label: "com.reactive_kit.block_disposable")
-    
+
+    private let lock = NSRecursiveLock(name: "com.reactive_kit.block_disposable")
+
     public var isDisposed: Bool {
-        return dispatchQueue.sync { _handler == nil }
+        lock.lock(); defer { lock.unlock() }
+        return _handler == nil
     }
     
     private var _handler: (() -> ())?
@@ -94,10 +95,9 @@ public final class BlockDisposable: Disposable {
     }
     
     public func dispose() {
-        if let handler = dispatchQueue.sync(execute: { _handler }) {
-            dispatchQueue.async(flags: .barrier) {
-                self._handler = nil
-            }
+        lock.lock(); defer { lock.unlock() }
+        if let handler = _handler {
+            _handler = nil
             handler()
         }
     }
@@ -105,18 +105,18 @@ public final class BlockDisposable: Disposable {
 
 /// A disposable that disposes itself upon deallocation.
 public final class DeinitDisposable: Disposable {
-    
-    private let dispatchQueue = DispatchQueue(label: "com.reactive_kit.deinit_disposable")
-    
+
+    private let lock = NSRecursiveLock(name: "com.reactive_kit.deinit_disposable")
+
     private var _otherDisposable: Disposable?
     public var otherDisposable: Disposable? {
         set {
-            dispatchQueue.async(flags: .barrier) {
-                self._otherDisposable = newValue
-            }
+            lock.lock(); defer { lock.unlock() }
+            _otherDisposable = newValue
         }
         get {
-            return dispatchQueue.sync { _otherDisposable }
+            lock.lock(); defer { lock.unlock() }
+            return _otherDisposable
         }
     }
     
