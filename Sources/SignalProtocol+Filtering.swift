@@ -284,7 +284,8 @@ extension SignalProtocol {
                     if _taken < count {
                         _taken += 1
                         observer.receive(element)
-                    } else if _taken == count {
+                    }
+                    if _taken == count {
                         observer.receive(completion: .finished)
                     }
                 default:
