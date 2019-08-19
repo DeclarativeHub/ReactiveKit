@@ -227,6 +227,18 @@ class SignalTests: XCTestCase {
         takenLast2.expectComplete(after: [2, 3])
     }
 
+    func testTakeFirstOne() {
+        let expect = expectation(description: #function)
+        let observable = Property(false)
+
+        _ = observable.take(first: 1).collect().observeNext { values in
+            XCTAssertEqual([false], values)
+            expect.fulfill()
+        }
+
+        waitForExpectations(timeout: 1, handler: nil)
+    }
+
     func testTakeUntil() {
         let bob = Scheduler()
         let eve = Scheduler()
