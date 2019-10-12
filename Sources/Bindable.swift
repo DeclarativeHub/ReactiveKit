@@ -62,9 +62,9 @@ extension BindableProtocol where Self: SignalProtocol, Self.Error == Never {
     /// - Returns: A disposable that can cancel the binding.
     @discardableResult
     public func bidirectionalBind<B: BindableProtocol & SignalProtocol>(to target: B) -> Disposable where B.Element == Element, B.Error == Error {
-        let context: ExecutionContext = .nonRecursive()
-        let d1 = observeIn(context).bind(to: target)
-        let d2 = target.observeIn(context).bind(to: self)
+        let scheduler = ExecutionContext.nonRecursive()
+        let d1 = receive(on: scheduler).bind(to: target)
+        let d2 = target.receive(on: scheduler).bind(to: self)
         return CompositeDisposable([d1, d2])
     }
 }

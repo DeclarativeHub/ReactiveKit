@@ -26,12 +26,13 @@ import Foundation
 
 extension SignalProtocol {
 
-    /// Set the execution context in which to execute the signal (i.e. in which to run
-    /// the signal's producer).
-    public func executeIn(_ context: ExecutionContext) -> Signal<Element, Error> {
+    /// Set the scheduler on which to execute the signal (i.e. to run the signal's producer).
+    ///
+    /// In contrast with `receive(on:)`, which affects downstream actions, `subscribe(on:)` changes the execution context of upstream actions.
+    public func subscribe<S: Scheduler>(on scheduler: S) -> Signal<Element, Error> {
         return Signal { observer in
             let serialDisposable = SerialDisposable(otherDisposable: nil)
-            context.execute {
+            scheduler.schedule {
                 if !serialDisposable.isDisposed {
                     serialDisposable.otherDisposable = self.observe(with: observer.on)
                 }
@@ -40,36 +41,13 @@ extension SignalProtocol {
         }
     }
 
-    /// Set the dispatch queue on which to execute the signal (i.e. on which to run
-    /// the signal's producer).
-    public func executeOn(_ queue: DispatchQueue) -> Signal<Element, Error> {
-        return Signal { observer in
-            let serialDisposable = SerialDisposable(otherDisposable: nil)
-            queue.async {
-                if !serialDisposable.isDisposed {
-                    serialDisposable.otherDisposable = self.observe(with: observer.on)
-                }
-            }
-            return serialDisposable
-        }
-    }
-
-    /// Set the execution context used to dispatch events (i.e. to run the observers).
-    public func observeIn(_ context: ExecutionContext) -> Signal<Element, Error> {
+    /// Set the scheduler used to receive events (i.e. to run the observer / sink).
+    ///
+    /// In contrast with `subscribe(on:)`, which affects upstream actions, `receive(on:)` changes the execution context of downstream actions.
+    public func receive<S: Scheduler>(on scheduler: S) -> Signal<Element, Error> {
         return Signal { observer in
             return self.observe { event in
-                context.execute {
-                    observer.on(event)
-                }
-            }
-        }
-    }
-
-    /// Set the dispatch queue used to dispatch events (i.e. to run the observers).
-    public func observeOn(_ queue: DispatchQueue) -> Signal<Element, Error> {
-        return Signal { observer in
-            return self.observe { event in
-                queue.async {
+                scheduler.schedule {
                     observer.on(event)
                 }
             }

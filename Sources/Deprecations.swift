@@ -225,3 +225,32 @@ extension SignalProtocol {
         return share(limit: limit)
     }
 }
+
+extension SignalProtocol {
+
+    /// Set the execution context in which to execute the signal (i.e. in which to run
+    /// the signal's producer).
+    @available(*, deprecated, renamed: "subscribe(on:)")
+    public func executeIn(_ context: ExecutionContext) -> Signal<Element, Error> {
+        return subscribe(on: context)
+    }
+
+    /// Set the dispatch queue on which to execute the signal (i.e. on which to run
+    /// the signal's producer).
+    @available(*, deprecated, renamed: "subscribe(on:)")
+    public func executeOn(_ queue: DispatchQueue) -> Signal<Element, Error> {
+        return subscribe(on: queue)
+    }
+
+    /// Set the execution context used to dispatch events (i.e. to run the observers).
+    @available(*, deprecated, renamed: "receive(on:)")
+    public func observeIn(_ context: ExecutionContext) -> Signal<Element, Error> {
+        return receive(on: context)
+    }
+
+    /// Set the dispatch queue used to dispatch events (i.e. to run the observers).
+    @available(*, deprecated, renamed: "receive(on:)")
+    public func observeOn(_ queue: DispatchQueue) -> Signal<Element, Error> {
+        return receive(on: queue)
+    }
+}

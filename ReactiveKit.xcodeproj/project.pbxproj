@@ -126,6 +126,10 @@
 		EC48D384224FB66100284EA0 /* PropertyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D380224FB66100284EA0 /* PropertyTests.swift */; };
 		EC48D385224FB66100284EA0 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D381224FB66100284EA0 /* Helpers.swift */; };
 		EC48D386224FB66100284EA0 /* SignalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D382224FB66100284EA0 /* SignalTests.swift */; };
+		EC75487E2351E2AC002D869C /* Scheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC75487D2351E2AC002D869C /* Scheduler.swift */; };
+		EC75487F2351E2AC002D869C /* Scheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC75487D2351E2AC002D869C /* Scheduler.swift */; };
+		EC7548802351E2AC002D869C /* Scheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC75487D2351E2AC002D869C /* Scheduler.swift */; };
+		EC7548812351E2AC002D869C /* Scheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC75487D2351E2AC002D869C /* Scheduler.swift */; };
 		ECBCCDD41BEB6B9A00723476 /* ReactiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		ECBCCDDB1BEB6B9B00723476 /* ReactiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ECBCCDD01BEB6B9A00723476 /* ReactiveKit.framework */; };
 		ECDFDCB222BD7E9500B85C5E /* Subscribers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDFDCB122BD7E9500B85C5E /* Subscribers.swift */; };
@@ -185,6 +189,7 @@
 		EC48D381224FB66100284EA0 /* Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
 		EC48D382224FB66100284EA0 /* SignalTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalTests.swift; sourceTree = "<group>"; };
 		EC48D387224FB71200284EA0 /* TestsInfo.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = TestsInfo.plist; sourceTree = "<group>"; };
+		EC75487D2351E2AC002D869C /* Scheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scheduler.swift; sourceTree = "<group>"; };
 		ECBCCDD01BEB6B9A00723476 /* ReactiveKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ReactiveKit.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		ECBCCDD51BEB6B9A00723476 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -238,6 +243,7 @@
 				ECDFDCB122BD7E9500B85C5E /* Subscribers.swift */,
 				EC48D2F2224FB5C400284EA0 /* Observer.swift */,
 				EC48D2FE224FB5C400284EA0 /* Disposable.swift */,
+				EC75487D2351E2AC002D869C /* Scheduler.swift */,
 				EC48D300224FB5C400284EA0 /* ExecutionContext.swift */,
 				EC48D30B224FB5C400284EA0 /* Signal.swift */,
 				EC48D2F7224FB5C400284EA0 /* Signal.Event.swift */,
@@ -553,6 +559,7 @@
 				EC48D31E224FB5C400284EA0 /* Property.swift in Sources */,
 				EC48D35E224FB5C400284EA0 /* Deallocatable.swift in Sources */,
 				EC48D356224FB5C400284EA0 /* Reactive.swift in Sources */,
+				EC75487F2351E2AC002D869C /* Scheduler.swift in Sources */,
 				EC48D35A224FB5C400284EA0 /* LoadingSignal.swift in Sources */,
 				EC48D376224FB5C400284EA0 /* Signal.swift in Sources */,
 				EC48D32E224FB5C400284EA0 /* SignalProtocol+Optional.swift in Sources */,
@@ -589,6 +596,7 @@
 				EC48D31F224FB5C400284EA0 /* Property.swift in Sources */,
 				EC48D35F224FB5C400284EA0 /* Deallocatable.swift in Sources */,
 				EC48D357224FB5C400284EA0 /* Reactive.swift in Sources */,
+				EC7548802351E2AC002D869C /* Scheduler.swift in Sources */,
 				EC48D35B224FB5C400284EA0 /* LoadingSignal.swift in Sources */,
 				EC48D377224FB5C400284EA0 /* Signal.swift in Sources */,
 				EC48D32F224FB5C400284EA0 /* SignalProtocol+Optional.swift in Sources */,
@@ -625,6 +633,7 @@
 				EC48D320224FB5C400284EA0 /* Property.swift in Sources */,
 				EC48D360224FB5C400284EA0 /* Deallocatable.swift in Sources */,
 				EC48D358224FB5C400284EA0 /* Reactive.swift in Sources */,
+				EC7548812351E2AC002D869C /* Scheduler.swift in Sources */,
 				EC48D35C224FB5C400284EA0 /* LoadingSignal.swift in Sources */,
 				EC48D378224FB5C400284EA0 /* Signal.swift in Sources */,
 				EC48D330224FB5C400284EA0 /* SignalProtocol+Optional.swift in Sources */,
@@ -661,6 +670,7 @@
 				EC48D31D224FB5C400284EA0 /* Property.swift in Sources */,
 				EC48D35D224FB5C400284EA0 /* Deallocatable.swift in Sources */,
 				EC48D355224FB5C400284EA0 /* Reactive.swift in Sources */,
+				EC75487E2351E2AC002D869C /* Scheduler.swift in Sources */,
 				EC48D359224FB5C400284EA0 /* LoadingSignal.swift in Sources */,
 				EC48D375224FB5C400284EA0 /* Signal.swift in Sources */,
 				EC48D32D224FB5C400284EA0 /* SignalProtocol+Optional.swift in Sources */,

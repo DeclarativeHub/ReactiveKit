@@ -47,7 +47,7 @@ public struct ExecutionContext {
     public func execute(_ block: @escaping () -> Void) {
         context(block)
     }
-    
+
     /// Execution context that executes immediately and synchronously on current thread or queue.
     public static var immediate: ExecutionContext {
         return ExecutionContext { block in block () }

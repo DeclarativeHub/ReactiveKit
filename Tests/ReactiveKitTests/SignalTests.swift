@@ -33,7 +33,7 @@ class SignalTests: XCTestCase {
         let bob = Scheduler()
         bob.runRemaining()
 
-        let operation = Signal<Int, TestError>(sequence: [1, 2, 3]).executeIn(bob.context)
+        let operation = Signal<Int, TestError>(sequence: [1, 2, 3]).subscribe(on: bob.context)
 
         operation.expectComplete(after: [1, 2, 3])
         operation.expectComplete(after: [1, 2, 3])
@@ -243,8 +243,8 @@ class SignalTests: XCTestCase {
         let bob = Scheduler()
         let eve = Scheduler()
 
-        let operation = Signal<Int, TestError>(sequence: [1, 2, 3, 4]).observeIn(bob.context)
-        let interrupt = Signal<String, TestError>(sequence: ["A", "B"]).observeIn(eve.context)
+        let operation = Signal<Int, TestError>(sequence: [1, 2, 3, 4]).receive(on: bob.context)
+        let interrupt = Signal<String, TestError>(sequence: ["A", "B"]).receive(on: eve.context)
 
         let takeuntil = operation.take(until: interrupt)
 
@@ -285,8 +285,8 @@ class SignalTests: XCTestCase {
         let bob = Scheduler()
         let eve = Scheduler()
 
-        let operationA = Signal<Int, TestError>(sequence: [1, 2, 3]).observeIn(bob.context)
-        let operationB = Signal<String, TestError>(sequence: ["A", "B", "C"]).observeIn(eve.context)
+        let operationA = Signal<Int, TestError>(sequence: [1, 2, 3]).receive(on: bob.context)
+        let operationB = Signal<String, TestError>(sequence: ["A", "B", "C"]).receive(on: eve.context)
         let combined = operationA.combineLatest(with: operationB).map { "\($0)\($1)" }
 
         let exp = expectation(description: "completed")
@@ -316,8 +316,8 @@ class SignalTests: XCTestCase {
     func testMergeWith() {
         let bob = Scheduler()
         let eve = Scheduler()
-        let operationA = Signal<Int, TestError>(sequence: [1, 2, 3]).observeIn(bob.context)
-        let operationB = Signal<Int, TestError>(sequence: [4, 5, 6]).observeIn(eve.context)
+        let operationA = Signal<Int, TestError>(sequence: [1, 2, 3]).receive(on: bob.context)
+        let operationB = Signal<Int, TestError>(sequence: [4, 5, 6]).receive(on: eve.context)
         let merged = operationA.merge(with: operationB)
 
         let exp = expectation(description: "completed")
@@ -397,7 +397,7 @@ class SignalTests: XCTestCase {
         let bob = Scheduler()
         bob.runRemaining()
 
-        let operation = Signal<Int, TestError>.failed(.Error).executeIn(bob.context)
+        let operation = Signal<Int, TestError>.failed(.Error).subscribe(on: bob.context)
         let retry = operation.retry(times: 3)
         retry.expect(events: [.failed(.Error)])
 
@@ -419,7 +419,7 @@ class SignalTests: XCTestCase {
         let bob = Scheduler()
         bob.runRemaining()
 
-        let operation = Signal<Int, TestError>(sequence: [1, 2, 3]).executeIn(bob.context)
+        let operation = Signal<Int, TestError>(sequence: [1, 2, 3]).subscribe(on: bob.context)
         operation.expectComplete(after: [1, 2, 3])
 
         XCTAssertEqual(bob.numberOfRuns, 1)
@@ -449,7 +449,7 @@ class SignalTests: XCTestCase {
         let bob = Scheduler()
         bob.runRemaining()
 
-        let operation = Signal<Int, TestError>(sequence: [1, 2, 3]).observeIn(bob.context)
+        let operation = Signal<Int, TestError>(sequence: [1, 2, 3]).receive(on: bob.context)
         operation.expectComplete(after: [1, 2, 3])
 
         XCTAssertEqual(bob.numberOfRuns, 4) // 3 elements + completion
@@ -501,8 +501,8 @@ class SignalTests: XCTestCase {
         let bob = Scheduler()
         let eve = Scheduler()
 
-        let operationA = Signal<Int, TestError>(sequence: [1, 2]).observeIn(bob.context)
-        let operationB = Signal<Int, TestError>(sequence: [3, 4]).observeIn(eve.context)
+        let operationA = Signal<Int, TestError>(sequence: [1, 2]).receive(on: bob.context)
+        let operationB = Signal<Int, TestError>(sequence: [3, 4]).receive(on: eve.context)
         let ambdWith = operationA.amb(with: operationB)
 
         let exp = expectation(description: "completed")
@@ -537,8 +537,8 @@ class SignalTests: XCTestCase {
         let bob = Scheduler()
         let eve = Scheduler()
 
-        let operationA = Signal<Int, TestError>(sequence: [1, 2]).observeIn(bob.context)
-        let operationB = Signal<Int, TestError>(sequence: [3, 4]).observeIn(eve.context)
+        let operationA = Signal<Int, TestError>(sequence: [1, 2]).receive(on: bob.context)
+        let operationB = Signal<Int, TestError>(sequence: [3, 4]).receive(on: eve.context)
         let merged = operationA.concat(with: operationB)
 
         let exp = expectation(description: "completed")
@@ -556,8 +556,8 @@ class SignalTests: XCTestCase {
         let bob = Scheduler()
         let eve = Scheduler()
         
-        let operationA = Signal<Int, TestError>(sequence: [1, 2, 5]).observeIn(bob.context)
-        let operationB = Signal<Int, TestError>(sequence: [3, 4, 6]).observeIn(eve.context)
+        let operationA = Signal<Int, TestError>(sequence: [1, 2, 5]).receive(on: bob.context)
+        let operationB = Signal<Int, TestError>(sequence: [3, 4, 6]).receive(on: eve.context)
         let merged = operationA.with(latestFrom: operationB)
         
         let exp = expectation(description: "completed")
@@ -607,9 +607,9 @@ class SignalTests: XCTestCase {
         let bob = Scheduler()
         let eves = [Scheduler(), Scheduler()]
 
-        let operation = Signal<Int, TestError>(sequence: [1, 2]).observeIn(bob.context)
+        let operation = Signal<Int, TestError>(sequence: [1, 2]).receive(on: bob.context)
         let merged = operation.flatMapMerge { num in
-            return Signal<Int, TestError>(sequence: [5, 6].map { $0 * num }).observeIn(eves[num-1].context)
+            return Signal<Int, TestError>(sequence: [5, 6].map { $0 * num }).receive(on: eves[num-1].context)
         }
 
         let exp = expectation(description: "completed")
@@ -640,9 +640,9 @@ class SignalTests: XCTestCase {
         let bob = Scheduler()
         let eves = [Scheduler(), Scheduler()]
 
-        let operation = Signal<Int, TestError>(sequence: [1, 2]).observeIn(bob.context)
+        let operation = Signal<Int, TestError>(sequence: [1, 2]).receive(on: bob.context)
         let merged = operation.flatMapLatest { num in
-            return Signal<Int, TestError>(sequence: [5, 6].map { $0 * num }).observeIn(eves[num-1].context)
+            return Signal<Int, TestError>(sequence: [5, 6].map { $0 * num }).receive(on: eves[num-1].context)
         }
 
         let exp = expectation(description: "completed")
@@ -673,9 +673,9 @@ class SignalTests: XCTestCase {
         let bob = Scheduler()
         let eves = [Scheduler(), Scheduler()]
 
-        let operation = Signal<Int, TestError>(sequence: [1, 2]).observeIn(bob.context)
+        let operation = Signal<Int, TestError>(sequence: [1, 2]).receive(on: bob.context)
         let combined = operation.flatMapConcat { num in
-            return Signal<Int, TestError>(sequence: [5, 6].map { $0 * num }).observeIn(eves[num-1].context)
+            return Signal<Int, TestError>(sequence: [5, 6].map { $0 * num }).receive(on: eves[num-1].context)
         }
 
         let exp = expectation(description: "completed")
@@ -705,7 +705,7 @@ class SignalTests: XCTestCase {
         let bob = Scheduler()
         bob.runRemaining()
 
-        let operation = Signal<Int, TestError>(sequence: [1, 2, 3]).executeIn(bob.context)
+        let operation = Signal<Int, TestError>(sequence: [1, 2, 3]).subscribe(on: bob.context)
         let replayed = operation.replay(limit: 2)
 
         operation.expectComplete(after: [1, 2, 3])
@@ -718,8 +718,8 @@ class SignalTests: XCTestCase {
         let bob = Scheduler()
         let eve = Scheduler()
 
-        let a = Signal<Int, TestError>(sequence: [1, 2, 3]).observeIn(bob.context)
-        let b = Signal<String, Never>(sequence: ["A", "A", "A", "A", "A"]).observeIn(eve.context)
+        let a = Signal<Int, TestError>(sequence: [1, 2, 3]).receive(on: bob.context)
+        let b = Signal<String, Never>(sequence: ["A", "A", "A", "A", "A"]).receive(on: eve.context)
         let combined = a.replayLatest(when: b)
 
         let exp = expectation(description: "completed")
@@ -754,7 +754,7 @@ class SignalTests: XCTestCase {
         let bob = Scheduler()
         bob.runRemaining()
 
-        let operation = Signal<Int, TestError>(sequence: [1, 2, 3]).executeIn(bob.context)
+        let operation = Signal<Int, TestError>(sequence: [1, 2, 3]).subscribe(on: bob.context)
         let published = operation.publish()
 
         operation.expectComplete(after: [1, 2, 3])
