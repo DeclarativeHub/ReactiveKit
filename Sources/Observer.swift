@@ -25,10 +25,10 @@
 import Foundation
 
 /// Represents a type that receives events.
-public typealias Observer<Element, Error: Swift.Error> = (Event<Element, Error>) -> Void
+public typealias Observer<Element, Error: Swift.Error> = (Signal<Element, Error>.Event) -> Void
 
 /// An observer of safe signals.
-public typealias SafeObserver<Element> = (Event<Element, Never>) -> Void
+public typealias SafeObserver<Element> = (Signal<Element, Never>.Event) -> Void
 
 /// Represents a type that receives events.
 public protocol ObserverProtocol {
@@ -40,7 +40,7 @@ public protocol ObserverProtocol {
     associatedtype Error: Swift.Error
     
     /// Send the event to the observer.
-    func on(_ event: Event<Element, Error>)
+    func on(_ event: Signal<Element, Error>.Event)
 }
 
 /// Represents a type that receives events. Observer is just a convenience
@@ -55,7 +55,7 @@ public struct AnyObserver<Element, Error: Swift.Error>: ObserverProtocol {
     }
     
     /// Calles wrapped closure with the given element.
-    public func on(_ event: Event<Element, Error>) {
+    public func on(_ event: Signal<Element, Error>.Event) {
         observer(event)
     }
 }
@@ -86,7 +86,7 @@ public final class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol
     }
     
     /// Calles wrapped closure with the given element.
-    public func on(_ event: Event<Element, Error>) {
+    public func on(_ event: Signal<Element, Error>.Event) {
         lock.lock(); defer { lock.unlock() }
         guard let disposable = _disposable, !disposable.isDisposed else { return }
         if let observer = observer {

@@ -53,7 +53,7 @@ public final class ConnectableSignal<Source: SignalProtocol>: ConnectableSignalP
     
     /// Register an observer that will receive events from the signal.
     /// Note that the events will not be generated until `connect` is called.
-    public func observe(with observer: @escaping (Event<Source.Element, Source.Error>) -> Void) -> Disposable {
+    public func observe(with observer: @escaping (Signal<Source.Element, Source.Error>.Event) -> Void) -> Disposable {
         return subject.observe(with: observer)
     }
 }

@@ -22,20 +22,23 @@
 //  THE SOFTWARE.
 //
 
-/// An event of a sequence.
-public enum Event<Element, Error: Swift.Error> {
+extension Signal {
 
-    /// An event that carries next element.
-    case next(Element)
-    
-    /// An event that represents failure. Carries an error.
-    case failed(Error)
+    /// An event of a sequence.
+    public enum Event {
 
-    /// An event that marks the completion of a sequence.
-    case completed
+        /// An event that carries next element.
+        case next(Element)
+
+        /// An event that represents failure. Carries an error.
+        case failed(Error)
+
+        /// An event that marks the completion of a sequence.
+        case completed
+    }
 }
 
-extension Event {
+extension Signal.Event {
 
     /// Return `true` in case of `.failure` or `.completed` event.
     public var isTerminal: Bool {

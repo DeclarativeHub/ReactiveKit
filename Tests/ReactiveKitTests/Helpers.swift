@@ -9,9 +9,9 @@
 import XCTest
 import ReactiveKit
 
-extension Event {
+extension Signal.Event {
 
-    func isEqualTo(_ event: Event<Element, Error>) -> Bool {
+    func isEqualTo(_ event: Signal<Element, Error>.Event) -> Bool {
 
         switch (self, event) {
         case (.completed, .completed):
@@ -46,10 +46,10 @@ extension SignalProtocol {
         expect(events: expectedElements.map { .next($0) } + [.completed], file: file, line: line)
     }
 
-    func expect(events expectedEvents: [Event<Element, Error>],
+    func expect(events expectedEvents: [Signal<Element, Error>.Event],
                 file: StaticString = #file, line: UInt = #line) {
         var eventsToProcess = expectedEvents
-        var receivedEvents: [Event<Element, Error>] = []
+        var receivedEvents: [Signal<Element, Error>.Event] = []
         var matchedAll = false
         let _ = observe { event in
             receivedEvents.append(event)
@@ -81,12 +81,12 @@ extension SignalProtocol {
         expectAsync(events: expectedElements.map { .next($0) } + [.completed], expectation: expectation, file: file, line: line)
     }
 
-    func expectAsync(events expectedEvents: [Event<Element, Error>],
+    func expectAsync(events expectedEvents: [Signal<Element, Error>.Event],
                      expectation: XCTestExpectation,
                      file: StaticString = #file, line: UInt = #line) {
         XCTAssert(!expectedEvents.isEmpty, "Use expectEmptyAsync for waiting empty signal")
         var eventsToProcess = expectedEvents
-        var receivedEvents: [Event<Element, Error>] = []
+        var receivedEvents: [Signal<Element, Error>.Event] = []
         let _ = observe { event in
             receivedEvents.append(event)
             if eventsToProcess.count == 0 {

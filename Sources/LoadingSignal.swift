@@ -378,7 +378,7 @@ extension SignalProtocol where Element: ObservedLoadingStateProtocol, Error == N
     /// Update loading state of the listener on each `.next` (loading state) event.
     public func updateLoadingState(of listener: LoadingStateListener, context: ExecutionContext) -> Signal<ObservedLoadingState<LoadingValue, LoadingError>, Never> {
         
-        let _observe = { (listener: LoadingStateListener?, event: Event<Element, Error>, observer: AtomicObserver<ObservedLoadingState<LoadingValue, LoadingError>, Never>) in
+        let _observe = { (listener: LoadingStateListener?, event: Signal<Element, Error>.Event, observer: AtomicObserver<ObservedLoadingState<LoadingValue, LoadingError>, Never>) in
             switch event {
             case .next(let anyObservedLoadingState):
                 let observedLoadingState = anyObservedLoadingState.asObservedLoadingState

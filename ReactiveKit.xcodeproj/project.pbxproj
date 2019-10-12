@@ -35,10 +35,10 @@
 		EC48D322224FB5C400284EA0 /* LoadingProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2F6224FB5C400284EA0 /* LoadingProperty.swift */; };
 		EC48D323224FB5C400284EA0 /* LoadingProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2F6224FB5C400284EA0 /* LoadingProperty.swift */; };
 		EC48D324224FB5C400284EA0 /* LoadingProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2F6224FB5C400284EA0 /* LoadingProperty.swift */; };
-		EC48D325224FB5C400284EA0 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2F7224FB5C400284EA0 /* Event.swift */; };
-		EC48D326224FB5C400284EA0 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2F7224FB5C400284EA0 /* Event.swift */; };
-		EC48D327224FB5C400284EA0 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2F7224FB5C400284EA0 /* Event.swift */; };
-		EC48D328224FB5C400284EA0 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2F7224FB5C400284EA0 /* Event.swift */; };
+		EC48D325224FB5C400284EA0 /* Signal.Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2F7224FB5C400284EA0 /* Signal.Event.swift */; };
+		EC48D326224FB5C400284EA0 /* Signal.Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2F7224FB5C400284EA0 /* Signal.Event.swift */; };
+		EC48D327224FB5C400284EA0 /* Signal.Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2F7224FB5C400284EA0 /* Signal.Event.swift */; };
+		EC48D328224FB5C400284EA0 /* Signal.Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2F7224FB5C400284EA0 /* Signal.Event.swift */; };
 		EC48D329224FB5C400284EA0 /* SignalProtocol+Threading.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2F8224FB5C400284EA0 /* SignalProtocol+Threading.swift */; };
 		EC48D32A224FB5C400284EA0 /* SignalProtocol+Threading.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2F8224FB5C400284EA0 /* SignalProtocol+Threading.swift */; };
 		EC48D32B224FB5C400284EA0 /* SignalProtocol+Threading.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D2F8224FB5C400284EA0 /* SignalProtocol+Threading.swift */; };
@@ -158,7 +158,7 @@
 		EC48D2F4224FB5C400284EA0 /* SignalProtocol+Combining.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SignalProtocol+Combining.swift"; sourceTree = "<group>"; };
 		EC48D2F5224FB5C400284EA0 /* Property.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Property.swift; sourceTree = "<group>"; };
 		EC48D2F6224FB5C400284EA0 /* LoadingProperty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoadingProperty.swift; sourceTree = "<group>"; };
-		EC48D2F7224FB5C400284EA0 /* Event.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
+		EC48D2F7224FB5C400284EA0 /* Signal.Event.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Signal.Event.swift; sourceTree = "<group>"; };
 		EC48D2F8224FB5C400284EA0 /* SignalProtocol+Threading.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SignalProtocol+Threading.swift"; sourceTree = "<group>"; };
 		EC48D2F9224FB5C400284EA0 /* SignalProtocol+Optional.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SignalProtocol+Optional.swift"; sourceTree = "<group>"; };
 		EC48D2FA224FB5C400284EA0 /* Deprecations.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Deprecations.swift; sourceTree = "<group>"; };
@@ -235,12 +235,12 @@
 		EC48D2F0224FB5C400284EA0 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				EC48D2F7224FB5C400284EA0 /* Event.swift */,
 				ECDFDCB122BD7E9500B85C5E /* Subscribers.swift */,
 				EC48D2F2224FB5C400284EA0 /* Observer.swift */,
 				EC48D2FE224FB5C400284EA0 /* Disposable.swift */,
 				EC48D300224FB5C400284EA0 /* ExecutionContext.swift */,
 				EC48D30B224FB5C400284EA0 /* Signal.swift */,
+				EC48D2F7224FB5C400284EA0 /* Signal.Event.swift */,
 				EC48D2FB224FB5C400284EA0 /* SignalProtocol.swift */,
 				EC48D2F3224FB5C400284EA0 /* SignalProtocol+Monad.swift */,
 				EC48D306224FB5C400284EA0 /* SignalProtocol+Filtering.swift */,
@@ -575,7 +575,7 @@
 				EC48D34E224FB5C400284EA0 /* Subjects.swift in Sources */,
 				EC48D34A224FB5C400284EA0 /* ExecutionContext.swift in Sources */,
 				EC48D33E224FB5C400284EA0 /* SignalProtocol+ErrorHandling.swift in Sources */,
-				EC48D326224FB5C400284EA0 /* Event.swift in Sources */,
+				EC48D326224FB5C400284EA0 /* Signal.Event.swift in Sources */,
 				EC48D316224FB5C400284EA0 /* SignalProtocol+Monad.swift in Sources */,
 				EC48D33A224FB5C400284EA0 /* Lock.swift in Sources */,
 				EC48D336224FB5C400284EA0 /* SignalProtocol.swift in Sources */,
@@ -611,7 +611,7 @@
 				EC48D34F224FB5C400284EA0 /* Subjects.swift in Sources */,
 				EC48D34B224FB5C400284EA0 /* ExecutionContext.swift in Sources */,
 				EC48D33F224FB5C400284EA0 /* SignalProtocol+ErrorHandling.swift in Sources */,
-				EC48D327224FB5C400284EA0 /* Event.swift in Sources */,
+				EC48D327224FB5C400284EA0 /* Signal.Event.swift in Sources */,
 				EC48D317224FB5C400284EA0 /* SignalProtocol+Monad.swift in Sources */,
 				EC48D33B224FB5C400284EA0 /* Lock.swift in Sources */,
 				EC48D337224FB5C400284EA0 /* SignalProtocol.swift in Sources */,
@@ -647,7 +647,7 @@
 				EC48D350224FB5C400284EA0 /* Subjects.swift in Sources */,
 				EC48D34C224FB5C400284EA0 /* ExecutionContext.swift in Sources */,
 				EC48D340224FB5C400284EA0 /* SignalProtocol+ErrorHandling.swift in Sources */,
-				EC48D328224FB5C400284EA0 /* Event.swift in Sources */,
+				EC48D328224FB5C400284EA0 /* Signal.Event.swift in Sources */,
 				EC48D318224FB5C400284EA0 /* SignalProtocol+Monad.swift in Sources */,
 				EC48D33C224FB5C400284EA0 /* Lock.swift in Sources */,
 				EC48D338224FB5C400284EA0 /* SignalProtocol.swift in Sources */,
@@ -683,7 +683,7 @@
 				EC48D34D224FB5C400284EA0 /* Subjects.swift in Sources */,
 				EC48D349224FB5C400284EA0 /* ExecutionContext.swift in Sources */,
 				EC48D33D224FB5C400284EA0 /* SignalProtocol+ErrorHandling.swift in Sources */,
-				EC48D325224FB5C400284EA0 /* Event.swift in Sources */,
+				EC48D325224FB5C400284EA0 /* Signal.Event.swift in Sources */,
 				EC48D315224FB5C400284EA0 /* SignalProtocol+Monad.swift in Sources */,
 				EC48D339224FB5C400284EA0 /* Lock.swift in Sources */,
 				EC48D335224FB5C400284EA0 /* SignalProtocol.swift in Sources */,

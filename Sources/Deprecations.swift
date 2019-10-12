@@ -25,6 +25,9 @@
 import Dispatch
 import Foundation
 
+@available(*, deprecated, message: "Event<Element, Error> has been renamed to Signal<Element, Error>.Event")
+public typealias Event<Element, Error: Swift.Error> = Signal<Element, Error>.Event
+
 @available(*, deprecated, renamed: "Never")
 public typealias NoError = Never
 
@@ -92,12 +95,12 @@ extension SignalProtocol where Element: OptionalProtocol {
 extension Signal where Error == Never {
 
     @available(*, deprecated, message: "Replace with compactMap { $0.element }`")
-    public func elements<U, E>() -> Signal<U, Never> where Element == Event<U, E> {
+    public func elements<U, E>() -> Signal<U, Never> where Element == Signal<U, E>.Event {
         return compactMap { $0.element }
     }
 
     @available(*, deprecated, message: "Replace with compactMap { $0.error }`")
-    public func errors<U, E>() -> Signal<E, Never> where Element == Event<U, E> {
+    public func errors<U, E>() -> Signal<E, Never> where Element == Signal<U, E>.Event {
         return compactMap { $0.error }
     }
 }

@@ -27,7 +27,7 @@ import Foundation
 extension SignalProtocol {
 
     /// Unwrap events into elements.
-    public func materialize() -> Signal<Event<Element, Error>, Never> {
+    public func materialize() -> Signal<Signal<Element, Error>.Event, Never> {
         return Signal { observer in
             return self.observe { event in
                 switch event {
@@ -45,7 +45,7 @@ extension SignalProtocol {
     }
 
     /// Inverse of `materialize`.
-    public func dematerialize<U, E>() -> Signal<U, E> where Element == Event<U, E>, E == Error {
+    public func dematerialize<U, E>() -> Signal<U, E> where Element == Signal<U, E>.Event, E == Error {
         return Signal { observer in
             return self.observe { event in
                 switch event {
@@ -71,7 +71,7 @@ extension SignalProtocol {
 extension SignalProtocol where Error == Never {
 
     /// Inverse of `materialize`.
-    public func dematerialize<U, E>() -> Signal<U, E> where Element == Event<U, E> {
+    public func dematerialize<U, E>() -> Signal<U, E> where Element == Signal<U, E>.Event {
         return (castError() as Signal<Element, E>).dematerialize()
     }
 }
