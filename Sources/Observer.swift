@@ -47,7 +47,7 @@ public protocol ObserverProtocol {
 /// wrapper around a closure observer `Observer<Element, Error>`.
 public struct AnyObserver<Element, Error: Swift.Error>: ObserverProtocol {
     
-    private let observer: Observer<Element, Error>
+    public let observer: Observer<Element, Error>
     
     /// Creates an observer that wraps a closure observer.
     public init(observer: @escaping Observer<Element, Error>) {
@@ -55,6 +55,7 @@ public struct AnyObserver<Element, Error: Swift.Error>: ObserverProtocol {
     }
     
     /// Calles wrapped closure with the given element.
+    @inlinable
     public func on(_ event: Signal<Element, Error>.Event) {
         observer(event)
     }

@@ -240,10 +240,10 @@
 		EC48D2F0224FB5C400284EA0 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				EC75487D2351E2AC002D869C /* Scheduler.swift */,
 				ECDFDCB122BD7E9500B85C5E /* Subscribers.swift */,
 				EC48D2F2224FB5C400284EA0 /* Observer.swift */,
 				EC48D2FE224FB5C400284EA0 /* Disposable.swift */,
-				EC75487D2351E2AC002D869C /* Scheduler.swift */,
 				EC48D300224FB5C400284EA0 /* ExecutionContext.swift */,
 				EC48D30B224FB5C400284EA0 /* Signal.swift */,
 				EC48D2F7224FB5C400284EA0 /* Signal.Event.swift */,
