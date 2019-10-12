@@ -26,6 +26,20 @@ import Foundation
 
 extension SignalProtocol {
 
+    /// Maps signal elements into `Result.success` elements and signal errors into `Result.failure` elements.
+    public func mapToResult() -> Signal<Result<Element, Error>, Never> {
+        return materialize().compactMap { (event) -> Result<Element, Error>? in
+            switch event {
+            case .next(let element):
+                return .success(element)
+            case .failed(let error):
+                return .failure(error)
+            case .completed:
+                return nil
+            }
+        }
+    }
+
     /// Map element into a result, propagating success value as a next event or failure as a failed event.
     /// Shorthand for `map(transform).getValues()`.
     public func tryMap<U>(_ transform: @escaping (Element) -> Result<U, Error>) -> Signal<U, Error> {
