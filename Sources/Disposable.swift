@@ -306,6 +306,40 @@ public final class DisposeBag: DisposeBagProtocol {
     }
 }
 
+/// A type-erasing cancellable object that executes a provided closure when canceled (disposed).
+/// The closure will be executed upon deinit if it has not been executed already.
+public final class AnyCancellable: Disposable {
+
+    private let lock = NSRecursiveLock(name: "com.reactive_kit.any_cancellable")
+
+    public var isDisposed: Bool {
+        lock.lock(); defer { lock.unlock() }
+        return _handler == nil
+    }
+
+    private var _handler: (() -> ())?
+
+    public init(_ handler: @escaping () -> ()) {
+        _handler = handler
+    }
+
+    deinit {
+        dispose()
+    }
+
+    public func dispose() {
+        lock.lock(); defer { lock.unlock() }
+        if let handler = _handler {
+            _handler = nil
+            handler()
+        }
+    }
+
+    public func cancel() {
+        dispose()
+    }
+}
+
 extension Disposable {
     
     /// Put the disposable in the given bag. Disposable will be disposed when

@@ -458,3 +458,11 @@ extension SignalProtocol where Error == Never {
     }
 }
 
+extension SignalProtocol {
+
+    @available(*, deprecated, message: "Please provide `receiveCompletion` argument when observing signals with error type other than `Never`.")
+    public func sink(receiveValue: @escaping ((Element) -> Void)) -> AnyCancellable {
+        return sink(receiveCompletion: { _ in }, receiveValue: receiveValue)
+    }
+}
+

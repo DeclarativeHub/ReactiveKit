@@ -428,7 +428,7 @@ class SignalTests: XCTestCase {
     // TODO: delay
 
     func testDoOn() {
-        let operation = Signal<Int, TestError>(sequence: [1, 2, 3])
+        let operation = Signal<Int, Never>(sequence: [1, 2, 3])
         var start = 0
         var next = 0
         var completed = 0
