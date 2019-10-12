@@ -168,7 +168,7 @@ extension Signal {
             var dispatch: (() -> Void)?
             let disposable = SimpleDisposable()
             dispatch = {
-                queue.after(when: interval) {
+                queue.asyncAfter(deadline: .now() + interval) {
                     guard !disposable.isDisposed else {
                         dispatch = nil
                         return

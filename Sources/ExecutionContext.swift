@@ -34,8 +34,8 @@ import Dispatch
 ///     }
 ///
 public struct ExecutionContext {
-    
-    private let context: (@escaping () -> Void) -> Void
+
+    public let context: (@escaping () -> Void) -> Void
     
     /// Execution context is just a function that executes other function.
     public init(_ context: @escaping (@escaping () -> Void) -> Void) {
@@ -43,6 +43,7 @@ public struct ExecutionContext {
     }
     
     /// Execute given block in the context.
+    @inlinable
     public func execute(_ block: @escaping () -> Void) {
         context(block)
     }
@@ -91,14 +92,13 @@ extension DispatchQueue {
     
     /// Creates ExecutionContext from the queue.
     public var context: ExecutionContext {
-        return ExecutionContext(context)
-    }
-    
-    private func context(_ block: @escaping () -> Void) {
-        async(execute: block)
+        return ExecutionContext { block in
+            self.async(execute: block)
+        }
     }
     
     /// Schedule given block for execution after given interval passes.
+    @available(*, deprecated, message: "Please use asyncAfter(deadline:execute:)")
     public func after(when interval: Double, block: @escaping () -> Void) {
         asyncAfter(deadline: .now() + interval, execute: block)
     }
@@ -107,7 +107,7 @@ extension DispatchQueue {
     /// Scheduled execution can be cancelled by disposing the returned disposable.
     public func disposableAfter(when interval: Double, block: @escaping () -> Void) -> Disposable {
         let disposable = SimpleDisposable()
-        after(when: interval) {
+        asyncAfter(deadline: .now() + interval) {
             if !disposable.isDisposed {
                 block()
             }

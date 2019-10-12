@@ -177,7 +177,7 @@ extension SignalProtocol {
             var _latestElement: Element?
             var _dispatch: (() -> Void)?
             _dispatch = {
-                queue.after(when: interval) {
+                queue.asyncAfter(deadline: .now() + interval) {
                     lock.lock(); defer { lock.unlock() }
                     guard !serialDisposable.isDisposed else {
                         _dispatch = nil;

@@ -54,7 +54,7 @@ extension SignalProtocol {
     public func delay(interval: Double, on queue: DispatchQueue = DispatchQueue(label: "reactive_kit.delay")) -> Signal<Element, Error> {
         return Signal { observer in
             return self.observe { event in
-                queue.after(when: interval) {
+                queue.asyncAfter(deadline: .now() + interval) {
                     observer.on(event)
                 }
             }
