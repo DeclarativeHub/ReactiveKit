@@ -434,7 +434,7 @@ class SignalTests: XCTestCase {
         var completed = 0
         var disposed = 0
 
-        let d = operation.doOn(next: { _ in next += 1 }, start: { start += 1}, completed: { completed += 1}, disposed: { disposed += 1}).observe { _ in }
+        let d = operation.handleEvents(receiveSubscription: { start += 1 }, receiveOutput: { _ in next += 1 }, receiveCompletion: { _ in completed += 1 }, receiveCancel: { disposed += 1 }).sink { _ in }
 
         XCTAssert(start == 1)
         XCTAssert(next == 3)

@@ -26,6 +26,51 @@ import Foundation
 
 extension SignalProtocol {
 
+    /// Raises a debugger signal when a provided closure needs to stop the process in the debugger.
+    ///
+    /// When any of the provided closures returns `true`, this signal raises the `SIGTRAP` signal to stop the process in the debugger.
+    /// Otherwise, this signal passes through values and completions as-is.
+    ///
+    /// - Parameters:
+    ///   - receiveSubscription: A closure that executes when when the signal receives a subscription. Return `true` from this closure to raise `SIGTRAP`, or false to continue.
+    ///   - receiveOutput: A closure that executes when when the signal receives a value. Return `true` from this closure to raise `SIGTRAP`, or false to continue.
+    ///   - receiveCompletion: A closure that executes when when the signal receives a completion. Return `true` from this closure to raise `SIGTRAP`, or false to continue.
+    /// - Returns: A signal that raises a debugger signal when one of the provided closures returns `true`.
+    @inlinable
+    public func breakpoint(receiveSubscription: (() -> Bool)? = nil, receiveOutput: ((Element) -> Bool)? = nil, receiveCompletion: ((Subscribers.Completion<Error>) -> Bool)? = nil) -> Signal<Element, Error> {
+        return handleEvents(
+        receiveSubscription: {
+                if receiveSubscription?() ?? false {
+                    raise(SIGTRAP)
+                }
+        }, receiveOutput: { (element) in
+            if receiveOutput?(element) ?? false {
+                raise(SIGTRAP)
+            }
+        }, receiveCompletion: { (completion) in
+            if receiveCompletion?(completion) ?? false {
+                raise(SIGTRAP)
+            }
+        })
+    }
+
+    /// Raises a debugger signal upon receiving a failure.
+    ///
+    /// When the upstream signal fails with an error, this signal raises the `SIGTRAP` signal, which stops the process in the debugger.
+    /// Otherwise, this signal passes through values and completions as-is.
+    /// - Returns: A signal that raises a debugger signal upon receiving a failure.
+    @inlinable
+    public func breakpointOnError() -> Signal<Element, Error> {
+        return breakpoint(receiveOutput: { _ in false }, receiveCompletion: { (completion) -> Bool in
+            switch completion {
+            case .failure:
+                return true
+            case .finished:
+                return false
+            }
+        })
+    }
+
     /// Log various signal events. If title is not provided, source file and function names are printed instead.
     public func debug(_ title: String? = nil, file: String = #file, function: String = #function, line: Int = #line) -> Signal<Element, Error> {
         let prefix: String
@@ -35,15 +80,19 @@ extension SignalProtocol {
             let filename = file.components(separatedBy: "/").last ?? file
             prefix = "[\(filename):\(function):\(line)]"
         }
-        return doOn(next: { element in
+        return handleEvents(
+           receiveSubscription: {
+                print("\(prefix) started")
+        }, receiveOutput: { (element) in
             print("\(prefix) next(\(element))")
-        }, start: {
-            print("\(prefix) started")
-        }, failed: { error in
-            print("\(prefix) failed: \(error)")
-        }, completed: {
-            print("\(prefix) completed")
-        }, disposed: {
+        }, receiveCompletion: { (completion) in
+            switch completion {
+            case .failure(let error):
+                print("\(prefix) failed: \(error)")
+            case .finished:
+                print("\(prefix) finished")
+            }
+        }, receiveCancel: {
             print("\(prefix) disposed")
         })
     }
@@ -60,7 +109,6 @@ extension SignalProtocol {
             }
         }
     }
-
 
     /// Repeat the receiver signal whenever the signal returned from the given closure emits an element.
     public func `repeat`<S: SignalProtocol>(when other: @escaping (Element) -> S) -> Signal<Element, Error> where S.Error == Never {
@@ -110,49 +158,60 @@ extension SignalProtocol {
         }
     }
 
-    /// Do side-effect upon various events.
-    public func doOn(next: ((Element) -> ())? = nil,
-                     start: (() -> Void)? = nil,
-                     failed: ((Error) -> Void)? = nil,
-                     completed: (() -> Void)? = nil,
-                     disposed: (() -> ())? = nil) -> Signal<Element, Error> {
+    /// Performs the specified closures when signal events occur.
+    ///
+    /// - Parameters:
+    ///   - receiveSubscription: A closure that executes when the signal receives the subscription. Defaults to `nil`.
+    ///   - receiveOutput: A closure that executes when the signal receives a value from the upstream signal. Defaults to `nil`.
+    ///   - receiveCompletion: A closure that executes when the signal receives the completion from the upstream signal. Defaults to `nil`.
+    ///   - receiveCancel: A closure that executes when the downstream receiver is cancelled (disposed). Defaults to `nil`.
+    /// - Returns: A publisher that performs the specified closures when publisher events occur.
+    @inlinable
+    public func handleEvents(receiveSubscription: (() -> Void)? = nil, receiveOutput: ((Element) -> Void)? = nil, receiveCompletion: ((Subscribers.Completion<Error>) -> Void)? = nil, receiveCancel: (() -> Void)? = nil) -> Signal<Element, Error> {
         return Signal { observer in
-            start?()
+            receiveSubscription?()
             let disposable = self.observe { event in
                 switch event {
                 case .next(let value):
-                    next?(value)
+                    receiveOutput?(value)
                 case .failed(let error):
-                    failed?(error)
+                    receiveCompletion?(.failure(error))
                 case .completed:
-                    completed?()
+                    receiveCompletion?(.finished)
                 }
                 observer.on(event)
             }
             return BlockDisposable {
                 disposable.dispose()
-                disposed?()
+                receiveCancel?()
             }
         }
     }
 
     /// Update the given subject with `true` when the receiver starts and with `false` when the receiver terminates.
     public func feedActivity<S: SubjectProtocol>(into listener: S) -> Signal<Element, Error> where S.Element == Bool {
-        return doOn(start: { listener.send(true) }, disposed: { listener.send(false) })
+        return handleEvents(receiveSubscription: { listener.send(true) }, receiveCancel: { listener.send(false) })
     }
 
     /// Update the given subject with `.next` elements.
     public func feedNext<S: SubjectProtocol>(into listener: S) -> Signal<Element, Error> where S.Element == Element {
-        return doOn(next: { e in listener.send(e) })
+        return handleEvents(receiveOutput: { e in listener.send(e) })
     }
 
     /// Update the given subject with mapped `.next` element whenever the element satisfies the given constraint.
     public func feedNext<S: SubjectProtocol>(into listener: S, when: @escaping (Element) -> Bool = { _ in true }, map: @escaping (Element) -> S.Element) -> Signal<Element, Error> {
-        return doOn(next: { e in if when(e) { listener.send(map(e)) } })
+        return handleEvents(receiveOutput: { e in if when(e) { listener.send(map(e)) } })
     }
 
     /// Updates the given subject with error from .failed event is such occurs.
     public func feedError<S: SubjectProtocol>(into listener: S) -> Signal<Element, Error> where S.Element == Error {
-        return doOn(failed: { e in listener.send(e) })
+        return handleEvents(receiveCompletion: { completion in
+            switch completion {
+            case .failure(let error):
+                listener.send(error)
+            case .finished:
+                break
+            }
+        })
     }
 }

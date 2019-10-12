@@ -399,6 +399,33 @@ extension SignalProtocol {
     public func retry(times: Int) -> Signal<Element, Error> {
         return retry(times)
     }
+
+    /// Do side-effect upon various events.
+    @available(*, deprecated, renamed: "handleEvents(receiveSubscription:receiveOutput:receiveCompletion:receiveCancel:)")
+    public func doOn(next: ((Element) -> ())? = nil,
+                     start: (() -> Void)? = nil,
+                     failed: ((Error) -> Void)? = nil,
+                     completed: (() -> Void)? = nil,
+                     disposed: (() -> ())? = nil) -> Signal<Element, Error> {
+        return Signal { observer in
+            start?()
+            let disposable = self.observe { event in
+                switch event {
+                case .next(let value):
+                    next?(value)
+                case .failed(let error):
+                    failed?(error)
+                case .completed:
+                    completed?()
+                }
+                observer.on(event)
+            }
+            return BlockDisposable {
+                disposable.dispose()
+                disposed?()
+            }
+        }
+    }
 }
 
 extension SignalProtocol {
