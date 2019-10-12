@@ -141,7 +141,7 @@ extension SignalProtocol {
     /// First propagate all elements from the source signal and then all elements from the `other` signal.
     ///
     /// Check out interactive example at [https://rxmarbles.com/#concat](https://rxmarbles.com/#concat)
-    public func concat<O: SignalProtocol>(with other: O) -> Signal<Element, Error> where O.Element == Element, O.Error == Error {
+    public func append<O: SignalProtocol>(_ other: O) -> Signal<Element, Error> where O.Element == Element, O.Error == Error {
         return Signal { observer in
             let serialDisposable = SerialDisposable(otherDisposable: nil)
             serialDisposable.otherDisposable = self.observe { event in
@@ -161,8 +161,22 @@ extension SignalProtocol {
     /// First propagate all elements from the source signal and then all elements from the `other` signal.
     ///
     /// Check out interactive example at [https://rxmarbles.com/#concat](https://rxmarbles.com/#concat)
-    public func concat<O: SignalProtocol>(with other: O) -> Signal<Element, Error> where O.Element == Element, O.Error == Never {
-        return concat(with: (other.castError() as Signal<O.Element, Error>))
+    public func append<O: SignalProtocol>(_ other: O) -> Signal<Element, Error> where O.Element == Element, O.Error == Never {
+        return append((other.castError() as Signal<O.Element, Error>))
+    }
+
+    /// First propagate all elements from the other signal and then all elements from the source signal.
+    ///
+    /// Check out interactive example at [https://rxmarbles.com/#concat](https://rxmarbles.com/#concat)
+    public func prepend<O: SignalProtocol>(_ other: O) -> Signal<Element, Error> where O.Element == Element, O.Error == Error {
+        return other.append(self)
+    }
+
+    /// First propagate all elements from the other signal and then all elements from the source signal.
+    ///
+    /// Check out interactive example at [https://rxmarbles.com/#concat](https://rxmarbles.com/#concat)
+    public func prepend<O: SignalProtocol>(_ other: O) -> Signal<Element, Error> where O.Element == Element, O.Error == Never {
+        return prepend((other.castError() as Signal<O.Element, Error>))
     }
 
     /// Merge emissions from both the receiver and the `other` signal into one signal.
@@ -351,8 +365,15 @@ extension SignalProtocol where Error == Never {
     /// First propagate all elements from the source signal and then all elements from the `other` signal.
     ///
     /// Check out interactive example at [https://rxmarbles.com/#concat](https://rxmarbles.com/#concat)
-    public func concat<O: SignalProtocol>(with other: O) -> Signal<Element, O.Error> where O.Element == Element {
-        return (castError() as Signal<Element, O.Error>).concat(with: other)
+    public func append<O: SignalProtocol>(_ other: O) -> Signal<Element, O.Error> where O.Element == Element {
+        return (castError() as Signal<Element, O.Error>).append(other)
+    }
+
+    /// First propagate all elements from the other signal and then all elements from the source signal.
+    ///
+    /// Check out interactive example at [https://rxmarbles.com/#concat](https://rxmarbles.com/#concat)
+    public func prepend<O: SignalProtocol>(_ other: O) -> Signal<Element, O.Error> where O.Element == Element {
+        return (castError() as Signal<Element, O.Error>).prepend(other)
     }
 
     /// Merge emissions from both the receiver and the `other` signal into one signal.

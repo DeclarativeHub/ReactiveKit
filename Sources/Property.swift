@@ -70,7 +70,7 @@ public final class Property<Value>: PropertyProtocol, SubjectProtocol, BindableP
     
     public func observe(with observer: @escaping (Signal<Value, Never>.Event) -> Void) -> Disposable {
         lock.lock(); defer { lock.unlock() }
-        return subject.start(with: _value).observe(with: observer)
+        return subject.prepend(_value).observe(with: observer)
     }
     
     public var readOnlyView: AnyProperty<Value> {

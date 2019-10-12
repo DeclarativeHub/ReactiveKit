@@ -29,7 +29,7 @@ extension SignalProtocol {
     /// Batch signal elements into arrays of the given size.
     ///
     /// Check out interactive example at [https://rxmarbles.com/#bufferCount](https://rxmarbles.com/#bufferCount)
-    public func buffer(ofSize size: Int) -> Signal<[Element], Error> {
+    public func buffer(size: Int) -> Signal<[Element], Error> {
         return Signal { observer in
             let lock = NSRecursiveLock(name: "com.reactive_kit.signal.buffer")
             var _buffer: [Element] = []
@@ -59,7 +59,7 @@ extension SignalProtocol {
     /// Emit default element if the signal completes without emitting any element.
     ///
     /// Check out interactive example at [https://rxmarbles.com/#defaultIfEmpty](https://rxmarbles.com/#defaultIfEmpty)
-    public func defaultIfEmpty(_ element: Element) -> Signal<Element, Error> {
+    public func replaceEmpty(with element: Element) -> Signal<Element, Error> {
         return Signal { observer in
             let lock = NSRecursiveLock(name: "com.reactive_kit.signal.default_if_empty")
             var _didEmitNonTerminal = false
@@ -134,13 +134,18 @@ extension SignalProtocol {
     /// Prepend the given element to the signal element sequence.
     ///
     /// Check out interactive example at [https://rxmarbles.com/#startWith](https://rxmarbles.com/#startWith)
-    public func start(with element: Element) -> Signal<Element, Error> {
+    public func prepend(_ element: Element) -> Signal<Element, Error> {
         return scan(element, { _, next in next })
+    }
+
+    /// Append the given element to the signal element sequence.
+    public func append(_ element: Element) -> Signal<Element, Error> {
+        return append(Signal(just: element))
     }
 
     /// Batch each `size` elements into another signal.
     public func window(ofSize size: Int) -> Signal<Signal<Element, Error>, Error> {
-        return buffer(ofSize: size).map { Signal(sequence: $0) }
+        return buffer(size: size).map { Signal(sequence: $0) }
     }
 
     /// Par each element with its predecessor.

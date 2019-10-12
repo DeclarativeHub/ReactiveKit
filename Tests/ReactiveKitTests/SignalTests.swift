@@ -95,9 +95,9 @@ class SignalTests: XCTestCase {
     }
 
     func testBuffer() {
-        SafeSignal(sequence: [1, 2, 3]).buffer(ofSize: 1).expectComplete(after: [[1], [2], [3]])
-        SafeSignal(sequence: [1, 2, 3, 4]).buffer(ofSize: 2).expectComplete(after: [[1, 2], [3, 4]])
-        SafeSignal(sequence: [1, 2, 3, 4, 5]).buffer(ofSize: 2).expectComplete(after: [[1, 2], [3, 4]])
+        SafeSignal(sequence: [1, 2, 3]).buffer(size: 1).expectComplete(after: [[1], [2], [3]])
+        SafeSignal(sequence: [1, 2, 3, 4]).buffer(size: 2).expectComplete(after: [[1, 2], [3, 4]])
+        SafeSignal(sequence: [1, 2, 3, 4, 5]).buffer(size: 2).expectComplete(after: [[1, 2], [3, 4]])
     }
     
     func testMap() {
@@ -141,7 +141,7 @@ class SignalTests: XCTestCase {
 
     func testRecover() {
         let operation = Signal<Int, TestError>.failed(.Error)
-        let signal = operation.recover(with: 1)
+        let signal = operation.replaceError(with: 1)
         signal.expectComplete(after: [1])
     }
 
@@ -191,7 +191,7 @@ class SignalTests: XCTestCase {
 
     func testIgnoreElement() {
         let operation = Signal<Int, TestError>(sequence: [1, 2, 3])
-        let ignoreElements = operation.ignoreElements()
+        let ignoreElements = operation.ignoreOutput()
         ignoreElements.expectComplete(after: [])
     }
 
@@ -335,7 +335,7 @@ class SignalTests: XCTestCase {
     
     func testStartWith() {
         let operation = Signal<Int, TestError>(sequence: [1, 2, 3])
-        let startWith4 = operation.start(with: 4)
+        let startWith4 = operation.prepend(4)
         startWith4.expectComplete(after: [4, 1, 2, 3])
     }
 
@@ -398,7 +398,7 @@ class SignalTests: XCTestCase {
         bob.runRemaining()
 
         let operation = Signal<Int, TestError>.failed(.Error).subscribe(on: bob.context)
-        let retry = operation.retry(times: 3)
+        let retry = operation.retry(3)
         retry.expect(events: [.failed(.Error)])
 
         XCTAssertEqual(bob.numberOfRuns, 4)
@@ -406,7 +406,7 @@ class SignalTests: XCTestCase {
     
     func testRetryForThreadSafety() {
         let subjectOne = Subject<Int, TestError>()
-        let retry = subjectOne.retry(times: 3)
+        let retry = subjectOne.retry(3)
         
         let disposeBag = DisposeBag()
         let exp = expectation(description: "race_condition?")
@@ -533,13 +533,13 @@ class SignalTests: XCTestCase {
         collected.expectComplete(after: [[1, 2, 3]])
     }
 
-    func testConcatWith() {
+    func testAppend() {
         let bob = Scheduler()
         let eve = Scheduler()
 
         let operationA = Signal<Int, TestError>(sequence: [1, 2]).receive(on: bob.context)
         let operationB = Signal<Int, TestError>(sequence: [3, 4]).receive(on: eve.context)
-        let merged = operationA.concat(with: operationB)
+        let merged = operationA.append(operationB)
 
         let exp = expectation(description: "completed")
         merged.expectAsyncComplete(after: [1, 2, 3, 4], expectation: exp)
@@ -585,9 +585,9 @@ class SignalTests: XCTestCase {
         waitForExpectations(timeout: 3)
     }
 
-    func testDefaultIfEmpty() {
+    func testReplaceEmpty() {
         let operation = Signal<Int, TestError>(sequence: [])
-        let defaulted = operation.defaultIfEmpty(1)
+        let defaulted = operation.replaceEmpty(with: 1)
         defaulted.expectComplete(after: [1])
     }
 
@@ -840,8 +840,8 @@ extension SignalTests {
             ("testTimeoutFailure", testTimeoutFailure),
             ("testAmbWith", testAmbWith),
             ("testCollect", testCollect),
-            ("testConcatWith", testConcatWith),
-            ("testDefaultIfEmpty", testDefaultIfEmpty),
+            ("testAppend", testAppend),
+            ("testReplaceEmpty", testReplaceEmpty),
             ("testReduce", testReduce),
             ("testZipPrevious", testZipPrevious),
             ("testFlatMapMerge", testFlatMapMerge),

@@ -354,3 +354,80 @@ extension SignalProtocol where Element: Equatable {
     }
 }
 
+extension SignalProtocol {
+
+    /// Batch signal elements into arrays of the given size.
+    ///
+    /// Check out interactive example at [https://rxmarbles.com/#bufferCount](https://rxmarbles.com/#bufferCount)
+    @available(*, deprecated, renamed: "buffer(size:)")
+    public func buffer(ofSize size: Int) -> Signal<[Element], Error> {
+        return buffer(size: size)
+    }
+
+    /// Emit default element if the signal completes without emitting any element.
+    ///
+    /// Check out interactive example at [https://rxmarbles.com/#defaultIfEmpty](https://rxmarbles.com/#defaultIfEmpty)
+    @available(*, deprecated, renamed: "replaceEmpty(with:)")
+    public func defaultIfEmpty(_ element: Element) -> Signal<Element, Error> {
+        return replaceEmpty(with: element)
+    }
+
+    /// Prepend the given element to the signal element sequence.
+    ///
+    /// Check out interactive example at [https://rxmarbles.com/#startWith](https://rxmarbles.com/#startWith)
+    @available(*, deprecated, renamed: "prepend(_:)")
+    public func start(with element: Element) -> Signal<Element, Error> {
+        return prepend(element)
+    }
+
+    /// Ignore all elements (just propagate terminal events).
+    ///
+    /// Check out interactive example at [https://rxmarbles.com/#ignoreElements](https://rxmarbles.com/#ignoreElements)
+    @available(*, deprecated, renamed: "ignoreOutput")
+    public func ignoreElements() -> Signal<Element, Error> {
+        return ignoreOutput()
+    }
+
+    /// Recover the signal by propagating default element if an error happens.
+    @available(*, deprecated, renamed: "replaceError(with:)")
+    public func recover(with element: Element) -> Signal<Element, Never> {
+        return replaceError(with: element)
+    }
+
+    /// Retry the signal in case of failure at most `times` number of times.
+    @available(*, deprecated, renamed: "retry(_:)")
+    public func retry(times: Int) -> Signal<Element, Error> {
+        return retry(times)
+    }
+}
+
+extension SignalProtocol {
+
+    /// First propagate all elements from the source signal and then all elements from the `other` signal.
+    ///
+    /// Check out interactive example at [https://rxmarbles.com/#concat](https://rxmarbles.com/#concat)
+    @available(*, deprecated, renamed: "append(_:)")
+    public func concat<O: SignalProtocol>(with other: O) -> Signal<Element, Error> where O.Element == Element, O.Error == Error {
+        return append(other)
+    }
+
+    /// First propagate all elements from the source signal and then all elements from the `other` signal.
+    ///
+    /// Check out interactive example at [https://rxmarbles.com/#concat](https://rxmarbles.com/#concat)
+    @available(*, deprecated, renamed: "append(_:)")
+    public func concat<O: SignalProtocol>(with other: O) -> Signal<Element, Error> where O.Element == Element, O.Error == Never {
+        return append((other.castError() as Signal<O.Element, Error>))
+    }
+}
+
+extension SignalProtocol where Error == Never {
+
+    /// First propagate all elements from the source signal and then all elements from the `other` signal.
+    ///
+    /// Check out interactive example at [https://rxmarbles.com/#concat](https://rxmarbles.com/#concat)
+    @available(*, deprecated, renamed: "append(_:)")
+    public func concat<O: SignalProtocol>(with other: O) -> Signal<Element, O.Error> where O.Element == Element {
+        return (castError() as Signal<Element, O.Error>).append(other)
+    }
+}
+

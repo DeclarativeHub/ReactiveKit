@@ -79,7 +79,7 @@ extension SignalProtocol {
     }
 
     /// Recover the signal by propagating default element if an error happens.
-    public func recover(with element: Element) -> Signal<Element, Never> {
+    public func replaceError(with element: Element) -> Signal<Element, Never> {
         return Signal { observer in
             return self.observe { event in
                 switch event {
@@ -96,7 +96,7 @@ extension SignalProtocol {
     }
 
     /// Retry the signal in case of failure at most `times` number of times.
-    public func retry(times: Int) -> Signal<Element, Error> {
+    public func retry(_ times: Int) -> Signal<Element, Error> {
         guard times > 0 else { return toSignal() }
         return Signal { observer in
             let lock = NSRecursiveLock(name: "com.reactive_kit.signal.retry")

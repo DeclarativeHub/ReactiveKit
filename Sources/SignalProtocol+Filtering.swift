@@ -125,7 +125,7 @@ extension SignalProtocol {
     /// Ignore all elements (just propagate terminal events).
     ///
     /// Check out interactive example at [https://rxmarbles.com/#ignoreElements](https://rxmarbles.com/#ignoreElements)
-    public func ignoreElements() -> Signal<Element, Error> {
+    public func ignoreOutput() -> Signal<Element, Error> {
         return filter { _ in false }
     }
 

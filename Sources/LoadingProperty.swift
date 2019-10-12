@@ -124,7 +124,7 @@ public class LoadingProperty<LoadingValue, LoadingError: Swift.Error>: PropertyP
                 self._loadingDisposable = nil
             }
         }
-        return subject.start(with: _loadingState).observe(with: observer)
+        return subject.prepend(_loadingState).observe(with: observer)
     }
 }
 
