@@ -136,7 +136,7 @@ extension Subject: BindableProtocol {
     
     public func bind(signal: Signal<Element, Never>) -> Disposable {
         return signal
-            .take(until: disposeBag.deallocated)
+            .prefix(untilOutputFrom: disposeBag.deallocated)
             .receive(on: ExecutionContext.nonRecursive())
             .observeNext { [weak self] element in
                 guard let s = self else { return }

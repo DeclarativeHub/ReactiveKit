@@ -104,7 +104,7 @@ extension SignalProtocol where Error == Never {
     /// - Returns: A disposable that can cancel the binding.
     @discardableResult
     public func bind<Target: Deallocatable>(to target: Target, context: ExecutionContext, setter: @escaping (Target, Element) -> Void) -> Disposable {
-        return take(until: target.deallocated).observeNext { [weak target] element in
+        return prefix(untilOutputFrom: target.deallocated).observeNext { [weak target] element in
             context.execute {
                 if let target = target {
                     setter(target, element)
@@ -188,7 +188,7 @@ extension SignalProtocol where Error == Never, Element == Void {
     /// - Returns: A disposable that can cancel the binding.
     @discardableResult
     public func bind<Target: Deallocatable>(to target: Target, context: ExecutionContext, setter: @escaping (Target) -> Void) -> Disposable {
-        return take(until: target.deallocated).observeNext { [weak target] _ in
+        return prefix(untilOutputFrom: target.deallocated).observeNext { [weak target] _ in
             context.execute {
                 if let target = target {
                     setter(target)

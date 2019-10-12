@@ -85,7 +85,7 @@ public final class Property<Value>: PropertyProtocol, SubjectProtocol, BindableP
     
     public func bind(signal: Signal<Value, Never>) -> Disposable {
         return signal
-            .take(until: bag.deallocated)
+            .prefix(untilOutputFrom: bag.deallocated)
             .receive(on: ExecutionContext.nonRecursive())
             .observeNext { [weak self] element in
                 self?.on(.next(element))

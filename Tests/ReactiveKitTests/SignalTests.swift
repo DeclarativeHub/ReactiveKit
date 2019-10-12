@@ -161,19 +161,19 @@ class SignalTests: XCTestCase {
 
     func testDistinct() {
         let operation = Signal<Int, TestError>(sequence: [1, 2, 2, 3])
-        let distinct = operation.distinctUntilChanged { a, b in a != b }
+        let distinct = operation.removeDuplicates(by: ==)
         distinct.expectComplete(after: [1, 2, 3])
     }
 
     func testDistinct2() {
         let operation = Signal<Int, TestError>(sequence: [1, 2, 2, 3])
-        let distinct = operation.distinctUntilChanged()
+        let distinct = operation.removeDuplicates()
         distinct.expectComplete(after: [1, 2, 3])
     }
 
     func testElementAt() {
         let operation = Signal<Int, TestError>(sequence: [1, 2, 3])
-        let elementAt1 = operation.element(at: 1)
+        let elementAt1 = operation.output(at: 1)
         elementAt1.expectComplete(after: [2])
     }
 
@@ -205,25 +205,25 @@ class SignalTests: XCTestCase {
 
     func testSkip() {
         let operation = Signal<Int, TestError>(sequence: [1, 2, 3])
-        let skipped1 = operation.skip(first: 1)
+        let skipped1 = operation.dropFirst(1)
         skipped1.expectComplete(after: [2, 3])
     }
 
     func testSkipLast() {
         let operation = Signal<Int, TestError>(sequence: [1, 2, 3])
-        let skippedLast1 = operation.skip(last: 1)
+        let skippedLast1 = operation.dropLast(1)
         skippedLast1.expectComplete(after: [1, 2])
     }
 
     func testTakeFirst() {
         let operation = Signal<Int, TestError>(sequence: [1, 2, 3])
-        let taken2 = operation.take(first: 2)
+        let taken2 = operation.prefix(maxLength: 2)
         taken2.expectComplete(after: [1, 2])
     }
 
     func testTakeLast() {
         let operation = Signal<Int, TestError>(sequence: [1, 2, 3])
-        let takenLast2 = operation.take(last: 2)
+        let takenLast2 = operation.suffix(maxLength: 2)
         takenLast2.expectComplete(after: [2, 3])
     }
 
@@ -231,7 +231,7 @@ class SignalTests: XCTestCase {
         let expect = expectation(description: #function)
         let observable = Property(false)
 
-        _ = observable.take(first: 1).collect().observeNext { values in
+        _ = observable.prefix(maxLength: 1).collect().observeNext { values in
             XCTAssertEqual([false], values)
             expect.fulfill()
         }
@@ -246,7 +246,7 @@ class SignalTests: XCTestCase {
         let operation = Signal<Int, TestError>(sequence: [1, 2, 3, 4]).receive(on: bob.context)
         let interrupt = Signal<String, TestError>(sequence: ["A", "B"]).receive(on: eve.context)
 
-        let takeuntil = operation.take(until: interrupt)
+        let takeuntil = operation.prefix(untilOutputFrom: interrupt)
 
         let exp = expectation(description: "completed")
         takeuntil.expectAsyncComplete(after: [1, 2], expectation: exp)
