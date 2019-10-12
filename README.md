@@ -94,17 +94,20 @@ In order to represent errors in our sequences, we will introduce yet another kin
 Let us see how the event is defined in ReactiveKit.
 
 ```swift
-/// An event of a sequence.
-public enum Event<Element, Error: Swift.Error> {
+extension Signal {
 
-  /// An event that carries next element.
-  case next(Element)
+    /// An event of a sequence.
+    public enum Event {
 
-  /// An event that represents failure. Carries an error.
-  case failed(Error)
+        /// An event that carries next element.
+        case next(Element)
 
-  /// An event that marks the completion of a sequence.
-  case completed
+        /// An event that represents failure. Carries an error.
+        case failed(Error)
+
+        /// An event that marks the completion of a sequence.
+        case completed
+    }
 }
 ```
 
@@ -133,7 +136,7 @@ A signal represents the sequence of events. The most important thing you can do 
 
 ```swift
 /// Represents a type that receives events.
-public typealias Observer<Element, Error: Swift.Error> = (Event<Element, Error>) -> Void
+public typealias Observer<Element, Error: Swift.Error> = (Signal<Element, Error>.Event) -> Void
 ```
 
 ## Signals
@@ -197,7 +200,7 @@ public protocol ObserverProtocol {
     associatedtype Error: Swift.Error
 
     /// Send the event to the observer.
-    func on(_ event: Event<Element, Error>)
+    func on(_ event: Signal<Element, Error>.Event)
 }
 ```
 
@@ -899,7 +902,7 @@ open class Subject<Element, Error: Swift.Error>: SignalProtocol, ObserverProtoco
 
   private var observers: [Observer<Element, Error>] = []
 
-  open func on(_ event: Event<Element, Error>) {
+  open func on(_ event: Signal<Element, Error>.Event) {
     observers.forEach { $0(event) }
   }
 
@@ -972,9 +975,9 @@ As you could have inferred from the implementation, observing a subject gives us
 ```swift
 public final class ReplaySubject<Element, Error: Swift.Error>: Subject<Element, Error> {
 
-  private var buffer: [Event<Element, Error>] = []
+  private var buffer: [Signal<Element, Error>.Event] = []
 
-  public override func on(_ event: Event<Element, Error>) {
+  public override func on(_ event: Signal<Element, Error>.Event) {
     events.append(event)
     super.on(event)
   }
