@@ -62,27 +62,13 @@ extension SubjectProtocol where Element == Void {
 
 /// A type that is both a signal and an observer.
 open class Subject<Element, Error: Swift.Error>: SubjectProtocol {
-    
-    private let lock = NSRecursiveLock(name: "com.reactive_kit.subject.lock")
-    private let deletedObserversLock = NSRecursiveLock(name: "com.reactive_kit.subject.deleted_observers")
 
-    private typealias Token = Int64
-    private var _nextToken: Token = 0
-    
-    private var _observers: [(Token, Observer<Element, Error>)] = []
+    /// XXX: For some reason those public/open methods need to be defined before
+    ///      `_nextToken`, otherwise any access to them will cause a crash at runtime
+    ///      when built with Xcode 11.2 (see issue #233).
+    ///      This was not an issue in 11.1 and seems to be a bug in Swift 5.1.2
+    ///      or the iOS 13.2 SDK. Maybe re-evaluate with the next Xcode release.
 
-    private var _deletedObservers = Set<Token>()
-    
-    private var _isTerminated: Bool = false
-    public var isTerminated: Bool {
-        lock.lock(); defer { lock.unlock() }
-        return _isTerminated
-    }
-    
-    public let disposeBag = DisposeBag()
-    
-    public init() {}
-    
     public func on(_ event: Signal<Element, Error>.Event) {
         lock.lock(); defer { lock.unlock() }
         guard !_isTerminated else { return }
@@ -117,6 +103,26 @@ open class Subject<Element, Error: Swift.Error>: SubjectProtocol {
     
     open func willAdd(observer: @escaping Observer<Element, Error>) {
     }
+    
+    private let lock = NSRecursiveLock(name: "com.reactive_kit.subject.lock")
+    private let deletedObserversLock = NSRecursiveLock(name: "com.reactive_kit.subject.deleted_observers")
+
+    private typealias Token = Int64
+    private var _nextToken: Token = 0
+    
+    private var _observers: [(Token, Observer<Element, Error>)] = []
+
+    private var _deletedObservers = Set<Token>()
+    
+    private var _isTerminated: Bool = false
+    public var isTerminated: Bool {
+        lock.lock(); defer { lock.unlock() }
+        return _isTerminated
+    }
+    
+    public let disposeBag = DisposeBag()
+    
+    public init() {}
     
     private func _add(observer: @escaping Observer<Element, Error>) -> Disposable {
         let token = _nextToken
