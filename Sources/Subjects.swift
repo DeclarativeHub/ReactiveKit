@@ -104,6 +104,11 @@ open class Subject<Element, Error: Swift.Error>: SubjectProtocol {
     open func willAdd(observer: @escaping Observer<Element, Error>) {
     }
     
+    public var isTerminated: Bool {
+        lock.lock(); defer { lock.unlock() }
+        return _isTerminated
+    }
+    
     private let lock = NSRecursiveLock(name: "com.reactive_kit.subject.lock")
     private let deletedObserversLock = NSRecursiveLock(name: "com.reactive_kit.subject.deleted_observers")
 
@@ -115,10 +120,6 @@ open class Subject<Element, Error: Swift.Error>: SubjectProtocol {
     private var _deletedObservers = Set<Token>()
     
     private var _isTerminated: Bool = false
-    public var isTerminated: Bool {
-        lock.lock(); defer { lock.unlock() }
-        return _isTerminated
-    }
     
     public let disposeBag = DisposeBag()
     
