@@ -64,70 +64,50 @@ extension SubjectProtocol where Element == Void {
 open class Subject<Element, Error: Swift.Error>: SubjectProtocol {
     
     private let lock = NSRecursiveLock(name: "com.reactive_kit.subject.lock")
-    private let deletedObserversLock = NSRecursiveLock(name: "com.reactive_kit.subject.deleted_observers")
 
     private typealias Token = Int64
-    private var _nextToken: Token = 0
+    private var nextToken: Token = 0
     
-    private var _observers: [(Token, Observer<Element, Error>)] = []
-
-    private var _deletedObservers = Set<Token>()
+    private var observers: [(Token, Observer<Element, Error>)] = []
+    private var deletedObservers = Atomic(Set<Token>())
     
-    private var _isTerminated: Bool = false
-    public var isTerminated: Bool {
-        lock.lock(); defer { lock.unlock() }
-        return _isTerminated
-    }
+    public private(set) var isTerminated: Bool = false
     
     public let disposeBag = DisposeBag()
     
     public init() {}
-    
+
     public func on(_ event: Signal<Element, Error>.Event) {
         lock.lock(); defer { lock.unlock() }
-        guard !_isTerminated else { return }
-        _isTerminated = event.isTerminal
-        receive(event: event)
-    }
+        guard !isTerminated else { return }
 
-    open func receive(event: Signal<Element, Error>.Event) {
-        deletedObserversLock.lock()
-        let deletedObservers = _deletedObservers
-        deletedObserversLock.unlock()
+        isTerminated = event.isTerminal
 
-        lock.lock()
-        _observers = _observers.filter { (token, _) in
-            !deletedObservers.contains(token)
+        let deletedObservers = self.deletedObservers.value
+        observers.removeAll(where: { (token, _) in
+            deletedObservers.contains(token)
+        })
+        _ = self.deletedObservers.mutate {
+            $0.subtracting(deletedObservers)
         }
-        for (_, observer) in _observers {
+
+        for (_, observer) in observers {
             observer(event)
         }
-        lock.unlock()
-
-        deletedObserversLock.lock()
-        _deletedObservers = _deletedObservers.subtracting(deletedObservers)
-        deletedObserversLock.unlock()
     }
     
     open func observe(with observer: @escaping Observer<Element, Error>) -> Disposable {
         lock.lock(); defer { lock.unlock() }
-        willAdd(observer: observer)
-        return _add(observer: observer)
-    }
-    
-    open func willAdd(observer: @escaping Observer<Element, Error>) {
-    }
-    
-    private func _add(observer: @escaping Observer<Element, Error>) -> Disposable {
-        let token = _nextToken
-        _nextToken = _nextToken + 1
-        
-        _observers.append((token, observer))
-        
+
+        let token = nextToken
+        nextToken += 1
+
+        observers.append((token, observer))
+
         return BlockDisposable { [weak self] in
-            guard let self = self else { return }
-            self.deletedObserversLock.lock(); defer { self.deletedObserversLock.unlock() }
-            self._deletedObservers.insert(token)
+            _ = self?.deletedObservers.mutate {
+                $0.union([token])
+            }
         }
     }
 }
@@ -151,9 +131,9 @@ public final class PassthroughSubject<Element, Error: Swift.Error>: Subject<Elem
 /// A subject that replies accumulated sequence of events to each observer.
 public final class ReplaySubject<Element, Error: Swift.Error>: Subject<Element, Error> {
 
-    private let lock = NSRecursiveLock(name: "com.reactive_kit.replay_subject")
-
     private var _buffer: ArraySlice<Signal<Element, Error>.Event> = []
+    private let _lock = NSRecursiveLock(name: "com.reactive_kit.replay_subject.lock")
+
     public let bufferSize: Int
     
     public init(bufferSize: Int = Int.max) {
@@ -164,17 +144,19 @@ public final class ReplaySubject<Element, Error: Swift.Error>: Subject<Element, 
         }
     }
     
-    public override func receive(event: Signal<Element, Error>.Event) {
-        lock.lock()
+    public override func on(_ event: Signal<Element, Error>.Event) {
+        _lock.lock(); defer { _lock.unlock() }
+        guard !isTerminated else { return }
         _buffer.append(event)
         _buffer = _buffer.suffix(bufferSize)
-        lock.unlock()
-        super.receive(event: event)
+        super.on(event)
     }
-    
-    public override func willAdd(observer: @escaping Observer<Element, Error>) {
-        lock.lock(); defer { lock.unlock() }
-        _buffer.forEach(observer)
+
+    public override func observe(with observer: @escaping (Signal<Element, Error>.Event) -> Void) -> Disposable {
+        _lock.lock(); defer { _lock.unlock() }
+        let buffer = _buffer
+        buffer.forEach(observer)
+        return super.observe(with: observer)
     }
 }
 
@@ -184,32 +166,31 @@ public typealias SafeReplaySubject<Element> = ReplaySubject<Element, Never>
 /// A subject that replies latest event to each observer.
 public final class ReplayOneSubject<Element, Error: Swift.Error>: Subject<Element, Error> {
 
-    private let lock = NSRecursiveLock(name: "com.reactive_kit.replay_one_subject")
-
     private var _lastEvent: Signal<Element, Error>.Event?
     private var _terminalEvent: Signal<Element, Error>.Event?
-    
-    public override func receive(event: Signal<Element, Error>.Event) {
-        lock.lock()
+    private let _lock = NSRecursiveLock(name: "com.reactive_kit.replay_one_subject.lock")
+
+    public override func on(_ event: Signal<Element, Error>.Event) {
+        _lock.lock(); defer { _lock.unlock() }
+        guard !isTerminated else { return }
         if event.isTerminal {
             _terminalEvent = event
         } else {
             _lastEvent = event
         }
-        lock.unlock()
-        super.receive(event: event)
+        super.on(event)
     }
-    
-    public override func willAdd(observer: @escaping Observer<Element, Error>) {
-        lock.lock()
+
+    public override func observe(with observer: @escaping (Signal<Element, Error>.Event) -> Void) -> Disposable {
+        _lock.lock(); defer { _lock.unlock() }
         let (lastEvent, terminalEvent) = (_lastEvent, _terminalEvent)
-        lock.unlock()
         if let event = lastEvent {
             observer(event)
         }
         if let event = terminalEvent {
             observer(event)
         }
+        return super.observe(with: observer)
     }
 }
 
@@ -224,21 +205,21 @@ public final class ReplayLoadingValueSubject<Val, LoadingError: Swift.Error, Err
         case loading
         case loadedOrFailedAtLeastOnce
     }
-    
-    private let lock = NSRecursiveLock(name: "com.reactive_kit.safe_replay_one_subject")
-    
+
     private var _state: State = .notStarted
     private var _buffer: ArraySlice<LoadingState<Val, LoadingError>> = []
     private var _terminalEvent: Signal<LoadingState<Val, LoadingError>, Error>.Event?
-    
+    private let _lock = NSRecursiveLock(name: "com.reactive_kit.replay_loading_value_subject.lock")
+
     public let bufferSize: Int
     
     public init(bufferSize: Int = Int.max) {
         self.bufferSize = bufferSize
     }
     
-    public override func receive(event: Signal<LoadingState<Val, LoadingError>, Error>.Event) {
-        lock.lock(); defer { lock.unlock() }
+    public override func on(_ event: Signal<LoadingState<Val, LoadingError>, Error>.Event) {
+        _lock.lock(); defer { _lock.unlock() }
+        guard !isTerminated else { return }
         switch event {
         case .next(let loadingState):
             switch loadingState {
@@ -257,11 +238,11 @@ public final class ReplayLoadingValueSubject<Val, LoadingError: Swift.Error, Err
         case .failed, .completed:
             _terminalEvent = event
         }
-        super.receive(event: event)
+        super.on(event)
     }
-    
-    public override func willAdd(observer: @escaping Observer<LoadingState<Val, LoadingError>, Error>) {
-        lock.lock(); defer { lock.unlock() }
+
+    public override func observe(with observer: @escaping (Signal<LoadingState<Val, LoadingError>, Error>.Event) -> Void) -> Disposable {
+        _lock.lock(); defer { _lock.unlock() }
         switch _state {
         case .notStarted:
             break
@@ -273,5 +254,6 @@ public final class ReplayLoadingValueSubject<Val, LoadingError: Swift.Error, Err
         if let event = _terminalEvent {
             observer(event)
         }
+        return super.observe(with: observer)
     }
 }

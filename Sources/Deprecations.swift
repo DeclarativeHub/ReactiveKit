@@ -214,7 +214,7 @@ extension Subject {
 
     @available(*, deprecated, renamed: "receive(event:)")
     open func send(_ event: Event<Element, Error>) {
-        receive(event: event)
+        on(event)
     }
 }
 
