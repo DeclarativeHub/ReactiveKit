@@ -487,7 +487,7 @@ class SignalTests: XCTestCase {
     
     func testTimeoutForThreadSafety() {
         let exp = expectation(description: "race_condition?")
-        exp.expectedFulfillmentCount = 1000
+        exp.expectedFulfillmentCount = 10000
         for _ in 0..<exp.expectedFulfillmentCount {
             let subject = Subject<Int, TestError>()
             let timeout = subject.timeout(after: 1, with: .Error)

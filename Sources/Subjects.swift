@@ -87,7 +87,7 @@ open class Subject<Element, Error: Swift.Error>: SubjectProtocol {
         observers.removeAll(where: { (token, _) in
             deletedObservers.contains(token)
         })
-        _ = self.deletedObservers.mutate {
+        self.deletedObservers.mutate {
             $0.subtracting(deletedObservers)
         }
 
@@ -105,7 +105,7 @@ open class Subject<Element, Error: Swift.Error>: SubjectProtocol {
         observers.append((token, observer))
 
         return BlockDisposable { [weak self] in
-            _ = self?.deletedObservers.mutate {
+            self?.deletedObservers.mutate {
                 $0.union([token])
             }
         }

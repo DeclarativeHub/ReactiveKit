@@ -81,7 +81,9 @@ public final class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol
 
         lock.lock(); defer { lock.unlock() }
         _disposable = BlockDisposable { [weak self] in
+            self?.lock.lock()
             self?.observer = nil
+            self?.lock.unlock()
             disposable.dispose()
         }
     }

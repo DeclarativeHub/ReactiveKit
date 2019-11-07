@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct Atomic<T> {
+final class Atomic<T> {
 
     private var _value: T
     private let lock: NSLocking
@@ -32,11 +32,25 @@ struct Atomic<T> {
         }
     }
 
-    mutating func mutate(_ block: (T) -> T) -> T {
+    func mutate(_ block: (T) -> T) {
+        lock.lock()
+        _value = block(_value)
+        lock.unlock()
+    }
+
+    func mutateAndRead(_ block: (T) -> T) -> T {
         lock.lock()
         let newValue = block(_value)
         _value = newValue
         lock.unlock()
         return newValue
+    }
+
+    func readAndMutate(_ block: (T) -> T) -> T {
+        lock.lock()
+        let oldValue = _value
+        _value = block(_value)
+        lock.unlock()
+        return oldValue
     }
 }
