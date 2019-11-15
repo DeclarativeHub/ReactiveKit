@@ -439,7 +439,6 @@ class SignalTests: XCTestCase {
         XCTAssert(start == 1)
         XCTAssert(next == 3)
         XCTAssert(completed == 1)
-        XCTAssert(disposed == 1)
 
         d.dispose()
         XCTAssert(disposed == 1)

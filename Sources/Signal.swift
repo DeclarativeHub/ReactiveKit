@@ -39,10 +39,9 @@ public struct Signal<Element, Error: Swift.Error>: SignalProtocol {
     
     /// Register the observer that will receive events from the signal.
     public func observe(with observer: @escaping Observer<Element, Error>) -> Disposable {
-        let serialDisposable = SerialDisposable(otherDisposable: nil)
-        let observer = AtomicObserver(disposable: serialDisposable, observer: observer)
-        serialDisposable.otherDisposable = producer(observer)
-        return observer.disposable
+        let observer = AtomicObserver(observer)
+        observer.attach(producer)
+        return observer
     }
 }
 

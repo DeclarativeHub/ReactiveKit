@@ -62,42 +62,61 @@ public struct AnyObserver<Element, Error: Swift.Error>: ObserverProtocol {
 }
 
 /// Observer that ensures events are sent atomically.
-public final class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol {
-    
-    private var observer: Observer<Element, Error>?
-    private let lock = NSRecursiveLock(name: "com.reactive_kit.atomic_observer")
-    private let parentDisposable: Disposable
-    
-    private var _disposable: Disposable?
-    public var disposable: Disposable {
-        lock.lock(); defer { lock.unlock() }
-        return _disposable!
-    }
-    
-    /// Creates an observer that wraps given closure.
-    public init(disposable: Disposable, observer: @escaping Observer<Element, Error>) {
-        self.observer = observer
-        self.parentDisposable = disposable
+public final class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol, Disposable {
 
-        lock.lock(); defer { lock.unlock() }
-        _disposable = BlockDisposable { [weak self] in
-            self?.lock.lock()
-            self?.observer = nil
-            self?.lock.unlock()
-            disposable.dispose()
-        }
+    private var observer: Observer<Element, Error>?
+    private var upstreamDisposables: [Disposable] = []
+    private let observerLock = NSRecursiveLock(name: "com.reactive_kit.atomic_observer.observer")
+    private let disposablesLock = NSRecursiveLock(name: "com.reactive_kit.atomic_observer.disposables")
+
+    public var isDisposed: Bool {
+        observerLock.lock(); defer { observerLock.unlock() }
+        return observer == nil
     }
-    
+
+    /// Creates an observer that wraps given closure.
+    public init(_ observer: @escaping Observer<Element, Error>) {
+        self.observer = observer
+    }
+
+    @available(*, deprecated, message: "Will be remove in favour of `init(_:)`. AtomicObserver is a Disposable itself now.")
+    public convenience init(disposable: Disposable, observer: @escaping Observer<Element, Error>) {
+        self.init(observer)
+        upstreamDisposables.append(disposable)
+    }
+
     /// Calles wrapped closure with the given element.
     public func on(_ event: Signal<Element, Error>.Event) {
-        lock.lock(); defer { lock.unlock() }
-        guard let disposable = _disposable, !disposable.isDisposed else { return }
+        observerLock.lock()
         if let observer = observer {
             observer(event)
             if event.isTerminal {
-                disposable.dispose()
+                self.observer = nil
+                observerLock.unlock()
+                disposablesLock.lock()
+                upstreamDisposables.forEach { $0.dispose() }
+                disposablesLock.unlock()
+            } else {
+                observerLock.unlock()
             }
+        } else {
+            observerLock.unlock()
         }
+    }
+
+    public func attach(_ producer: Signal<Element, Error>.Producer) {
+        let disposable = producer(self)
+        disposablesLock.lock(); defer { disposablesLock.unlock() }
+        upstreamDisposables.append(disposable)
+    }
+
+    public func dispose() {
+        observerLock.lock()
+        observer = nil
+        observerLock.unlock()
+        disposablesLock.lock()
+        upstreamDisposables.forEach { $0.dispose() }
+        disposablesLock.unlock()
     }
 }
 

@@ -465,4 +465,3 @@ extension SignalProtocol {
         return sink(receiveCompletion: { _ in }, receiveValue: receiveValue)
     }
 }
-
