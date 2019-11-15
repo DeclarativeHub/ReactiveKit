@@ -100,9 +100,13 @@ public final class BlockDisposable: Disposable {
     }
     
     public func dispose() {
-        lock.lock(); defer { lock.unlock() }
-        guard let handler = handler else { return }
+        lock.lock()
+        guard let handler = handler else {
+            lock.unlock()
+            return
+        }
         self.handler = nil
+        lock.unlock()
         handler()
     }
 }
@@ -126,7 +130,7 @@ public final class DeinitDisposable: Disposable {
     
     public var isDisposed: Bool {
         lock.lock(); defer { lock.unlock() }
-        return _otherDisposable == nil || otherDisposable!.isDisposed
+        return _otherDisposable == nil
     }
     
     public init(disposable: Disposable) {
@@ -134,9 +138,13 @@ public final class DeinitDisposable: Disposable {
     }
     
     public func dispose() {
-        lock.lock(); defer { lock.unlock() }
-        guard let otherDisposable = _otherDisposable else { return }
+        lock.lock()
+        guard let otherDisposable = _otherDisposable else {
+            lock.unlock()
+            return
+        }
         _otherDisposable = nil
+        lock.unlock()
         otherDisposable.dispose()
     }
     
@@ -169,7 +177,7 @@ public final class CompositeDisposable: Disposable {
         if disposables == nil {
             disposable.dispose()
         } else {
-            disposables = disposables.map { $0 + [disposable] }?.filter { $0.isDisposed == false }
+            disposables = disposables.map { $0 + [disposable] }
         }
     }
     
@@ -178,9 +186,13 @@ public final class CompositeDisposable: Disposable {
     }
     
     public func dispose() {
-        lock.lock(); defer { lock.unlock() }
-        guard let disposables = disposables else { return }
+        lock.lock()
+        guard let disposables = disposables else {
+            lock.unlock()
+            return
+        }
         self.disposables = nil
+        lock.unlock()
         disposables.forEach { $0.dispose() }
     }
 }
@@ -199,9 +211,13 @@ public final class SerialDisposable: Disposable {
     /// Will dispose other disposable immediately if self is already disposed.
     public var otherDisposable: Disposable? {
         didSet {
-            lock.lock(); defer { lock.unlock() }
+            lock.lock()
             if _isDisposed {
+                let otherDisposable = self.otherDisposable
+                lock.unlock()
                 otherDisposable?.dispose()
+            } else {
+                lock.unlock()
             }
         }
     }
@@ -211,10 +227,14 @@ public final class SerialDisposable: Disposable {
     }
     
     public func dispose() {
-        lock.lock(); defer { lock.unlock() }
+        lock.lock()
         if !_isDisposed {
             _isDisposed = true
+            let otherDisposable = self.otherDisposable
+            lock.unlock()
             otherDisposable?.dispose()
+        } else {
+            lock.unlock()
         }
     }
 }
@@ -286,9 +306,10 @@ public final class DisposeBag: DisposeBagProtocol {
     
     /// Disposes all disposables that are currenty in the bag.
     public func dispose() {
-        lockDisposables.lock(); defer { lockDisposables.unlock() }
+        lockDisposables.lock()
         let disposables = self.disposables
         self.disposables.removeAll()
+        lockDisposables.unlock()
         disposables.forEach { $0.dispose() }
     }
     
@@ -329,9 +350,13 @@ public final class AnyCancellable: Disposable {
     }
 
     public func dispose() {
-        lock.lock(); defer { lock.unlock() }
-        guard let handler = handler else { return }
+        lock.lock()
+        guard let handler = handler else {
+            lock.unlock()
+            return
+        }
         self.handler = nil
+        lock.unlock()
         handler()
     }
 
