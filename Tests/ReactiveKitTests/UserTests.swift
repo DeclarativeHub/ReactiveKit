@@ -11,7 +11,7 @@ import ReactiveKit
 
 class UserTests: XCTestCase {
 
-    func testDeadlock() {
+    func testDeadlockOnRetryWhen() {
 
         let disposeBag = DisposeBag()
 
