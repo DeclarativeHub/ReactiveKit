@@ -1,21 +1,21 @@
 language: swift
-osx_image: xcode10.2
+osx_image: xcode11.2.1
 
 jobs:
     include:
         - stage: "Xcode"
           name: "Run tests on iOS"
-          script: xcrun xcodebuild test -destination "platform=iOS Simulator,OS=12.2,name=iPhone X" -workspace "ReactiveKit.xcworkspace" -scheme "ReactiveKit-iOS"
+          script: xcrun xcodebuild test -destination "platform=iOS Simulator,OS=13.2,name=iPhone X" -workspace "ReactiveKit.xcworkspace" -scheme "ReactiveKit-iOS"
           after_success: 'bash <(curl -s https://codecov.io/bash)'
         -
           name: "Build for macOS"
           script: xcrun xcodebuild build -destination "platform=macOS" -workspace "ReactiveKit.xcworkspace" -scheme "ReactiveKit-macOS"
         -
           name: "Build for tvOS"
-          script: xcrun xcodebuild build -destination "platform=tvOS Simulator,OS=12.2,name=Apple TV 4K" -workspace "ReactiveKit.xcworkspace" -scheme "ReactiveKit-tvOS"
+          script: xcrun xcodebuild build -destination "platform=tvOS Simulator,OS=13.2,name=Apple TV 4K" -workspace "ReactiveKit.xcworkspace" -scheme "ReactiveKit-tvOS"
         -
           name: "Build for watchOS"
-          script: xcrun xcodebuild build -destination "platform=watchOS Simulator,OS=5.2,name=Apple Watch Series 4 - 44mm" -workspace "ReactiveKit.xcworkspace" -scheme "ReactiveKit-watchOS"
+          script: xcrun xcodebuild build -destination "platform=watchOS Simulator,OS=6.1,name=Apple Watch Series 4 - 44mm" -workspace "ReactiveKit.xcworkspace" -scheme "ReactiveKit-watchOS"
 
         - stage: "Swift Package Manager"
           name: "Run Tests"
