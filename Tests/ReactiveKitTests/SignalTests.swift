@@ -762,6 +762,20 @@ class SignalTests: XCTestCase {
 
         XCTAssertEqual(bob.numberOfRuns, 2)
     }
+  
+    func testAnyCancallableHashable() {
+      let emptyClosure: () -> Void = { }
+      
+      let cancellable1 = AnyCancellable(emptyClosure)
+      let cancellable2 = AnyCancellable(emptyClosure)
+      let cancellable3 = AnyCancellable { print("Disposed") }
+      let cancellable4 = cancellable3
+      
+      XCTAssertNotEqual(cancellable1, cancellable2)
+      XCTAssertNotEqual(cancellable1, cancellable3)
+      XCTAssertEqual(cancellable3, cancellable4)
+      
+    }
 
     #if  os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
     func testBindTo() {
@@ -848,7 +862,8 @@ extension SignalTests {
             ("testFlatMapConcat", testFlatMapConcat),
             ("testReplay", testReplay),
             ("testPublish", testPublish),
-            ("testReplayLatestWith", testReplayLatestWith)
+            ("testReplayLatestWith", testReplayLatestWith),
+            ("testAnyCancallableHashable", testAnyCancallableHashable)
         ]
     }
 }
