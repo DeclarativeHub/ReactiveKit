@@ -367,7 +367,7 @@ public final class AnyCancellable: Disposable {
 
 extension AnyCancellable: Hashable {
   public static func == (lhs: AnyCancellable, rhs: AnyCancellable) -> Bool {
-    lhs === rhs
+    return lhs === rhs
   }
 
   public func hash(into hasher: inout Hasher) {
