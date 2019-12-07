@@ -23,7 +23,6 @@ public protocol ObservableObject: AnyObject {
     var objectWillChange: Self.ObjectWillChangeSignal { get }
 }
 
-@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
 extension ObservableObject where Self.ObjectWillChangeSignal == Signal<Void, Never> {
 
     /// A publisher that emits before the object has changed.
