@@ -70,3 +70,5 @@ extension Signal.Event {
         }
     }
 }
+
+extension Signal.Event: Equatable where Element: Equatable, Error: Equatable {}
