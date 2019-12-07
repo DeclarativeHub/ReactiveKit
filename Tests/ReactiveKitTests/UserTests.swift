@@ -11,18 +11,18 @@ import ReactiveKit
 
 class UserTests: XCTestCase {
 
-    func testDeadlock() {
-
-        let disposeBag = DisposeBag()
-
-        let queue = DispatchQueue(label: "TestSignal.Queue",
-                                  qos: .userInitiated,
-                                  attributes: DispatchQueue.Attributes.concurrent)
+    func testDeadlockOnRetryWhen() {
 
         let e = expectation(description: "Deadlock?")
         e.expectedFulfillmentCount = 500
 
+        let queue = DispatchQueue(label: "TestSignal.Queue",
+                                  qos: .userInitiated)
+
         for _ in 0..<e.expectedFulfillmentCount {
+
+            let disposeBag = DisposeBag()
+
             var signalCallCount = 0
 
             let signal = Signal<Bool, Error> { observer in
@@ -30,7 +30,7 @@ class UserTests: XCTestCase {
 
                 queue.async { [signalCallCount] in
                     switch signalCallCount {
-                    case 4:
+                    case 3:
                         observer.receive(true)
                     default:
                         observer.receive(completion: .failure(TestError.Error))
@@ -44,17 +44,19 @@ class UserTests: XCTestCase {
                 let trigger = Signal<Int, Never>(
                     sequence: 0...,
                     interval: 0.01
-                )
-                return signal.retry(when: trigger).observe(with: observer.on)
+                ).publish()
+                return CompositeDisposable([signal.retry(when: trigger).observe(with: observer),
+                                            trigger.connect()])
             }
             .observeNext {
                 if $0 {
+                    disposeBag.dispose()
                     e.fulfill()
                 }
             }
             .dispose(in: disposeBag)
         }
 
-        wait(for: [e], timeout: 5)
+        wait(for: [e], timeout: 8)
     }
 }
