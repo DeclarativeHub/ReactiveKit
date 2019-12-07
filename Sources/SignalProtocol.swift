@@ -115,3 +115,13 @@ extension SignalProtocol where Error == Never {
         return sink(receiveCompletion: { _ in }, receiveValue: receiveValue)
     }
 }
+
+extension SignalProtocol where Error == Never {
+
+    /// Assigns each element from a signal to a property on an object.
+    ///
+    /// - note: The object will be retained as long as the returned cancellable is retained.
+    public func assign<Root>(to keyPath: ReferenceWritableKeyPath<Root, Element>, on object: Root) -> AnyCancellable {
+        return sink(receiveValue: { object[keyPath: keyPath] = $0 })
+    }
+}
