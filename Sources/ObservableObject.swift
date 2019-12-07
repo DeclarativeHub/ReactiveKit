@@ -6,6 +6,8 @@
 //  Copyright © 2019 DeclarativeHub. All rights reserved.
 //
 
+#if compiler(>=5.1)
+
 import Foundation
 
 /// A type of object with a publisher that emits before the object has changed.
@@ -36,3 +38,5 @@ extension ObservableObject where Self.ObjectWillChangeSignal == Signal<Void, Nev
         return Signal(flattening: subjects, strategy: .merge)
     }
 }
+
+#endif
