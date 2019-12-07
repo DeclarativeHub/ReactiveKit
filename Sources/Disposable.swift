@@ -365,6 +365,16 @@ public final class AnyCancellable: Disposable {
     }
 }
 
+extension AnyCancellable: Hashable {
+  public static func == (lhs: AnyCancellable, rhs: AnyCancellable) -> Bool {
+    return lhs === rhs
+  }
+
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(ObjectIdentifier(self))
+  }
+}
+
 extension Disposable {
     
     /// Put the disposable in the given bag. Disposable will be disposed when
