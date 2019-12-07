@@ -10,10 +10,15 @@
 
 import Foundation
 
-@propertyWrapper
-public struct Published<Value> {
+internal protocol PublishedProtocol {
+    var willChangeSubject: PassthroughSubject<Void, Never> { get }
+}
 
-    private let property: Property<Value>
+@propertyWrapper
+public struct Published<Value>: PublishedProtocol {
+
+    internal let willChangeSubject = PassthroughSubject<Void, Never>()
+    internal let property: Property<Value>
 
     public init(wrappedValue: Value) {
         property = Property(wrappedValue)
@@ -23,7 +28,8 @@ public struct Published<Value> {
         get {
             return property.value
         }
-        set {
+        nonmutating set {
+            willChangeSubject.send()
             property.value = newValue
         }
     }
