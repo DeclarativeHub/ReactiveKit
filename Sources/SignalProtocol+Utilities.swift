@@ -214,4 +214,32 @@ extension SignalProtocol {
             }
         })
     }
+
+    /// Blocks the current thread until the signal completes and then returns all events sent by the signal collected in an array.
+    ///
+    /// This operator is useful for testing purposes.
+    public func waitAndCollectEvents() -> [Signal<Element, Error>.Event] {
+        let semaphore = DispatchSemaphore(value: 0)
+        var collectedEvents: [Signal<Element, Error>.Event] = []
+        _ = materialize().collect().observeNext { events in
+            collectedEvents.append(contentsOf: events)
+            semaphore.signal()
+        }
+        semaphore.wait()
+        return collectedEvents
+    }
+
+    /// Blocks the current thread until the signal completes and then returns all elements sent by the signal collected in an array.
+    ///
+    /// This operator is useful for testing purposes.
+    public func waitAndCollectElements() -> [Element] {
+        return waitAndCollectEvents().compactMap { event in
+            switch event {
+            case .next(let element):
+                return element
+            default:
+                return nil
+            }
+        }
+    }
 }
