@@ -978,7 +978,7 @@ public final class ReplaySubject<Element, Error: Swift.Error>: Subject<Element, 
   private var buffer: [Signal<Element, Error>.Event] = []
 
   public override func on(_ event: Signal<Element, Error>.Event) {
-    events.append(event)
+    buffer.append(event)
     super.on(event)
   }
 
