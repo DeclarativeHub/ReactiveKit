@@ -67,7 +67,7 @@ public final class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol
     private var observer: Observer<Element, Error>?
     private var upstreamDisposables: [Disposable] = []
     private let observerLock = NSRecursiveLock(name: "com.reactive_kit.atomic_observer.observer")
-    private let disposablesLock = NSRecursiveLock(name: "com.reactive_kit.atomic_observer.disposables")
+    private let disposablesQueue = DispatchQueue(label: "com.reactive_kit.atomic_observer.disposables", qos: .userInitiated)
 
     public var isDisposed: Bool {
         observerLock.lock(); defer { observerLock.unlock() }
@@ -93,9 +93,9 @@ public final class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol
             if event.isTerminal {
                 self.observer = nil
                 observerLock.unlock()
-                disposablesLock.lock()
-                upstreamDisposables.forEach { $0.dispose() }
-                disposablesLock.unlock()
+                disposablesQueue.async {
+                    self.upstreamDisposables.forEach { $0.dispose() }
+                }
             } else {
                 observerLock.unlock()
             }
@@ -106,17 +106,18 @@ public final class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol
 
     public func attach(_ producer: Signal<Element, Error>.Producer) {
         let disposable = producer(self)
-        disposablesLock.lock(); defer { disposablesLock.unlock() }
-        upstreamDisposables.append(disposable)
+        disposablesQueue.async {
+            self.upstreamDisposables.append(disposable)
+        }
     }
 
     public func dispose() {
         observerLock.lock()
         observer = nil
         observerLock.unlock()
-        disposablesLock.lock()
-        upstreamDisposables.forEach { $0.dispose() }
-        disposablesLock.unlock()
+        disposablesQueue.async {
+            self.upstreamDisposables.forEach { $0.dispose() }
+        }
     }
 }
 

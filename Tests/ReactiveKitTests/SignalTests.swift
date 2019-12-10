@@ -41,14 +41,17 @@ class SignalTests: XCTestCase {
     }
 
     func testDisposing() {
-        let disposable = SimpleDisposable()
+        let e = expectation(description: "Disposed")
+        let disposable = BlockDisposable {
+            e.fulfill()
+        }
 
         let operation = Signal<Int, TestError> { _ in
             return disposable
         }
 
         operation.observe { _ in }.dispose()
-        XCTAssertTrue(disposable.isDisposed)
+        wait(for: [e], timeout: 1)
     }
 
     func testJust() {
@@ -428,11 +431,16 @@ class SignalTests: XCTestCase {
     // TODO: delay
 
     func testDoOn() {
+        let e = expectation(description: "Disposed")
         let operation = Signal<Int, Never>(sequence: [1, 2, 3])
         var start = 0
         var next = 0
         var completed = 0
-        var disposed = 0
+        var disposed = 0 {
+            didSet {
+                e.fulfill()
+            }
+        }
 
         let d = operation.handleEvents(receiveSubscription: { start += 1 }, receiveOutput: { _ in next += 1 }, receiveCompletion: { _ in completed += 1 }, receiveCancel: { disposed += 1 }).sink { _ in }
 
@@ -441,7 +449,7 @@ class SignalTests: XCTestCase {
         XCTAssert(completed == 1)
 
         d.dispose()
-        XCTAssert(disposed == 1)
+        wait(for: [e], timeout: 1)
     }
 
     func testobserveIn() {
