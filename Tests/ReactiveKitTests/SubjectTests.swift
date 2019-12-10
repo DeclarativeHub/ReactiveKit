@@ -19,7 +19,7 @@ final class SubjectTests: XCTestCase {
         
         for _ in 0..<exp.expectedFulfillmentCount {
             let disposeBag = DisposeBag()
-            let subject = Subject<Int, Never>()
+            let subject = PassthroughSubject<Int, Never>()
             subject.stress(with: [subject], eventsCount: 1, expectation: exp).dispose(in: disposeBag)
             DispatchQueue.main.async {
                 disposeBag.dispose()
@@ -33,7 +33,7 @@ final class SubjectTests: XCTestCase {
         let exp = expectation(description: "race_condition?")
 
         let disposeBag = DisposeBag()
-        let subject = Subject<Int, Never>()
+        let subject = PassthroughSubject<Int, Never>()
        
         subject.stress(with: [subject],
                        queuesCount: 10,
@@ -50,7 +50,7 @@ final class SubjectTests: XCTestCase {
         
         for _ in 0..<exp.expectedFulfillmentCount {
             let disposeBag = DisposeBag()
-            let subject = Subject<Int, Never>()
+            let subject = PassthroughSubject<Int, Never>()
             subject.stress(with: [subject], expectation: exp).dispose(in: disposeBag)
             DispatchQueue.main.async {
                 disposeBag.dispose()
