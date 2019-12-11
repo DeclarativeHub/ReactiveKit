@@ -107,7 +107,11 @@ public final class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol
     public func attach(_ producer: Signal<Element, Error>.Producer) {
         let disposable = producer(self)
         disposablesQueue.async {
-            self.upstreamDisposables.append(disposable)
+            if self.isDisposed {
+                disposable.dispose()
+            } else {
+                self.upstreamDisposables.append(disposable)
+            }
         }
     }
 
