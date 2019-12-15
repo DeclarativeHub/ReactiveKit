@@ -16,6 +16,12 @@ enum TestError: Swift.Error {
 
 class SignalTests: XCTestCase {
 
+    static let disposeBag = DisposeBag()
+    
+    override class func tearDown() {
+        Self.disposeBag.dispose()
+    }
+    
     func testPerformance() {
         self.measure {
             (0..<1000).forEach { _ in
@@ -33,10 +39,16 @@ class SignalTests: XCTestCase {
         let bob = Scheduler()
         bob.runRemaining()
 
+        let operationObserver1 = TestObserver<Int, TestError>()
+        let operationObserver2 = TestObserver<Int, TestError>()
+
         let operation = Signal<Int, TestError>(sequence: [1, 2, 3]).subscribe(on: bob.context)
 
-        operation.expectComplete(after: [1, 2, 3])
-        operation.expectComplete(after: [1, 2, 3])
+        Self.disposeBag += operation.observe(with: operationObserver1.observer)
+        Self.disposeBag += operation.observe(with: operationObserver2.observer)
+
+        operationObserver1.assertDidCompleteWithValues([1, 2, 3])
+        operationObserver2.assertDidCompleteWithValues([1, 2, 3])
         XCTAssertEqual(bob.numberOfRuns, 2)
     }
 
@@ -55,64 +67,92 @@ class SignalTests: XCTestCase {
     }
 
     func testJust() {
+        let operationObserver = TestObserver<Int, TestError>()
         let operation = Signal<Int, TestError>(just: 1)
-        operation.expectComplete(after: [1])
+        Self.disposeBag += operation.observe(with: operationObserver.observer)
+        operationObserver.assertDidCompleteWithValues([1])
     }
 
     func testSequence() {
+        let operationObserver = TestObserver<Int, TestError>()
         let operation = Signal<Int, TestError>(sequence: [1, 2, 3])
-        operation.expectComplete(after: [1, 2, 3])
+        Self.disposeBag += operation.observe(with: operationObserver.observer)
+        operationObserver.assertDidCompleteWithValues([1, 2, 3])
     }
     
     func testCompleted() {
+        let operationObserver = TestObserver<Int, TestError>()
         let operation = Signal<Int, TestError>.completed()
-        operation.expectComplete(after: [])
+        Self.disposeBag += operation.observe(with: operationObserver.observer)
+        operationObserver.assertDidNotEmitValue()
+        operationObserver.assertDidComplete()
     }
 
     func testNever() {
+        let operationObserver = TestObserver<Int, TestError>()
         let operation = Signal<Int, TestError>.never()
-        operation.expectNoEvent()
+        Self.disposeBag += operation.observe(with: operationObserver.observer)
+        operationObserver.assertDidNotEmitValue()
     }
 
     func testFailed() {
+        let operationObserver = TestObserver<Int, TestError>()
         let operation = Signal<Int, TestError>.failed(.Error)
-        operation.expect(events: [.failed(.Error)])
+        Self.disposeBag += operation.observe(with: operationObserver.observer)
+        operationObserver.assertDidFail()
     }
 
     func testObserveFailed() {
-        var observedError: TestError? = nil
+        let operationObserver = TestObserver<Int, TestError>()
         let operation = Signal<Int, TestError>.failed(.Error)
-        _ = operation.observeFailed {
-            observedError = $0
-        }
-        XCTAssert(observedError != nil && observedError! == .Error)
+        Self.disposeBag += operation.observe(with: operationObserver.observer)
+        operationObserver.assertFailed(TestError.Error)
     }
 
     func testObserveCompleted() {
-        var completed = false
+        let operationObserver = TestObserver<Int, TestError>()
         let operation = Signal<Int, TestError>.completed()
-        _ = operation.observeCompleted {
-            completed = true
-        }
-        XCTAssert(completed == true)
+        Self.disposeBag += operation.observe(with: operationObserver.observer)
+        operationObserver.assertDidComplete()
     }
 
     func testBuffer() {
-        SafeSignal(sequence: [1, 2, 3]).buffer(size: 1).expectComplete(after: [[1], [2], [3]])
-        SafeSignal(sequence: [1, 2, 3, 4]).buffer(size: 2).expectComplete(after: [[1, 2], [3, 4]])
-        SafeSignal(sequence: [1, 2, 3, 4, 5]).buffer(size: 2).expectComplete(after: [[1, 2], [3, 4]])
+        let operationObserver1 = TestObserver<[Int], Never>()
+
+        let operation1 = SafeSignal(sequence: [1, 2, 3]).buffer(size: 1)
+        Self.disposeBag += operation1.observe(with: operationObserver1.observer)
+
+        operationObserver1.assertDidCompleteWithValues([[1], [2], [3]])
+        
+        let operationObserver2 = TestObserver<[Int], Never>()
+        let operation2 = SafeSignal(sequence: [1, 2, 3, 4]).buffer(size: 2)
+        Self.disposeBag += operation2.observe(with: operationObserver2.observer)
+
+        operationObserver2.assertDidCompleteWithValues([[1, 2], [3, 4]])
+
+        let operationObserver3 = TestObserver<[Int], Never>()
+        let operation3 = SafeSignal(sequence: [1, 2, 3, 4, 5]).buffer(size: 2)
+        Self.disposeBag += operation3.observe(with: operationObserver3.observer)
+
+        operationObserver3.assertDidCompleteWithValues([[1, 2], [3, 4]])
+
     }
     
     func testMap() {
+        let operationObserver = TestObserver<Int, TestError>()
         let operation = Signal<Int, TestError>(sequence: [1, 2, 3])
         let mapped = operation.map { $0 * 2 }
-        mapped.expectComplete(after: [2, 4, 6])
+        Self.disposeBag += mapped.observe(with: operationObserver.observer)
+
+        operationObserver.assertDidCompleteWithValues([2, 4, 6])
     }
 
     func testScan() {
+        let operationObserver = TestObserver<Int, TestError>()
         let operation = Signal<Int, TestError>(sequence: [1, 2, 3])
         let scanned = operation.scan(0, +)
-        scanned.expectComplete(after: [0, 1, 3, 6])
+        Self.disposeBag += scanned.observe(with: operationObserver.observer)
+        operationObserver.assertDidCompleteWithValues([0, 1, 3, 6])
     }
     
     func testScanForThreadSafety() {
@@ -125,33 +165,44 @@ class SignalTests: XCTestCase {
     }
 
     func testToSignal() {
+        let operationObserver = TestObserver<Int, TestError>()
         let operation = Signal<Int, TestError>(sequence: [1, 2, 3])
         let operation2 = operation.toSignal()
-        operation2.expectComplete(after: [1, 2, 3])
+        Self.disposeBag += operation2.observe(with: operationObserver.observer)
+        operationObserver.assertDidCompleteWithValues([1, 2, 3])
     }
 
     func testSuppressError() {
+        let operationObserver = TestObserver<Int, Never>()
         let operation = Signal<Int, TestError>(sequence: [1, 2, 3])
         let signal = operation.suppressError(logging: false)
-        signal.expectComplete(after: [1, 2, 3])
+        Self.disposeBag += signal.observe(with: operationObserver.observer)
+        operationObserver.assertDidCompleteWithValues([1, 2, 3])
     }
 
     func testSuppressError2() {
+        let operationObserver = TestObserver<Int, Never>()
         let operation = Signal<Int, TestError>.failed(.Error)
         let signal = operation.suppressError(logging: false)
-        signal.expectComplete(after: [])
+        Self.disposeBag += signal.observe(with: operationObserver.observer)
+        operationObserver.assertDidNotEmitValue()
+        operationObserver.assertDidComplete()
     }
 
     func testRecover() {
+        let operationObserver = TestObserver<Int, Never>()
         let operation = Signal<Int, TestError>.failed(.Error)
         let signal = operation.replaceError(with: 1)
-        signal.expectComplete(after: [1])
+        Self.disposeBag += signal.observe(with: operationObserver.observer)
+        operationObserver.assertDidCompleteWithValues([1])
     }
 
     func testWindow() {
+        let operationObserver = TestObserver<Int, TestError>()
         let operation = Signal<Int, TestError>(sequence: [1, 2, 3])
         let window = operation.window(ofSize: 2)
-        window.merge().expectComplete(after: [1, 2])
+        Self.disposeBag += window.merge().observe(with: operationObserver.observer)
+        operationObserver.assertDidCompleteWithValues([1, 2])
     }
 
     //  func testDebounce() {
@@ -163,59 +214,77 @@ class SignalTests: XCTestCase {
     //  }
 
     func testDistinct() {
+        let operationObserver = TestObserver<Int, TestError>()
         let operation = Signal<Int, TestError>(sequence: [1, 2, 2, 3])
         let distinct = operation.removeDuplicates(by: ==)
-        distinct.expectComplete(after: [1, 2, 3])
+        Self.disposeBag += distinct.observe(with: operationObserver.observer)
+        operationObserver.assertDidCompleteWithValues([1, 2, 3])
     }
 
     func testDistinct2() {
+        let operationObserver = TestObserver<Int, TestError>()
         let operation = Signal<Int, TestError>(sequence: [1, 2, 2, 3])
         let distinct = operation.removeDuplicates()
-        distinct.expectComplete(after: [1, 2, 3])
+        Self.disposeBag += distinct.observe(with: operationObserver.observer)
+        operationObserver.assertDidCompleteWithValues([1, 2, 3])
     }
 
     func testElementAt() {
+        let operationObserver = TestObserver<Int, TestError>()
         let operation = Signal<Int, TestError>(sequence: [1, 2, 3])
         let elementAt1 = operation.output(at: 1)
-        elementAt1.expectComplete(after: [2])
+        Self.disposeBag += elementAt1.observe(with: operationObserver.observer)
+        operationObserver.assertDidCompleteWithValues([2])
     }
 
     func testFilter() {
+        let operationObserver = TestObserver<Int, TestError>()
         let operation = Signal<Int, TestError>(sequence: [1, 2, 3])
         let filtered = operation.filter { $0 % 2 != 0 }
-        filtered.expectComplete(after: [1, 3])
+        Self.disposeBag += filtered.observe(with: operationObserver.observer)
+        operationObserver.assertDidCompleteWithValues([1, 3])
     }
 
     func testFirst() {
+        let operationObserver = TestObserver<Int, TestError>()
         let operation = Signal<Int, TestError>(sequence: [1, 2, 3])
         let first = operation.first()
-        first.expectComplete(after: [1])
+        Self.disposeBag += first.observe(with: operationObserver.observer)
+        operationObserver.assertDidCompleteWithValues([1])
     }
 
     func testIgnoreElement() {
+        let operationObserver = TestObserver<Int, TestError>()
         let operation = Signal<Int, TestError>(sequence: [1, 2, 3])
         let ignoreElements = operation.ignoreOutput()
-        ignoreElements.expectComplete(after: [])
+        Self.disposeBag += ignoreElements.observe(with: operationObserver.observer)
+        operationObserver.assertDidCompleteWithValues([])
     }
 
     func testLast() {
+        let operationObserver = TestObserver<Int, TestError>()
         let operation = Signal<Int, TestError>(sequence: [1, 2, 3])
         let first = operation.last()
-        first.expectComplete(after: [3])
+        Self.disposeBag += first.observe(with: operationObserver.observer)
+        operationObserver.assertDidCompleteWithValues([3])
     }
 
     // TODO: sample
 
     func testSkip() {
+        let operationObserver = TestObserver<Int, TestError>()
         let operation = Signal<Int, TestError>(sequence: [1, 2, 3])
         let skipped1 = operation.dropFirst(1)
-        skipped1.expectComplete(after: [2, 3])
+        Self.disposeBag += skipped1.observe(with: operationObserver.observer)
+        operationObserver.assertDidCompleteWithValues([2, 3])
     }
 
     func testSkipLast() {
+        let operationObserver = TestObserver<Int, TestError>()
         let operation = Signal<Int, TestError>(sequence: [1, 2, 3])
         let skippedLast1 = operation.dropLast(1)
-        skippedLast1.expectComplete(after: [1, 2])
+        Self.disposeBag += skippedLast1.observe(with: operationObserver.observer)
+        operationObserver.assertDidCompleteWithValues([1, 2])
     }
 
     func testTakeFirst() {
@@ -225,24 +294,28 @@ class SignalTests: XCTestCase {
     }
 
     func testTakeLast() {
+        let operationObserver = TestObserver<Int, TestError>()
         let operation = Signal<Int, TestError>(sequence: [1, 2, 3])
         let takenLast2 = operation.suffix(maxLength: 2)
-        takenLast2.expectComplete(after: [2, 3])
+        Self.disposeBag += takenLast2.observe(with: operationObserver.observer)
+        operationObserver.assertDidCompleteWithValues([2, 3])
     }
 
     func testTakeFirstOne() {
-        let expect = expectation(description: #function)
+        let operationObserver = TestObserver<[Bool], Never>()
         let observable = Property(false)
+        
+        Self.disposeBag += observable
+            .prefix(maxLength: 1)
+            .collect()
+            .observe(with: operationObserver.observer)
 
-        _ = observable.prefix(maxLength: 1).collect().observeNext { values in
-            XCTAssertEqual([false], values)
-            expect.fulfill()
-        }
-
-        waitForExpectations(timeout: 1, handler: nil)
+        operationObserver.assertDidCompleteWithValues([[false]])
     }
 
     func testTakeUntil() {
+        let operationObserver = TestObserver<Int, TestError>()
+
         let bob = Scheduler()
         let eve = Scheduler()
 
@@ -250,10 +323,9 @@ class SignalTests: XCTestCase {
         let interrupt = Signal<String, TestError>(sequence: ["A", "B"]).receive(on: eve.context)
 
         let takeuntil = operation.prefix(untilOutputFrom: interrupt)
+        Self.disposeBag += takeuntil.observe(with: operationObserver.observer)
 
-        let exp = expectation(description: "completed")
-        takeuntil.expectAsyncComplete(after: [1, 2], expectation: exp)
-
+        
         bob.runOne()                // Sends 1.
         bob.runOne()                // Sends 2.
         eve.runOne()                // Sends A, effectively stopping the receiver.
@@ -261,7 +333,7 @@ class SignalTests: XCTestCase {
         eve.runRemaining()          // Ignored. Sends B, with termination.
         bob.runRemaining()          // Ignored.
 
-        waitForExpectations(timeout: 1)
+        operationObserver.assertDidCompleteWithValues([1, 2])
     }
 
     //  func testThrottle() {
