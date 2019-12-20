@@ -124,18 +124,18 @@ extension Subject: BindableProtocol {
 }
 
 /// A subject that propagates received events to the registered observes.
-public final class PassthroughSubject<Element, Error: Swift.Error>: Subject<Element, Error> {
+open class PassthroughSubject<Element, Error: Swift.Error>: Subject<Element, Error> {
 
     public override init() {
         super.init()
     }
 
-    public override func on(_ event: Signal<Element, Error>.Event) {
+    open override func on(_ event: Signal<Element, Error>.Event) {
         lock.lock(); defer { lock.unlock() }
         super.on(event)
     }
 
-    public override func observe(with observer: @escaping (Signal<Element, Error>.Event) -> Void) -> Disposable {
+    open override func observe(with observer: @escaping (Signal<Element, Error>.Event) -> Void) -> Disposable {
         lock.lock(); defer { lock.unlock() }
         return super.observe(with: observer)
     }
