@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		08B5D55023A68C4A000AE983 /* TestObservers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08B5D54F23A68C4A000AE983 /* TestObservers.swift */; };
 		16C33B841BEFBAC900A0DBE0 /* ReactiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		16C33B851BEFBAC900A0DBE0 /* ReactiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		16D30EBD1D6595AB00C2435D /* ReactiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -162,6 +163,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		08B5D54F23A68C4A000AE983 /* TestObservers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestObservers.swift; sourceTree = "<group>"; };
 		162CB7461CB451D200FB6375 /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		1671707E1BF4F62A001786CE /* ReactiveKit.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReactiveKit.podspec; sourceTree = SOURCE_ROOT; };
 		1671707F1BF4F64E001786CE /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; lineEnding = 0; path = README.md; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.markdown; };
@@ -306,6 +308,7 @@
 		EC48D37F224FB66100284EA0 /* ReactiveKitTests */ = {
 			isa = PBXGroup;
 			children = (
+				08B5D54F23A68C4A000AE983 /* TestObservers.swift */,
 				EC48D381224FB66100284EA0 /* Helpers.swift */,
 				EC48D382224FB66100284EA0 /* SignalTests.swift */,
 				EC48D380224FB66100284EA0 /* PropertyTests.swift */,
@@ -740,6 +743,7 @@
 				19276399228F779200EDF2C0 /* SubjectTests.swift in Sources */,
 				EC48D384224FB66100284EA0 /* PropertyTests.swift in Sources */,
 				EC7AE18A237EB90D00B33FCE /* UserTests.swift in Sources */,
+				08B5D55023A68C4A000AE983 /* TestObservers.swift in Sources */,
 				EC48D386224FB66100284EA0 /* SignalTests.swift in Sources */,
 				EC48D385224FB66100284EA0 /* Helpers.swift in Sources */,
 			);
