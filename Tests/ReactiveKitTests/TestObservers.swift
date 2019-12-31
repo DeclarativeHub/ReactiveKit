@@ -9,26 +9,6 @@
 import XCTest
 import ReactiveKit
 
-public extension Signal.Event {
-    var isValue: Bool {
-        return self.element != nil
-    }
-    
-    var isFailed: Bool {
-        return self.error != nil
-    }
-    
-    /// Return `true` in case of `.failure` or `.completed` event.
-    var isCompleted: Bool {
-        switch self {
-        case .completed:
-            return true
-        default:
-            return false
-        }
-    }
-}
-
 // Assert equality between two doubly nested arrays of equatables.
 public func XCTAssertEqual<T: Equatable>(
     _ expression1: @autoclosure () -> [[T]],
@@ -177,7 +157,7 @@ public final class TestObserver <Value, Error: Swift.Error> {
     
     /// Get all of the next values emitted by the signal.
     public var values: [Value] {
-        return self.events.filter { $0.isValue }.map { $0.element! }
+        return self.events.filter { $0.isNext }.map { $0.element! }
     }
     
     /// Get the last value emitted by the signal.

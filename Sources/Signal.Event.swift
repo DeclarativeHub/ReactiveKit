@@ -39,6 +39,36 @@ extension Signal {
 }
 
 extension Signal.Event {
+    
+    /// Return `true` in case of `.next` event.
+    public var isNext: Bool {
+        switch self {
+        case .next:
+            return true
+        default:
+            return false
+        }
+    }
+    
+    /// Return `true` in case of `.failed` event.
+    public var isFailed: Bool {
+        switch self {
+        case .failed:
+            return true
+        default:
+            return false
+        }
+    }
+    
+    /// Return `true` in case of `.completed` event.
+    public var isCompleted: Bool {
+        switch self {
+        case .completed:
+            return true
+        default:
+            return false
+        }
+    }
 
     /// Return `true` in case of `.failure` or `.completed` event.
     public var isTerminal: Bool {
