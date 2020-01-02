@@ -33,7 +33,7 @@ class UserTests: XCTestCase {
                     case 3:
                         observer.receive(true)
                     default:
-                        observer.receive(completion: .failure(TestError.Error))
+                        observer.receive(completion: .failure(TestError.error))
                     }
                 }
 
