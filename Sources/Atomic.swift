@@ -32,9 +32,9 @@ final class Atomic<T> {
         }
     }
 
-    func mutate(_ block: (T) -> T) {
+    func mutate(_ block: (inout T) -> Void) {
         lock.lock()
-        _value = block(_value)
+        block(&_value)
         lock.unlock()
     }
 
