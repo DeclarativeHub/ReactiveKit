@@ -143,7 +143,6 @@
 		EC912A5723BB9ABA00701259 /* SignalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D382224FB66100284EA0 /* SignalTests.swift */; };
 		EC912A5823BB9ABA00701259 /* PropertyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D380224FB66100284EA0 /* PropertyTests.swift */; };
 		EC912A5923BB9ABA00701259 /* SubjectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19276398228F779200EDF2C0 /* SubjectTests.swift */; };
-		EC912A5A23BB9ABA00701259 /* UserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7AE189237EB90D00B33FCE /* UserTests.swift */; };
 		EC912A5C23BB9B0E00701259 /* ReactiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ECBCCDD01BEB6B9A00723476 /* ReactiveKit.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		EC912A5E23BCAD2600701259 /* Subscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC912A5D23BCAD2600701259 /* Subscriber.swift */; };
 		EC912A5F23BCAD2600701259 /* Subscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC912A5D23BCAD2600701259 /* Subscriber.swift */; };
@@ -231,7 +230,6 @@
 		EC75487D2351E2AC002D869C /* Scheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scheduler.swift; sourceTree = "<group>"; };
 		EC7717E223BCF4480036A609 /* Scheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scheduler.swift; sourceTree = "<group>"; };
 		EC7717EB23BE33650036A609 /* Sink.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Sink.swift; sourceTree = "<group>"; };
-		EC7AE189237EB90D00B33FCE /* UserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTests.swift; sourceTree = "<group>"; };
 		EC912A3923BB91EF00701259 /* Accumulator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Accumulator.swift; sourceTree = "<group>"; };
 		EC912A5D23BCAD2600701259 /* Subscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subscriber.swift; sourceTree = "<group>"; };
 		EC912A6223BCAFB100701259 /* Cancellable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cancellable.swift; sourceTree = "<group>"; };
@@ -346,7 +344,6 @@
 				EC48D382224FB66100284EA0 /* SignalTests.swift */,
 				EC48D380224FB66100284EA0 /* PropertyTests.swift */,
 				19276398228F779200EDF2C0 /* SubjectTests.swift */,
-				EC7AE189237EB90D00B33FCE /* UserTests.swift */,
 			);
 			path = ReactiveKitTests;
 			sourceTree = "<group>";
@@ -817,7 +814,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EC912A5A23BB9ABA00701259 /* UserTests.swift in Sources */,
 				EC912A5923BB9ABA00701259 /* SubjectTests.swift in Sources */,
 				EC912A5623BB9ABA00701259 /* Stress.swift in Sources */,
 				EC7717E323BCF4480036A609 /* Scheduler.swift in Sources */,
@@ -1141,6 +1137,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				INFOPLIST_FILE = "Supporting Files/TestsInfo.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "Srdan-Rasic.ReactiveKitTests";
@@ -1153,6 +1150,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				INFOPLIST_FILE = "Supporting Files/TestsInfo.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "Srdan-Rasic.ReactiveKitTests";

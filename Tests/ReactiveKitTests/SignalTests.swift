@@ -481,6 +481,35 @@ class SignalTests: XCTestCase {
         waitForExpectations(timeout: 3)
     }
 
+    func testRetryWhen() {
+
+        let queue = DispatchQueue(label: "test", qos: .userInitiated)
+        let e = expectation(description: "Failed to retry")
+        e.expectedFulfillmentCount = 1000
+
+        for _ in 0..<e.expectedFulfillmentCount {
+            var count = 0
+            Signal { () -> Result<Bool, Error> in
+                count += 1
+                if count == 3 {
+                    return .success(true)
+                } else {
+                    return .failure(TestError.error)
+                }
+            }
+            .subscribe(on: queue)
+            .retry(when: Signal(just: 1))
+            .observeNext {
+                if $0 {
+                    e.fulfill()
+                }
+            }
+            .dispose(in: bag)
+        }
+
+        wait(for: [e], timeout: 8)
+    }
+
     func testExecuteIn() {
         let bob = Scheduler()
         bob.runRemaining()
