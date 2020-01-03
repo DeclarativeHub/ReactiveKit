@@ -67,7 +67,7 @@ public final class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol
     private var observer: Observer<Element, Error>?
     private var upstreamDisposables: [Disposable] = []
     private let observerLock = NSRecursiveLock(name: "com.reactive_kit.atomic_observer.observer")
-    private let disposablesQueue = DispatchQueue(label: "com.reactive_kit.atomic_observer.disposables", qos: .userInitiated)
+    private let disposablesLock = NSRecursiveLock(name: "com.reactive_kit.atomic_observer.disposablesLock")
 
     public var isDisposed: Bool {
         observerLock.lock(); defer { observerLock.unlock() }
@@ -93,9 +93,9 @@ public final class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol
             if event.isTerminal {
                 self.observer = nil
                 observerLock.unlock()
-                disposablesQueue.async {
-                    self.upstreamDisposables.forEach { $0.dispose() }
-                }
+                disposablesLock.lock()
+                self.upstreamDisposables.forEach { $0.dispose() }
+                disposablesLock.unlock()
             } else {
                 observerLock.unlock()
             }
@@ -106,12 +106,12 @@ public final class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol
 
     public func attach(_ producer: Signal<Element, Error>.Producer) {
         let disposable = producer(self)
-        disposablesQueue.async {
-            if self.isDisposed {
-                disposable.dispose()
-            } else {
-                self.upstreamDisposables.append(disposable)
-            }
+        if self.isDisposed {
+            disposable.dispose()
+        } else {
+            disposablesLock.lock()
+            self.upstreamDisposables.append(disposable)
+            disposablesLock.unlock()
         }
     }
 
@@ -119,9 +119,9 @@ public final class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol
         observerLock.lock()
         observer = nil
         observerLock.unlock()
-        disposablesQueue.async {
-            self.upstreamDisposables.forEach { $0.dispose() }
-        }
+        disposablesLock.lock()
+        self.upstreamDisposables.forEach { $0.dispose() }
+        disposablesLock.unlock()
     }
 }
 

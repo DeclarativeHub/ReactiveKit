@@ -34,13 +34,21 @@ import Foundation
 /// fire any event after is has been disposed.
 ///
 ///     disposable.dispose()
-public protocol Disposable {
+public protocol Disposable: Cancellable {
     
     /// Dispose the signal observation or binding.
     func dispose()
     
     /// Returns `true` is already disposed.
     var isDisposed: Bool { get }
+}
+
+extension Disposable {
+
+    @inlinable
+    public func cancel() {
+        dispose()
+    }
 }
 
 /// A disposable that cannot be disposed.
@@ -358,10 +366,6 @@ public final class AnyCancellable: Disposable {
         self.handler = nil
         lock.unlock()
         handler()
-    }
-
-    public func cancel() {
-        dispose()
     }
 }
 

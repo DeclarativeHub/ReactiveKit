@@ -24,76 +24,61 @@ class PropertyTests: XCTestCase {
     }
     
     func testEvents() {
-        property.expectAsync(
-            events: [
-                .next(0),
-                .next(5),
-                .next(10),
-                .next(20),
-                .next(30),
-                .next(40),
-                .completed
-            ],
-            expectation: expectation(description: "Property did not fire expected events")
-        )
-        
+        let subscriber = Subscribers.Accumulator<Int, Never>()
+        property.subscribe(subscriber)
+
         property.value = 5
         property.value = 10
         SafeSignal(sequence: [20, 30]).bind(to: property)
         property.value = 40
-        
+
         weak var weakProperty = property
         property = nil
         XCTAssert(weakProperty == nil)
-        
-        waitForExpectations(timeout: 1, handler: nil)
+
+        XCTAssertEqual(subscriber.values, [0, 5, 10, 20, 30, 40])
+        XCTAssertTrue(subscriber.isFinished)
     }
-    
+
     func testReadOnlyView() {
         var readOnlyView: AnyProperty<Int>! = property.readOnlyView
         XCTAssert(readOnlyView.value == 0)
-        
-        readOnlyView.expectAsync(
-            events: [
-                .next(0),
-                .next(5),
-                .next(10),
-                .next(20),
-                .next(30),
-                .next(40),
-                .completed
-            ],
-            expectation: expectation(description: "Property did not fire expected events")
-        )
-        
+
+        let subscriber = Subscribers.Accumulator<Int, Never>()
+        readOnlyView.subscribe(subscriber)
+
         property.value = 5
         property.value = 10
         SafeSignal(sequence: [20, 30]).bind(to: property)
         property.value = 40
-        
+
         XCTAssert(readOnlyView.value == 40)
-        
+
         weak var weakProperty = property
         weak var weakReadOnlyView = readOnlyView
         property = nil
         readOnlyView = nil
         XCTAssert(weakProperty == nil)
         XCTAssert(weakReadOnlyView == nil)
-        
-        waitForExpectations(timeout: 1, handler: nil)
+
+        XCTAssertEqual(subscriber.values, [0, 5, 10, 20, 30, 40])
+        XCTAssertTrue(subscriber.isFinished)
     }
     
     func testBidirectionalBind() {
         let target = Property(100)
-        
-        target.ignoreTerminal().expectAsync(events: [.next(100), .next(0), .next(50), .next(60)], expectation: expectation(description: "nexts"))
-        property.ignoreTerminal().expectAsync(events: [.next(0), .next(0), .next(50), .next(60)], expectation: expectation(description: "nexts"))
+        let s1 = Subscribers.Accumulator<Int, Never>()
+        let s2 = Subscribers.Accumulator<Int, Never>()
+
+        target.ignoreTerminal().subscribe(s1)
+        property.ignoreTerminal().subscribe(s2)
         
         property.bidirectionalBind(to: target)
         property.value = 50
         target.value = 60
         
-        waitForExpectations(timeout: 2, handler: nil)
+        XCTAssertEqual(s1.values, [100, 0, 50, 60])
+        XCTAssertEqual(s2.values, [0, 0, 50, 60])
     }
     
     func testPropertyForThreadSafety_oneEventDispatchedOnALotOfProperties() {
@@ -116,7 +101,7 @@ class PropertyTests: XCTestCase {
         
         waitForExpectations(timeout: 3)
     }
-    
+
     func testPropertyForThreadSafety_lotsOfEventsDispatchedOnOneProperty() {
         let exp = expectation(description: "race_condition?")
         
@@ -124,9 +109,9 @@ class PropertyTests: XCTestCase {
         let property = Property(0)
 
         property.stress(with: [{ property.value = $0 }],
-                       queuesCount: 10,
-                       eventsCount: 3000,
-                       expectation: exp)
+                        queuesCount: 10,
+                        eventsCount: 3000,
+                        expectation: exp)
             .dispose(in: disposeBag)
         
         waitForExpectations(timeout: 3)
