@@ -75,9 +75,9 @@ open class Subject<Element, Error: Swift.Error>: SubjectProtocol {
     
     public let disposeBag = DisposeBag()
     
-    fileprivate init() {}
+    public init() {}
 
-    public func on(_ event: Signal<Element, Error>.Event) {
+    open func on(_ event: Signal<Element, Error>.Event) {
         guard !isTerminated else { return }
         isTerminated = event.isTerminal
         for (_, observer) in observers.value {
