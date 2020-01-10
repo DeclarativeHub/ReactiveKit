@@ -89,7 +89,6 @@ public final class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol
     public func on(_ event: Signal<Element, Error>.Event) {
         observerLock.lock()
         if let observer = observer {
-            observer(event)
             if event.isTerminal {
                 self.observer = nil
                 observerLock.unlock()
@@ -99,6 +98,7 @@ public final class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol
             } else {
                 observerLock.unlock()
             }
+            observer(event)
         } else {
             observerLock.unlock()
         }
