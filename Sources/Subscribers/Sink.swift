@@ -25,26 +25,24 @@
 import Foundation
 
 extension Subscribers {
-    
-    final public class Sink<Input, Failure>: Subscriber, Cancellable where Failure: Error {
-        
+    public final class Sink<Input, Failure>: Subscriber, Cancellable where Failure: Error {
         private enum State {
             case initialized
             case subscribed(Cancellable)
             case terminated
         }
-        
+
         private var state = State.initialized
-        
-        final public let receiveValue: (Input) -> Void
-        final public let receiveCompletion: (Subscribers.Completion<Failure>) -> Void
+
+        public final let receiveValue: (Input) -> Void
+        public final let receiveCompletion: (Subscribers.Completion<Failure>) -> Void
 
         public init(receiveCompletion: @escaping ((Subscribers.Completion<Failure>) -> Void), receiveValue: @escaping ((Input) -> Void)) {
             self.receiveValue = receiveValue
             self.receiveCompletion = receiveCompletion
         }
 
-        final public func receive(subscription: Subscription) {
+        public final func receive(subscription: Subscription) {
             switch state {
             case .initialized:
                 state = .subscribed(subscription)
@@ -54,19 +52,19 @@ extension Subscribers {
             }
         }
 
-        final public func receive(_ value: Input) -> Subscribers.Demand {
+        public final func receive(_ value: Input) -> Subscribers.Demand {
             receiveValue(value)
             return .unlimited
         }
 
-        final public func receive(completion: Subscribers.Completion<Failure>) {
+        public final func receive(completion: Subscribers.Completion<Failure>) {
             receiveCompletion(completion)
             state = .terminated
         }
 
-        final public func cancel() {
+        public final func cancel() {
             switch state {
-            case .subscribed(let subscription):
+            case let .subscribed(subscription):
                 subscription.cancel()
                 state = .terminated
             default:

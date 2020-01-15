@@ -26,17 +26,15 @@ import Foundation
 
 /// Bindable is like an observer, but knows to manage the subscription by itself.
 public protocol BindableProtocol {
-    
     /// Type of the received elements.
     associatedtype Element
-    
+
     /// Establish a one-way binding between the signal and the receiver.
     /// - Warning: You are recommended to use `bind(to:)` on the signal when binding.
     func bind(signal: Signal<Element, Never>) -> Disposable
 }
 
 extension SignalProtocol where Error == Never {
-    
     /// Establish a one-way binding between the source and the bindable.
     /// - Parameter bindable: A binding target that will receive signal events.
     /// - Returns: A disposable that can cancel the binding.
@@ -44,7 +42,7 @@ extension SignalProtocol where Error == Never {
     public func bind<B: BindableProtocol>(to bindable: B) -> Disposable where B.Element == Element {
         return bindable.bind(signal: toSignal())
     }
-    
+
     /// Establish a one-way binding between the source and the bindable.
     /// - Parameter bindable: A binding target that will receive signal events.
     /// - Returns: A disposable that can cancel the binding.
@@ -55,7 +53,6 @@ extension SignalProtocol where Error == Never {
 }
 
 extension BindableProtocol where Self: SignalProtocol, Self.Error == Never {
-    
     /// Establish a two-way binding between the source and the bindable.
     /// - Parameter target: A binding target that will receive events from
     ///     the receiver and a source that will send events to the receiver.
@@ -70,7 +67,6 @@ extension BindableProtocol where Self: SignalProtocol, Self.Error == Never {
 }
 
 extension SignalProtocol where Error == Never {
-    
     /// Bind the receiver to the target using the given setter closure. Closure is
     /// called whenever the signal emits `next` event.
     ///
@@ -85,11 +81,10 @@ extension SignalProtocol where Error == Never {
     /// - Returns: A disposable that can cancel the binding.
     @discardableResult
     public func bind<Target: Deallocatable>(to target: Target, setter: @escaping (Target, Element) -> Void) -> Disposable
-        where Target: BindingExecutionContextProvider
-    {
+        where Target: BindingExecutionContextProvider {
         return bind(to: target, context: target.bindingExecutionContext, setter: setter)
     }
-    
+
     /// Bind the receiver to the target using the given setter closure. Closure is
     /// called whenever the signal emits `next` event.
     ///
@@ -112,7 +107,7 @@ extension SignalProtocol where Error == Never {
             }
         }
     }
-    
+
     /// Bind the receiver to target's property specified by the key path. The property is
     /// updated whenever the signal emits `next` event.
     ///
@@ -125,13 +120,12 @@ extension SignalProtocol where Error == Never {
     ///   - keyPath: A key path to the property that will be updated with each sent element.
     /// - Returns: A disposable that can cancel the binding.
     @discardableResult
-    public func bind<Target: Deallocatable>(to target: Target, keyPath: ReferenceWritableKeyPath<Target, Element>) -> Disposable where Target: BindingExecutionContextProvider
-    {
-        return bind(to: target) { (target, element) in
+    public func bind<Target: Deallocatable>(to target: Target, keyPath: ReferenceWritableKeyPath<Target, Element>) -> Disposable where Target: BindingExecutionContextProvider {
+        return bind(to: target) { target, element in
             target[keyPath: keyPath] = element
         }
     }
-    
+
     /// Bind the receiver to target's property specified by the key path. The property is
     /// updated whenever the signal emits `next` event.
     ///
@@ -145,16 +139,14 @@ extension SignalProtocol where Error == Never {
     ///   - context: An execution context on which to execute the setter.
     /// - Returns: A disposable that can cancel the binding.
     @discardableResult
-    public func bind<Target: Deallocatable>(to target: Target, keyPath: ReferenceWritableKeyPath<Target, Element>, context: ExecutionContext) -> Disposable
-    {
-        return bind(to: target, context: context) { (target, element) in
+    public func bind<Target: Deallocatable>(to target: Target, keyPath: ReferenceWritableKeyPath<Target, Element>, context: ExecutionContext) -> Disposable {
+        return bind(to: target, context: context) { target, element in
             target[keyPath: keyPath] = element
         }
     }
 }
 
 extension SignalProtocol where Error == Never, Element == Void {
-    
     /// Bind the receiver to the target using the given setter closure. Closure is
     /// called whenever the signal emits `next` event.
     ///
@@ -169,11 +161,10 @@ extension SignalProtocol where Error == Never, Element == Void {
     /// - Returns: A disposable that can cancel the binding.
     @discardableResult
     public func bind<Target: Deallocatable>(to target: Target, setter: @escaping (Target) -> Void) -> Disposable
-        where Target: BindingExecutionContextProvider
-    {
+        where Target: BindingExecutionContextProvider {
         return bind(to: target, context: target.bindingExecutionContext, setter: setter)
     }
-    
+
     /// Bind the receiver to the target using the given setter closure. Closure is
     /// called whenever the signal emits `next` event.
     ///
@@ -200,7 +191,6 @@ extension SignalProtocol where Error == Never, Element == Void {
 
 /// Provides an execution context used to deliver binding events.
 public protocol BindingExecutionContextProvider {
-    
     /// An execution context used to deliver binding events.
     var bindingExecutionContext: ExecutionContext { get }
 }

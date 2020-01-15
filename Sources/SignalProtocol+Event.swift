@@ -25,15 +25,14 @@
 import Foundation
 
 extension SignalProtocol {
-
     /// Unwrap events into elements.
     public func materialize() -> Signal<Signal<Element, Error>.Event, Never> {
         return Signal { observer in
-            return self.observe { event in
+            self.observe { event in
                 switch event {
-                case .next(let element):
+                case let .next(element):
                     observer.receive(.next(element))
-                case .failed(let error):
+                case let .failed(error):
                     observer.receive(.failed(error))
                     observer.receive(completion: .finished)
                 case .completed:
@@ -47,18 +46,18 @@ extension SignalProtocol {
     /// Inverse of `materialize`.
     public func dematerialize<U, E>() -> Signal<U, E> where Element == Signal<U, E>.Event, E == Error {
         return Signal { observer in
-            return self.observe { event in
+            self.observe { event in
                 switch event {
-                case .next(let innerEvent):
+                case let .next(innerEvent):
                     switch innerEvent {
-                    case .next(let element):
+                    case let .next(element):
                         observer.receive(element)
-                    case .failed(let error):
+                    case let .failed(error):
                         observer.receive(completion: .failure(error))
                     case .completed:
                         observer.receive(completion: .finished)
                     }
-                case .failed(let error):
+                case let .failed(error):
                     observer.receive(completion: .failure(error))
                 case .completed:
                     observer.receive(completion: .finished)
@@ -69,7 +68,6 @@ extension SignalProtocol {
 }
 
 extension SignalProtocol where Error == Never {
-
     /// Inverse of `materialize`.
     public func dematerialize<U, E>() -> Signal<U, E> where Element == Signal<U, E>.Event {
         return (castError() as Signal<Element, E>).dematerialize()

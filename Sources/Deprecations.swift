@@ -47,7 +47,6 @@ public typealias ReplaySubject1<Element> = ReplaySubject<Element, Never>
 public typealias ReplayOneSubject1<Element> = ReplayOneSubject<Element, Never>
 
 extension SignalProtocol {
-
     @available(*, deprecated, renamed: "init(just:)")
     public static func just(_ element: Element) -> Signal<Element, Error> {
         return Signal(just: element)
@@ -80,7 +79,6 @@ public func combineLatest<Element, Result, Error>(_ signals: [Signal<Element, Er
 }
 
 extension SignalProtocol where Element: OptionalProtocol {
-
     @available(*, deprecated, renamed: "replaceNils")
     public func replaceNil(with replacement: Element.Wrapped) -> Signal<Element.Wrapped, Error> {
         return replaceNils(with: replacement)
@@ -93,7 +91,6 @@ extension SignalProtocol where Element: OptionalProtocol {
 }
 
 extension Signal where Error == Never {
-
     @available(*, deprecated, message: "Replace with compactMap { $0.element }`")
     public func elements<U, E>() -> Signal<U, Never> where Element == Signal<U, E>.Event {
         return compactMap { $0.element }
@@ -106,7 +103,6 @@ extension Signal where Error == Never {
 }
 
 extension SignalProtocol {
-
     @available(*, deprecated, renamed: "debounce(interval:queue:)")
     public func debounce(interval: Double, on queue: DispatchQueue) -> Signal<Element, Error> {
         return debounce(interval: interval, queue: queue)
@@ -124,7 +120,6 @@ extension SignalProtocol {
 }
 
 extension SignalProtocol where Element: Equatable {
-
     @available(*, deprecated, renamed: "distinctUntilChanged")
     public func distinct() -> Signal<Element, Error> {
         return distinctUntilChanged()
@@ -132,7 +127,6 @@ extension SignalProtocol where Element: Equatable {
 }
 
 extension SignalProtocol where Element: Sequence {
-
     @available(*, deprecated, renamed: "flattenElements")
     public func unwrap() -> Signal<Element.Iterator.Element, Error> {
         return flattenElements()
@@ -146,7 +140,6 @@ public final class PublishSubject<Element, Error: Swift.Error>: Subject<Element,
 public typealias SafePublishSubject<Element> = PublishSubject<Element, Never>
 
 extension ObserverProtocol {
-
     @available(*, deprecated, renamed: "receive(_:)")
     public func next(_ element: Element) {
         on(.next(element))
@@ -170,7 +163,6 @@ extension ObserverProtocol {
 }
 
 extension ObserverProtocol where Element == Void {
-
     @available(*, deprecated, renamed: "receive")
     public func next() {
         next(())
@@ -178,8 +170,6 @@ extension ObserverProtocol where Element == Void {
 }
 
 extension SubjectProtocol {
-
-
     @available(*, deprecated, renamed: "send(_:)")
     public func next(_ element: Element) {
         on(.next(element))
@@ -203,7 +193,6 @@ extension SubjectProtocol {
 }
 
 extension SubjectProtocol where Element == Void {
-
     @available(*, deprecated, renamed: "send")
     public func next() {
         next(())
@@ -211,7 +200,6 @@ extension SubjectProtocol where Element == Void {
 }
 
 extension Subject {
-
     @available(*, deprecated, renamed: "receive(event:)")
     open func send(_ event: Event<Element, Error>) {
         on(event)
@@ -219,7 +207,6 @@ extension Subject {
 }
 
 extension SignalProtocol {
-
     @available(*, deprecated, renamed: "share(limit:)")
     public func shareReplay(limit: Int = Int.max) -> Signal<Element, Error> {
         return share(limit: limit)
@@ -227,7 +214,6 @@ extension SignalProtocol {
 }
 
 extension SignalProtocol {
-
     /// Set the execution context in which to execute the signal (i.e. in which to run
     /// the signal's producer).
     @available(*, deprecated, renamed: "subscribe(on:)")
@@ -256,7 +242,6 @@ extension SignalProtocol {
 }
 
 extension SignalProtocol {
-    
     /// Emit first element and then all elements that are not equal to their predecessor(s).
     ///
     /// Check out interactive example at [https://rxmarbles.com/#distinctUntilChanged](https://rxmarbles.com/#distinctUntilChanged)
@@ -272,7 +257,7 @@ extension SignalProtocol {
     public func debounce(interval: Double, queue: DispatchQueue = DispatchQueue(label: "com.reactive_kit.signal.debounce")) -> Signal<Element, Error> {
         return debounce(for: interval, queue: queue)
     }
-    
+
     /// Emit only the element at given index (if such element is produced).
     ///
     /// Check out interactive example at [https://rxmarbles.com/#elementAt](https://rxmarbles.com/#elementAt)
@@ -344,7 +329,6 @@ extension SignalProtocol {
 }
 
 extension SignalProtocol where Element: Equatable {
-
     /// Emit first element and then all elements that are not equal to their predecessor(s).
     ///
     /// Check out interactive example at [https://rxmarbles.com/#distinctUntilChanged](https://rxmarbles.com/#distinctUntilChanged)
@@ -355,7 +339,6 @@ extension SignalProtocol where Element: Equatable {
 }
 
 extension SignalProtocol {
-
     /// Batch signal elements into arrays of the given size.
     ///
     /// Check out interactive example at [https://rxmarbles.com/#bufferCount](https://rxmarbles.com/#bufferCount)
@@ -402,18 +385,18 @@ extension SignalProtocol {
 
     /// Do side-effect upon various events.
     @available(*, deprecated, renamed: "handleEvents(receiveSubscription:receiveOutput:receiveCompletion:receiveCancel:)")
-    public func doOn(next: ((Element) -> ())? = nil,
+    public func doOn(next: ((Element) -> Void)? = nil,
                      start: (() -> Void)? = nil,
                      failed: ((Error) -> Void)? = nil,
                      completed: (() -> Void)? = nil,
-                     disposed: (() -> ())? = nil) -> Signal<Element, Error> {
+                     disposed: (() -> Void)? = nil) -> Signal<Element, Error> {
         return Signal { observer in
             start?()
             let disposable = self.observe { event in
                 switch event {
-                case .next(let value):
+                case let .next(value):
                     next?(value)
-                case .failed(let error):
+                case let .failed(error):
                     failed?(error)
                 case .completed:
                     completed?()
@@ -429,7 +412,6 @@ extension SignalProtocol {
 }
 
 extension SignalProtocol {
-
     /// First propagate all elements from the source signal and then all elements from the `other` signal.
     ///
     /// Check out interactive example at [https://rxmarbles.com/#concat](https://rxmarbles.com/#concat)
@@ -443,12 +425,11 @@ extension SignalProtocol {
     /// Check out interactive example at [https://rxmarbles.com/#concat](https://rxmarbles.com/#concat)
     @available(*, deprecated, renamed: "append(_:)")
     public func concat<O: SignalProtocol>(with other: O) -> Signal<Element, Error> where O.Element == Element, O.Error == Never {
-        return append((other.castError() as Signal<O.Element, Error>))
+        return append(other.castError() as Signal<O.Element, Error>)
     }
 }
 
 extension SignalProtocol where Error == Never {
-
     /// First propagate all elements from the source signal and then all elements from the `other` signal.
     ///
     /// Check out interactive example at [https://rxmarbles.com/#concat](https://rxmarbles.com/#concat)
@@ -459,7 +440,6 @@ extension SignalProtocol where Error == Never {
 }
 
 extension SignalProtocol {
-
     @available(*, deprecated, message: "Please provide `receiveCompletion` argument when observing signals with error type other than `Never`.")
     public func sink(receiveValue: @escaping ((Element) -> Void)) -> AnyCancellable {
         return sink(receiveCompletion: { _ in }, receiveValue: receiveValue)

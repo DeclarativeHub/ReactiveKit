@@ -25,15 +25,13 @@
 import Foundation
 
 extension Subscribers {
-
     public struct Demand: Equatable, Hashable {
-        
         public let value: Int
 
         private init(value: Int) {
             self.value = value
         }
-        
+
         public static let unlimited: Subscribers.Demand = .init(value: Int.max)
 
         @available(*, unavailable, message: "Not supported yet.")

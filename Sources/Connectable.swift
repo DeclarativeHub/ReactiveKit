@@ -26,22 +26,20 @@ import Foundation
 
 /// Represents a signal that is started by calling `connect` on it.
 public protocol ConnectableSignalProtocol: SignalProtocol {
-    
     /// Start the signal.
     func connect() -> Disposable
 }
 
 /// Makes a signal connectable through the given subject.
 public final class ConnectableSignal<Source: SignalProtocol>: ConnectableSignalProtocol {
-    
     private let source: Source
     private let subject: Subject<Source.Element, Source.Error>
-    
+
     public init(source: Source, subject: Subject<Source.Element, Source.Error>) {
         self.source = source
         self.subject = subject
     }
-    
+
     /// Start the signal.
     public func connect() -> Disposable {
         if !subject.isTerminated {
@@ -50,7 +48,7 @@ public final class ConnectableSignal<Source: SignalProtocol>: ConnectableSignalP
             return SimpleDisposable(isDisposed: true)
         }
     }
-    
+
     /// Register an observer that will receive events from the signal.
     /// Note that the events will not be generated until `connect` is called.
     public func observe(with observer: @escaping (Signal<Source.Element, Source.Error>.Event) -> Void) -> Disposable {
@@ -59,13 +57,12 @@ public final class ConnectableSignal<Source: SignalProtocol>: ConnectableSignalP
 }
 
 extension ConnectableSignalProtocol {
-    
     /// Convert connectable signal into the ordinary signal by calling `connect`
     /// on the first observation and calling dispose when number of observers goes down to zero.
     public func refCount() -> Signal<Element, Error> {
         let lock = NSRecursiveLock(name: "com.reactive_kit.connectable_signal.ref_count")
         var _count = 0
-        var _connectionDisposable: Disposable? = nil
+        var _connectionDisposable: Disposable?
         return Signal { observer in
             lock.lock(); defer { lock.unlock() }
             _count = _count + 1
@@ -87,7 +84,6 @@ extension ConnectableSignalProtocol {
 }
 
 extension SignalProtocol {
-
     public func multicast(_ createSubject: () -> Subject<Element, Error>) -> ConnectableSignal<Self> {
         return ConnectableSignal(source: self, subject: createSubject())
     }
@@ -95,7 +91,7 @@ extension SignalProtocol {
     public func multicast(subject: Subject<Element, Error>) -> ConnectableSignal<Self> {
         return ConnectableSignal(source: self, subject: subject)
     }
-    
+
     /// Ensure that all observers see the same sequence of elements. Connectable.
     public func replay(limit: Int = Int.max) -> ConnectableSignal<Self> {
         if limit == 0 {
@@ -106,12 +102,12 @@ extension SignalProtocol {
             return multicast(subject: ReplaySubject(bufferSize: limit))
         }
     }
-    
+
     /// Convert signal to a connectable signal.
     public func publish() -> ConnectableSignal<Self> {
         return multicast(subject: PassthroughSubject())
     }
-    
+
     /// Ensure that all observers see the same sequence of elements.
     /// Shorthand for `replay(limit).refCount()`.
     public func share(limit: Int = Int.max) -> Signal<Element, Error> {
@@ -120,7 +116,6 @@ extension SignalProtocol {
 }
 
 extension SignalProtocol where Element: LoadingStateProtocol {
-    
     /// Ensure that all observers see the same sequence of elements. Connectable.
     public func replayValues(limit: Int = Int.max) -> ConnectableSignal<Signal<LoadingState<LoadingValue, LoadingError>, Error>> {
         if limit == 0 {
@@ -129,7 +124,7 @@ extension SignalProtocol where Element: LoadingStateProtocol {
             return ConnectableSignal(source: map { $0.asLoadingState }, subject: ReplayLoadingValueSubject(bufferSize: limit))
         }
     }
-    
+
     /// Ensure that all observers see the same sequence of elements.
     /// Shorthand for `replay(limit).refCount()`.
     public func shareReplayValues(limit: Int = Int.max) -> Signal<LoadingState<LoadingValue, LoadingError>, Error> {

@@ -32,13 +32,12 @@ public typealias SafeObserver<Element> = (Signal<Element, Never>.Event) -> Void
 
 /// Represents a type that receives events.
 public protocol ObserverProtocol {
-    
     /// Type of elements being received.
     associatedtype Element
-    
+
     /// Type of error that can be received.
     associatedtype Error: Swift.Error
-    
+
     /// Send the event to the observer.
     func on(_ event: Signal<Element, Error>.Event)
 }
@@ -46,14 +45,13 @@ public protocol ObserverProtocol {
 /// Represents a type that receives events. Observer is just a convenience
 /// wrapper around a closure observer `Observer<Element, Error>`.
 public struct AnyObserver<Element, Error: Swift.Error>: ObserverProtocol {
-    
     public let observer: Observer<Element, Error>
-    
+
     /// Creates an observer that wraps a closure observer.
     public init(observer: @escaping Observer<Element, Error>) {
         self.observer = observer
     }
-    
+
     /// Calles wrapped closure with the given element.
     @inlinable
     public func on(_ event: Signal<Element, Error>.Event) {
@@ -63,7 +61,6 @@ public struct AnyObserver<Element, Error: Swift.Error>: ObserverProtocol {
 
 /// Observer that ensures events are sent atomically.
 public final class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol, Disposable {
-
     private var observer: Observer<Element, Error>?
     private var upstreamDisposables: [Disposable] = []
     private let observerLock = NSRecursiveLock(name: "com.reactive_kit.atomic_observer.observer")
@@ -93,7 +90,7 @@ public final class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol
                 self.observer = nil
                 observerLock.unlock()
                 disposablesLock.lock()
-                self.upstreamDisposables.forEach { $0.dispose() }
+                upstreamDisposables.forEach { $0.dispose() }
                 disposablesLock.unlock()
             } else {
                 observerLock.unlock()
@@ -106,11 +103,11 @@ public final class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol
 
     public func attach(_ producer: Signal<Element, Error>.Producer) {
         let disposable = producer(self)
-        if self.isDisposed {
+        if isDisposed {
             disposable.dispose()
         } else {
             disposablesLock.lock()
-            self.upstreamDisposables.append(disposable)
+            upstreamDisposables.append(disposable)
             disposablesLock.unlock()
         }
     }
@@ -120,7 +117,7 @@ public final class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol
         observer = nil
         observerLock.unlock()
         disposablesLock.lock()
-        self.upstreamDisposables.forEach { $0.dispose() }
+        upstreamDisposables.forEach { $0.dispose() }
         disposablesLock.unlock()
     }
 }
@@ -128,7 +125,6 @@ public final class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol
 // MARK: - Extensions
 
 extension ObserverProtocol {
-
     /// Convenience method to send `.next` event.
     public func receive(_ element: Element) {
         on(.next(element))
@@ -139,7 +135,7 @@ extension ObserverProtocol {
         switch completion {
         case .finished:
             on(.completed)
-        case .failure(let error):
+        case let .failure(error):
             on(.failed(error))
         }
     }
@@ -157,7 +153,6 @@ extension ObserverProtocol {
 }
 
 extension ObserverProtocol where Element == Void {
-
     /// Convenience method to send `.next` event.
     public func receive() {
         on(.next(()))

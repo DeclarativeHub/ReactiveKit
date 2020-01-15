@@ -6,23 +6,22 @@
 //  Copyright © 2016 Srdan Rasic. All rights reserved.
 //
 
-import XCTest
 import ReactiveKit
+import XCTest
 
 class PropertyTests: XCTestCase {
-    
     var property: Property<Int>!
-    
+
     override func setUp() {
         property = Property(0)
     }
-    
+
     func testValue() {
         XCTAssert(property.value == 0)
         property.value = 1
         XCTAssert(property.value == 1)
     }
-    
+
     func testEvents() {
         let subscriber = Subscribers.Accumulator<Int, Never>()
         property.subscribe(subscriber)
@@ -64,7 +63,7 @@ class PropertyTests: XCTestCase {
         XCTAssertEqual(subscriber.values, [0, 5, 10, 20, 30, 40])
         XCTAssertTrue(subscriber.isFinished)
     }
-    
+
     func testBidirectionalBind() {
         let target = Property(100)
         let s1 = Subscribers.Accumulator<Int, Never>()
@@ -72,39 +71,39 @@ class PropertyTests: XCTestCase {
 
         target.ignoreTerminal().subscribe(s1)
         property.ignoreTerminal().subscribe(s2)
-        
+
         property.bidirectionalBind(to: target)
         property.value = 50
         target.value = 60
-        
+
         XCTAssertEqual(s1.values, [100, 0, 50, 60])
         XCTAssertEqual(s2.values, [0, 0, 50, 60])
     }
-    
+
     func testPropertyForThreadSafety_oneEventDispatchedOnALotOfProperties() {
         let exp = expectation(description: "race_condition?")
         exp.expectedFulfillmentCount = 10000
-        
-        for _ in 0..<exp.expectedFulfillmentCount {
+
+        for _ in 0 ..< exp.expectedFulfillmentCount {
             let disposeBag = DisposeBag()
             let property = Property(0)
-            
+
             property.stress(with: [{ property.value = $0 }],
                             eventsCount: 1,
                             expectation: exp)
                 .dispose(in: disposeBag)
-            
+
             DispatchQueue.main.async {
                 disposeBag.dispose()
             }
         }
-        
+
         waitForExpectations(timeout: 3)
     }
 
     func testPropertyForThreadSafety_lotsOfEventsDispatchedOnOneProperty() {
         let exp = expectation(description: "race_condition?")
-        
+
         let disposeBag = DisposeBag()
         let property = Property(0)
 
@@ -113,34 +112,33 @@ class PropertyTests: XCTestCase {
                         eventsCount: 3000,
                         expectation: exp)
             .dispose(in: disposeBag)
-        
+
         waitForExpectations(timeout: 3)
     }
-    
+
     func testPropertyForThreadSafety_someEventsDispatchedOnSomeProperties() {
         let exp = expectation(description: "race_condition?")
         exp.expectedFulfillmentCount = 100
-        
-        for _ in 0..<exp.expectedFulfillmentCount {
+
+        for _ in 0 ..< exp.expectedFulfillmentCount {
             let disposeBag = DisposeBag()
             let property = Property(0)
-            
+
             property.stress(with: [{ property.value = $0 }],
                             expectation: exp)
                 .dispose(in: disposeBag)
-            
+
             DispatchQueue.main.async {
                 disposeBag.dispose()
             }
         }
-        
+
         waitForExpectations(timeout: 3)
     }
 }
 
 extension PropertyTests {
-    
-    static var allTests : [(String, (PropertyTests) -> () -> Void)] {
+    static var allTests: [(String, (PropertyTests) -> () -> Void)] {
         return [
             ("testValue", testValue),
             ("testEvents", testEvents),

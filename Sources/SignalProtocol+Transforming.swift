@@ -25,7 +25,6 @@
 import Foundation
 
 extension SignalProtocol {
-    
     /// Batch signal elements into arrays of the given size.
     ///
     /// Check out interactive example at [https://rxmarbles.com/#bufferCount](https://rxmarbles.com/#bufferCount)
@@ -35,14 +34,14 @@ extension SignalProtocol {
             var _buffer: [Element] = []
             return self.observe { event in
                 switch event {
-                case .next(let element):
+                case let .next(element):
                     lock.lock(); defer { lock.unlock() }
                     _buffer.append(element)
                     if _buffer.count == size {
                         observer.receive(_buffer)
                         _buffer.removeAll()
                     }
-                case .failed(let error):
+                case let .failed(error):
                     observer.receive(completion: .failure(error))
                 case .completed:
                     observer.receive(completion: .finished)
@@ -53,7 +52,7 @@ extension SignalProtocol {
 
     /// Collect all elements into an array and emit the array as a single element.
     public func collect() -> Signal<[Element], Error> {
-        return reduce([], { memo, new in memo + [new] })
+        return reduce([]) { memo, new in memo + [new] }
     }
 
     /// Emit default element if the signal completes without emitting any element.
@@ -65,11 +64,11 @@ extension SignalProtocol {
             var _didEmitNonTerminal = false
             return self.observe { event in
                 switch event {
-                case .next(let element):
+                case let .next(element):
                     lock.lock(); defer { lock.unlock() }
                     _didEmitNonTerminal = true
                     observer.receive(element)
-                case .failed(let error):
+                case let .failed(error):
                     observer.receive(completion: .failure(error))
                 case .completed:
                     lock.lock(); defer { lock.unlock() }
@@ -118,11 +117,11 @@ extension SignalProtocol {
             observer.receive(_accumulator)
             return self.observe { event in
                 switch event {
-                case .next(let element):
+                case let .next(element):
                     lock.lock(); defer { lock.unlock() }
                     _accumulator = combine(_accumulator, element)
                     observer.receive(_accumulator)
-                case .failed(let error):
+                case let .failed(error):
                     observer.receive(completion: .failure(error))
                 case .completed:
                     observer.receive(completion: .finished)
@@ -135,7 +134,7 @@ extension SignalProtocol {
     ///
     /// Check out interactive example at [https://rxmarbles.com/#startWith](https://rxmarbles.com/#startWith)
     public func prepend(_ element: Element) -> Signal<Element, Error> {
-        return scan(element, { _, next in next })
+        return scan(element) { _, next in next }
     }
 
     /// Append the given element to the signal element sequence.
@@ -151,6 +150,6 @@ extension SignalProtocol {
     /// Par each element with its predecessor.
     /// Similar to `parwise`, but starts from the first element which is paird with `nil`.
     public func zipPrevious() -> Signal<(Element?, Element), Error> {
-        return scan(nil) { (pair, next) in (pair?.1, next) }.ignoreNils()
+        return scan(nil) { pair, next in (pair?.1, next) }.ignoreNils()
     }
 }

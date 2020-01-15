@@ -25,7 +25,6 @@
 import Foundation
 
 extension SignalProtocol {
-
     /// Emit an element only if `interval` time passes without emitting another element.
     ///
     /// Check out interactive example at [https://rxmarbles.com/#debounceTime](https://rxmarbles.com/#debounceTime)
@@ -39,7 +38,7 @@ extension SignalProtocol {
                 timerSubscription?.dispose()
                 lock.unlock()
                 switch event {
-                case .next(let element):
+                case let .next(element):
                     lock.lock()
                     previousElement = element
                     timerSubscription = queue.disposableAfter(when: seconds) {
@@ -50,7 +49,7 @@ extension SignalProtocol {
                         }
                     }
                     lock.unlock()
-                case .failed(let error):
+                case let .failed(error):
                     observer.receive(completion: .failure(error))
                 case .completed:
                     if let previousElement = previousElement {
@@ -58,7 +57,6 @@ extension SignalProtocol {
                         observer.receive(completion: .finished)
                     }
                 }
-
             }
         }
     }
@@ -84,9 +82,9 @@ extension SignalProtocol {
     /// Check out interactive example at [https://rxmarbles.com/#filter](https://rxmarbles.com/#filter)
     public func filter(_ isIncluded: @escaping (Element) -> Bool) -> Signal<Element, Error> {
         return Signal { observer in
-            return self.observe { event in
+            self.observe { event in
                 switch event {
-                case .next(let element):
+                case let .next(element):
                     if isIncluded(element) {
                         observer.receive(element)
                     }
@@ -101,7 +99,7 @@ extension SignalProtocol {
     /// propagate that element only if the returned signal emits `true`.
     public func flatMapFilter(_ strategy: FlattenStrategy = .concat, _ isIncluded: @escaping (Element) -> SafeSignal<Bool>) -> Signal<Element, Error> {
         return flatMap(strategy) { element -> Signal<Element, Error> in
-            return isIncluded(element)
+            isIncluded(element)
                 .first()
                 .map { isIncluded -> Element? in
                     if isIncluded {
@@ -132,8 +130,8 @@ extension SignalProtocol {
     /// Ignore all terminal events (just propagate next events). The signal will never complete or error out.
     public func ignoreTerminal() -> Signal<Element, Error> {
         return Signal { observer in
-            return self.observe { event in
-                if case .next(let element) = event {
+            self.observe { event in
+                if case let .next(element) = event {
                     observer.receive(element)
                 }
             }
@@ -180,7 +178,7 @@ extension SignalProtocol {
                 queue.asyncAfter(deadline: .now() + interval) {
                     lock.lock(); defer { lock.unlock() }
                     guard !serialDisposable.isDisposed else {
-                        _dispatch = nil;
+                        _dispatch = nil
                         return
                     }
                     if let element = _latestElement {
@@ -192,7 +190,7 @@ extension SignalProtocol {
             }
             serialDisposable.otherDisposable = self.observe { event in
                 switch event {
-                case .next(let element):
+                case let .next(element):
                     lock.lock(); defer { lock.unlock() }
                     _latestElement = element
                 default:
@@ -215,7 +213,7 @@ extension SignalProtocol {
             var _count = count
             return self.observe { event in
                 switch event {
-                case .next(let element):
+                case let .next(element):
                     lock.lock(); defer { lock.unlock() }
                     if _count > 0 {
                         _count -= 1
@@ -233,13 +231,13 @@ extension SignalProtocol {
     ///
     /// Check out interactive example at [https://rxmarbles.com/#skip](https://rxmarbles.com/#skip)
     public func dropLast(_ count: Int) -> Signal<Element, Error> {
-        guard count > 0 else { return self.toSignal() }
+        guard count > 0 else { return toSignal() }
         return Signal { observer in
             let lock = NSRecursiveLock(name: "com.reactive_kit.signal.skip")
             var _buffer: [Element] = []
             return self.observe { event in
                 switch event {
-                case .next(let element):
+                case let .next(element):
                     lock.lock(); defer { lock.unlock() }
                     _buffer.append(element)
                     if _buffer.count > count {
@@ -279,7 +277,7 @@ extension SignalProtocol {
             var _taken = 0
             return self.observe { event in
                 switch event {
-                case .next(let element):
+                case let .next(element):
                     lock.lock(); defer { lock.unlock() }
                     if _taken < maxLength {
                         _taken += 1
@@ -303,15 +301,15 @@ extension SignalProtocol {
             let lock = NSRecursiveLock(name: "com.reactive_kit.signal.take")
             var _values: [Element] = []
             _values.reserveCapacity(maxLength)
-            return self.observe(with: { (event) in
+            return self.observe(with: { event in
                 switch event {
                 case .completed:
                     lock.lock(); defer { lock.unlock() }
                     _values.forEach(observer.receive(_:))
                     observer.receive(completion: .finished)
-                case .failed(let error):
+                case let .failed(error):
                     observer.receive(completion: .failure(error))
-                case .next(let element):
+                case let .next(element):
                     if event.isTerminal {
                         observer.on(event)
                     } else {
@@ -331,9 +329,9 @@ extension SignalProtocol {
     /// Check out interactive example at [https://rxmarbles.com/#takeWhile](https://rxmarbles.com/#takeWhile)
     public func prefix(while shouldContinue: @escaping (Element) -> Bool) -> Signal<Element, Error> {
         return Signal { observer in
-            return self.observe { event in
+            self.observe { event in
                 switch event {
-                case .next(let element):
+                case let .next(element):
                     if shouldContinue(element) {
                         observer.receive(element)
                     } else {
@@ -358,9 +356,9 @@ extension SignalProtocol {
                 switch event {
                 case .completed:
                     observer.receive(completion: .finished)
-                case .failed(let error):
+                case let .failed(error):
                     observer.receive(completion: .failure(error))
-                case .next(let element):
+                case let .next(element):
                     observer.receive(element)
                 }
             }
@@ -377,7 +375,7 @@ extension SignalProtocol {
             var _lastEventTime: DispatchTime?
             return self.observe { event in
                 switch event {
-                case .next(let element):
+                case let .next(element):
                     lock.lock(); defer { lock.unlock() }
                     let now = DispatchTime.now()
                     if _lastEventTime == nil || now.rawValue > (_lastEventTime! + seconds).rawValue {
@@ -393,7 +391,6 @@ extension SignalProtocol {
 }
 
 extension SignalProtocol where Element: Equatable {
-
     /// Emit first element and then all elements that are not equal to their predecessor(s).
     ///
     /// Check out interactive example at [https://rxmarbles.com/#distinctUntilChanged](https://rxmarbles.com/#distinctUntilChanged)

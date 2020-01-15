@@ -25,7 +25,6 @@
 import Foundation
 
 extension SignalProtocol {
-
     /// Propagate elements only from the signal that starts emitting first. Also known as the `race` operator.
     ///
     /// Check out interactive example at [https://rxmarbles.com/#race](https://rxmarbles.com/#race)
@@ -60,7 +59,7 @@ extension SignalProtocol {
     ///
     /// Check out interactive example at [https://rxmarbles.com/#race](https://rxmarbles.com/#race)
     public func amb<O: SignalProtocol>(with other: O) -> Signal<Element, Error> where O.Element == Element, O.Error == Never {
-        return amb(with: (other.castError() as Signal<O.Element, Error>))
+        return amb(with: other.castError() as Signal<O.Element, Error>)
     }
 
     /// Emit a combination of latest elements from each signal. Starts when both signals emit at least one element.
@@ -80,17 +79,17 @@ extension SignalProtocol {
                 }
             }
             func _onAnyCompleted() {
-                if _completions.me == true && _completions.other == true {
+                if _completions.me == true, _completions.other == true {
                     observer.receive(completion: .finished)
                 }
             }
             compositeDisposable += self.observe { event in
                 lock.lock(); defer { lock.unlock() }
                 switch event {
-                case .next(let element):
+                case let .next(element):
                     _elements.my = element
                     _onAnyNext()
-                case .failed(let error):
+                case let .failed(error):
                     observer.receive(completion: .failure(error))
                 case .completed:
                     _completions.me = true
@@ -100,10 +99,10 @@ extension SignalProtocol {
             compositeDisposable += other.observe { event in
                 lock.lock(); defer { lock.unlock() }
                 switch event {
-                case .next(let element):
+                case let .next(element):
                     _elements.other = element
                     _onAnyNext()
-                case .failed(let error):
+                case let .failed(error):
                     observer.receive(completion: .failure(error))
                 case .completed:
                     _completions.other = true
@@ -127,7 +126,7 @@ extension SignalProtocol {
     ///
     /// Check out interactive example at [https://rxmarbles.com/#combineLatest](https://rxmarbles.com/#combineLatest)
     public func combineLatest<O: SignalProtocol, U>(with other: O, combine: @escaping (Element, O.Element) -> U) -> Signal<U, Error> where O.Error == Never {
-        return combineLatest(with: (other.castError() as Signal<O.Element, Error>), combine: combine)
+        return combineLatest(with: other.castError() as Signal<O.Element, Error>, combine: combine)
     }
 
     /// Emit a pair of the latest elements from each signal. Starts when both signals emit at least one element.
@@ -135,7 +134,7 @@ extension SignalProtocol {
     ///
     /// Check out interactive example at [https://rxmarbles.com/#combineLatest](https://rxmarbles.com/#combineLatest)
     public func combineLatest<O: SignalProtocol>(with other: O) -> Signal<(Element, O.Element), Error> where O.Error == Never {
-        return combineLatest(with: (other.castError() as Signal<O.Element, Error>))
+        return combineLatest(with: other.castError() as Signal<O.Element, Error>)
     }
 
     /// First propagate all elements from the source signal and then all elements from the `other` signal.
@@ -146,9 +145,9 @@ extension SignalProtocol {
             let serialDisposable = SerialDisposable(otherDisposable: nil)
             serialDisposable.otherDisposable = self.observe { event in
                 switch event {
-                case .next(let element):
+                case let .next(element):
                     observer.receive(element)
-                case .failed(let error):
+                case let .failed(error):
                     observer.receive(completion: .failure(error))
                 case .completed:
                     serialDisposable.otherDisposable = other.observe(with: observer.on)
@@ -162,7 +161,7 @@ extension SignalProtocol {
     ///
     /// Check out interactive example at [https://rxmarbles.com/#concat](https://rxmarbles.com/#concat)
     public func append<O: SignalProtocol>(_ other: O) -> Signal<Element, Error> where O.Element == Element, O.Error == Never {
-        return append((other.castError() as Signal<O.Element, Error>))
+        return append(other.castError() as Signal<O.Element, Error>)
     }
 
     /// First propagate all elements from the other signal and then all elements from the source signal.
@@ -176,7 +175,7 @@ extension SignalProtocol {
     ///
     /// Check out interactive example at [https://rxmarbles.com/#concat](https://rxmarbles.com/#concat)
     public func prepend<O: SignalProtocol>(_ other: O) -> Signal<Element, Error> where O.Element == Element, O.Error == Never {
-        return prepend((other.castError() as Signal<O.Element, Error>))
+        return prepend(other.castError() as Signal<O.Element, Error>)
     }
 
     /// Merge emissions from both the receiver and the `other` signal into one signal.
@@ -195,7 +194,7 @@ extension SignalProtocol {
 
     /// Replay the latest element when the other signal emits an element.
     public func replayLatest<S: SignalProtocol>(when other: S) -> Signal<Element, Error> where S.Error == Never {
-        return combineLatest(with: other.scan((), { _, _ in }).castError()) { my, _ in my }
+        return combineLatest(with: other.scan(()) { _, _ in }.castError()) { my, _ in my }
     }
 
     /// Combine the receiver and the `other` signal into a signal whose elements are combinations of the
@@ -209,10 +208,10 @@ extension SignalProtocol {
             let compositeDisposable = CompositeDisposable()
             compositeDisposable += other.observe { event in
                 switch event {
-                case .next(let element):
+                case let .next(element):
                     lock.lock(); defer { lock.unlock() }
                     _latest = element
-                case .failed(let error):
+                case let .failed(error):
                     observer.receive(completion: .failure(error))
                 case .completed:
                     break
@@ -222,9 +221,9 @@ extension SignalProtocol {
                 switch event {
                 case .completed:
                     observer.receive(completion: .finished)
-                case .failed(let error):
+                case let .failed(error):
                     observer.receive(completion: .failure(error))
-                case .next(let element):
+                case let .next(element):
                     lock.lock(); defer { lock.unlock() }
                     if let latest = _latest {
                         observer.receive(combine(element, latest))
@@ -248,7 +247,7 @@ extension SignalProtocol {
     ///
     /// Check out interactive example at [https://rxmarbles.com/#withLatestFrom](https://rxmarbles.com/#withLatestFrom)
     public func with<O: SignalProtocol, U>(latestFrom other: O, combine: @escaping (Element, O.Element) -> U) -> Signal<U, Error> where O.Error == Never {
-        return with(latestFrom: (other.castError() as Signal<O.Element, Error>), combine: combine)
+        return with(latestFrom: other.castError() as Signal<O.Element, Error>, combine: combine)
     }
 
     /// Combine the receiver and the `other` signal into a signal whose elements are combinations of the
@@ -256,7 +255,7 @@ extension SignalProtocol {
     ///
     /// Check out interactive example at [https://rxmarbles.com/#withLatestFrom](https://rxmarbles.com/#withLatestFrom)
     public func with<O: SignalProtocol>(latestFrom other: O) -> Signal<(Element, O.Element), Error> where O.Error == Never {
-        return with(latestFrom: (other.castError() as Signal<O.Element, Error>))
+        return with(latestFrom: other.castError() as Signal<O.Element, Error>)
     }
 
     /// Zip elements from the receiver and the `other` signal.
@@ -270,7 +269,7 @@ extension SignalProtocol {
             var _completions: (me: Bool, other: Bool) = (false, false)
             let compositeDisposable = CompositeDisposable()
             let _dispatchIfPossible = {
-                while !_buffers.my.isEmpty && !_buffers.other.isEmpty {
+                while !_buffers.my.isEmpty, !_buffers.other.isEmpty {
                     let element = combine(_buffers.my[0], _buffers.other[0])
                     observer.receive(element)
                     _buffers.my.removeFirst()
@@ -285,9 +284,9 @@ extension SignalProtocol {
             compositeDisposable += self.observe { event in
                 lock.lock(); defer { lock.unlock() }
                 switch event {
-                case .next(let element):
+                case let .next(element):
                     _buffers.my.append(element)
-                case .failed(let error):
+                case let .failed(error):
                     observer.receive(completion: .failure(error))
                 case .completed:
                     _completions.me = true
@@ -298,9 +297,9 @@ extension SignalProtocol {
             compositeDisposable += other.observe { event in
                 lock.lock(); defer { lock.unlock() }
                 switch event {
-                case .next(let element):
+                case let .next(element):
                     _buffers.other.append(element)
-                case .failed(let error):
+                case let .failed(error):
                     observer.receive(completion: .failure(error))
                 case .completed:
                     _completions.other = true
@@ -325,7 +324,7 @@ extension SignalProtocol {
     ///
     /// Check out interactive example at [https://rxmarbles.com/#zip](https://rxmarbles.com/#zip)
     public func zip<O: SignalProtocol, U>(with other: O, combine: @escaping (Element, O.Element) -> U) -> Signal<U, Error> where O.Error == Never {
-        return zip(with: (other.castError() as Signal<O.Element, Error>), combine: combine)
+        return zip(with: other.castError() as Signal<O.Element, Error>, combine: combine)
     }
 
     /// Zip elements from the receiver and the `other` signal.
@@ -333,12 +332,11 @@ extension SignalProtocol {
     ///
     /// Check out interactive example at [https://rxmarbles.com/#zip](https://rxmarbles.com/#zip)
     public func zip<O: SignalProtocol>(with other: O) -> Signal<(Element, O.Element), Error> where O.Error == Never {
-        return zip(with: (other.castError() as Signal<O.Element, Error>))
+        return zip(with: other.castError() as Signal<O.Element, Error>)
     }
 }
 
 extension SignalProtocol where Error == Never {
-
     /// Propagate elements only from the signal that starts emitting first. Also known as the `race` operator.
     ///
     /// Check out interactive example at [https://rxmarbles.com/#race](https://rxmarbles.com/#race)

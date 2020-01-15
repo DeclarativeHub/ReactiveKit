@@ -25,14 +25,13 @@
 import Foundation
 
 extension SignalProtocol {
-
     /// Maps signal elements into `Result.success` elements and signal errors into `Result.failure` elements.
     public func mapToResult() -> Signal<Result<Element, Error>, Never> {
         return materialize().compactMap { (event) -> Result<Element, Error>? in
             switch event {
-            case .next(let element):
+            case let .next(element):
                 return .success(element)
-            case .failed(let error):
+            case let .failed(error):
                 return .failure(error)
             case .completed:
                 return nil
@@ -48,7 +47,6 @@ extension SignalProtocol {
 }
 
 extension SignalProtocol where Error == Never {
-
     /// Map element into a result, propagating success value as a next event or failure as a failed event.
     /// Shorthand for `map(transform).getValues()`.
     public func tryMap<U, E>(_ transform: @escaping (Element) -> Result<U, E>) -> Signal<U, E> {
@@ -57,7 +55,6 @@ extension SignalProtocol where Error == Never {
 }
 
 extension SignalProtocol where Element: _ResultProtocol {
-
     /// Map inner result.
     /// Shorthand for `map { $0.map(transform) }`.
     public func mapValue<NewSuccess>(_ transform: @escaping (Element.Value) -> NewSuccess) -> Signal<Result<NewSuccess, Element.Error>, Error> {
@@ -66,23 +63,22 @@ extension SignalProtocol where Element: _ResultProtocol {
 }
 
 extension SignalProtocol where Element: _ResultProtocol, Error == Element.Error {
-
     /// Unwraps values from result elements into elements of the signal.
     /// A failure result will trigger signal failure.
     public func getValues() -> Signal<Element.Value, Error> {
         return Signal { observer in
-            return self.observe { event in
+            self.observe { event in
                 switch event {
-                case .next(let result):
+                case let .next(result):
                     switch result._unbox {
-                    case .success(let element):
+                    case let .success(element):
                         observer.receive(element)
-                    case .failure(let error):
+                    case let .failure(error):
                         observer.receive(completion: .failure(error))
                     }
                 case .completed:
                     observer.receive(completion: .finished)
-                case .failed(let error):
+                case let .failed(error):
                     observer.receive(completion: .failure(error))
                 }
             }
@@ -91,7 +87,6 @@ extension SignalProtocol where Element: _ResultProtocol, Error == Element.Error 
 }
 
 extension SignalProtocol where Element: _ResultProtocol, Error == Never {
-
     /// Unwraps values from result elements into elements of the signal.
     /// A failure result will trigger signal failure.
     public func getValues() -> Signal<Element.Value, Element.Error> {
@@ -106,7 +101,6 @@ public protocol _ResultProtocol {
 }
 
 extension Result: _ResultProtocol {
-
     public var _unbox: Result {
         return self
     }

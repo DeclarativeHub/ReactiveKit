@@ -25,7 +25,6 @@
 import Foundation
 
 public enum Subscribers {
-
     public enum Completion<Failure> where Failure: Error {
         case finished
         case failure(Failure)

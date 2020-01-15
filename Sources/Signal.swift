@@ -27,16 +27,15 @@ import Foundation
 
 /// A signal represents a sequence of elements.
 public struct Signal<Element, Error: Swift.Error>: SignalProtocol {
-    
     public typealias Producer = (AtomicObserver<Element, Error>) -> Disposable
-    
+
     private let producer: Producer
-    
+
     /// Create a new signal given the producer closure.
     public init(_ producer: @escaping Producer) {
         self.producer = producer
     }
-    
+
     /// Register the observer that will receive events from the signal.
     public func observe(with observer: @escaping Observer<Element, Error>) -> Disposable {
         let observer = AtomicObserver(observer)
@@ -49,7 +48,6 @@ public struct Signal<Element, Error: Swift.Error>: SignalProtocol {
 public typealias SafeSignal<Element> = Signal<Element, Never>
 
 extension Signal {
-
     /// Create a signal that completes immediately without emitting any elements.
     public static func completed() -> Signal<Element, Error> {
         return Signal { observer in
@@ -70,8 +68,8 @@ extension Signal {
 
     /// Create a signal that never completes and never fails.
     public static func never() -> Signal<Element, Error> {
-        return Signal { observer in
-            return NonDisposable.instance
+        return Signal { _ in
+            NonDisposable.instance
         }
     }
 
@@ -83,7 +81,6 @@ extension Signal {
 }
 
 extension Signal {
-
     /// Create a signal that emits the given element and completes immediately.
     ///
     /// - Parameter element: An element to emit in the `next` event.
@@ -124,7 +121,7 @@ extension Signal {
     /// - Parameter makeSignal: A closure to creates the signal.
     public init<Other: SignalProtocol>(deferring makeSignal: @escaping () -> Other) where Other.Element == Element, Other.Error == Error {
         self.init { observer in
-            return makeSignal().observe(with: observer)
+            makeSignal().observe(with: observer)
         }
     }
 
@@ -135,9 +132,9 @@ extension Signal {
     public init(evaluating body: @escaping () -> Result<Element, Error>) {
         self.init { observer in
             switch body() {
-            case .success(let element):
+            case let .success(element):
                 observer.receive(lastElement: element)
-            case .failure(let error):
+            case let .failure(error):
                 observer.receive(completion: .failure(error))
             }
             return NonDisposable.instance
@@ -206,14 +203,13 @@ extension Signal {
     /// Guaranteed to have the same number of elements as the given array of signals.
     public init<S: Collection>(combiningLatest signals: S, combine: @escaping (_ elements: [S.Element.Element]) -> Element)
         where S.Element: SignalProtocol, S.Element.Error == Error {
-        self = signals.dropFirst().reduce(signals.first?.map { [$0] }) { (running, new) in
-            return running?.combineLatest(with: new) { $0 + [$1] }
+        self = signals.dropFirst().reduce(signals.first?.map { [$0] }) { running, new in
+            running?.combineLatest(with: new) { $0 + [$1] }
         }?.map(combine) ?? Signal.completed()
     }
 }
 
 extension Signal where Error == Swift.Error {
-
     /// Create a new signal by evaluating a throwing closure, capturing the
     /// returned value as a next event followed by a completion event, or any thrown error as a failure event.
     ///
@@ -224,7 +220,6 @@ extension Signal where Error == Swift.Error {
 }
 
 extension Signal where Error == Never {
-
     /// Create a new signal and assign its next element observer to the given variable.
     /// Calling the closure assigned to the varaible will send the next element on the signal.
     ///
@@ -239,7 +234,6 @@ extension Signal where Error == Never {
 }
 
 extension Signal where Element == Void, Error == Never {
-
     /// Create a new signal and assign its next element observer to the given variable.
     /// Calling the closure assigned to the varaible will send the next element on the signal.
     ///

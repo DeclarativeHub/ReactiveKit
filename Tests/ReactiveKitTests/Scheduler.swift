@@ -11,7 +11,6 @@ import ReactiveKit
 
 /// A scheduler that buffers actions and enables their manual execution through `run` methods.
 class Scheduler: ReactiveKit.Scheduler {
-
     private var availableRuns = 0
     private var scheduledBlocks: [() -> Void] = []
     private(set) var numberOfRuns = 0
@@ -33,7 +32,7 @@ class Scheduler: ReactiveKit.Scheduler {
     }
 
     private func tryRun() {
-        while availableRuns > 0 && scheduledBlocks.count > 0 {
+        while availableRuns > 0, scheduledBlocks.count > 0 {
             let block = scheduledBlocks.removeFirst()
             block()
             numberOfRuns += 1
