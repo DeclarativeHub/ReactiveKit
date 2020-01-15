@@ -32,7 +32,6 @@ public protocol PropertyProtocol {
 
 /// Represents mutable state that can be observed as a signal of events.
 public final class Property<Value>: PropertyProtocol, SubjectProtocol, BindableProtocol, DisposeBagProvider {
-
     private let lock = NSRecursiveLock(name: "com.reactive_kit.property")
 
     private let subject: Subject<Value, Never>
@@ -40,7 +39,7 @@ public final class Property<Value>: PropertyProtocol, SubjectProtocol, BindableP
     public var bag: DisposeBag {
         return subject.disposeBag
     }
-    
+
     /// Underlying value. Changing it emits `.next` event with new value.
     private var _value: Value
     public var value: Value {
@@ -54,35 +53,35 @@ public final class Property<Value>: PropertyProtocol, SubjectProtocol, BindableP
             subject.send(newValue)
         }
     }
-    
+
     public init(_ value: Value, subject: Subject<Value, Never> = PassthroughSubject()) {
         _value = value
         self.subject = subject
     }
-    
+
     public func on(_ event: Signal<Value, Never>.Event) {
         lock.lock(); defer { lock.unlock() }
-        if case .next(let element) = event {
+        if case let .next(element) = event {
             _value = element
         }
         subject.on(event)
     }
-    
+
     public func observe(with observer: @escaping (Signal<Value, Never>.Event) -> Void) -> Disposable {
         lock.lock(); defer { lock.unlock() }
         return subject.prepend(_value).observe(with: observer)
     }
-    
+
     public var readOnlyView: AnyProperty<Value> {
         return AnyProperty(property: self)
     }
-    
+
     /// Change the underlying value without notifying the observers.
     public func silentUpdate(value: Value) {
         lock.lock(); defer { lock.unlock() }
         _value = value
     }
-    
+
     public func bind(signal: Signal<Value, Never>) -> Disposable {
         return signal
             .prefix(untilOutputFrom: bag.deallocated)
@@ -91,7 +90,7 @@ public final class Property<Value>: PropertyProtocol, SubjectProtocol, BindableP
                 self?.on(.next(element))
             }
     }
-    
+
     deinit {
         subject.send(completion: .finished)
     }
@@ -99,17 +98,16 @@ public final class Property<Value>: PropertyProtocol, SubjectProtocol, BindableP
 
 /// Represents mutable state that can be observed as a signal of events.
 public final class AnyProperty<Value>: PropertyProtocol, SignalProtocol {
-    
     private let property: Property<Value>
-    
+
     public var value: Value {
         return property.value
     }
-    
+
     public init(property: Property<Value>) {
         self.property = property
     }
-    
+
     public func observe(with observer: @escaping (Signal<Value, Never>.Event) -> Void) -> Disposable {
         return property.observe(with: observer)
     }

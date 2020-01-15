@@ -25,17 +25,16 @@
 import Foundation
 
 extension SignalProtocol {
-
     /// Transform each element by applying `transform` on it.
     ///
     /// Check out interactive example at [https://rxmarbles.com/#map](https://rxmarbles.com/#map)
     public func map<U>(_ transform: @escaping (Element) -> U) -> Signal<U, Error> {
         return Signal { observer in
-            return self.observe { event in
+            self.observe { event in
                 switch event {
-                case .next(let element):
+                case let .next(element):
                     observer.receive(transform(element))
-                case .failed(let error):
+                case let .failed(error):
                     observer.receive(completion: .failure(error))
                 case .completed:
                     observer.receive(completion: .finished)
@@ -85,11 +84,11 @@ extension SignalProtocol {
             let serialDisposable = SerialDisposable(otherDisposable: nil)
             serialDisposable.otherDisposable = self.observe { taskEvent in
                 switch taskEvent {
-                case .next(let value):
+                case let .next(value):
                     observer.receive(value)
                 case .completed:
                     observer.receive(completion: .finished)
-                case .failed(let error):
+                case let .failed(error):
                     serialDisposable.otherDisposable = recover(error).observe(with: observer.on)
                 }
             }
@@ -99,22 +98,21 @@ extension SignalProtocol {
 }
 
 extension SignalProtocol where Error == Swift.Error {
-
     /// Transform each element by applying `transform` on it.
     /// Throwing an error will be emitted as `.failed` event on the Signal.
     ///
     /// Check out interactive example at [https://rxmarbles.com/#map](https://rxmarbles.com/#map)
     public func map<U>(_ transform: @escaping (Element) throws -> U) -> Signal<U, Error> {
         return Signal { observer in
-            return self.observe { event in
+            self.observe { event in
                 switch event {
-                case .next(let element):
+                case let .next(element):
                     do {
                         observer.receive(try transform(element))
                     } catch {
                         observer.receive(completion: .failure(error))
                     }
-                case .failed(let error):
+                case let .failed(error):
                     observer.receive(completion: .failure(error))
                 case .completed:
                     observer.receive(completion: .finished)
@@ -127,7 +125,6 @@ extension SignalProtocol where Error == Swift.Error {
 /// Flattening strategy defines how to flatten (join) inner signals into one, flattened, signal.
 /// - Tag: FlattenStrategy
 public enum FlattenStrategy {
-
     /// Flatten the signal by sequentially observing inner signals in order in which they
     /// arrive, starting next observation only after previous one completes.
     case concat
@@ -141,7 +138,6 @@ public enum FlattenStrategy {
 }
 
 extension SignalProtocol where Element: SignalProtocol, Element.Error == Error {
-
     public typealias InnerElement = Element.Element
 
     /// Flatten the signal using the given strategy.
@@ -172,21 +168,21 @@ extension SignalProtocol where Element: SignalProtocol, Element.Error == Error {
             }
             compositeDisposable += self.observe { outerEvent in
                 switch outerEvent {
-                case .next(let innerSignal):
+                case let .next(innerSignal):
                     lock.lock(); defer { lock.unlock() }
                     _numberOfOperations += 1
                     compositeDisposable += innerSignal.observe { innerEvent in
                         switch innerEvent {
-                        case .next(let element):
+                        case let .next(element):
                             observer.receive(element)
-                        case .failed(let error):
+                        case let .failed(error):
                             observer.receive(completion: .failure(error))
                         case .completed:
                             lock.lock(); defer { lock.unlock() }
                             _decrementNumberOfOperations()
                         }
                     }
-                case .failed(let error):
+                case let .failed(error):
                     observer.receive(completion: .failure(error))
                 case .completed:
                     lock.lock(); defer { lock.unlock() }
@@ -206,15 +202,15 @@ extension SignalProtocol where Element: SignalProtocol, Element.Error == Error {
             var _completions = (outer: false, inner: false)
             compositeDisposable += self.observe { outerEvent in
                 switch outerEvent {
-                case .next(let innerSignal):
+                case let .next(innerSignal):
                     lock.lock(); defer { lock.unlock() }
                     _completions.inner = false
                     serialDisposable.otherDisposable?.dispose()
                     serialDisposable.otherDisposable = innerSignal.observe { innerEvent in
                         switch innerEvent {
-                        case .next(let element):
+                        case let .next(element):
                             observer.receive(element)
-                        case .failed(let error):
+                        case let .failed(error):
                             observer.receive(completion: .failure(error))
                         case .completed:
                             lock.lock(); defer { lock.unlock() }
@@ -224,7 +220,7 @@ extension SignalProtocol where Element: SignalProtocol, Element.Error == Error {
                             }
                         }
                     }
-                case .failed(let error):
+                case let .failed(error):
                     observer.receive(completion: .failure(error))
                 case .completed:
                     lock.lock(); defer { lock.unlock() }
@@ -255,9 +251,9 @@ extension SignalProtocol where Element: SignalProtocol, Element.Error == Error {
                 serialDisposable.otherDisposable = innerSignal.observe { event in
                     lock.lock(); defer { lock.unlock() }
                     switch event {
-                    case .next(let element):
+                    case let .next(element):
                         observer.receive(element)
-                    case .failed(let error):
+                    case let .failed(error):
                         observer.receive(completion: .failure(error))
                     case .completed:
                         _completions.inner = true
@@ -272,12 +268,12 @@ extension SignalProtocol where Element: SignalProtocol, Element.Error == Error {
             compositeDisposable += self.observe { outerEvent in
                 lock.lock(); defer { lock.unlock() }
                 switch outerEvent {
-                case .next(let innerSignal):
+                case let .next(innerSignal):
                     _innerSignalQueue.append(innerSignal)
                     if _completions.inner {
                         _startNextOperation()
                     }
-                case .failed(let error):
+                case let .failed(error):
                     observer.receive(completion: .failure(error))
                 case .completed:
                     _completions.outer = true
@@ -292,7 +288,6 @@ extension SignalProtocol where Element: SignalProtocol, Element.Error == Error {
 }
 
 extension SignalProtocol where Error == Never {
-
     /// Map each element into a signal and then flatten inner signals using the given strategy.
     /// `flatMap` is just a shorthand for `map(transform).flatten(strategy)`.
     ///
@@ -308,7 +303,7 @@ extension SignalProtocol where Error == Never {
     /// Shorthand for `flatMap(.concat, transform)`.
     ///
     /// Check out interactive example at [https://rxmarbles.com/#concatMap](https://rxmarbles.com/#concatMap)
-    public func flatMapConcat<O: SignalProtocol>(_ transform: @escaping (Element) -> O) -> Signal<O.Element, O.Error>  {
+    public func flatMapConcat<O: SignalProtocol>(_ transform: @escaping (Element) -> O) -> Signal<O.Element, O.Error> {
         return flatMap(.concat, transform)
     }
 
@@ -330,7 +325,6 @@ extension SignalProtocol where Error == Never {
 }
 
 extension SignalProtocol where Element: SignalProtocol, Error == Never {
-
     /// Flatten the signal using the given strategy.
     ///
     /// - parameter strategy: Flattening strategy to use. Check out [FlattenStrategy](x-source-tag://FlattenStrategy) type from more info.

@@ -25,15 +25,14 @@
 import Foundation
 
 extension SignalProtocol {
-
     /// Transform error by applying `transform` on it.
     public func mapError<F>(_ transform: @escaping (Error) -> F) -> Signal<Element, F> {
         return Signal { observer in
-            return self.observe { event in
+            self.observe { event in
                 switch event {
-                case .next(let element):
+                case let .next(element):
                     observer.receive(element)
-                case .failed(let error):
+                case let .failed(error):
                     observer.receive(completion: .failure(transform(error)))
                 case .completed:
                     observer.receive(completion: .finished)
@@ -57,11 +56,11 @@ extension SignalProtocol {
     /// Convert signal into a non-failable signal by suppressing the error.
     public func suppressError(logging: Bool, file: String = #file, line: Int = #line) -> Signal<Element, Never> {
         return Signal { observer in
-            return self.observe { event in
+            self.observe { event in
                 switch event {
-                case .next(let element):
+                case let .next(element):
                     observer.receive(element)
-                case .failed(let error):
+                case let .failed(error):
                     observer.receive(completion: .finished)
                     if logging {
                         print("Signal at \(file):\(line) encountered an error: \(error)")
@@ -81,9 +80,9 @@ extension SignalProtocol {
     /// Recover the signal by propagating default element if an error happens.
     public func replaceError(with element: Element) -> Signal<Element, Never> {
         return Signal { observer in
-            return self.observe { event in
+            self.observe { event in
                 switch event {
-                case .next(let element):
+                case let .next(element):
                     observer.receive(element)
                 case .failed:
                     observer.receive(element)
@@ -107,9 +106,9 @@ extension SignalProtocol {
                 serialDisposable.otherDisposable?.dispose()
                 serialDisposable.otherDisposable = self.observe { event in
                     switch event {
-                    case .next(let element):
+                    case let .next(element):
                         observer.receive(element)
-                    case .failed(let error):
+                    case let .failed(error):
                         lock.lock(); defer { lock.unlock() }
                         if _remainingAttempts > 0 {
                             _remainingAttempts -= 1
@@ -149,14 +148,14 @@ extension SignalProtocol {
                 serialDisposable.otherDisposable = compositeDisposable
                 compositeDisposable += self.observe { event in
                     switch event {
-                    case .next(let element):
+                    case let .next(element):
                         observer.receive(element)
                     case .completed:
                         lock.lock(); defer { lock.unlock() }
                         _attempt = nil
                         serialDisposable.otherDisposable?.dispose()
                         observer.receive(completion: .finished)
-                    case .failed(let error):
+                    case let .failed(error):
                         if shouldRetry(error) {
                             compositeDisposable += other.first().observe { otherEvent in
                                 lock.lock(); defer { lock.unlock() }
@@ -194,7 +193,7 @@ extension SignalProtocol {
             let lock = NSRecursiveLock(name: "com.reactive_kit.signal.timeout")
             var _completed = false
             let timeoutWhenPossible: () -> Disposable = {
-                return queue.disposableAfter(when: interval) {
+                queue.disposableAfter(when: interval) {
                     lock.lock(); defer { lock.unlock() }
                     if !_completed {
                         _completed = true
@@ -216,13 +215,13 @@ extension SignalProtocol {
     /// Map failable signal into a non-failable signal of errors. Ignores `.next` events.
     public func toErrorSignal() -> Signal<Error, Never> {
         return Signal { observer in
-            return self.observe { taskEvent in
+            self.observe { taskEvent in
                 switch taskEvent {
                 case .next:
                     break
                 case .completed:
                     observer.receive(completion: .finished)
-                case .failed(let error):
+                case let .failed(error):
                     observer.receive(error)
                     observer.receive(completion: .finished)
                 }
@@ -232,13 +231,12 @@ extension SignalProtocol {
 }
 
 extension SignalProtocol where Error == Never {
-
     /// Safe error casting from Never to some Error type.
     public func castError<E>() -> Signal<Element, E> {
         return Signal { observer in
-            return self.observe { event in
+            self.observe { event in
                 switch event {
-                case .next(let element):
+                case let .next(element):
                     observer.receive(element)
                 case .completed:
                     observer.receive(completion: .finished)

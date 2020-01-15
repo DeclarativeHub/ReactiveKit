@@ -25,7 +25,6 @@
 import Foundation
 
 public protocol Subscriber {
-
     associatedtype Input
     associatedtype Failure: Error
 
@@ -37,7 +36,6 @@ public protocol Subscriber {
 }
 
 extension Subscriber where Self.Input == Void {
-
     public func receive() -> Subscribers.Demand {
         return receive(())
     }

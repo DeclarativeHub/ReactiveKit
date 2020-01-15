@@ -6,16 +6,15 @@
 //  Copyright © 2016 Srdan Rasic. All rights reserved.
 //
 
-import XCTest
-import ReactiveKit
 import Dispatch
+import ReactiveKit
+import XCTest
 
 enum TestError: Swift.Error {
     case error
 }
 
 class SignalTests: XCTestCase {
-
     func testProductionAndObservation() {
         let bob = Scheduler()
         bob.runRemaining()
@@ -27,7 +26,7 @@ class SignalTests: XCTestCase {
 
         publisher.subscribe(a)
         publisher.subscribe(b)
-        
+
         XCTAssertEqual(a.values, [1, 2, 3])
         XCTAssertTrue(a.isFinished)
 
@@ -44,7 +43,7 @@ class SignalTests: XCTestCase {
         }
 
         let operation = Signal<Int, TestError> { _ in
-            return disposable
+            disposable
         }
 
         operation.observe { _ in }.dispose()
@@ -110,7 +109,7 @@ class SignalTests: XCTestCase {
         p1.subscribe(s1)
         XCTAssertEqual(s1.values, [[1], [2], [3]])
         XCTAssertTrue(s1.isFinished)
-        
+
         let s2 = Subscribers.Accumulator<[Int], Never>()
         let p2 = SafeSignal(sequence: [1, 2, 3, 4]).buffer(size: 2)
         p2.subscribe(s2)
@@ -123,7 +122,7 @@ class SignalTests: XCTestCase {
         XCTAssertEqual(s3.values, [[1, 2], [3, 4]])
         XCTAssertTrue(s3.isFinished)
     }
-    
+
     func testMap() {
         let subscriber = Subscribers.Accumulator<Int, TestError>()
         let publisher = Signal<Int, TestError>(sequence: [1, 2, 3]).map { $0 * 2 }
@@ -139,7 +138,7 @@ class SignalTests: XCTestCase {
         XCTAssertEqual(subscriber.values, [0, 1, 3, 6])
         XCTAssertTrue(subscriber.isFinished)
     }
-    
+
     func testScanForThreadSafety() {
         let subject = PassthroughSubject<Int, TestError>()
         let scanned = subject.scan(0, +)
@@ -297,13 +296,13 @@ class SignalTests: XCTestCase {
             .receive(on: bob)
             .prefix(untilOutputFrom: Signal<String, TestError>(sequence: ["A", "B"]).receive(on: eve))
             .subscribe(subscriber)
-        
-        bob.runOne()                // Sends 1.
-        bob.runOne()                // Sends 2.
-        eve.runOne()                // Sends A, effectively stopping the receiver.
-        bob.runOne()                // Ignored.
-        eve.runRemaining()          // Ignored. Sends B, with termination.
-        bob.runRemaining()          // Ignored.
+
+        bob.runOne() // Sends 1.
+        bob.runOne() // Sends 2.
+        eve.runOne() // Sends A, effectively stopping the receiver.
+        bob.runOne() // Ignored.
+        eve.runRemaining() // Ignored. Sends B, with termination.
+        bob.runRemaining() // Ignored.
 
         XCTAssertEqual(subscriber.values, [1, 2])
         XCTAssertTrue(subscriber.isFinished)
@@ -311,7 +310,7 @@ class SignalTests: XCTestCase {
 
     func testIgnoreNils() {
         let subscriber = Subscribers.Accumulator<Int, TestError>()
-        let publisher = Signal<Int?, TestError>(sequence: Array<Int?>([1, nil, 3])).ignoreNils()
+        let publisher = Signal<Int?, TestError>(sequence: [Int?]([1, nil, 3])).ignoreNils()
         publisher.subscribe(subscriber)
         XCTAssertEqual(subscriber.values, [1, 3])
         XCTAssertTrue(subscriber.isFinished)
@@ -319,7 +318,7 @@ class SignalTests: XCTestCase {
 
     func testReplaceNils() {
         let subscriber = Subscribers.Accumulator<Int, TestError>()
-        let publisher = Signal<Int?, TestError>(sequence: Array<Int?>([1, nil, 3, nil])).replaceNils(with: 7)
+        let publisher = Signal<Int?, TestError>(sequence: [Int?]([1, nil, 3, nil])).replaceNils(with: 7)
         publisher.subscribe(subscriber)
         XCTAssertEqual(subscriber.values, [1, 7, 3, 7])
         XCTAssertTrue(subscriber.isFinished)
@@ -345,23 +344,23 @@ class SignalTests: XCTestCase {
         XCTAssertEqual(subscriber.values, ["1A", "1B", "2B", "3B", "3C"])
         XCTAssertTrue(subscriber.isFinished)
     }
-    
+
     func testCombineLatestWithForThreadSafety() {
         let subjectOne = PassthroughSubject<Int, TestError>()
         let subjectTwo = PassthroughSubject<Int, TestError>()
         let combined = subjectOne.combineLatest(with: subjectTwo)
-        
+
         let disposeBag = DisposeBag()
         let exp = expectation(description: "race_condition?")
         combined.stress(with: [subjectOne, subjectTwo], expectation: exp).dispose(in: disposeBag)
-        
+
         waitForExpectations(timeout: 3)
     }
 
     func testMergeWith() {
         let bob = Scheduler()
         let eve = Scheduler()
-        
+
         let subscriber = Subscribers.Accumulator<Int, TestError>()
         let a = Signal<Int, TestError>(sequence: [1, 2, 3]).receive(on: bob)
         let b = Signal<Int, TestError>(sequence: [4, 5, 6]).receive(on: eve)
@@ -379,7 +378,7 @@ class SignalTests: XCTestCase {
         XCTAssertEqual(subscriber.values, [1, 4, 5, 2, 6, 3])
         XCTAssertTrue(subscriber.isFinished)
     }
-    
+
     func testStartWith() {
         let subscriber = Subscribers.Accumulator<Int, TestError>()
         let publisher = Signal<Int, TestError>(sequence: [1, 2, 3]).prepend(4)
@@ -397,16 +396,16 @@ class SignalTests: XCTestCase {
         XCTAssertEqual(subscriber.values, ["1A", "2B"])
         XCTAssertTrue(subscriber.isFinished)
     }
-    
+
     func testZipWithForThreadSafety() {
         let subjectOne = PassthroughSubject<Int, TestError>()
         let subjectTwo = PassthroughSubject<Int, TestError>()
         let combined = subjectOne.zip(with: subjectTwo)
-        
+
         let disposeBag = DisposeBag()
         let exp = expectation(description: "race_condition?")
         combined.stress(with: [subjectOne, subjectTwo], expectation: exp).dispose(in: disposeBag)
-        
+
         waitForExpectations(timeout: 3)
     }
 
@@ -431,8 +430,8 @@ class SignalTests: XCTestCase {
     }
 
     func testZipWithAsyncSignal() {
-        let a = Signal<Int, TestError>(sequence: 0..<4, interval: 0.5)
-        let b = Signal<Int, TestError>(sequence: 0..<10, interval: 1.0)
+        let a = Signal<Int, TestError>(sequence: 0 ..< 4, interval: 0.5)
+        let b = Signal<Int, TestError>(sequence: 0 ..< 10, interval: 1.0)
         let combined = a.zip(with: b).map { $0 + $1 } // Completes after 4 nexts due to 'a' and takes 4 secs due to 'b'
         let events = combined.waitAndCollectEvents()
         XCTAssertEqual(events, [.next(0), .next(2), .next(4), .next(6), .completed])
@@ -440,7 +439,7 @@ class SignalTests: XCTestCase {
 
     func testFlatMapError() {
         let subscriber = Subscribers.Accumulator<Int, TestError>()
-        let publisher = Signal<Int, TestError>.failed(.error).flatMapError { error in Signal<Int, TestError>(just: 1) }
+        let publisher = Signal<Int, TestError>.failed(.error).flatMapError { _ in Signal<Int, TestError>(just: 1) }
         publisher.subscribe(subscriber)
         XCTAssertEqual(subscriber.values, [1])
         XCTAssertFalse(subscriber.isFailure)
@@ -449,7 +448,7 @@ class SignalTests: XCTestCase {
 
     func testFlatMapError2() {
         let subscriber = Subscribers.Accumulator<Int, Never>()
-        let publisher = Signal<Int, TestError>.failed(.error).flatMapError { error in Signal<Int, Never>(just: 1) }
+        let publisher = Signal<Int, TestError>.failed(.error).flatMapError { _ in Signal<Int, Never>(just: 1) }
         publisher.subscribe(subscriber)
         XCTAssertEqual(subscriber.values, [1])
         XCTAssertFalse(subscriber.isFailure)
@@ -469,25 +468,24 @@ class SignalTests: XCTestCase {
         XCTAssertTrue(subscriber.isFailure)
         XCTAssertEqual(bob.numberOfRuns, 4)
     }
-    
+
     func testRetryForThreadSafety() {
         let subjectOne = PassthroughSubject<Int, TestError>()
         let retry = subjectOne.retry(3)
-        
+
         let disposeBag = DisposeBag()
         let exp = expectation(description: "race_condition?")
         retry.stress(with: [subjectOne], expectation: exp).dispose(in: disposeBag)
-        
+
         waitForExpectations(timeout: 3)
     }
 
     func testRetryWhen() {
-
         let queue = DispatchQueue(label: "test", qos: .userInitiated)
         let e = expectation(description: "Failed to retry")
         e.expectedFulfillmentCount = 1000
 
-        for _ in 0..<e.expectedFulfillmentCount {
+        for _ in 0 ..< e.expectedFulfillmentCount {
             var count = 0
             Signal { () -> Result<Bool, Error> in
                 count += 1
@@ -596,11 +594,11 @@ class SignalTests: XCTestCase {
             .waitAndCollectEvents()
         XCTAssertEqual(events, [.failed(.error)])
     }
-    
+
     func testTimeoutForThreadSafety() {
         let exp = expectation(description: "race_condition?")
         exp.expectedFulfillmentCount = 10000
-        for _ in 0..<exp.expectedFulfillmentCount {
+        for _ in 0 ..< exp.expectedFulfillmentCount {
             let subject = PassthroughSubject<Int, TestError>()
             let timeout = subject.timeout(after: 1, with: .error)
             let disposeBag = DisposeBag()
@@ -631,14 +629,14 @@ class SignalTests: XCTestCase {
         let subjectOne = PassthroughSubject<Int, TestError>()
         let subjectTwo = PassthroughSubject<Int, TestError>()
         let combined = subjectOne.amb(with: subjectTwo)
-        
+
         let disposeBag = DisposeBag()
         let exp = expectation(description: "race_condition?")
         combined.stress(with: [subjectOne, subjectTwo], expectation: exp).dispose(in: disposeBag)
-        
+
         waitForExpectations(timeout: 3)
     }
-    
+
     func testCollect() {
         let events = Signal<Int, TestError>(sequence: [1, 2, 3])
             .collect()
@@ -664,7 +662,7 @@ class SignalTests: XCTestCase {
         XCTAssertEqual(subscriber.values, [1, 2, 3, 4])
         XCTAssertTrue(subscriber.isFinished)
     }
-    
+
     func testWithLatestFrom() {
         let bob = Scheduler()
         let eve = Scheduler()
@@ -681,23 +679,23 @@ class SignalTests: XCTestCase {
         eve.runOne()
         bob.runRemaining()
         eve.runRemaining()
-        
+
         XCTAssertEqual(subscriber.values[0].0, 2)
         XCTAssertEqual(subscriber.values[0].1, 3)
         XCTAssertEqual(subscriber.values[1].0, 5)
         XCTAssertEqual(subscriber.values[1].1, 4)
         XCTAssertTrue(subscriber.isFinished)
     }
-    
+
     func testWithLatestFromForThreadSafety() {
         let subjectOne = PassthroughSubject<Int, TestError>()
         let subjectTwo = PassthroughSubject<Int, TestError>()
         let merged = subjectOne.with(latestFrom: subjectTwo)
-        
+
         let disposeBag = DisposeBag()
         let exp = expectation(description: "race_condition?")
         merged.stress(with: [subjectOne, subjectTwo], expectation: exp).dispose(in: disposeBag)
-        
+
         waitForExpectations(timeout: 3)
     }
 
@@ -731,7 +729,7 @@ class SignalTests: XCTestCase {
         let publisher = Signal<Int, TestError>(sequence: [1, 2])
             .receive(on: bob)
             .flatMapMerge { num in
-                Signal<Int, TestError>(sequence: [5, 6].map { $0 * num }).receive(on: eves[num-1])
+                Signal<Int, TestError>(sequence: [5, 6].map { $0 * num }).receive(on: eves[num - 1])
             }
         publisher.subscribe(subscriber)
 
@@ -744,16 +742,16 @@ class SignalTests: XCTestCase {
         XCTAssertEqual(subscriber.values, [5, 10, 12, 6])
         XCTAssertTrue(subscriber.isFinished)
     }
-    
+
     func testFlatMapMergeForThreadSafety() {
         let subjectOne = PassthroughSubject<Int, TestError>()
         let subjectTwo = PassthroughSubject<Int, TestError>()
         let merged = subjectOne.flatMapMerge { _ in subjectTwo }
-        
+
         let disposeBag = DisposeBag()
         let exp = expectation(description: "race_condition?")
         merged.stress(with: [subjectOne, subjectTwo], expectation: exp).dispose(in: disposeBag)
-        
+
         waitForExpectations(timeout: 3)
     }
 
@@ -765,7 +763,7 @@ class SignalTests: XCTestCase {
         let publisher = Signal<Int, TestError>(sequence: [1, 2])
             .receive(on: bob)
             .flatMapLatest { num in
-                Signal<Int, TestError>(sequence: [5, 6].map { $0 * num }).receive(on: eves[num-1])
+                Signal<Int, TestError>(sequence: [5, 6].map { $0 * num }).receive(on: eves[num - 1])
             }
         publisher.subscribe(subscriber)
 
@@ -778,16 +776,16 @@ class SignalTests: XCTestCase {
         XCTAssertEqual(subscriber.values, [5, 10, 12])
         XCTAssertTrue(subscriber.isFinished)
     }
-    
+
     func testFlatMapLatestForThreadSafety() {
         let subjectOne = PassthroughSubject<Int, TestError>()
         let subjectTwo = PassthroughSubject<Int, TestError>()
         let merged = subjectOne.flatMapLatest { _ in subjectTwo }
-        
+
         let disposeBag = DisposeBag()
         let exp = expectation(description: "race_condition?")
         merged.stress(with: [subjectOne, subjectTwo], expectation: exp).dispose(in: disposeBag)
-        
+
         waitForExpectations(timeout: 3)
     }
 
@@ -799,7 +797,7 @@ class SignalTests: XCTestCase {
         let publisher = Signal<Int, TestError>(sequence: [1, 2])
             .receive(on: bob)
             .flatMapConcat { num in
-                Signal<Int, TestError>(sequence: [5, 6].map { $0 * num }).receive(on: eves[num-1])
+                Signal<Int, TestError>(sequence: [5, 6].map { $0 * num }).receive(on: eves[num - 1])
             }
         publisher.subscribe(subscriber)
 
@@ -811,16 +809,16 @@ class SignalTests: XCTestCase {
         XCTAssertEqual(subscriber.values, [5, 6, 10, 12])
         XCTAssertTrue(subscriber.isFinished)
     }
-    
+
     func testFlatMapConcatForThreadSafety() {
         let subjectOne = PassthroughSubject<Int, TestError>()
         let subjectTwo = PassthroughSubject<Int, TestError>()
         let merged = subjectOne.flatMapConcat { _ in subjectTwo }
-        
+
         let disposeBag = DisposeBag()
         let exp = expectation(description: "race_condition?")
         merged.stress(with: [subjectOne, subjectTwo], expectation: exp).dispose(in: disposeBag)
-        
+
         waitForExpectations(timeout: 3)
     }
 
@@ -832,7 +830,7 @@ class SignalTests: XCTestCase {
         let replayed = publisher.replay(limit: 2)
 
         XCTAssertEqual(publisher.waitAndCollectEvents(), [.next(1), .next(2), .next(3), .completed])
-        let _ = replayed.connect()
+        _ = replayed.connect()
         XCTAssertEqual(replayed.waitAndCollectEvents(), [.next(2), .next(3), .completed])
         XCTAssertEqual(bob.numberOfRuns, 2)
     }
@@ -860,16 +858,16 @@ class SignalTests: XCTestCase {
         XCTAssertEqual(subscriber.values, [1, 2, 2, 2, 3, 3])
         XCTAssertTrue(subscriber.isFinished)
     }
-    
+
     func testReplayLatestWithForThreadSafety() {
         let subjectOne = PassthroughSubject<Int, Never>()
         let subjectTwo = PassthroughSubject<Int, Never>()
         let combined = subjectOne.replayLatest(when: subjectTwo)
-        
+
         let disposeBag = DisposeBag()
         let exp = expectation(description: "race_condition?")
         combined.stress(with: [subjectOne, subjectTwo], expectation: exp).dispose(in: disposeBag)
-        
+
         waitForExpectations(timeout: 3)
     }
 
@@ -881,7 +879,7 @@ class SignalTests: XCTestCase {
         let published = publisher.publish()
 
         XCTAssertEqual(publisher.waitAndCollectEvents(), [.next(1), .next(2), .next(3), .completed])
-        let _ = published.connect()
+        _ = published.connect()
 
         XCTAssertEqual(
             published.timeout(after: 1, with: .error).waitAndCollectEvents(),
@@ -892,7 +890,7 @@ class SignalTests: XCTestCase {
     }
 
     func testAnyCancallableHashable() {
-        let emptyClosure: () -> Void = { }
+        let emptyClosure: () -> Void = {}
 
         let cancellable1 = AnyCancellable(emptyClosure)
         let cancellable2 = AnyCancellable(emptyClosure)
@@ -902,35 +900,31 @@ class SignalTests: XCTestCase {
         XCTAssertNotEqual(cancellable1, cancellable2)
         XCTAssertNotEqual(cancellable1, cancellable3)
         XCTAssertEqual(cancellable3, cancellable4)
-
     }
 
-    #if  os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
-    func testBindTo() {
+    #if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
+        func testBindTo() {
+            class User: NSObject, BindingExecutionContextProvider {
+                var age: Int = 0
 
-        class User: NSObject, BindingExecutionContextProvider {
-
-            var age: Int = 0
-
-            var bindingExecutionContext: ExecutionContext {
-                return .immediate
+                var bindingExecutionContext: ExecutionContext {
+                    return .immediate
+                }
             }
+
+            let user = User()
+
+            SafeSignal(just: 20).bind(to: user) { object, value in object.age = value }
+            XCTAssertEqual(user.age, 20)
+
+            SafeSignal(just: 30).bind(to: user, keyPath: \.age)
+            XCTAssertEqual(user.age, 30)
         }
-
-        let user = User()
-
-        SafeSignal(just: 20).bind(to: user) { (object, value) in object.age = value }
-        XCTAssertEqual(user.age, 20)
-
-        SafeSignal(just: 30).bind(to: user, keyPath: \.age)
-        XCTAssertEqual(user.age, 30)
-    }
     #endif
 }
 
 extension SignalTests {
-
-    static var allTests : [(String, (SignalTests) -> () -> Void)] {
+    static var allTests: [(String, (SignalTests) -> () -> Void)] {
         return [
             ("testProductionAndObservation", testProductionAndObservation),
             ("testDisposing", testDisposing),

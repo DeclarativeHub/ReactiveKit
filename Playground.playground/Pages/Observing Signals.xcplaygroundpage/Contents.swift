@@ -1,8 +1,8 @@
 //: [Previous](@previous)
 
 import Foundation
-import ReactiveKit
 import PlaygroundSupport
+import ReactiveKit
 
 PlaygroundPage.current.needsIndefiniteExecution = true
 

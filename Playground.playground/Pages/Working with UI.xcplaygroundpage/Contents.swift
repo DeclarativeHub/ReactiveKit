@@ -1,8 +1,8 @@
 //: [Previous](@previous)
 
 import Foundation
-import ReactiveKit
 import PlaygroundSupport
+import ReactiveKit
 import UIKit
 
 PlaygroundPage.current.needsIndefiniteExecution = true
@@ -33,7 +33,8 @@ class PokeProfile: UIView {
         addSubview(stackView)
         backgroundColor = .white
     }
-    required init?(coder aDecoder: NSCoder) { fatalError() }
+
+    required init?(coder _: NSCoder) { fatalError() }
 }
 
 // Open Assistent Editor to see the view!

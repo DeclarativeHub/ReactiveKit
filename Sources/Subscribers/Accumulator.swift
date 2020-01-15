@@ -25,11 +25,9 @@
 import Foundation
 
 extension Subscribers {
-
     /// A subscriber that accumulates received values into an array. This subscriber can be useful in unit testing by
     /// asserting the state of various properties of the subscriber.
-    final public class Accumulator<Input, Failure: Swift.Error>: Subscriber, Cancellable {
-
+    public final class Accumulator<Input, Failure: Swift.Error>: Subscriber, Cancellable {
         private enum State {
             case initialized
             case subscribed(Cancellable)
@@ -39,10 +37,10 @@ extension Subscribers {
         private var state = State.initialized
 
         /// An array of values received by the subscriber.
-        final public private(set) var values: [Input] = []
+        public private(set) final var values: [Input] = []
 
         /// True if the subscriber has received a finished event.
-        final public var isFinished: Bool {
+        public final var isFinished: Bool {
             switch state {
             case .terminated(.some(.finished)):
                 return true
@@ -52,7 +50,7 @@ extension Subscribers {
         }
 
         /// True if the subscriber has received a failure event.
-        final public var isFailure: Bool {
+        public final var isFailure: Bool {
             switch state {
             case .terminated(.some(.failure)):
                 return true
@@ -62,20 +60,18 @@ extension Subscribers {
         }
 
         /// Non-nil if the subscriber has received a failure event.
-        final public var error: Failure? {
+        public final var error: Failure? {
             switch state {
-            case .terminated(.some(.failure(let error))):
+            case let .terminated(.some(.failure(error))):
                 return error
             default:
                 return nil
             }
         }
-        
-        
-        public init() {
-        }
-        
-        final public func receive(subscription: Subscription) {
+
+        public init() {}
+
+        public final func receive(subscription: Subscription) {
             switch state {
             case .initialized:
                 state = .subscribed(subscription)
@@ -85,12 +81,12 @@ extension Subscribers {
             }
         }
 
-        final public func receive(_ value: Input) -> Subscribers.Demand {
+        public final func receive(_ value: Input) -> Subscribers.Demand {
             values.append(value)
             return .unlimited
         }
 
-        final public func receive(completion: Subscribers.Completion<Failure>) {
+        public final func receive(completion: Subscribers.Completion<Failure>) {
             switch state {
             case .terminated:
                 break
@@ -99,9 +95,9 @@ extension Subscribers {
             }
         }
 
-        final public func cancel() {
+        public final func cancel() {
             switch state {
-            case .subscribed(let subscription):
+            case let .subscribed(subscription):
                 subscription.cancel()
                 state = .terminated(nil)
             default:

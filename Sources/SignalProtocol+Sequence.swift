@@ -25,7 +25,6 @@
 import Foundation
 
 extension SignalProtocol {
-
     /// Map element into a collection, flattening the collection into next elements.
     /// Shorthand for `map(transform).flattenElements()`.
     public func flatMap<NewElement>(_ transform: @escaping (Element) -> [NewElement]) -> Signal<NewElement, Error> {
@@ -34,7 +33,6 @@ extension SignalProtocol {
 }
 
 extension SignalProtocol where Element: Sequence {
-
     /// Map inner sequence.
     public func mapElement<NewElement>(_ transform: @escaping (Element.Iterator.Element) -> NewElement) -> Signal<[NewElement], Error> {
         return map { $0.map(transform) }
@@ -43,13 +41,13 @@ extension SignalProtocol where Element: Sequence {
     /// Unwrap elements from each emitted sequence into the elements of the signal.
     public func flattenElements() -> Signal<Element.Iterator.Element, Error> {
         return Signal { observer in
-            return self.observe { event in
+            self.observe { event in
                 switch event {
-                case .next(let sequence):
+                case let .next(sequence):
                     sequence.forEach(observer.receive(_:))
                 case .completed:
                     observer.receive(completion: .finished)
-                case .failed(let error):
+                case let .failed(error):
                     observer.receive(completion: .failure(error))
                 }
             }

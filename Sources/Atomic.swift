@@ -9,12 +9,11 @@
 import Foundation
 
 final class Atomic<T> {
-
     private var _value: T
     private let lock: NSLocking
 
     init(_ value: T, lock: NSLocking = NSRecursiveLock()) {
-        self._value = value
+        _value = value
         self.lock = lock
     }
 

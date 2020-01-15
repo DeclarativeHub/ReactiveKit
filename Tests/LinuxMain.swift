@@ -1,7 +1,7 @@
-import XCTest
 @testable import ReactiveKitTests
+import XCTest
 
 XCTMain([
     testCase(SignalTests.allTests),
-    testCase(PropertyTests.allTests),
+    testCase(PropertyTests.allTests)
 ])

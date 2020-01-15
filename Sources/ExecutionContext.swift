@@ -22,8 +22,8 @@
 //  THE SOFTWARE.
 //
 
-import Foundation
 import Dispatch
+import Foundation
 
 /// Execution context is an abstraction over a thread or a dispatch queue.
 ///
@@ -34,14 +34,13 @@ import Dispatch
 ///     }
 ///
 public struct ExecutionContext {
-
     public let context: (@escaping () -> Void) -> Void
-    
+
     /// Execution context is just a function that executes other function.
     public init(_ context: @escaping (@escaping () -> Void) -> Void) {
         self.context = context
     }
-    
+
     /// Execute given block in the context.
     @inlinable
     public func execute(_ block: @escaping () -> Void) {
@@ -50,9 +49,9 @@ public struct ExecutionContext {
 
     /// Execution context that executes immediately and synchronously on current thread or queue.
     public static var immediate: ExecutionContext {
-        return ExecutionContext { block in block () }
+        return ExecutionContext { block in block() }
     }
-    
+
     /// Executes immediately and synchronously if current thread is main thread. Otherwise executes
     /// asynchronously on main dispatch queue (main thread).
     public static var immediateOnMain: ExecutionContext {
@@ -64,18 +63,18 @@ public struct ExecutionContext {
             }
         }
     }
-    
+
     /// Execution context bound to main dispatch queue.
     public static var main: ExecutionContext {
         return DispatchQueue.main.context
     }
-    
+
     /// Execution context bound to global dispatch queue.
     @available(macOS 10.10, *)
     public static func global(qos: DispatchQoS.QoSClass = .default) -> ExecutionContext {
         return DispatchQueue.global(qos: qos).context
     }
-    
+
     /// Execution context that breaks recursive class by ingoring them.
     public static func nonRecursive() -> ExecutionContext {
         var updating: Bool = false
@@ -89,20 +88,19 @@ public struct ExecutionContext {
 }
 
 extension DispatchQueue {
-    
     /// Creates ExecutionContext from the queue.
     public var context: ExecutionContext {
         return ExecutionContext { block in
             self.async(execute: block)
         }
     }
-    
+
     /// Schedule given block for execution after given interval passes.
     @available(*, deprecated, message: "Please use asyncAfter(deadline:execute:)")
     public func after(when interval: Double, block: @escaping () -> Void) {
         asyncAfter(deadline: .now() + interval, execute: block)
     }
-    
+
     /// Schedule given block for execution after given interval passes.
     /// Scheduled execution can be cancelled by disposing the returned disposable.
     public func disposableAfter(when interval: Double, block: @escaping () -> Void) -> Disposable {

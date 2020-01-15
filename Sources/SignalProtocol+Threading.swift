@@ -25,7 +25,6 @@
 import Foundation
 
 extension SignalProtocol {
-
     /// Set the scheduler on which to execute the signal (i.e. to run the signal's producer).
     ///
     /// In contrast with `receive(on:)`, which affects downstream actions, `subscribe(on:)` changes the execution context of upstream actions.
@@ -46,7 +45,7 @@ extension SignalProtocol {
     /// In contrast with `subscribe(on:)`, which affects upstream actions, `receive(on:)` changes the execution context of downstream actions.
     public func receive<S: Scheduler>(on scheduler: S) -> Signal<Element, Error> {
         return Signal { observer in
-            return self.observe { event in
+            self.observe { event in
                 scheduler.schedule {
                     observer.on(event)
                 }

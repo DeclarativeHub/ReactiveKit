@@ -25,7 +25,6 @@
 import Foundation
 
 extension SignalProtocol {
-
     /// Map element into a result, propagating `.some` value as a next event or skipping an element in case of a `nil`.
     /// Shorthand for `map(transform).ignoreNils()`.
     public func compactMap<NewWrapped>(_ transform: @escaping (Element) -> NewWrapped?) -> Signal<NewWrapped, Error> {
@@ -34,7 +33,6 @@ extension SignalProtocol {
 }
 
 extension SignalProtocol where Element: OptionalProtocol {
-
     /// Map inner optional.
     /// Shorthand for `map { $0.map(transform) }`.
     public func mapWrapped<NewWrapped>(_ transform: @escaping (Element.Wrapped) -> NewWrapped) -> Signal<NewWrapped?, Error> {
@@ -49,13 +47,13 @@ extension SignalProtocol where Element: OptionalProtocol {
     /// Suppress all `nil`-elements.
     public func ignoreNils() -> Signal<Element.Wrapped, Error> {
         return Signal { observer in
-            return self.observe { event in
+            self.observe { event in
                 switch event {
-                case .next(let element):
+                case let .next(element):
                     if let element = element._unbox {
                         observer.receive(element)
                     }
-                case .failed(let error):
+                case let .failed(error):
                     observer.receive(completion: .failure(error))
                 case .completed:
                     observer.receive(completion: .finished)
@@ -67,14 +65,13 @@ extension SignalProtocol where Element: OptionalProtocol {
 
 public protocol OptionalProtocol {
     associatedtype Wrapped
-    var _unbox: Optional<Wrapped> { get }
+    var _unbox: Wrapped? { get }
     init(nilLiteral: ())
     init(_ some: Wrapped)
 }
 
 extension Optional: OptionalProtocol {
-
-    public var _unbox: Optional<Wrapped> {
+    public var _unbox: Wrapped? {
         return self
     }
 }

@@ -35,16 +35,14 @@ import Foundation
 ///
 ///     disposable.dispose()
 public protocol Disposable: Cancellable {
-    
     /// Dispose the signal observation or binding.
     func dispose()
-    
+
     /// Returns `true` is already disposed.
     var isDisposed: Bool { get }
 }
 
 extension Disposable {
-
     @inlinable
     public func cancel() {
         dispose()
@@ -53,13 +51,12 @@ extension Disposable {
 
 /// A disposable that cannot be disposed.
 public struct NonDisposable: Disposable {
-    
     public static let instance = NonDisposable()
-    
+
     private init() {}
-    
+
     public func dispose() {}
-    
+
     public var isDisposed: Bool {
         return false
     }
@@ -67,7 +64,6 @@ public struct NonDisposable: Disposable {
 
 /// A disposable that just encapsulates disposed state.
 public final class SimpleDisposable: Disposable {
-
     private let lock = NSRecursiveLock(name: "com.reactive_kit.simple_disposable")
     private var _isDisposed: Bool
 
@@ -81,32 +77,31 @@ public final class SimpleDisposable: Disposable {
             _isDisposed = newValue
         }
     }
-    
+
     public func dispose() {
         lock.lock(); defer { lock.unlock() }
         _isDisposed = true
     }
-    
+
     public init(isDisposed: Bool = false) {
-        self._isDisposed = isDisposed
+        _isDisposed = isDisposed
     }
 }
 
 /// A disposable that executes the given block upon disposing.
 public final class BlockDisposable: Disposable {
-
     private let lock = NSRecursiveLock(name: "com.reactive_kit.block_disposable")
-    private var handler: (() -> ())?
+    private var handler: (() -> Void)?
 
     public var isDisposed: Bool {
         lock.lock(); defer { lock.unlock() }
         return handler == nil
     }
 
-    public init(_ handler: @escaping () -> ()) {
+    public init(_ handler: @escaping () -> Void) {
         self.handler = handler
     }
-    
+
     public func dispose() {
         lock.lock()
         guard let handler = handler else {
@@ -121,7 +116,6 @@ public final class BlockDisposable: Disposable {
 
 /// A disposable that disposes itself upon deallocation.
 public final class DeinitDisposable: Disposable {
-
     private let lock = NSRecursiveLock(name: "com.reactive_kit.deinit_disposable")
     private var _otherDisposable: Disposable?
 
@@ -135,16 +129,16 @@ public final class DeinitDisposable: Disposable {
             return _otherDisposable
         }
     }
-    
+
     public var isDisposed: Bool {
         lock.lock(); defer { lock.unlock() }
         return _otherDisposable == nil
     }
-    
+
     public init(disposable: Disposable) {
         _otherDisposable = disposable
     }
-    
+
     public func dispose() {
         lock.lock()
         guard let otherDisposable = _otherDisposable else {
@@ -155,7 +149,7 @@ public final class DeinitDisposable: Disposable {
         lock.unlock()
         otherDisposable.dispose()
     }
-    
+
     deinit {
         dispose()
     }
@@ -163,7 +157,6 @@ public final class DeinitDisposable: Disposable {
 
 /// A disposable that disposes a collection of disposables upon its own disposing.
 public final class CompositeDisposable: Disposable {
-
     private let lock = NSRecursiveLock(name: "com.reactive_kit.composite_disposable")
     private var disposables: [Disposable]?
 
@@ -173,13 +166,13 @@ public final class CompositeDisposable: Disposable {
     }
 
     public init() {
-        self.disposables = []
+        disposables = []
     }
-    
+
     public init(_ disposables: [Disposable]) {
         self.disposables = disposables
     }
-    
+
     public func add(disposable: Disposable) {
         lock.lock(); defer { lock.unlock() }
         if disposables == nil {
@@ -188,11 +181,11 @@ public final class CompositeDisposable: Disposable {
             disposables = disposables.map { $0 + [disposable] }
         }
     }
-    
+
     public static func += (left: CompositeDisposable, right: Disposable) {
         left.add(disposable: right)
     }
-    
+
     public func dispose() {
         lock.lock()
         guard let disposables = disposables else {
@@ -207,7 +200,6 @@ public final class CompositeDisposable: Disposable {
 
 /// A disposable that disposes other disposable upon its own disposing.
 public final class SerialDisposable: Disposable {
-
     private let lock = NSRecursiveLock(name: "com.reactive_kit.serial_disposable")
     private var _isDisposed = false
 
@@ -215,7 +207,7 @@ public final class SerialDisposable: Disposable {
         lock.lock(); defer { lock.unlock() }
         return _isDisposed
     }
-    
+
     /// Will dispose other disposable immediately if self is already disposed.
     public var otherDisposable: Disposable? {
         didSet {
@@ -229,11 +221,11 @@ public final class SerialDisposable: Disposable {
             }
         }
     }
-    
+
     public init(otherDisposable: Disposable?) {
         self.otherDisposable = otherDisposable
     }
-    
+
     public func dispose() {
         lock.lock()
         if !_isDisposed {
@@ -272,46 +264,44 @@ public protocol DisposeBagProtocol: Disposable {
 ///
 /// When bag gets deallocated, it will dispose all disposables it contains.
 public final class DisposeBag: DisposeBagProtocol {
-
     private let lockDisposables = NSRecursiveLock(name: "com.reactive_kit.dispose_bag.lock_disposables")
     private let lockSubject = NSRecursiveLock(name: "com.reactive_kit.dispose_bag.lock_subject")
 
     private var disposables: [Disposable] = []
-    private var subject: ReplayOneSubject<Void, Never>? = nil
+    private var subject: ReplayOneSubject<Void, Never>?
 
     /// `true` if bag is empty, `false` otherwise.
     public var isDisposed: Bool {
         lockDisposables.lock(); defer { lockDisposables.unlock() }
         return disposables.count == 0
     }
-    
-    public init() {
-    }
-    
+
+    public init() {}
+
     /// Add the given disposable to the bag.
     /// Disposable will be disposed when the bag is deallocated.
     public func add(disposable: Disposable) {
         lockDisposables.lock(); defer { lockDisposables.unlock() }
         disposables.append(disposable)
     }
-    
+
     /// Add the given disposables to the bag.
     /// Disposables will be disposed when the bag is deallocated.
     public func add(disposables: [Disposable]) {
         lockDisposables.lock(); defer { lockDisposables.unlock() }
         self.disposables.append(contentsOf: disposables)
     }
-    
+
     /// Add a disposable to a dispose bag.
     public static func += (left: DisposeBag, right: Disposable) {
         left.add(disposable: right)
     }
-    
+
     /// Add multiple disposables to a dispose bag.
     public static func += (left: DisposeBag, right: [Disposable]) {
         left.add(disposables: right)
     }
-    
+
     /// Disposes all disposables that are currenty in the bag.
     public func dispose() {
         lockDisposables.lock()
@@ -320,7 +310,7 @@ public final class DisposeBag: DisposeBagProtocol {
         lockDisposables.unlock()
         disposables.forEach { $0.dispose() }
     }
-    
+
     /// A signal that fires `completed` event when the bag gets deallocated.
     public var deallocated: SafeSignal<Void> {
         lockSubject.lock(); defer { lockSubject.unlock() }
@@ -329,7 +319,7 @@ public final class DisposeBag: DisposeBagProtocol {
         }
         return subject!.toSignal()
     }
-    
+
     deinit {
         dispose()
         subject?.send(completion: .finished)
@@ -339,17 +329,15 @@ public final class DisposeBag: DisposeBagProtocol {
 /// A type-erasing cancellable object that executes a provided closure when canceled (disposed).
 /// The closure will be executed upon deinit if it has not been executed already.
 public final class AnyCancellable: Disposable {
-
     private let lock = NSRecursiveLock(name: "com.reactive_kit.any_cancellable")
-    private var handler: (() -> ())?
+    private var handler: (() -> Void)?
 
     public var isDisposed: Bool {
         lock.lock(); defer { lock.unlock() }
         return handler == nil
     }
 
-
-    public init(_ handler: @escaping () -> ()) {
+    public init(_ handler: @escaping () -> Void) {
         self.handler = handler
     }
 
@@ -370,32 +358,30 @@ public final class AnyCancellable: Disposable {
 }
 
 extension AnyCancellable: Hashable {
-  public static func == (lhs: AnyCancellable, rhs: AnyCancellable) -> Bool {
-    return lhs === rhs
-  }
+    public static func == (lhs: AnyCancellable, rhs: AnyCancellable) -> Bool {
+        return lhs === rhs
+    }
 
-  public func hash(into hasher: inout Hasher) {
-    hasher.combine(ObjectIdentifier(self))
-  }
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(ObjectIdentifier(self))
+    }
 }
 
 extension AnyCancellable {
-
     public convenience init(_ disposable: Disposable) {
         self.init(disposable.dispose)
     }
 
-    final public func store<C>(in collection: inout C) where C: RangeReplaceableCollection, C.Element == AnyCancellable {
+    public final func store<C>(in collection: inout C) where C: RangeReplaceableCollection, C.Element == AnyCancellable {
         collection.append(self)
     }
 
-    final public func store(in set: inout Set<AnyCancellable>) {
+    public final func store(in set: inout Set<AnyCancellable>) {
         set.insert(self)
     }
 }
 
 extension Disposable {
-    
     /// Put the disposable in the given bag. Disposable will be disposed when
     /// the bag is either deallocated or disposed.
     public func dispose(in disposeBag: DisposeBagProtocol) {

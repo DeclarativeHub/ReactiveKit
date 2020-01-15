@@ -22,18 +22,16 @@
 //  THE SOFTWARE.
 //
 
-import Foundation
 import Dispatch
+import Foundation
 
 /// A protocol that defines when and how to execute a closure.
 public protocol Scheduler {
-
     /// Performs the action at the next possible opportunity.
     func schedule(_ action: @escaping () -> Void)
 }
 
 extension ExecutionContext: Scheduler {
-
     @inlinable
     public func schedule(_ action: @escaping () -> Void) {
         context(action)
@@ -41,7 +39,6 @@ extension ExecutionContext: Scheduler {
 }
 
 extension DispatchQueue: Scheduler {
-
     @inlinable
     public func schedule(_ action: @escaping () -> Void) {
         async(execute: action)

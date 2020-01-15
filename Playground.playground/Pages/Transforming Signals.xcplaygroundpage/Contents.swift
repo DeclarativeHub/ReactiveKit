@@ -1,8 +1,8 @@
 //: [Previous](@previous)
 
 import Foundation
-import ReactiveKit
 import PlaygroundSupport
+import ReactiveKit
 
 PlaygroundPage.current.needsIndefiniteExecution = true
 
@@ -19,7 +19,6 @@ let pokemons = SafeSignal(sequence: ["Ditto", "Scizor", "Pikachu", "Squirtle"])
 pokemons
     .map { $0.uppercased() }
 //    .observe { print($0) }
-
 
 // If we are interested only in some elements of the signal, for
 // example in Pokemons whose name starts with "S", we can use the filter operator:
@@ -109,7 +108,6 @@ pokemonDetails
 
 // Try commenting out `.shareReplay()` line and see what happens in that case!
 
-
 // There are many more operators on signals. Let's go through few of them.
 
 // When we are interested only in the first few elements, we can apply `take(first:)` operator:
@@ -136,7 +134,7 @@ pokemons
 // in our case into the name, ignoring the number.
 
 let aPokemonEverySecond = pokemons
-    .zip(with: SafeSignal(sequence: 0..., interval: 1)) { name, index in name }
+    .zip(with: SafeSignal(sequence: 0..., interval: 1)) { name, _ in name }
 
 aPokemonEverySecond
 //    .observe { print($0) }
@@ -152,7 +150,7 @@ aPokemonEverySecond
 // from the two signals.
 
 aPokemonEverySecond
-    .combineLatest(with: SafeSignal(sequence: 0...6, interval: 0.5))
+    .combineLatest(with: SafeSignal(sequence: 0 ... 6, interval: 0.5))
     .observe { print($0) }
 
 //: [Next](@next)

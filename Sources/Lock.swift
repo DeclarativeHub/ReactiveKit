@@ -25,7 +25,6 @@
 import Foundation
 
 extension NSLock {
-    
     public convenience init(name: String) {
         self.init()
         self.name = name
@@ -33,7 +32,6 @@ extension NSLock {
 }
 
 extension NSRecursiveLock {
-    
     public convenience init(name: String) {
         self.init()
         self.name = name

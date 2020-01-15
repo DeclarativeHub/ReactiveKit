@@ -8,35 +8,34 @@
 
 #if compiler(>=5.1)
 
-import Foundation
+    import Foundation
 
-internal protocol PublishedProtocol {
-    var willChangeSubject: PassthroughSubject<Void, Never> { get }
-}
-
-@propertyWrapper
-public struct Published<Value>: PublishedProtocol {
-
-    internal let willChangeSubject = PassthroughSubject<Void, Never>()
-    internal let property: Property<Value>
-
-    public init(wrappedValue: Value) {
-        property = Property(wrappedValue)
+    internal protocol PublishedProtocol {
+        var willChangeSubject: PassthroughSubject<Void, Never> { get }
     }
 
-    public var wrappedValue: Value {
-        get {
-            return property.value
+    @propertyWrapper
+    public struct Published<Value>: PublishedProtocol {
+        internal let willChangeSubject = PassthroughSubject<Void, Never>()
+        internal let property: Property<Value>
+
+        public init(wrappedValue: Value) {
+            property = Property(wrappedValue)
         }
-        nonmutating set {
-            willChangeSubject.send()
-            property.value = newValue
+
+        public var wrappedValue: Value {
+            get {
+                return property.value
+            }
+            nonmutating set {
+                willChangeSubject.send()
+                property.value = newValue
+            }
+        }
+
+        public var projectedValue: Signal<Value, Never> {
+            return property.toSignal()
         }
     }
-
-    public var projectedValue: Signal<Value, Never> {
-        return property.toSignal()
-    }
-}
 
 #endif

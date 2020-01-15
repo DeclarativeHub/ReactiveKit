@@ -25,7 +25,6 @@
 import Foundation
 
 extension SignalProtocol {
-
     /// Raises a debugger signal when a provided closure needs to stop the process in the debugger.
     ///
     /// When any of the provided closures returns `true`, this signal raises the `SIGTRAP` signal to stop the process in the debugger.
@@ -39,19 +38,20 @@ extension SignalProtocol {
     @inlinable
     public func breakpoint(receiveSubscription: (() -> Bool)? = nil, receiveOutput: ((Element) -> Bool)? = nil, receiveCompletion: ((Subscribers.Completion<Error>) -> Bool)? = nil) -> Signal<Element, Error> {
         return handleEvents(
-        receiveSubscription: {
+            receiveSubscription: {
                 if receiveSubscription?() ?? false {
                     raise(SIGTRAP)
                 }
-        }, receiveOutput: { (element) in
-            if receiveOutput?(element) ?? false {
-                raise(SIGTRAP)
+            }, receiveOutput: { element in
+                if receiveOutput?(element) ?? false {
+                    raise(SIGTRAP)
+                }
+            }, receiveCompletion: { completion in
+                if receiveCompletion?(completion) ?? false {
+                    raise(SIGTRAP)
+                }
             }
-        }, receiveCompletion: { (completion) in
-            if receiveCompletion?(completion) ?? false {
-                raise(SIGTRAP)
-            }
-        })
+        )
     }
 
     /// Raises a debugger signal upon receiving a failure.
@@ -81,28 +81,29 @@ extension SignalProtocol {
             prefix = "[\(filename):\(function):\(line)]"
         }
         return handleEvents(
-           receiveSubscription: {
+            receiveSubscription: {
                 print("\(prefix) started")
-        }, receiveOutput: { (element) in
-            print("\(prefix) next(\(element))")
-        }, receiveCompletion: { (completion) in
-            switch completion {
-            case .failure(let error):
-                print("\(prefix) failed: \(error)")
-            case .finished:
-                print("\(prefix) finished")
+            }, receiveOutput: { element in
+                print("\(prefix) next(\(element))")
+            }, receiveCompletion: { completion in
+                switch completion {
+                case let .failure(error):
+                    print("\(prefix) failed: \(error)")
+                case .finished:
+                    print("\(prefix) finished")
+                }
+            }, receiveCancel: {
+                print("\(prefix) disposed")
             }
-        }, receiveCancel: {
-            print("\(prefix) disposed")
-        })
+        )
     }
-    
+
     /// Delay signal elements for `interval` time.
     ///
     /// Check out interactive example at [https://rxmarbles.com/#delay](https://rxmarbles.com/#delay)
     public func delay(interval: Double, on queue: DispatchQueue = DispatchQueue(label: "reactive_kit.delay")) -> Signal<Element, Error> {
         return Signal { observer in
-            return self.observe { event in
+            self.observe { event in
                 queue.asyncAfter(deadline: .now() + interval) {
                     observer.on(event)
                 }
@@ -119,7 +120,7 @@ extension SignalProtocol {
             let innerDisposable = SerialDisposable(otherDisposable: nil)
             var _completions: (me: Bool, other: Bool) = (false, false)
             func _completeIfPossible() {
-                if _completions.me && _completions.other {
+                if _completions.me, _completions.other {
                     observer.receive(completion: .finished)
                     _attempt = nil
                 }
@@ -129,7 +130,7 @@ extension SignalProtocol {
                 outerDisposable.otherDisposable = self.observe { event in
                     lock.lock(); defer { lock.unlock() }
                     switch event {
-                    case .next(let element):
+                    case let .next(element):
                         observer.receive(element)
                         _completions.other = false
                         innerDisposable.otherDisposable?.dispose()
@@ -147,7 +148,7 @@ extension SignalProtocol {
                     case .completed:
                         _completions.me = true
                         _completeIfPossible()
-                    case .failed(let error):
+                    case let .failed(error):
                         observer.receive(completion: .failure(error))
                     }
                 }
@@ -172,9 +173,9 @@ extension SignalProtocol {
             receiveSubscription?()
             let disposable = self.observe { event in
                 switch event {
-                case .next(let value):
+                case let .next(value):
                     receiveOutput?(value)
-                case .failed(let error):
+                case let .failed(error):
                     receiveCompletion?(.failure(error))
                 case .completed:
                     receiveCompletion?(.finished)
@@ -207,7 +208,7 @@ extension SignalProtocol {
     public func feedError<S: SubjectProtocol>(into listener: S) -> Signal<Element, Error> where S.Element == Error {
         return handleEvents(receiveCompletion: { completion in
             switch completion {
-            case .failure(let error):
+            case let .failure(error):
                 listener.send(error)
             case .finished:
                 break
@@ -235,7 +236,7 @@ extension SignalProtocol {
     public func waitAndCollectElements() -> [Element] {
         return waitAndCollectEvents().compactMap { event in
             switch event {
-            case .next(let element):
+            case let .next(element):
                 return element
             default:
                 return nil

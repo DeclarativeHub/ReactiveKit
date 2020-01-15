@@ -27,24 +27,23 @@ import Foundation
 /// A property that lazily loads its value using the given signal producer closure.
 /// The value will be loaded when the property is observed for the first time.
 public class LoadingProperty<LoadingValue, LoadingError: Swift.Error>: PropertyProtocol, SignalProtocol, DisposeBagProvider {
-    
     private let lock = NSRecursiveLock(name: "com.reactive_kit.loading_property")
-    
+
     private let signalProducer: () -> LoadingSignal<LoadingValue, LoadingError>
     private let subject = PassthroughSubject<LoadingState<LoadingValue, LoadingError>, Never>()
 
     private var _loadingDisposable: Disposable?
-    
+
     public var bag: DisposeBag {
         return subject.disposeBag
     }
-    
+
     private var _loadingState: LoadingState<LoadingValue, LoadingError> = .loading {
         didSet {
             subject.send(_loadingState)
         }
     }
-    
+
     /// Current state of the property. In `.loading` state until the value is loaded.
     /// When the property is observed for the first time, the value will be loaded and
     /// the state will be updated to either `.loaded` or `.failed` state.
@@ -52,7 +51,7 @@ public class LoadingProperty<LoadingValue, LoadingError: Swift.Error>: PropertyP
         lock.lock(); defer { lock.unlock() }
         return _loadingState
     }
-    
+
     /// Underlying value. `nil` if not yet loaded or if the property is in error state.
     public var value: LoadingValue? {
         get {
@@ -63,19 +62,19 @@ public class LoadingProperty<LoadingValue, LoadingError: Swift.Error>: PropertyP
             _loadingState = newValue.flatMap { .loaded($0) } ?? .loading
         }
     }
-    
+
     /// Create a loading property with the given signal producer closure.
     /// The closure will be executed when the propery is observed for the first time.
     public init(_ signalProducer: @escaping () -> LoadingSignal<LoadingValue, LoadingError>) {
         self.signalProducer = signalProducer
     }
-    
+
     /// Create a signal that when observed reloads the property.
     /// - parameter silently: When `true` (default), do not transition property to loading or failed states during reload.
     public func reload(silently: Bool = true) -> LoadingSignal<LoadingValue, LoadingError> {
         return load(silently: silently)
     }
-    
+
     private func load(silently: Bool) -> LoadingSignal<LoadingValue, LoadingError> {
         return LoadingSignal { observer in
             self.lock.lock(); defer { self.lock.unlock() }
@@ -85,7 +84,7 @@ public class LoadingProperty<LoadingValue, LoadingError: Swift.Error>: PropertyP
             observer.receive(.loading)
             self._loadingDisposable = self.signalProducer().observe { event in
                 switch event {
-                case .next(let anyLoadingState):
+                case let .next(anyLoadingState):
                     let loadingSate = anyLoadingState.asLoadingState
                     switch loadingSate {
                     case .loading:
@@ -106,7 +105,7 @@ public class LoadingProperty<LoadingValue, LoadingError: Swift.Error>: PropertyP
                     break // Never
                 }
             }
-            
+
             return BlockDisposable {
                 self.lock.lock(); defer { self.lock.unlock() }
                 self._loadingDisposable?.dispose()
@@ -114,7 +113,7 @@ public class LoadingProperty<LoadingValue, LoadingError: Swift.Error>: PropertyP
             }
         }
     }
-    
+
     public func observe(with observer: @escaping (Signal<LoadingState<LoadingValue, LoadingError>, Never>.Event) -> Void) -> Disposable {
         lock.lock(); defer { lock.unlock() }
         if case .loading = _loadingState, _loadingDisposable == nil {
@@ -129,21 +128,19 @@ public class LoadingProperty<LoadingValue, LoadingError: Swift.Error>: PropertyP
 }
 
 extension SignalProtocol {
-    
     /// Pauses the propagation of the receiver's elements until the given property is reloaded.
     public func reloading<LoadingValue>(_ property: LoadingProperty<LoadingValue, Error>) -> Signal<Element, Error> {
         return flatMapLatest { (element: Element) -> Signal<Element, Error> in
-            return property.reload().dematerializeLoadingState().map { _ in element }
+            property.reload().dematerializeLoadingState().map { _ in element }
         }
     }
 }
 
 extension SignalProtocol where Element: LoadingStateProtocol, Error == Never {
-    
     /// Pauses the propagation of the receiver's loading values until the given property is reloaded.
-    public func reloading<V>(_ property: LoadingProperty<V, LoadingError>, strategy: FlattenStrategy = .latest) -> LoadingSignal<LoadingValue, LoadingError> {
+    public func reloading<V>(_ property: LoadingProperty<V, LoadingError>, strategy _: FlattenStrategy = .latest) -> LoadingSignal<LoadingValue, LoadingError> {
         return flatMapValue { (value: LoadingValue) -> LoadingSignal<LoadingValue, LoadingError> in
-            return property.reload().mapValue { _ in value }
+            property.reload().mapValue { _ in value }
         }
     }
 }

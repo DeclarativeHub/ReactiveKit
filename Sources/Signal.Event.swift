@@ -23,10 +23,8 @@
 //
 
 extension Signal {
-
     /// An event of a sequence.
     public enum Event {
-
         /// An event that carries next element.
         case next(Element)
 
@@ -39,7 +37,6 @@ extension Signal {
 }
 
 extension Signal.Event {
-    
     /// Return `true` in case of `.next` event.
     public var isNext: Bool {
         switch self {
@@ -49,7 +46,7 @@ extension Signal.Event {
             return false
         }
     }
-    
+
     /// Return `true` in case of `.failed` event.
     public var isFailed: Bool {
         switch self {
@@ -59,7 +56,7 @@ extension Signal.Event {
             return false
         }
     }
-    
+
     /// Return `true` in case of `.completed` event.
     public var isCompleted: Bool {
         switch self {
@@ -83,7 +80,7 @@ extension Signal.Event {
     /// Returns the next element, or nil if the event is not `.next`
     public var element: Element? {
         switch self {
-        case .next(let element):
+        case let .next(element):
             return element
         default:
             return nil
@@ -93,7 +90,7 @@ extension Signal.Event {
     /// Return the failed error, or nil if the event is not `.failed`
     public var error: Error? {
         switch self {
-        case .failed(let error):
+        case let .failed(error):
             return error
         default:
             return nil
