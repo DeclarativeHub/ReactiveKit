@@ -8,19 +8,13 @@
 
 #if compiler(>=5.1)
 
-import Foundation
-
-internal protocol PublishedProtocol {
-    var willChangeSubject: PassthroughSubject<Void, Never> { get }
-}
-
 @propertyWrapper
-public struct Published<Value>: PublishedProtocol {
+public struct Published<Value> {
     
     private var value: Value
     private var publisher: Publisher?
-    internal let willChangeSubject = PassthroughSubject<Void, Never>()
-    
+    private let willChangeSubject = PassthroughSubject<Void, Never>()
+
     public init(wrappedValue: Value) {
         value = wrappedValue
     }
@@ -29,16 +23,16 @@ public struct Published<Value>: PublishedProtocol {
     public struct Publisher: SignalProtocol {
         public typealias Element = Value
         public typealias Error = Never
-        
-        fileprivate let subject: ReplayOneSubject<Value, Never>
+
+        fileprivate let didChangeSubject: ReplayOneSubject<Value, Never>
         
         public func observe(with observer: @escaping (Signal<Value, Never>.Event) -> Void) -> Disposable {
-            self.subject.observe(with: observer)
+            self.didChangeSubject.observe(with: observer)
         }
         
         fileprivate init(_ output: Element) {
-            self.subject = ReplayOneSubject<Value, Never>()
-            self.subject.send(output)
+            self.didChangeSubject = ReplayOneSubject()
+            self.didChangeSubject.send(output)
         }
     }
     
@@ -47,7 +41,7 @@ public struct Published<Value>: PublishedProtocol {
         set {
             self.willChangeSubject.send()
             self.value = newValue
-            self.publisher?.subject.send(newValue)
+            self.publisher?.didChangeSubject.send(newValue)
         }
     }
     
@@ -61,7 +55,19 @@ public struct Published<Value>: PublishedProtocol {
             return publisher
         }
     }
-    
+}
+
+protocol _MutablePropertyWrapper {
+    var willChange: Signal<Void, Never> { mutating get }
+}
+
+extension Published: _MutablePropertyWrapper {
+
+    var willChange: Signal<Void, Never> {
+        mutating get {
+            return willChangeSubject.toSignal()
+        }
+    }
 }
 
 #endif

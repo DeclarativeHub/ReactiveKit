@@ -9,34 +9,37 @@
 import XCTest
 import ReactiveKit
 
+#if compiler(>=5.1)
 
-// Commented out for Travis build
+class PublishedTests: XCTestCase {
+    
+    class User: ReactiveKit.ObservableObject {
+        @ReactiveKit.Published var id: Int
+        init(id: Int) { self.id = id }
+    }
+    
+    func testPublished() {
+        
+        let user = User(id: 0)
+        
+        let objectSubscriber = Subscribers.Accumulator<Void, Never>()
+        let propertySubscriber = Subscribers.Accumulator<Int, Never>()
+        
+        user.objectWillChange.subscribe(objectSubscriber)
+        user.$id.subscribe(propertySubscriber)
+        
+        XCTAssertEqual(user.id, 0)
+        
+        user.id = 1
+        user.id = 2
+        user.id = 3
+        
+        XCTAssertEqual(propertySubscriber.values, [0, 1, 2, 3])
+        XCTAssertFalse(propertySubscriber.isFinished)
+        
+        XCTAssertEqual(objectSubscriber.values.count, 3)
+        XCTAssertFalse(objectSubscriber.isFinished)
+    }
+}
 
-//class PublishedTests: XCTestCase {
-//
-//  struct User {
-//    @ReactiveKit.Published var id: String
-//  }
-//
-//  func testPublished() {
-//    let exp = expectation(description: "completed")
-//
-//    var user = User(id: "0")
-//
-//    let expectedEvents = ["0", "1", "2", "3"]
-//        .map { Signal<String, Never>.Event.next($0) }
-//
-//    user.$id.expectAsync(events: expectedEvents, expectation: exp)
-//
-//
-//    XCTAssertEqual(user.id, "0")
-//
-//    user.id = "1"
-//    user.id = "2"
-//    user.id = "3"
-//
-//
-//    waitForExpectations(timeout: 1)
-//
-//  }
-//}
+#endif

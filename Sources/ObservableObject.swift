@@ -27,14 +27,14 @@ extension ObservableObject where Self.ObjectWillChangeSignal == Signal<Void, Nev
 
     /// A publisher that emits before the object has changed.
     public var objectWillChange: Signal<Void, Never> {
-        var subjects: [PassthroughSubject<Void, Never>] = []
+        var signals: [Signal<Void, Never>] = []
         let mirror = Mirror(reflecting: self)
         for child in mirror.children {
-            if let publishedProperty = child.value as? PublishedProtocol {
-                subjects.append(publishedProperty.willChangeSubject)
+            if var publishedProperty = child.value as? _MutablePropertyWrapper {
+                signals.append(publishedProperty.willChange)
             }
         }
-        return Signal(flattening: subjects, strategy: .merge)
+        return Signal(flattening: signals, strategy: .merge)
     }
 }
 
