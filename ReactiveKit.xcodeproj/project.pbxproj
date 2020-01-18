@@ -289,11 +289,11 @@
 		EC48D2F0224FB5C400284EA0 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				EC7717E923BE23440036A609 /* Subscribers */,
 				EC75487D2351E2AC002D869C /* Scheduler.swift */,
 				EC912A5D23BCAD2600701259 /* Subscriber.swift */,
 				EC912A6C23BCB00500701259 /* Subscription.swift */,
 				EC912A6223BCAFB100701259 /* Cancellable.swift */,
-				EC7717E923BE23440036A609 /* Subscribers */,
 				EC430ED823735833003243B2 /* Atomic.swift */,
 				EC48D2F2224FB5C400284EA0 /* Observer.swift */,
 				EC48D2FE224FB5C400284EA0 /* Disposable.swift */,
