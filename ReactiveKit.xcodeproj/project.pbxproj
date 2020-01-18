@@ -136,6 +136,11 @@
 		EC7717ED23BE33650036A609 /* Sink.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7717EB23BE33650036A609 /* Sink.swift */; };
 		EC7717EE23BE33650036A609 /* Sink.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7717EB23BE33650036A609 /* Sink.swift */; };
 		EC7717EF23BE33650036A609 /* Sink.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7717EB23BE33650036A609 /* Sink.swift */; };
+		EC881B7B23D3177700C52752 /* Combine.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC881B7A23D3177700C52752 /* Combine.swift */; };
+		EC881B7C23D3177700C52752 /* Combine.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC881B7A23D3177700C52752 /* Combine.swift */; };
+		EC881B7D23D3177700C52752 /* Combine.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC881B7A23D3177700C52752 /* Combine.swift */; };
+		EC881B7E23D3177700C52752 /* Combine.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC881B7A23D3177700C52752 /* Combine.swift */; };
+		EC881B8023D318F100C52752 /* CombineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC881B7F23D318F100C52752 /* CombineTests.swift */; };
 		EC912A3A23BB91EF00701259 /* Accumulator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC912A3923BB91EF00701259 /* Accumulator.swift */; };
 		EC912A3B23BB91EF00701259 /* Accumulator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC912A3923BB91EF00701259 /* Accumulator.swift */; };
 		EC912A3C23BB91EF00701259 /* Accumulator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC912A3923BB91EF00701259 /* Accumulator.swift */; };
@@ -232,6 +237,8 @@
 		EC75487D2351E2AC002D869C /* Scheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scheduler.swift; sourceTree = "<group>"; };
 		EC7717E223BCF4480036A609 /* Scheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scheduler.swift; sourceTree = "<group>"; };
 		EC7717EB23BE33650036A609 /* Sink.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Sink.swift; sourceTree = "<group>"; };
+		EC881B7A23D3177700C52752 /* Combine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Combine.swift; sourceTree = "<group>"; };
+		EC881B7F23D318F100C52752 /* CombineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CombineTests.swift; sourceTree = "<group>"; };
 		EC912A3923BB91EF00701259 /* Accumulator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Accumulator.swift; sourceTree = "<group>"; };
 		EC912A5D23BCAD2600701259 /* Subscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subscriber.swift; sourceTree = "<group>"; };
 		EC912A6223BCAFB100701259 /* Cancellable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cancellable.swift; sourceTree = "<group>"; };
@@ -325,6 +332,7 @@
 				EC48D2FC224FB5C400284EA0 /* Lock.swift */,
 				EC48D2FA224FB5C400284EA0 /* Deprecations.swift */,
 				EC9D05CF239BBBAE000DDE3B /* ObservableObject.swift */,
+				EC881B7A23D3177700C52752 /* Combine.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -347,6 +355,7 @@
 				EC48D380224FB66100284EA0 /* PropertyTests.swift */,
 				19276398228F779200EDF2C0 /* SubjectTests.swift */,
 				08B5D54C23A68618000AE983 /* PublishedTests.swift */,
+				EC881B7F23D318F100C52752 /* CombineTests.swift */,
 			);
 			path = ReactiveKitTests;
 			sourceTree = "<group>";
@@ -646,6 +655,7 @@
 				EC48D332224FB5C400284EA0 /* Deprecations.swift in Sources */,
 				EC9D05CC239BB382000DDE3B /* Published.swift in Sources */,
 				EC48D362224FB5C400284EA0 /* SignalProtocol+Filtering.swift in Sources */,
+				EC881B7C23D3177700C52752 /* Combine.swift in Sources */,
 				EC48D30E224FB5C400284EA0 /* SignalProtocol+Utilities.swift in Sources */,
 				EC7717ED23BE33650036A609 /* Sink.swift in Sources */,
 				EC48D36A224FB5C400284EA0 /* SignalProtocol+Result.swift in Sources */,
@@ -692,6 +702,7 @@
 				EC48D333224FB5C400284EA0 /* Deprecations.swift in Sources */,
 				EC9D05CD239BB382000DDE3B /* Published.swift in Sources */,
 				EC48D363224FB5C400284EA0 /* SignalProtocol+Filtering.swift in Sources */,
+				EC881B7D23D3177700C52752 /* Combine.swift in Sources */,
 				EC48D30F224FB5C400284EA0 /* SignalProtocol+Utilities.swift in Sources */,
 				EC7717EE23BE33650036A609 /* Sink.swift in Sources */,
 				EC48D36B224FB5C400284EA0 /* SignalProtocol+Result.swift in Sources */,
@@ -738,6 +749,7 @@
 				EC48D334224FB5C400284EA0 /* Deprecations.swift in Sources */,
 				EC9D05CE239BB382000DDE3B /* Published.swift in Sources */,
 				EC48D364224FB5C400284EA0 /* SignalProtocol+Filtering.swift in Sources */,
+				EC881B7E23D3177700C52752 /* Combine.swift in Sources */,
 				EC48D310224FB5C400284EA0 /* SignalProtocol+Utilities.swift in Sources */,
 				EC7717EF23BE33650036A609 /* Sink.swift in Sources */,
 				EC48D36C224FB5C400284EA0 /* SignalProtocol+Result.swift in Sources */,
@@ -784,6 +796,7 @@
 				EC48D331224FB5C400284EA0 /* Deprecations.swift in Sources */,
 				EC9D05CB239BB382000DDE3B /* Published.swift in Sources */,
 				EC48D361224FB5C400284EA0 /* SignalProtocol+Filtering.swift in Sources */,
+				EC881B7B23D3177700C52752 /* Combine.swift in Sources */,
 				EC48D30D224FB5C400284EA0 /* SignalProtocol+Utilities.swift in Sources */,
 				EC7717EC23BE33650036A609 /* Sink.swift in Sources */,
 				EC48D369224FB5C400284EA0 /* SignalProtocol+Result.swift in Sources */,
@@ -822,6 +835,7 @@
 				EC912A5623BB9ABA00701259 /* Stress.swift in Sources */,
 				EC7717E323BCF4480036A609 /* Scheduler.swift in Sources */,
 				EC912A5823BB9ABA00701259 /* PropertyTests.swift in Sources */,
+				EC881B8023D318F100C52752 /* CombineTests.swift in Sources */,
 				EC912A5723BB9ABA00701259 /* SignalTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
