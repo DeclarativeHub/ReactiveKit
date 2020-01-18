@@ -16,27 +16,52 @@ internal protocol PublishedProtocol {
 
 @propertyWrapper
 public struct Published<Value>: PublishedProtocol {
-
+    
+    private var value: Value
+    private var publisher: Publisher?
     internal let willChangeSubject = PassthroughSubject<Void, Never>()
-    internal let property: Property<Value>
-
+    
     public init(wrappedValue: Value) {
-        property = Property(wrappedValue)
+        value = wrappedValue
     }
-
+    
+    /// A publisher for properties used with the `@Published` attribute.
+    public struct Publisher: SignalProtocol {
+        public typealias Element = Value
+        public typealias Error = Never
+        
+        fileprivate let subject: ReplayOneSubject<Value, Never>
+        
+        public func observe(with observer: @escaping (Signal<Value, Never>.Event) -> Void) -> Disposable {
+            self.subject.observe(with: observer)
+        }
+        
+        fileprivate init(_ output: Element) {
+            self.subject = ReplayOneSubject<Value, Never>()
+            self.subject.send(output)
+        }
+    }
+    
     public var wrappedValue: Value {
-        get {
-            return property.value
-        }
-        nonmutating set {
-            willChangeSubject.send()
-            property.value = newValue
+        get { self.value }
+        set {
+            self.willChangeSubject.send()
+            self.value = newValue
+            self.publisher?.subject.send(newValue)
         }
     }
-
-    public var projectedValue: Signal<Value, Never> {
-        return property.toSignal()
+    
+    public var projectedValue: Publisher {
+        mutating get {
+            if let publisher = publisher {
+                return publisher
+            }
+            let publisher = Publisher(value)
+            self.publisher = publisher
+            return publisher
+        }
     }
+    
 }
 
 #endif
