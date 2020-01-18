@@ -450,3 +450,27 @@ final class SubjectTests: XCTestCase {
         }
     }
 }
+
+
+extension SubjectTests {
+
+    static var allTests : [(String, (SubjectTests) -> () -> Void)] {
+        return [
+            ("testSubjectForThreadSafety_oneEventDispatchedOnALotOfSubjects", testSubjectForThreadSafety_oneEventDispatchedOnALotOfSubjects),
+            ("testSubjectForThreadSafety_lotsOfEventsDispatchedOnOneSubject", testSubjectForThreadSafety_lotsOfEventsDispatchedOnOneSubject),
+            ("testSubjectForThreadSafety_someEventsDispatchedOnSomeSubjects", testSubjectForThreadSafety_someEventsDispatchedOnSomeSubjects),
+
+            ("testReplaySubjectForThreadSafety_oneEventDispatchedOnALotOfSubjects", testReplaySubjectForThreadSafety_oneEventDispatchedOnALotOfSubjects),
+            ("testReplaySubjectForThreadSafety_lotsOfEventsDispatchedOnOneSubject", testReplaySubjectForThreadSafety_lotsOfEventsDispatchedOnOneSubject),
+            ("testReplaySubjectForThreadSafety_someEventsDispatchedOnSomeSubjects", testReplaySubjectForThreadSafety_someEventsDispatchedOnSomeSubjects),
+
+            ("testReplayOneSubjectForThreadSafety_oneEventDispatchedOnALotOfSubjects", testReplayOneSubjectForThreadSafety_oneEventDispatchedOnALotOfSubjects),
+            ("testReplayOneSubjectForThreadSafety_lotsOfEventsDispatchedOnOneSubject", testReplayOneSubjectForThreadSafety_lotsOfEventsDispatchedOnOneSubject),
+            ("testReplayOneSubjectForThreadSafety_someEventsDispatchedOnSomeSubjects", testReplayOneSubjectForThreadSafety_someEventsDispatchedOnSomeSubjects),
+
+            ("testReplayLoadingValueSubjectForThreadSafety_oneEventDispatchedOnALotOfSubjects", testReplayLoadingValueSubjectForThreadSafety_oneEventDispatchedOnALotOfSubjects),
+            ("testReplayLoadingValueSubjectForThreadSafety_lotsOfEventsDispatchedOnOneSubject", testReplayLoadingValueSubjectForThreadSafety_lotsOfEventsDispatchedOnOneSubject),
+            ("testReplayLoadingValueSubjectForThreadSafety_someEventsDispatchedOnSomeSubjects", testReplayLoadingValueSubjectForThreadSafety_someEventsDispatchedOnSomeSubjects),
+        ]
+    }
+}

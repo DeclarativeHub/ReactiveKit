@@ -145,7 +145,10 @@ extension PropertyTests {
             ("testValue", testValue),
             ("testEvents", testEvents),
             ("testReadOnlyView", testReadOnlyView),
-            ("testBidirectionalBind", testBidirectionalBind)
+            ("testBidirectionalBind", testBidirectionalBind),
+            ("testPropertyForThreadSafety_oneEventDispatchedOnALotOfProperties", testPropertyForThreadSafety_oneEventDispatchedOnALotOfProperties),
+            ("testPropertyForThreadSafety_lotsOfEventsDispatchedOnOneProperty", testPropertyForThreadSafety_lotsOfEventsDispatchedOnOneProperty),
+            ("testPropertyForThreadSafety_someEventsDispatchedOnSomeProperties", testPropertyForThreadSafety_someEventsDispatchedOnSomeProperties),
         ]
     }
 }
