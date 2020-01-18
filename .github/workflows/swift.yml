@@ -3,10 +3,26 @@ name: Swift
 on: [push]
 
 jobs:
-  build:
+  linux:
+    name: Test on Linux
+    runs-on: ubuntu-18.04
+    container:
+      image: swift:${{ matrix.swift_version }}
+    strategy:
+      matrix:
+        swift_version: ["5.0", "5.1"]
+    steps:
+      - uses: actions/checkout@v1
+      - name: Show verion
+        run: swift --version
+      - name: Build
+        run: swift build -v
+      - name: Run tests
+        run: swift test -v
 
+  macOS:
+    name: Test on macOS
     runs-on: macOS-latest
-
     steps:
     - uses: actions/checkout@v1
     - name: Build
