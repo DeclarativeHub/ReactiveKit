@@ -489,7 +489,7 @@ class SignalTests: XCTestCase {
 
         for _ in 0..<e.expectedFulfillmentCount {
             var count = 0
-            Signal { () -> Result<Bool, Error> in
+            _ = Signal { () -> Result<Bool, Error> in
                 count += 1
                 if count == 3 {
                     return .success(true)
@@ -504,7 +504,6 @@ class SignalTests: XCTestCase {
                     e.fulfill()
                 }
             }
-            .dispose(in: bag)
         }
 
         wait(for: [e], timeout: 8)

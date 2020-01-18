@@ -120,7 +120,7 @@ final class SubjectTests: XCTestCase {
         var actualEventsCount = 0
         
         for _ in 0..<eventsCount {
-            let bag = DisposeBag()
+            let disposeBag = DisposeBag()
             let subject = ReplaySubject<Int, Never>()
             
             let dispatchQueueOne = DispatchQueue(label: "one")
@@ -130,13 +130,13 @@ final class SubjectTests: XCTestCase {
                         actualEventsCount += 1
                     }
                     eventsExpectation.fulfill()
-                }.dispose(in: bag)
+                }.dispose(in: disposeBag)
             }
             
             let dispatchQueueTwo = DispatchQueue(label: "two")
             dispatchQueueTwo.async {
                 subject.send(1)
-                bag.dispose()
+                disposeBag.dispose()
             }
         }
         
@@ -159,13 +159,13 @@ final class SubjectTests: XCTestCase {
         var actualEventsCount = 0
         
         for _ in 0..<eventsCount {
-            let bag = DisposeBag()
+            let disposeBag = DisposeBag()
             let subject = ReplaySubject<Int, Never>()
             
             let dispatchQueueTwo = DispatchQueue(label: "two")
             dispatchQueueTwo.async {
                 subject.send(1)
-                bag.dispose()
+                disposeBag.dispose()
             }
             
             let dispatchQueueOne = DispatchQueue(label: "one")
@@ -175,7 +175,7 @@ final class SubjectTests: XCTestCase {
                         actualEventsCount += 1
                     }
                     eventsExpectation.fulfill()
-                }.dispose(in: bag)
+                }.dispose(in: disposeBag)
             }
         }
         
@@ -247,7 +247,7 @@ final class SubjectTests: XCTestCase {
         var actualEventsCount = 0
         
         for _ in 0..<eventsCount {
-            let bag = DisposeBag()
+            let disposeBag = DisposeBag()
             let subject = ReplayOneSubject<Int, Never>()
 
             let dispatchQueueOne = DispatchQueue(label: "one")
@@ -257,13 +257,13 @@ final class SubjectTests: XCTestCase {
                         actualEventsCount += 1
                     }
                     eventsExpectation.fulfill()
-                }.dispose(in: bag)
+                }.dispose(in: disposeBag)
             }
             
             let dispatchQueueTwo = DispatchQueue(label: "two")
             dispatchQueueTwo.async {
                 subject.send(1)
-                bag.dispose()
+                disposeBag.dispose()
             }
         }
         
@@ -286,13 +286,13 @@ final class SubjectTests: XCTestCase {
         var actualEventsCount = 0
         
         for _ in 0..<eventsCount {
-            let bag = DisposeBag()
+            let disposeBag = DisposeBag()
             let subject = ReplayOneSubject<Int, Never>()
             
             let dispatchQueueTwo = DispatchQueue(label: "two")
             dispatchQueueTwo.async {
                 subject.send(1)
-                bag.dispose()
+                disposeBag.dispose()
             }
             
             let dispatchQueueOne = DispatchQueue(label: "one")
@@ -302,7 +302,7 @@ final class SubjectTests: XCTestCase {
                         actualEventsCount += 1
                     }
                     eventsExpectation.fulfill()
-                }.dispose(in: bag)
+                }.dispose(in: disposeBag)
             }
         }
         
@@ -383,7 +383,7 @@ final class SubjectTests: XCTestCase {
         var actualEventsCount = 0
         
         for _ in 0..<eventsCount {
-            let bag = DisposeBag()
+            let disposeBag = DisposeBag()
             let subject = ReplayLoadingValueSubject<Int, Never, Never>()
             
             let dispatchQueueOne = DispatchQueue(label: "one")
@@ -393,13 +393,13 @@ final class SubjectTests: XCTestCase {
                         actualEventsCount += 1
                     }
                     eventsExpectation.fulfill()
-                }.dispose(in: bag)
+                }.dispose(in: disposeBag)
             }
             
             let dispatchQueueTwo = DispatchQueue(label: "two")
             dispatchQueueTwo.async {
                 subject.send(.loaded(1))
-                bag.dispose()
+                disposeBag.dispose()
             }
         }
         
@@ -422,13 +422,13 @@ final class SubjectTests: XCTestCase {
         var actualEventsCount = 0
         
         for _ in 0..<eventsCount {
-            let bag = DisposeBag()
+            let disposeBag = DisposeBag()
             let subject = ReplayLoadingValueSubject<Int, Never, Never>()
             
             let dispatchQueueTwo = DispatchQueue(label: "two")
             dispatchQueueTwo.async {
                 subject.send(.loaded(1))
-                bag.dispose()
+                disposeBag.dispose()
             }
             
             let dispatchQueueOne = DispatchQueue(label: "one")
@@ -438,7 +438,7 @@ final class SubjectTests: XCTestCase {
                         actualEventsCount += 1
                     }
                     eventsExpectation.fulfill()
-                }.dispose(in: bag)
+                }.dispose(in: disposeBag)
             }
         }
         
