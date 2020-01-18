@@ -401,4 +401,16 @@ extension Disposable {
     public func dispose(in disposeBag: DisposeBagProtocol) {
         disposeBag.add(disposable: self)
     }
+
+    public func store(in disposeBag: DisposeBagProtocol) {
+        disposeBag.add(disposable: self)
+    }
+
+    public func store<C>(in collection: inout C) where C: RangeReplaceableCollection, C.Element == AnyCancellable {
+        collection.append(AnyCancellable(self))
+    }
+
+    public func store(in set: inout Set<AnyCancellable>) {
+        set.insert(AnyCancellable(self))
+    }
 }
