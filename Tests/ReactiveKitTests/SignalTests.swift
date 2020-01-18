@@ -1005,8 +1005,7 @@ extension SignalTests {
             ("testReplayLatestWith", testReplayLatestWith),
             ("testReplayLatestWithForThreadSafety", testReplayLatestWithForThreadSafety),
             ("testPublish", testPublish),
-            ("testAnyCancallableHashable", testAnyCancallableHashable),
-            ("testBindTo", testBindTo)
+            ("testAnyCancallableHashable", testAnyCancallableHashable)
         ]
     }
 }
