@@ -11,7 +11,6 @@
 		16C33B841BEFBAC900A0DBE0 /* ReactiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		16C33B851BEFBAC900A0DBE0 /* ReactiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		16D30EBD1D6595AB00C2435D /* ReactiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		19276399228F779200EDF2C0 /* SubjectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19276398228F779200EDF2C0 /* SubjectTests.swift */; };
 		EC430ED923735833003243B2 /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC430ED823735833003243B2 /* Atomic.swift */; };
 		EC430EDA23735833003243B2 /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC430ED823735833003243B2 /* Atomic.swift */; };
 		EC430EDB23735833003243B2 /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC430ED823735833003243B2 /* Atomic.swift */; };
@@ -128,14 +127,40 @@
 		EC48D37A224FB5C400284EA0 /* SignalProtocol+Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D30C224FB5C400284EA0 /* SignalProtocol+Event.swift */; };
 		EC48D37B224FB5C400284EA0 /* SignalProtocol+Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D30C224FB5C400284EA0 /* SignalProtocol+Event.swift */; };
 		EC48D37C224FB5C400284EA0 /* SignalProtocol+Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D30C224FB5C400284EA0 /* SignalProtocol+Event.swift */; };
-		EC48D384224FB66100284EA0 /* PropertyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D380224FB66100284EA0 /* PropertyTests.swift */; };
-		EC48D385224FB66100284EA0 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D381224FB66100284EA0 /* Helpers.swift */; };
-		EC48D386224FB66100284EA0 /* SignalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D382224FB66100284EA0 /* SignalTests.swift */; };
 		EC75487E2351E2AC002D869C /* Scheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC75487D2351E2AC002D869C /* Scheduler.swift */; };
 		EC75487F2351E2AC002D869C /* Scheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC75487D2351E2AC002D869C /* Scheduler.swift */; };
 		EC7548802351E2AC002D869C /* Scheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC75487D2351E2AC002D869C /* Scheduler.swift */; };
 		EC7548812351E2AC002D869C /* Scheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC75487D2351E2AC002D869C /* Scheduler.swift */; };
-		EC7AE18A237EB90D00B33FCE /* UserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7AE189237EB90D00B33FCE /* UserTests.swift */; };
+		EC7717E323BCF4480036A609 /* Scheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7717E223BCF4480036A609 /* Scheduler.swift */; };
+		EC7717EC23BE33650036A609 /* Sink.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7717EB23BE33650036A609 /* Sink.swift */; };
+		EC7717ED23BE33650036A609 /* Sink.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7717EB23BE33650036A609 /* Sink.swift */; };
+		EC7717EE23BE33650036A609 /* Sink.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7717EB23BE33650036A609 /* Sink.swift */; };
+		EC7717EF23BE33650036A609 /* Sink.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7717EB23BE33650036A609 /* Sink.swift */; };
+		EC912A3A23BB91EF00701259 /* Accumulator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC912A3923BB91EF00701259 /* Accumulator.swift */; };
+		EC912A3B23BB91EF00701259 /* Accumulator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC912A3923BB91EF00701259 /* Accumulator.swift */; };
+		EC912A3C23BB91EF00701259 /* Accumulator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC912A3923BB91EF00701259 /* Accumulator.swift */; };
+		EC912A3D23BB91EF00701259 /* Accumulator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC912A3923BB91EF00701259 /* Accumulator.swift */; };
+		EC912A5623BB9ABA00701259 /* Stress.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D381224FB66100284EA0 /* Stress.swift */; };
+		EC912A5723BB9ABA00701259 /* SignalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D382224FB66100284EA0 /* SignalTests.swift */; };
+		EC912A5823BB9ABA00701259 /* PropertyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48D380224FB66100284EA0 /* PropertyTests.swift */; };
+		EC912A5923BB9ABA00701259 /* SubjectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19276398228F779200EDF2C0 /* SubjectTests.swift */; };
+		EC912A5C23BB9B0E00701259 /* ReactiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ECBCCDD01BEB6B9A00723476 /* ReactiveKit.framework */; settings = {ATTRIBUTES = (Required, ); }; };
+		EC912A5E23BCAD2600701259 /* Subscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC912A5D23BCAD2600701259 /* Subscriber.swift */; };
+		EC912A5F23BCAD2600701259 /* Subscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC912A5D23BCAD2600701259 /* Subscriber.swift */; };
+		EC912A6023BCAD2600701259 /* Subscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC912A5D23BCAD2600701259 /* Subscriber.swift */; };
+		EC912A6123BCAD2600701259 /* Subscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC912A5D23BCAD2600701259 /* Subscriber.swift */; };
+		EC912A6323BCAFB100701259 /* Cancellable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC912A6223BCAFB100701259 /* Cancellable.swift */; };
+		EC912A6423BCAFB100701259 /* Cancellable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC912A6223BCAFB100701259 /* Cancellable.swift */; };
+		EC912A6523BCAFB100701259 /* Cancellable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC912A6223BCAFB100701259 /* Cancellable.swift */; };
+		EC912A6623BCAFB100701259 /* Cancellable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC912A6223BCAFB100701259 /* Cancellable.swift */; };
+		EC912A6823BCAFD900701259 /* Demand.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC912A6723BCAFD900701259 /* Demand.swift */; };
+		EC912A6923BCAFD900701259 /* Demand.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC912A6723BCAFD900701259 /* Demand.swift */; };
+		EC912A6A23BCAFD900701259 /* Demand.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC912A6723BCAFD900701259 /* Demand.swift */; };
+		EC912A6B23BCAFD900701259 /* Demand.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC912A6723BCAFD900701259 /* Demand.swift */; };
+		EC912A6D23BCB00500701259 /* Subscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC912A6C23BCB00500701259 /* Subscription.swift */; };
+		EC912A6E23BCB00500701259 /* Subscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC912A6C23BCB00500701259 /* Subscription.swift */; };
+		EC912A6F23BCB00500701259 /* Subscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC912A6C23BCB00500701259 /* Subscription.swift */; };
+		EC912A7023BCB00500701259 /* Subscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC912A6C23BCB00500701259 /* Subscription.swift */; };
 		EC9D05CB239BB382000DDE3B /* Published.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9D05CA239BB382000DDE3B /* Published.swift */; };
 		EC9D05CC239BB382000DDE3B /* Published.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9D05CA239BB382000DDE3B /* Published.swift */; };
 		EC9D05CD239BB382000DDE3B /* Published.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9D05CA239BB382000DDE3B /* Published.swift */; };
@@ -145,11 +170,10 @@
 		EC9D05D2239BBBAE000DDE3B /* ObservableObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9D05CF239BBBAE000DDE3B /* ObservableObject.swift */; };
 		EC9D05D3239BBBAE000DDE3B /* ObservableObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9D05CF239BBBAE000DDE3B /* ObservableObject.swift */; };
 		ECBCCDD41BEB6B9A00723476 /* ReactiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		ECBCCDDB1BEB6B9B00723476 /* ReactiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ECBCCDD01BEB6B9A00723476 /* ReactiveKit.framework */; };
-		ECDFDCB222BD7E9500B85C5E /* Subscribers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDFDCB122BD7E9500B85C5E /* Subscribers.swift */; };
-		ECDFDCB322BD7E9500B85C5E /* Subscribers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDFDCB122BD7E9500B85C5E /* Subscribers.swift */; };
-		ECDFDCB422BD7E9500B85C5E /* Subscribers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDFDCB122BD7E9500B85C5E /* Subscribers.swift */; };
-		ECDFDCB522BD7E9500B85C5E /* Subscribers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDFDCB122BD7E9500B85C5E /* Subscribers.swift */; };
+		ECDFDCB222BD7E9500B85C5E /* Completion.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDFDCB122BD7E9500B85C5E /* Completion.swift */; };
+		ECDFDCB322BD7E9500B85C5E /* Completion.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDFDCB122BD7E9500B85C5E /* Completion.swift */; };
+		ECDFDCB422BD7E9500B85C5E /* Completion.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDFDCB122BD7E9500B85C5E /* Completion.swift */; };
+		ECDFDCB522BD7E9500B85C5E /* Completion.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDFDCB122BD7E9500B85C5E /* Completion.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -202,18 +226,24 @@
 		EC48D30C224FB5C400284EA0 /* SignalProtocol+Event.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SignalProtocol+Event.swift"; sourceTree = "<group>"; };
 		EC48D37E224FB66100284EA0 /* LinuxMain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LinuxMain.swift; sourceTree = "<group>"; };
 		EC48D380224FB66100284EA0 /* PropertyTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PropertyTests.swift; sourceTree = "<group>"; };
-		EC48D381224FB66100284EA0 /* Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
+		EC48D381224FB66100284EA0 /* Stress.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Stress.swift; sourceTree = "<group>"; };
 		EC48D382224FB66100284EA0 /* SignalTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalTests.swift; sourceTree = "<group>"; };
 		EC48D387224FB71200284EA0 /* TestsInfo.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = TestsInfo.plist; sourceTree = "<group>"; };
 		EC75487D2351E2AC002D869C /* Scheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scheduler.swift; sourceTree = "<group>"; };
-		EC7AE189237EB90D00B33FCE /* UserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTests.swift; sourceTree = "<group>"; };
+		EC7717E223BCF4480036A609 /* Scheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scheduler.swift; sourceTree = "<group>"; };
+		EC7717EB23BE33650036A609 /* Sink.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Sink.swift; sourceTree = "<group>"; };
+		EC912A3923BB91EF00701259 /* Accumulator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Accumulator.swift; sourceTree = "<group>"; };
+		EC912A5D23BCAD2600701259 /* Subscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subscriber.swift; sourceTree = "<group>"; };
+		EC912A6223BCAFB100701259 /* Cancellable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cancellable.swift; sourceTree = "<group>"; };
+		EC912A6723BCAFD900701259 /* Demand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Demand.swift; sourceTree = "<group>"; };
+		EC912A6C23BCB00500701259 /* Subscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subscription.swift; sourceTree = "<group>"; };
 		EC9D05CA239BB382000DDE3B /* Published.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Published.swift; sourceTree = "<group>"; };
 		EC9D05CF239BBBAE000DDE3B /* ObservableObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservableObject.swift; sourceTree = "<group>"; };
 		ECBCCDD01BEB6B9A00723476 /* ReactiveKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactiveKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ReactiveKit.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		ECBCCDD51BEB6B9A00723476 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		ECBCCDDA1BEB6B9B00723476 /* ReactiveKit-Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ReactiveKit-Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		ECDFDCB122BD7E9500B85C5E /* Subscribers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subscribers.swift; sourceTree = "<group>"; };
+		ECDFDCB122BD7E9500B85C5E /* Completion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Completion.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -249,7 +279,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ECBCCDDB1BEB6B9B00723476 /* ReactiveKit.framework in Frameworks */,
+				EC912A5C23BB9B0E00701259 /* ReactiveKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -259,9 +289,12 @@
 		EC48D2F0224FB5C400284EA0 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				EC430ED823735833003243B2 /* Atomic.swift */,
 				EC75487D2351E2AC002D869C /* Scheduler.swift */,
-				ECDFDCB122BD7E9500B85C5E /* Subscribers.swift */,
+				EC912A5D23BCAD2600701259 /* Subscriber.swift */,
+				EC912A6C23BCB00500701259 /* Subscription.swift */,
+				EC912A6223BCAFB100701259 /* Cancellable.swift */,
+				EC7717E923BE23440036A609 /* Subscribers */,
+				EC430ED823735833003243B2 /* Atomic.swift */,
 				EC48D2F2224FB5C400284EA0 /* Observer.swift */,
 				EC48D2FE224FB5C400284EA0 /* Disposable.swift */,
 				EC48D300224FB5C400284EA0 /* ExecutionContext.swift */,
@@ -308,14 +341,32 @@
 		EC48D37F224FB66100284EA0 /* ReactiveKitTests */ = {
 			isa = PBXGroup;
 			children = (
-				EC48D381224FB66100284EA0 /* Helpers.swift */,
+				EC48D381224FB66100284EA0 /* Stress.swift */,
+				EC7717E223BCF4480036A609 /* Scheduler.swift */,
 				EC48D382224FB66100284EA0 /* SignalTests.swift */,
 				EC48D380224FB66100284EA0 /* PropertyTests.swift */,
 				19276398228F779200EDF2C0 /* SubjectTests.swift */,
-				EC7AE189237EB90D00B33FCE /* UserTests.swift */,
 				08B5D54C23A68618000AE983 /* PublishedTests.swift */,
 			);
 			path = ReactiveKitTests;
+			sourceTree = "<group>";
+		};
+		EC7717E923BE23440036A609 /* Subscribers */ = {
+			isa = PBXGroup;
+			children = (
+				EC912A6723BCAFD900701259 /* Demand.swift */,
+				ECDFDCB122BD7E9500B85C5E /* Completion.swift */,
+				EC912A3923BB91EF00701259 /* Accumulator.swift */,
+				EC7717EB23BE33650036A609 /* Sink.swift */,
+			);
+			path = Subscribers;
+			sourceTree = "<group>";
+		};
+		EC912A5B23BB9B0E00701259 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		ECBCCDC61BEB6B9A00723476 = {
@@ -328,6 +379,7 @@
 				EC48D37D224FB66100284EA0 /* Tests */,
 				ECBCCDD21BEB6B9A00723476 /* Supporting Files */,
 				ECBCCDD11BEB6B9A00723476 /* Products */,
+				EC912A5B23BB9B0E00701259 /* Frameworks */,
 			);
 			indentWidth = 4;
 			sourceTree = "<group>";
@@ -489,8 +541,8 @@
 		ECBCCDC71BEB6B9A00723476 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 0730;
-				LastUpgradeCheck = 0930;
+				LastSwiftUpdateCheck = 1130;
+				LastUpgradeCheck = 1130;
 				ORGANIZATIONNAME = DeclarativeHub;
 				TargetAttributes = {
 					16C33AF81BEFB72500A0DBE0 = {
@@ -512,6 +564,7 @@
 					ECBCCDD91BEB6B9B00723476 = {
 						CreatedOnToolsVersion = 7.1;
 						LastSwiftMigration = 1020;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -584,6 +637,7 @@
 				EC48D35E224FB5C400284EA0 /* Deallocatable.swift in Sources */,
 				EC48D356224FB5C400284EA0 /* Reactive.swift in Sources */,
 				EC75487F2351E2AC002D869C /* Scheduler.swift in Sources */,
+				EC912A6E23BCB00500701259 /* Subscription.swift in Sources */,
 				EC48D35A224FB5C400284EA0 /* LoadingSignal.swift in Sources */,
 				EC48D376224FB5C400284EA0 /* Signal.swift in Sources */,
 				EC48D32E224FB5C400284EA0 /* SignalProtocol+Optional.swift in Sources */,
@@ -593,19 +647,24 @@
 				EC9D05CC239BB382000DDE3B /* Published.swift in Sources */,
 				EC48D362224FB5C400284EA0 /* SignalProtocol+Filtering.swift in Sources */,
 				EC48D30E224FB5C400284EA0 /* SignalProtocol+Utilities.swift in Sources */,
+				EC7717ED23BE33650036A609 /* Sink.swift in Sources */,
 				EC48D36A224FB5C400284EA0 /* SignalProtocol+Result.swift in Sources */,
-				ECDFDCB322BD7E9500B85C5E /* Subscribers.swift in Sources */,
+				ECDFDCB322BD7E9500B85C5E /* Completion.swift in Sources */,
 				EC48D32A224FB5C400284EA0 /* SignalProtocol+Threading.swift in Sources */,
 				EC48D366224FB5C400284EA0 /* SignalProtocol+Transforming.swift in Sources */,
 				EC48D346224FB5C400284EA0 /* Bindable.swift in Sources */,
+				EC912A6423BCAFB100701259 /* Cancellable.swift in Sources */,
 				EC48D342224FB5C400284EA0 /* Disposable.swift in Sources */,
+				EC912A3B23BB91EF00701259 /* Accumulator.swift in Sources */,
 				EC48D372224FB5C400284EA0 /* SignalProtocol+Sequence.swift in Sources */,
 				EC48D312224FB5C400284EA0 /* Observer.swift in Sources */,
 				EC430EDA23735833003243B2 /* Atomic.swift in Sources */,
 				EC48D322224FB5C400284EA0 /* LoadingProperty.swift in Sources */,
+				EC912A6923BCAFD900701259 /* Demand.swift in Sources */,
 				EC48D31A224FB5C400284EA0 /* SignalProtocol+Combining.swift in Sources */,
 				EC48D352224FB5C400284EA0 /* Connectable.swift in Sources */,
 				EC48D34E224FB5C400284EA0 /* Subjects.swift in Sources */,
+				EC912A5F23BCAD2600701259 /* Subscriber.swift in Sources */,
 				EC9D05D1239BBBAE000DDE3B /* ObservableObject.swift in Sources */,
 				EC48D34A224FB5C400284EA0 /* ExecutionContext.swift in Sources */,
 				EC48D33E224FB5C400284EA0 /* SignalProtocol+ErrorHandling.swift in Sources */,
@@ -624,6 +683,7 @@
 				EC48D35F224FB5C400284EA0 /* Deallocatable.swift in Sources */,
 				EC48D357224FB5C400284EA0 /* Reactive.swift in Sources */,
 				EC7548802351E2AC002D869C /* Scheduler.swift in Sources */,
+				EC912A6F23BCB00500701259 /* Subscription.swift in Sources */,
 				EC48D35B224FB5C400284EA0 /* LoadingSignal.swift in Sources */,
 				EC48D377224FB5C400284EA0 /* Signal.swift in Sources */,
 				EC48D32F224FB5C400284EA0 /* SignalProtocol+Optional.swift in Sources */,
@@ -633,19 +693,24 @@
 				EC9D05CD239BB382000DDE3B /* Published.swift in Sources */,
 				EC48D363224FB5C400284EA0 /* SignalProtocol+Filtering.swift in Sources */,
 				EC48D30F224FB5C400284EA0 /* SignalProtocol+Utilities.swift in Sources */,
+				EC7717EE23BE33650036A609 /* Sink.swift in Sources */,
 				EC48D36B224FB5C400284EA0 /* SignalProtocol+Result.swift in Sources */,
-				ECDFDCB422BD7E9500B85C5E /* Subscribers.swift in Sources */,
+				ECDFDCB422BD7E9500B85C5E /* Completion.swift in Sources */,
 				EC48D32B224FB5C400284EA0 /* SignalProtocol+Threading.swift in Sources */,
 				EC48D367224FB5C400284EA0 /* SignalProtocol+Transforming.swift in Sources */,
 				EC48D347224FB5C400284EA0 /* Bindable.swift in Sources */,
+				EC912A6523BCAFB100701259 /* Cancellable.swift in Sources */,
 				EC48D343224FB5C400284EA0 /* Disposable.swift in Sources */,
+				EC912A3C23BB91EF00701259 /* Accumulator.swift in Sources */,
 				EC48D373224FB5C400284EA0 /* SignalProtocol+Sequence.swift in Sources */,
 				EC48D313224FB5C400284EA0 /* Observer.swift in Sources */,
 				EC430EDB23735833003243B2 /* Atomic.swift in Sources */,
 				EC48D323224FB5C400284EA0 /* LoadingProperty.swift in Sources */,
+				EC912A6A23BCAFD900701259 /* Demand.swift in Sources */,
 				EC48D31B224FB5C400284EA0 /* SignalProtocol+Combining.swift in Sources */,
 				EC48D353224FB5C400284EA0 /* Connectable.swift in Sources */,
 				EC48D34F224FB5C400284EA0 /* Subjects.swift in Sources */,
+				EC912A6023BCAD2600701259 /* Subscriber.swift in Sources */,
 				EC9D05D2239BBBAE000DDE3B /* ObservableObject.swift in Sources */,
 				EC48D34B224FB5C400284EA0 /* ExecutionContext.swift in Sources */,
 				EC48D33F224FB5C400284EA0 /* SignalProtocol+ErrorHandling.swift in Sources */,
@@ -664,6 +729,7 @@
 				EC48D360224FB5C400284EA0 /* Deallocatable.swift in Sources */,
 				EC48D358224FB5C400284EA0 /* Reactive.swift in Sources */,
 				EC7548812351E2AC002D869C /* Scheduler.swift in Sources */,
+				EC912A7023BCB00500701259 /* Subscription.swift in Sources */,
 				EC48D35C224FB5C400284EA0 /* LoadingSignal.swift in Sources */,
 				EC48D378224FB5C400284EA0 /* Signal.swift in Sources */,
 				EC48D330224FB5C400284EA0 /* SignalProtocol+Optional.swift in Sources */,
@@ -673,19 +739,24 @@
 				EC9D05CE239BB382000DDE3B /* Published.swift in Sources */,
 				EC48D364224FB5C400284EA0 /* SignalProtocol+Filtering.swift in Sources */,
 				EC48D310224FB5C400284EA0 /* SignalProtocol+Utilities.swift in Sources */,
+				EC7717EF23BE33650036A609 /* Sink.swift in Sources */,
 				EC48D36C224FB5C400284EA0 /* SignalProtocol+Result.swift in Sources */,
-				ECDFDCB522BD7E9500B85C5E /* Subscribers.swift in Sources */,
+				ECDFDCB522BD7E9500B85C5E /* Completion.swift in Sources */,
 				EC48D32C224FB5C400284EA0 /* SignalProtocol+Threading.swift in Sources */,
 				EC48D368224FB5C400284EA0 /* SignalProtocol+Transforming.swift in Sources */,
 				EC48D348224FB5C400284EA0 /* Bindable.swift in Sources */,
+				EC912A6623BCAFB100701259 /* Cancellable.swift in Sources */,
 				EC48D344224FB5C400284EA0 /* Disposable.swift in Sources */,
+				EC912A3D23BB91EF00701259 /* Accumulator.swift in Sources */,
 				EC48D374224FB5C400284EA0 /* SignalProtocol+Sequence.swift in Sources */,
 				EC48D314224FB5C400284EA0 /* Observer.swift in Sources */,
 				EC430EDC23735833003243B2 /* Atomic.swift in Sources */,
 				EC48D324224FB5C400284EA0 /* LoadingProperty.swift in Sources */,
+				EC912A6B23BCAFD900701259 /* Demand.swift in Sources */,
 				EC48D31C224FB5C400284EA0 /* SignalProtocol+Combining.swift in Sources */,
 				EC48D354224FB5C400284EA0 /* Connectable.swift in Sources */,
 				EC48D350224FB5C400284EA0 /* Subjects.swift in Sources */,
+				EC912A6123BCAD2600701259 /* Subscriber.swift in Sources */,
 				EC9D05D3239BBBAE000DDE3B /* ObservableObject.swift in Sources */,
 				EC48D34C224FB5C400284EA0 /* ExecutionContext.swift in Sources */,
 				EC48D340224FB5C400284EA0 /* SignalProtocol+ErrorHandling.swift in Sources */,
@@ -704,6 +775,7 @@
 				EC48D35D224FB5C400284EA0 /* Deallocatable.swift in Sources */,
 				EC48D355224FB5C400284EA0 /* Reactive.swift in Sources */,
 				EC75487E2351E2AC002D869C /* Scheduler.swift in Sources */,
+				EC912A6D23BCB00500701259 /* Subscription.swift in Sources */,
 				EC48D359224FB5C400284EA0 /* LoadingSignal.swift in Sources */,
 				EC48D375224FB5C400284EA0 /* Signal.swift in Sources */,
 				EC48D32D224FB5C400284EA0 /* SignalProtocol+Optional.swift in Sources */,
@@ -713,19 +785,24 @@
 				EC9D05CB239BB382000DDE3B /* Published.swift in Sources */,
 				EC48D361224FB5C400284EA0 /* SignalProtocol+Filtering.swift in Sources */,
 				EC48D30D224FB5C400284EA0 /* SignalProtocol+Utilities.swift in Sources */,
+				EC7717EC23BE33650036A609 /* Sink.swift in Sources */,
 				EC48D369224FB5C400284EA0 /* SignalProtocol+Result.swift in Sources */,
-				ECDFDCB222BD7E9500B85C5E /* Subscribers.swift in Sources */,
+				ECDFDCB222BD7E9500B85C5E /* Completion.swift in Sources */,
 				EC48D329224FB5C400284EA0 /* SignalProtocol+Threading.swift in Sources */,
 				EC48D365224FB5C400284EA0 /* SignalProtocol+Transforming.swift in Sources */,
 				EC48D345224FB5C400284EA0 /* Bindable.swift in Sources */,
+				EC912A6323BCAFB100701259 /* Cancellable.swift in Sources */,
 				EC48D341224FB5C400284EA0 /* Disposable.swift in Sources */,
+				EC912A3A23BB91EF00701259 /* Accumulator.swift in Sources */,
 				EC48D371224FB5C400284EA0 /* SignalProtocol+Sequence.swift in Sources */,
 				EC48D311224FB5C400284EA0 /* Observer.swift in Sources */,
 				EC430ED923735833003243B2 /* Atomic.swift in Sources */,
 				EC48D321224FB5C400284EA0 /* LoadingProperty.swift in Sources */,
+				EC912A6823BCAFD900701259 /* Demand.swift in Sources */,
 				EC48D319224FB5C400284EA0 /* SignalProtocol+Combining.swift in Sources */,
 				EC48D351224FB5C400284EA0 /* Connectable.swift in Sources */,
 				EC48D34D224FB5C400284EA0 /* Subjects.swift in Sources */,
+				EC912A5E23BCAD2600701259 /* Subscriber.swift in Sources */,
 				EC9D05D0239BBBAE000DDE3B /* ObservableObject.swift in Sources */,
 				EC48D349224FB5C400284EA0 /* ExecutionContext.swift in Sources */,
 				EC48D33D224FB5C400284EA0 /* SignalProtocol+ErrorHandling.swift in Sources */,
@@ -741,11 +818,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				08B5D54E23A68647000AE983 /* PublishedTests.swift in Sources */,
-				19276399228F779200EDF2C0 /* SubjectTests.swift in Sources */,
-				EC48D384224FB66100284EA0 /* PropertyTests.swift in Sources */,
-				EC7AE18A237EB90D00B33FCE /* UserTests.swift in Sources */,
-				EC48D386224FB66100284EA0 /* SignalTests.swift in Sources */,
-				EC48D385224FB66100284EA0 /* Helpers.swift in Sources */,
+				EC912A5923BB9ABA00701259 /* SubjectTests.swift in Sources */,
+				EC912A5623BB9ABA00701259 /* Stress.swift in Sources */,
+				EC7717E323BCF4480036A609 /* Scheduler.swift in Sources */,
+				EC912A5823BB9ABA00701259 /* PropertyTests.swift in Sources */,
+				EC912A5723BB9ABA00701259 /* SignalTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -950,6 +1027,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MARKETING_VERSION = 3.15.6;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -1004,6 +1082,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MARKETING_VERSION = 3.15.6;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 4.0;
@@ -1019,7 +1098,7 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1041,7 +1120,7 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1062,6 +1141,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				INFOPLIST_FILE = "Supporting Files/TestsInfo.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "Srdan-Rasic.ReactiveKitTests";
@@ -1074,6 +1154,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				INFOPLIST_FILE = "Supporting Files/TestsInfo.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "Srdan-Rasic.ReactiveKitTests";

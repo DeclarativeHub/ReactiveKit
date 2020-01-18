@@ -158,15 +158,13 @@ extension SignalProtocol {
                         observer.receive(completion: .finished)
                     case .failed(let error):
                         if shouldRetry(error) {
-                            compositeDisposable += other.observe { otherEvent in
+                            compositeDisposable += other.first().observe { otherEvent in
                                 lock.lock(); defer { lock.unlock() }
                                 switch otherEvent {
                                 case .next:
                                     _attempt?()
-                                case .completed:
-                                    _attempt = nil
-                                    serialDisposable.otherDisposable?.dispose()
-                                    observer.receive(completion: .failure(error))
+                                default:
+                                    break
                                 }
                             }
                         } else {

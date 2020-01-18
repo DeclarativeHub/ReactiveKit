@@ -69,29 +69,18 @@ open class Subject<Element, Error: Swift.Error>: SubjectProtocol {
     private typealias Token = Int64
     private var nextToken: Token = 0
     
-    private var observers: [(Token, Observer<Element, Error>)] = []
-    private var deletedObservers = Atomic(Set<Token>())
-    
+    private var observers: Atomic<[(Token, Observer<Element, Error>)]> = Atomic([])
+
     public private(set) var isTerminated: Bool = false
     
     public let disposeBag = DisposeBag()
     
-    fileprivate init() {}
+    public init() {}
 
-    public func on(_ event: Signal<Element, Error>.Event) {
+    open func on(_ event: Signal<Element, Error>.Event) {
         guard !isTerminated else { return }
-
         isTerminated = event.isTerminal
-
-        let deletedObservers = self.deletedObservers.value
-        observers.removeAll(where: { (token, _) in
-            deletedObservers.contains(token)
-        })
-        self.deletedObservers.mutate {
-            $0.subtracting(deletedObservers)
-        }
-
-        for (_, observer) in observers {
+        for (_, observer) in observers.value {
             observer(event)
         }
     }
@@ -99,12 +88,12 @@ open class Subject<Element, Error: Swift.Error>: SubjectProtocol {
     open func observe(with observer: @escaping Observer<Element, Error>) -> Disposable {
         let token = nextToken
         nextToken += 1
-
-        observers.append((token, observer))
-
+        observers.mutate {
+            $0.append((token, observer))
+        }
         return BlockDisposable { [weak self] in
-            self?.deletedObservers.mutate {
-                $0.union([token])
+            self?.observers.mutate {
+                $0.removeAll(where: { (t, _) in t == token })
             }
         }
     }
