@@ -11,6 +11,10 @@
 		08788B2F2411609D0011CB5E /* Deferred.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08788B2D2411609D0011CB5E /* Deferred.swift */; };
 		08788B302411609D0011CB5E /* Deferred.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08788B2D2411609D0011CB5E /* Deferred.swift */; };
 		08788B312411609D0011CB5E /* Deferred.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08788B2D2411609D0011CB5E /* Deferred.swift */; };
+		08788B392411C5D00011CB5E /* Empty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08788B382411C5D00011CB5E /* Empty.swift */; };
+		08788B3A2411C5F30011CB5E /* Empty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08788B382411C5D00011CB5E /* Empty.swift */; };
+		08788B3B2411C5F30011CB5E /* Empty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08788B382411C5D00011CB5E /* Empty.swift */; };
+		08788B3C2411C5F40011CB5E /* Empty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08788B382411C5D00011CB5E /* Empty.swift */; };
 		08B5D54E23A68647000AE983 /* PublishedTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08B5D54C23A68618000AE983 /* PublishedTests.swift */; };
 		16C33B841BEFBAC900A0DBE0 /* ReactiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		16C33B851BEFBAC900A0DBE0 /* ReactiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = ECBCCDD31BEB6B9A00723476 /* ReactiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -197,6 +201,7 @@
 
 /* Begin PBXFileReference section */
 		08788B2D2411609D0011CB5E /* Deferred.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Deferred.swift; sourceTree = "<group>"; };
+		08788B382411C5D00011CB5E /* Empty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Empty.swift; sourceTree = "<group>"; };
 		08B5D54C23A68618000AE983 /* PublishedTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublishedTests.swift; sourceTree = "<group>"; };
 		162CB7461CB451D200FB6375 /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		1671707E1BF4F62A001786CE /* ReactiveKit.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = ReactiveKit.podspec; sourceTree = SOURCE_ROOT; };
@@ -326,6 +331,7 @@
 				EC48D2F9224FB5C400284EA0 /* SignalProtocol+Optional.swift */,
 				EC48D30A224FB5C400284EA0 /* SignalProtocol+Sequence.swift */,
 				08788B2D2411609D0011CB5E /* Deferred.swift */,
+				08788B382411C5D00011CB5E /* Empty.swift */,
 				EC48D301224FB5C400284EA0 /* Subjects.swift */,
 				EC48D302224FB5C400284EA0 /* Connectable.swift */,
 				EC48D2F5224FB5C400284EA0 /* Property.swift */,
@@ -653,6 +659,7 @@
 				EC48D356224FB5C400284EA0 /* Reactive.swift in Sources */,
 				EC75487F2351E2AC002D869C /* Scheduler.swift in Sources */,
 				EC912A6E23BCB00500701259 /* Subscription.swift in Sources */,
+				08788B3A2411C5F30011CB5E /* Empty.swift in Sources */,
 				EC48D35A224FB5C400284EA0 /* LoadingSignal.swift in Sources */,
 				EC48D376224FB5C400284EA0 /* Signal.swift in Sources */,
 				EC48D32E224FB5C400284EA0 /* SignalProtocol+Optional.swift in Sources */,
@@ -701,6 +708,7 @@
 				EC48D357224FB5C400284EA0 /* Reactive.swift in Sources */,
 				EC7548802351E2AC002D869C /* Scheduler.swift in Sources */,
 				EC912A6F23BCB00500701259 /* Subscription.swift in Sources */,
+				08788B3B2411C5F30011CB5E /* Empty.swift in Sources */,
 				EC48D35B224FB5C400284EA0 /* LoadingSignal.swift in Sources */,
 				EC48D377224FB5C400284EA0 /* Signal.swift in Sources */,
 				EC48D32F224FB5C400284EA0 /* SignalProtocol+Optional.swift in Sources */,
@@ -749,6 +757,7 @@
 				EC48D358224FB5C400284EA0 /* Reactive.swift in Sources */,
 				EC7548812351E2AC002D869C /* Scheduler.swift in Sources */,
 				EC912A7023BCB00500701259 /* Subscription.swift in Sources */,
+				08788B3C2411C5F40011CB5E /* Empty.swift in Sources */,
 				EC48D35C224FB5C400284EA0 /* LoadingSignal.swift in Sources */,
 				EC48D378224FB5C400284EA0 /* Signal.swift in Sources */,
 				EC48D330224FB5C400284EA0 /* SignalProtocol+Optional.swift in Sources */,
@@ -797,6 +806,7 @@
 				EC48D355224FB5C400284EA0 /* Reactive.swift in Sources */,
 				EC75487E2351E2AC002D869C /* Scheduler.swift in Sources */,
 				EC912A6D23BCB00500701259 /* Subscription.swift in Sources */,
+				08788B392411C5D00011CB5E /* Empty.swift in Sources */,
 				EC48D359224FB5C400284EA0 /* LoadingSignal.swift in Sources */,
 				EC48D375224FB5C400284EA0 /* Signal.swift in Sources */,
 				EC48D32D224FB5C400284EA0 /* SignalProtocol+Optional.swift in Sources */,
