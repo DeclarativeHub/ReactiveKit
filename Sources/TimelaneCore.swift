@@ -1,20 +1,38 @@
 //
-// Copyright(c) Marin Todorov 2020
-// For the license agreement for this code check the LICENSE file.
+// MIT License
 //
-
-// This file is taken directly from
-// https://github.com/icanzilb/TimelaneCore/blob/master/Sources/TimelaneCore/TimelaneCore.swift
+// Copyright (c) 2020 Marin Todorov
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+//
+// This file is taken directly from https://github.com/icanzilb/TimelaneCore/
+// in accordance with the MIT licence and author's approval. Thanks Marin!
 
 import Foundation
 import os
 
 @available(macOS 10.14, iOS 12, tvOS 12, watchOS 5, *)
-public class Timelane {
+internal class Timelane {
 
     static let version = 1
     static var log: OSLog = {
-        if #available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *) {
+        if #available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *) {
             return OSLog(subsystem: "tools.timelane.subscriptions", category: OSLog.Category.dynamicStackTracing)
         } else {
             // Fallback on a hardcoded category name.
@@ -116,7 +134,7 @@ public class Timelane {
 
 fileprivate extension String {
     func appendingEllipsis(after: Int) -> String {
-        guard count > 50 else { return self }
-        return prefix(50).appending("...")
+        guard count > after else { return self }
+        return prefix(after).appending("...")
     }
 }
