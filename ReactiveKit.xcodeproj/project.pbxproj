@@ -306,6 +306,7 @@
 		EC48D2F0224FB5C400284EA0 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				EC4A95E72412E90A00362F60 /* Publishers */,
 				EC7717E923BE23440036A609 /* Subscribers */,
 				EC75487D2351E2AC002D869C /* Scheduler.swift */,
 				EC912A5D23BCAD2600701259 /* Subscriber.swift */,
@@ -330,8 +331,6 @@
 				EC48D308224FB5C400284EA0 /* SignalProtocol+Result.swift */,
 				EC48D2F9224FB5C400284EA0 /* SignalProtocol+Optional.swift */,
 				EC48D30A224FB5C400284EA0 /* SignalProtocol+Sequence.swift */,
-				08788B2D2411609D0011CB5E /* Deferred.swift */,
-				08788B382411C5D00011CB5E /* Empty.swift */,
 				EC48D301224FB5C400284EA0 /* Subjects.swift */,
 				EC48D302224FB5C400284EA0 /* Connectable.swift */,
 				EC48D2F5224FB5C400284EA0 /* Property.swift */,
@@ -370,6 +369,15 @@
 				EC881B7F23D318F100C52752 /* CombineTests.swift */,
 			);
 			path = ReactiveKitTests;
+			sourceTree = "<group>";
+		};
+		EC4A95E72412E90A00362F60 /* Publishers */ = {
+			isa = PBXGroup;
+			children = (
+				08788B2D2411609D0011CB5E /* Deferred.swift */,
+				08788B382411C5D00011CB5E /* Empty.swift */,
+			);
+			path = Publishers;
 			sourceTree = "<group>";
 		};
 		EC7717E923BE23440036A609 /* Subscribers */ = {
