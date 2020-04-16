@@ -328,8 +328,11 @@ extension SignalProtocol {
 
     /// Emit elements until the given closure returns first `false`.
     ///
+    /// - parameter shouldContinue: A closure that tests whethere the given element should complete the signal.
+    /// - parameter inclusive: When `true`, the element that triggered the completion will also be sent along the signal. Defaults to `false`.
+    ///
     /// Check out interactive example at [https://rxmarbles.com/#takeWhile](https://rxmarbles.com/#takeWhile)
-    public func prefix(while shouldContinue: @escaping (Element) -> Bool) -> Signal<Element, Error> {
+    public func prefix(while shouldContinue: @escaping (Element) -> Bool, inclusive: Bool = false) -> Signal<Element, Error> {
         return Signal { observer in
             return self.observe { event in
                 switch event {
@@ -337,6 +340,9 @@ extension SignalProtocol {
                     if shouldContinue(element) {
                         observer.receive(element)
                     } else {
+                        if inclusive {
+                            observer.receive(element)
+                        }
                         observer.receive(completion: .finished)
                     }
                 default:
