@@ -96,7 +96,7 @@ extension SignalProtocol {
     }
 
     /// Retry the signal in case of failure at most `times` number of times.
-    public func retry(_ times: Int) -> Signal<Element, Error> {
+    public func retry(_ times: Int, if shouldRetry: @escaping (Error) -> Bool = { _ in true }) -> Signal<Element, Error> {
         guard times > 0 else { return toSignal() }
         return Signal { observer in
             let lock = NSRecursiveLock(name: "com.reactive_kit.signal.retry")
@@ -111,7 +111,7 @@ extension SignalProtocol {
                         observer.receive(element)
                     case .failed(let error):
                         lock.lock(); defer { lock.unlock() }
-                        if _remainingAttempts > 0 {
+                        if _remainingAttempts > 0 && shouldRetry(error) {
                             _remainingAttempts -= 1
                             _attempt?()
                         } else {
