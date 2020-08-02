@@ -62,7 +62,8 @@ extension ConnectableSignalProtocol {
     
     /// Convert connectable signal into the ordinary signal by calling `connect`
     /// on the first observation and calling dispose when number of observers goes down to zero.
-    public func refCount() -> Signal<Element, Error> {
+    /// - parameter disconnectCount: Subscriptions count on which to disconnect. Defaults to `0`.
+    public func refCount(disconnectCount: Int = 0) -> Signal<Element, Error> {
         let lock = NSRecursiveLock(name: "com.reactive_kit.connectable_signal.ref_count")
         var _count = 0
         var _connectionDisposable: Disposable? = nil
@@ -77,7 +78,7 @@ extension ConnectableSignalProtocol {
                 lock.lock(); defer { lock.unlock() }
                 disposable.dispose()
                 _count = _count - 1
-                if _count == 0 {
+                if _count == disconnectCount {
                     _connectionDisposable?.dispose()
                     _connectionDisposable = nil
                 }
@@ -114,8 +115,10 @@ extension SignalProtocol {
     
     /// Ensure that all observers see the same sequence of elements.
     /// Shorthand for `replay(limit).refCount()`.
-    public func share(limit: Int = Int.max) -> Signal<Element, Error> {
-        return replay(limit: limit).refCount()
+    /// - parameter limit: Number of latest elements to buffer.
+    /// - parameter keepAlive: Whether to keep the source signal connected even when all subscribers disconnect.
+    public func share(limit: Int = Int.max, keepAlive: Bool = false) -> Signal<Element, Error> {
+        return replay(limit: limit).refCount(disconnectCount: keepAlive ? Int.min : 0)
     }
 }
 
