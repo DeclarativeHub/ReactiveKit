@@ -8,6 +8,7 @@ let package = Package(
     ],
     products: [
         .library(name: "ReactiveKit", targets: ["ReactiveKit"]),
+        .library(name: "ReactiveKitStatic", type: .static, targets: ["ReactiveKit"]),
         .library(name: "ReactiveKitDynamic", type: .dynamic, targets: ["ReactiveKit"])
 
     ],
