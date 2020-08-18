@@ -7,7 +7,7 @@ let package = Package(
         .macOS(.v10_10), .iOS(.v9), .tvOS(.v9), .watchOS(.v2)
     ],
     products: [
-        .library(name: "ReactiveKit", targets: ["ReactiveKit"])
+        .library(name: "ReactiveKit", type: .dynamic, targets: ["ReactiveKit"])
     ],
     targets: [
         .target(name: "ReactiveKit", path: "Sources"),
