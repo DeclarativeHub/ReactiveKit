@@ -341,6 +341,7 @@ public final class DisposeBag: DisposeBagProtocol {
 public final class AnyCancellable: Disposable {
 
     private let lock = NSRecursiveLock(name: "com.reactive_kit.any_cancellable")
+    private static let lockStore = NSRecursiveLock(name: "com.reactive_kit.any_cancellable.lock_store")
     private var handler: (() -> ())?
 
     public var isDisposed: Bool {
@@ -373,12 +374,12 @@ public final class AnyCancellable: Disposable {
     }
 
     final public func store<C>(in collection: inout C) where C: RangeReplaceableCollection, C.Element == AnyCancellable {
-        lock.lock(); defer { lock.unlock() }
+        Self.lockStore.lock(); defer { Self.lockStore.unlock() }
         collection.append(self)
     }
 
     final public func store(in set: inout Set<AnyCancellable>) {
-        lock.lock(); defer { lock.unlock() }
+        Self.lockStore.lock(); defer { Self.lockStore.unlock() }
         set.insert(self)
     }
 }
