@@ -406,10 +406,10 @@ extension Disposable {
     }
 
     public func store<C>(in collection: inout C) where C: RangeReplaceableCollection, C.Element == AnyCancellable {
-        AnyCancellable(self).store(in: collection)
+        AnyCancellable(self).store(in: &collection)
     }
 
     public func store(in set: inout Set<AnyCancellable>) {
-        AnyCancellable(self).store(in: set)
+        AnyCancellable(self).store(in: &set)
     }
 }
