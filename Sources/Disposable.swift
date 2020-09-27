@@ -367,6 +367,20 @@ public final class AnyCancellable: Disposable {
         lock.unlock()
         handler()
     }
+    
+    public convenience init(_ disposable: Disposable) {
+        self.init(disposable.dispose)
+    }
+
+    final public func store<C>(in collection: inout C) where C: RangeReplaceableCollection, C.Element == AnyCancellable {
+        lock.lock(); defer { lock.unlock() }
+        collection.append(self)
+    }
+
+    final public func store(in set: inout Set<AnyCancellable>) {
+        lock.lock(); defer { lock.unlock() }
+        set.insert(self)
+    }
 }
 
 extension AnyCancellable: Hashable {
@@ -377,21 +391,6 @@ extension AnyCancellable: Hashable {
   public func hash(into hasher: inout Hasher) {
     hasher.combine(ObjectIdentifier(self))
   }
-}
-
-extension AnyCancellable {
-
-    public convenience init(_ disposable: Disposable) {
-        self.init(disposable.dispose)
-    }
-
-    final public func store<C>(in collection: inout C) where C: RangeReplaceableCollection, C.Element == AnyCancellable {
-        collection.append(self)
-    }
-
-    final public func store(in set: inout Set<AnyCancellable>) {
-        set.insert(self)
-    }
 }
 
 extension Disposable {
