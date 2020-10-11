@@ -223,6 +223,8 @@ extension Signal where Error == Swift.Error {
     }
 }
 
+#if !XCFRAMEWORK
+
 extension Signal where Error == Never {
 
     /// Create a new signal and assign its next element observer to the given variable.
@@ -252,3 +254,5 @@ extension Signal where Element == Void, Error == Never {
         self = signal
     }
 }
+
+#endif
