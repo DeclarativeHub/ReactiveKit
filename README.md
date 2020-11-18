@@ -708,7 +708,7 @@ someData
 
 By applying `subscribe(on:)` we define where the signal producer gets executed. We usually use it in a combination with `receive(on:)` to define where the observer receives events.
 
-Note that these operators with execution contexts. Execution context is a simple abstraction over a thread or a queue. You can see how it is implemented [here](https://github.com/DeclarativeHub/ReactiveKit/blob/master/Sources/ExecutionContext.swift).
+Note that these operators work with execution contexts. Execution context is a simple abstraction over a thread or a queue. You can see how it is implemented [here](https://github.com/DeclarativeHub/ReactiveKit/blob/master/Sources/ExecutionContext.swift).
 
 ### Bindings
 
