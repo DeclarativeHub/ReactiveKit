@@ -2,7 +2,7 @@
 
 [![Platform](https://img.shields.io/badge/platform-iOS%20%7C%20macOS%20%7C%20tvOS%20%7C%20watchOS%20%7C%20Linux-green.svg)](http://cocoadocs.org/docsets/ReactiveKit/)
 [![Build Status](https://github.com/DeclarativeHub/ReactiveKit/workflows/Build%20&%20Test/badge.svg)](https://github.com/DeclarativeHub/ReactiveKit/actions?query=workflow%3A%22Build+%26+Test%22)
-[![Twitter](https://img.shields.io/badge/twitter-@srdanrasic-red.svg?style=flat)](https://twitter.com/srdanrasic)
+[![Twitter](https://img.shields.io/badge/twitter-@srdanrasic-red.svg?style=flat)](https://twitter.com/srdanrasic) [![Meercode CI Score](https://meercode.io/badge/DeclarativeHub/ReactiveKit?type=ci-score&branch=master)](https://meercode.io/DeclarativeHub/ReactiveKit)
 
 __ReactiveKit__ is a lightweight Swift framework for reactive and functional reactive programming that enables you to get into the reactive world today.
 
