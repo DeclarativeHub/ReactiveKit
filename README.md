@@ -662,11 +662,11 @@ someImage
 
 we will end up with a weird behaviour. We will be setting image from the background queue on an instance of `UIImageView` that is not thread safe - just like the rest of UIKit.
 
-We could set the image in another async dispatch to main queue, but there is a better way. Just use the operator `observeOn` with the queue you want the observer to be called on.
+We could set the image in another async dispatch to main queue, but there is a better way. Just use the operator `receive(on:)` with the queue you want the observer to be called on.
 
 ```swift
 someImage
-  .observeOn(.main)
+  .receive(on: ExecutionContext.main)
   .observeNext { image in
     imageView.image = image // called on main queue
   }
@@ -694,21 +694,21 @@ someData
   .dispose(in: bag)
 ```
 
-We would like to do the loading on another queue. We could dispatch async the loading, but what if we cannot change the signal producer closure because it is defined in a framework or there is another reason we cannot change it. That is when the operator `executeOn` saves the day.
+We would like to do the loading on another queue. We could dispatch async the loading, but what if we cannot change the signal producer closure because it is defined in a framework or there is another reason we cannot change it. That is when the operator `subscribe(on:)` saves the day.
 
 ```swift
 someData
-  .executeOn(.global(qos: .background))
-  .observeOn(.main)
+  .subscribe(on: ExecutionContext.global(qos: .background))
+  .receive(on: ExecutionContext.main)
   .observeNext { data in // does not block current thread
     display(data)
   }
   .dispose(in: bag)
 ```
 
-By applying `executeOn` we define where the signal producer gets executed. We usually use it in a combination with `observeOn` to define where the observer receives events.
+By applying `subscribe(on:)` we define where the signal producer gets executed. We usually use it in a combination with `receive(on:)` to define where the observer receives events.
 
-Note that there are also operators `observeIn` and `executeIn`. Those operators are similar to the ones we described with the difference that they work with execution contexts instead of with dispatch queues. Execution context is a simple abstraction over a thread or a queue. You can see how it is implemented [here](https://github.com/DeclarativeHub/ReactiveKit/blob/master/Sources/ExecutionContext.swift).
+Note that these operators work with execution contexts. Execution context is a simple abstraction over a thread or a queue. You can see how it is implemented [here](https://github.com/DeclarativeHub/ReactiveKit/blob/master/Sources/ExecutionContext.swift).
 
 ### Bindings
 
@@ -721,7 +721,7 @@ let presentUserProfile: Signal<User, Never> = ...
 and we would like to present a profile screen when a user is sent on the signal. Usually we would do something like:
 
 ```swift
-presentUserProfile.observeOn(.main).observeNext { [weak self] user in
+presentUserProfile.receive(on: ExecutionContext.main).observeNext { [weak self] user in
   let profileViewController = ProfileViewController(user: user)
   self?.present(profileViewController, animated: true)
 }.dispose(in: bag)
