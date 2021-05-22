@@ -117,7 +117,9 @@ public final class AtomicObserver<Element, Error: Swift.Error>: ObserverProtocol
 
     public func dispose() {
         observerLock.lock()
-        observer = nil
+        withExtendedLifetime(self.observer) {
+            self.observer = nil
+        }
         observerLock.unlock()
         disposablesLock.lock()
         self.upstreamDisposables.forEach { $0.dispose() }
