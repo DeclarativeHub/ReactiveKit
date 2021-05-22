@@ -309,6 +309,42 @@ class SignalTests: XCTestCase {
         XCTAssertTrue(subscriber.isFinished)
     }
 
+    func testDebounce() {
+        // event 0            @ 0.0s - debounced
+        // event 1            @ 0.4s - debounced
+        // event 2            @ 0.8s - debounced
+        // event 3            @ 1.2s - debounced
+        // event 4            @ 1.6s - debounced
+        // timesup            @ 2.6s - return 4
+        // event 5            @ 3.6s - debounced
+        // timesup            @ 4.6s - return 5
+        let values = Signal<Int, Never>(sequence: 0..<5, interval: 0.4)
+            .append(Signal<Int, Never>(just: 5, after: 2))
+            .debounce(for: 1)
+            .waitAndCollectElements()
+        XCTAssertEqual(values, [4, 5])
+    }
+    
+    func testThrottle() {
+        // event 0            @ 0.0s - return 0
+        // event 1            @ 0.4s - throttled
+        // event 2            @ 0.8s - throttled
+        // event 3            @ 1.2s - throttled
+        // throttle timesup   @ 1.5s - return 3
+        // event 4            @ 1.6s - throttled
+        // event 5            @ 2.0s - throttled
+        // event 6            @ 2.4s - throttled
+        // event 7            @ 2.8s - throttled
+        // throttle timesup   @ 3.0s - return 7
+        // event 8            @ 3.2s - throttled
+        // event 9            @ 3.6s - throttled
+        // completed          @ 3.6s - return 9
+        let values = Signal<Int, TestError>(sequence: 0..<10, interval: 0.4)
+            .throttle(for: 1.5)
+            .waitAndCollectElements()
+        XCTAssertEqual(values, [0, 3, 7, 9])
+    }
+
     func testIgnoreNils() {
         let subscriber = Subscribers.Accumulator<Int, TestError>()
         let publisher = Signal<Int?, TestError>(sequence: Array<Int?>([1, nil, 3])).ignoreNils()

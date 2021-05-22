@@ -374,24 +374,45 @@ extension SignalProtocol {
         }
     }
 
-    /// Throttle the signal to emit at most one element per given `seconds` interval.
+    /// Throttle the signal to emit at most one element per given `seconds` interval. Signal will emit latest element from each interval.
     ///
     /// Check out interactive example at [https://rxmarbles.com/#throttle](https://rxmarbles.com/#throttle)
-    public func throttle(for seconds: Double) -> Signal<Element, Error> {
+    public func throttle(for seconds: Double, queue: DispatchQueue = DispatchQueue(label: "com.reactive_kit.signal.throttle")) -> Signal<Element, Error> {
         return Signal { observer in
-            let lock = NSRecursiveLock(name: "com.reactive_kit.signal.throttle")
-            var _lastEventTime: DispatchTime?
+            var isInitialElement = true
+            var throttledDisposable: Disposable? = nil
+            var lastElement: Element? = nil
+            var isFinished: Bool = false
             return self.observe { event in
-                switch event {
-                case .next(let element):
-                    lock.lock(); defer { lock.unlock() }
-                    let now = DispatchTime.now()
-                    if _lastEventTime == nil || now.rawValue > (_lastEventTime! + seconds).rawValue {
-                        _lastEventTime = now
-                        observer.receive(element)
+                queue.async {
+                    switch event {
+                    case .next(let element):
+                        if isInitialElement {
+                            isInitialElement = false
+                            observer.receive(element)
+                        } else {
+                            lastElement = element
+                        }
+                        guard throttledDisposable == nil else { return }
+                        throttledDisposable = queue.disposableAfter(when: seconds) {
+                            if let element = lastElement {
+                                observer.receive(element)
+                                lastElement = nil
+                            }
+                            if isFinished {
+                                observer.receive(completion: .finished)
+                            }
+                            throttledDisposable = nil
+                        }
+                    case .failed(let error):
+                        observer.receive(completion: .failure(error))
+                    case .completed:
+                        guard throttledDisposable == nil else {
+                            isFinished = true
+                            return
+                        }
+                        observer.receive(completion: .finished)
                     }
-                default:
-                    observer.on(event)
                 }
             }
         }

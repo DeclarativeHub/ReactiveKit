@@ -106,12 +106,8 @@ extension DispatchQueue {
     /// Schedule given block for execution after given interval passes.
     /// Scheduled execution can be cancelled by disposing the returned disposable.
     public func disposableAfter(when interval: Double, block: @escaping () -> Void) -> Disposable {
-        let disposable = SimpleDisposable()
-        asyncAfter(deadline: .now() + interval) {
-            if !disposable.isDisposed {
-                block()
-            }
-        }
-        return disposable
+        let workItem = DispatchWorkItem(block: block)
+        asyncAfter(deadline: .now() + interval, execute: workItem)
+        return BlockDisposable(workItem.cancel)
     }
 }
