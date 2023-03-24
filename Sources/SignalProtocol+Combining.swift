@@ -143,18 +143,18 @@ extension SignalProtocol {
     /// Check out interactive example at [https://rxmarbles.com/#concat](https://rxmarbles.com/#concat)
     public func append<O: SignalProtocol>(_ other: O) -> Signal<Element, Error> where O.Element == Element, O.Error == Error {
         return Signal { observer in
-            let serialDisposable = SerialDisposable(otherDisposable: nil)
-            serialDisposable.otherDisposable = self.observe { event in
+            let disposable = CompositeDisposable()
+            disposable += self.observe { event in
                 switch event {
                 case .next(let element):
                     observer.receive(element)
                 case .failed(let error):
                     observer.receive(completion: .failure(error))
                 case .completed:
-                    serialDisposable.otherDisposable = other.observe(with: observer.on)
+                    disposable += other.observe(with: observer.on)
                 }
             }
-            return serialDisposable
+            return disposable
         }
     }
 
