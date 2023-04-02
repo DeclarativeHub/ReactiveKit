@@ -1148,7 +1148,7 @@ name.value = "Jim Kirk" // Prints: Hi Jim Kirk!
 
 Signals usually represent asynchronous actions, network calls for example. Any good app will display some kind of loading indicator to the user while the call is in progress and an error dialog when the call fails, probably with an option to retry. To facilitate those use cases, ReactiveKit provides `LoadingSignal` and `LoadingProperty` types.
 
-An action or a work can be in one of the three states: loading, loaded, loading failed. RectiveKit defines those states with the enum `LoadingState`:
+An action or a work can be in one of the three states: loading, loaded, loading failed. ReactiveKit defines those states with the enum `LoadingState`:
 
 ```swift
 /// Represents loading state of an asynchronous action.
@@ -1429,7 +1429,7 @@ let package = Package(
 
 ## Additional Documentation
 
-* [ReactiveKit Reference](http://cocoadocs.org/docsets/ReactiveKit) - Code reference on Cocoadocs.
+* [ReactiveKit Reference](http://cocoadocs.org/docsets/ReactiveKit) - Code reference on CocoaDocs.
 
 
 ## License
