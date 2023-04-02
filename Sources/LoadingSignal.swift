@@ -80,6 +80,26 @@ public enum LoadingState<LoadingValue, LoadingError: Error>: LoadingStateProtoco
     }
 }
 
+extension LoadingState: Equatable where LoadingValue: Equatable, LoadingError: Equatable {
+  public static func == (
+    lhs: LoadingState<LoadingValue, LoadingError>,
+    rhs: LoadingState<LoadingValue, LoadingError>) -> Bool {
+      switch (lhs, rhs) {
+      case let (.loaded(lhsValue), .loaded(rhsValue)):
+        return lhsValue == rhsValue
+
+      case let (.failed(lhsError), .failed(rhsError)):
+        return lhsError == rhsError
+
+      case (.loading, .loading):
+        return true
+
+      default:
+        return false
+      }
+    }
+}
+
 /// Loading state as observed by the observer. Just like LoadingState, but with `.reloading` case.
 /// To get observed loading state from a loading signal, apply `deriveObservedLoadingState()` operator.
 public protocol ObservedLoadingStateProtocol: LoadingStateProtocol {
