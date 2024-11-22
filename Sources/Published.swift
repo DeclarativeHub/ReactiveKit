@@ -11,12 +11,11 @@
 @propertyWrapper
 public struct Published<Value> {
     
-    private var value: Value
-    private var publisher: Publisher?
+    private let publisher: Publisher
     private let willChangeSubject = PassthroughSubject<Void, Never>()
 
     public init(wrappedValue: Value) {
-        value = wrappedValue
+        publisher = Publisher(wrappedValue)
     }
     
     /// A publisher for properties used with the `@Published` attribute.
@@ -24,36 +23,27 @@ public struct Published<Value> {
         public typealias Element = Value
         public typealias Error = Never
 
-        fileprivate let didChangeSubject: ReplayOneSubject<Value, Never>
+        fileprivate let property: Property<Value>
         
         public func observe(with observer: @escaping (Signal<Value, Never>.Event) -> Void) -> Disposable {
-            self.didChangeSubject.observe(with: observer)
+            self.property.observe(with: observer)
         }
         
         fileprivate init(_ output: Element) {
-            self.didChangeSubject = ReplayOneSubject()
-            self.didChangeSubject.send(output)
+            self.property = Property(output)
         }
     }
     
     public var wrappedValue: Value {
-        get { self.value }
-        set {
+        get { self.publisher.property.value }
+        nonmutating set {
             self.willChangeSubject.send()
-            self.value = newValue
-            self.publisher?.didChangeSubject.send(newValue)
+            self.publisher.property.value = newValue
         }
     }
     
     public var projectedValue: Publisher {
-        mutating get {
-            if let publisher = publisher {
-                return publisher
-            }
-            let publisher = Publisher(value)
-            self.publisher = publisher
-            return publisher
-        }
+        get { publisher }
     }
 }
 
