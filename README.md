@@ -1342,24 +1342,6 @@ All you have to provide to the operator is the signals and a closure that maps t
 
 ## Debugging
 
-### Timelane
-
-ReactiveKit has built-in support for the [Timelane](http://timelane.tools) Xcode Instrument. Just download the instrument and start using the `lane` operator to send the signal data to the Timelane Instrument.
-
-```swift
-mySignal
-  .filter { ... }
-  .lane("My Signal")
-  .map { ... }
-  .sink {
-    ... 
-  }
-```
-
-It's a one-liner!
-
-Note that `lane` is available only on macOS 10.14, iOS 12, tvOS 12, watchOS 5 or higher. If you are compiling for older system versions, you can use the `laneIfAvailable` operator for convenience, but keep in mind that event logging will then silently fail when testing on older system versions.
-
 ### Debug operator
 
 You can print signal events to the console be applying a `debug` operator.
