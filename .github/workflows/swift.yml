@@ -5,12 +5,9 @@ on: [push]
 jobs:
   linux:
     name: Test on Linux
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     container:
-      image: swift:${{ matrix.swift_version }}
-    strategy:
-      matrix:
-        swift_version: ["5.0", "5.1"]
+      image: swift:latest
     steps:
       - uses: actions/checkout@v1
       - name: Show verion
