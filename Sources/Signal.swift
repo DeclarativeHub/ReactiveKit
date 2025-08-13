@@ -238,9 +238,6 @@ extension Signal where Error == Swift.Error {
         }
     }
 }
-
-#if !XCFRAMEWORK
-
 extension Signal where Error == Never {
     
     /// Create a new signal by awaiting an async closure.
@@ -254,7 +251,12 @@ extension Signal where Error == Never {
             return BlockDisposable(task.cancel)
         }
     }
+}
 
+#if !XCFRAMEWORK
+
+extension Signal where Error == Never {
+    
     /// Create a new signal and assign its next element observer to the given variable.
     /// Calling the closure assigned to the varaible will send the next element on the signal.
     ///
