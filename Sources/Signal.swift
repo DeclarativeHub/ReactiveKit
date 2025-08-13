@@ -221,11 +221,39 @@ extension Signal where Error == Swift.Error {
     public init(catching body: @escaping () throws -> Element) {
         self = Signal(result: Result(catching: body))
     }
+    
+    /// Create a new signal by awaiting an async closure.
+    @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+    public init(await produce: @escaping () async throws -> Element) {
+        self.init { observer in
+            let task = Task {
+                do {
+                    let element = try await produce()
+                    observer.receive(lastElement: element)
+                } catch {
+                    observer.receive(completion: .failure(error))
+                }
+            }
+            return BlockDisposable(task.cancel)
+        }
+    }
 }
 
 #if !XCFRAMEWORK
 
 extension Signal where Error == Never {
+    
+    /// Create a new signal by awaiting an async closure.
+    @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+    public init(await produce: @escaping () async -> Element) {
+        self.init { observer in
+            let task = Task {
+                let element = await produce()
+                observer.receive(lastElement: element)
+            }
+            return BlockDisposable(task.cancel)
+        }
+    }
 
     /// Create a new signal and assign its next element observer to the given variable.
     /// Calling the closure assigned to the varaible will send the next element on the signal.
