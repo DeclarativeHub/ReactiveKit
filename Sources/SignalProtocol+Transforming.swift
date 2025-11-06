@@ -154,3 +154,14 @@ extension SignalProtocol {
         return scan(nil) { (pair, next) in (pair?.1, next) }.ignoreNils()
     }
 }
+
+extension SignalProtocol where Element == Void {
+
+    public func prepend() -> Signal<Void, Error> {
+        prepend(())
+    }
+
+    public func append() -> Signal<Void, Error> {
+        append(())
+    }
+}
