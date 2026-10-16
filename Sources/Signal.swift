@@ -219,7 +219,7 @@ extension Signal where Error == Swift.Error {
     ///
     /// - Parameter body: A throwing closure to evaluate.
     public init(catching body: @escaping () throws -> Element) {
-        self = Signal(result: Result(catching: body))
+        self = Signal(evaluating: { Result(catching: body) })
     }
     
     /// Create a new signal by awaiting an async closure.
