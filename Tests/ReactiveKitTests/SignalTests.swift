@@ -59,6 +59,50 @@ class SignalTests: XCTestCase {
         XCTAssertTrue(subscriber.isFinished)
     }
 
+    func testCatchingDefersWorkUntilEachObservation() {
+        var calls = 0
+        let publisher = Signal<Int, Swift.Error>(catching: {
+            calls += 1
+            return calls
+        })
+        XCTAssertEqual(calls, 0)
+
+        let first = Subscribers.Accumulator<Int, Swift.Error>()
+        publisher.subscribe(first)
+        XCTAssertEqual(first.values, [1])
+        XCTAssertTrue(first.isFinished)
+
+        let second = Subscribers.Accumulator<Int, Swift.Error>()
+        publisher.subscribe(second)
+        XCTAssertEqual(second.values, [2])
+        XCTAssertTrue(second.isFinished)
+        XCTAssertEqual(calls, 2)
+    }
+
+    func testCatchingPropagatesFailure() {
+        let publisher = Signal<Int, Swift.Error>(catching: { throw TestError.error })
+        let subscriber = Subscribers.Accumulator<Int, Swift.Error>()
+        publisher.subscribe(subscriber)
+        XCTAssertEqual(subscriber.values, [])
+        XCTAssertEqual(subscriber.error as? TestError, .error)
+    }
+
+    func testCatchingRetriesThrowingWork() {
+        var attempts = 0
+        let publisher = Signal<Int, Swift.Error>(catching: {
+            attempts += 1
+            if attempts == 1 {
+                throw TestError.error
+            }
+            return 42
+        })
+        let subscriber = Subscribers.Accumulator<Int, Swift.Error>()
+        publisher.retry(1).subscribe(subscriber)
+        XCTAssertEqual(subscriber.values, [42])
+        XCTAssertTrue(subscriber.isFinished)
+        XCTAssertEqual(attempts, 2)
+    }
+
     func testSequence() {
         let subscriber = Subscribers.Accumulator<Int, TestError>()
         let publisher = Signal<Int, TestError>(sequence: [1, 2, 3])
@@ -970,6 +1014,9 @@ extension SignalTests {
             ("testProductionAndObservation", testProductionAndObservation),
             ("testDisposing", testDisposing),
             ("testJust", testJust),
+            ("testCatchingDefersWorkUntilEachObservation", testCatchingDefersWorkUntilEachObservation),
+            ("testCatchingPropagatesFailure", testCatchingPropagatesFailure),
+            ("testCatchingRetriesThrowingWork", testCatchingRetriesThrowingWork),
             ("testSequence", testSequence),
             ("testCompleted", testCompleted),
             ("testNever", testNever),
